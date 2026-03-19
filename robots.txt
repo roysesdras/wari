@@ -1,0 +1,12 @@
+# Autoriser tous les moteurs de recherche
+User-agent: *
+
+# Ne pas indexer les pages privées et sensibles
+Disallow: /config/
+
+# Autoriser le contenu public
+Allow: /index.php
+Allow: /styles.css
+
+# Lien vers le sitemap
+Sitemap: https://wari.digiroys.com/sitemap.xml
