@@ -599,7 +599,8 @@ if (!isset($_SESSION['user_id'])) {
                 });
                 const time = now.toLocaleTimeString(navigator.language, {
                     hour: "2-digit",
-                    minute: "2-digit"
+                    minute: "2-digit",
+                    second: "2-digit"
                 });
 
                 el.innerText = `${day} — ${time}`;
