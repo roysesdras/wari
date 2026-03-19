@@ -25,7 +25,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=42">
+    <link rel="stylesheet" href="./assets/styles.css?v=43">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
@@ -425,10 +425,6 @@ if (!isset($_SESSION['user_id'])) {
         </div>
     </div>
 
-    <!-- Bouton Message WhatsApp -->
-    <?php // include 'bouton_whatssap.php'; 
-    ?>
-
     <!-- Bouton depense -->
     <button onclick="openExpenseModal()"
         class="fixed bottom-20 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-600 rounded-full flex items-center justify-center text-white active:scale-95 hover:scale-110 transition-all duration-300 z-50 group">
@@ -613,7 +609,7 @@ if (!isset($_SESSION['user_id'])) {
         startLiveClock();
     </script>
 
-    <script src="./assets/main.js?v=42"></script>
+    <script src="./assets/main.js?v=43"></script>
 </body>
 
 </html>

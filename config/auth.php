@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="../assets/styles.css?v=42">
+    <link rel="stylesheet" href="../assets/styles.css?v=43">
     <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#0f172a">
 
@@ -154,6 +154,10 @@
         </p>
     </div>
 
+    <!-- Bouton Message WhatsApp -->
+    <?php include '../bouton_whatssap.php';
+    ?>
+
     <script>
         function switchTab(type) {
             const loginForm = document.getElementById('form-login');
@@ -221,7 +225,7 @@
         });
     </script>
 
-    <script src="../assets/main.js?v=42"></script>
+    <script src="../assets/main.js?v=43"></script>
 </body>
 
 </html>
