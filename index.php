@@ -25,7 +25,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=41">
+    <link rel="stylesheet" href="./assets/styles.css?v=42">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
@@ -52,14 +52,13 @@ if (!isset($_SESSION['user_id'])) {
                 <span id="liveClock" class="text-[9px] font-bold tracking-tight mt-0.5 text-transparent bg-clip-text bg-gradient-to-r from-amber-400/80 to-yellow-600/60"></span>
             </div>
 
-            <!-- <a href="config/logout.php" class="group flex items-center gap-2 bg-slate-800/50 hover:bg-red-500/10 border border-slate-700/50 hover:border-red-500/30 p-3 rounded-xl transition-all duration-300">
-                <span class="text-[10px] font-bold text-slate-400 group-hover:text-red-400 uppercase tracking-widest transition-colors">Sortir</span>
-                <div class="w-4 h-4 rounded-lg bg-slate-900 flex items-center justify-center group-hover:bg-red-500/20 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500 group-hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                </div>
-            </a> -->
+            <!-- ✅ BOUTON HISTORIQUE -->
+            <button onclick="openHistoryModal()"
+                class="flex items-center justify-center rounded-2xl active:scale-95 transition-all duration-300 group">
+                <svg width="46" height="46" fill="currentColor" class="h-10 w-10 text-slate-500 group-hover:text-amber-400 transition-colors" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M4 12a9 9 0 1 1 9 9c-2.49 0-4.73-1.01-6.36-2.64l1.42-1.42A6.944 6.944 0 0 0 13 19c3.87 0 7-3.13 7-7s-3.13-7-7-7-7 3.13-7 7h3l-4 3.99L1 12h3Zm8 1V8h1.5v4.15l3.52 2.09-.77 1.28L12 13Z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
         </header>
 
         <!-- Section insertion du montant a repartire -->
@@ -242,7 +241,7 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Section Coach Intelligence Financière -->
-        <div id="reportSection" class="mt-4 glass-card p-3 border-t-2 border-yellow-500 shadow-2xl bg-gradient-to-b from-slate-800/50 to-transparent">
+        <div id="reportSection" class="mt-4 mb-4 glass-card p-3 border-t-2 border-yellow-500 shadow-2xl bg-gradient-to-b from-slate-800/50 to-transparent">
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h3 class="text-[10px] uppercase tracking-[0.2em] text-yellow-500 font-bold">📊 Intelligence Financière</h3>
@@ -335,7 +334,7 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Section Bouttons -->
-        <div class="fixed bottom-2 left-0 right-0 px-2 max-w-md mx-auto flex gap-3 z-[110]">
+        <div class="fixed bottom-2 left-0 right-0 max-w-md mx-auto flex gap-3 z-[110]">
 
             <!-- <a href="config/logout.php"
                 class="w-16 flex items-center justify-center bg-slate-900 border border-slate-700 rounded-2xl active:scale-95 transition-all duration-300 group">
@@ -344,17 +343,9 @@ if (!isset($_SESSION['user_id'])) {
                 </svg>
             </a> -->
 
-            <!-- ✅ BOUTON HISTORIQUE -->
-            <button onclick="openHistoryModal()"
-                class="w-16 flex items-center justify-center bg-slate-900 border border-slate-700 rounded-2xl active:scale-95 transition-all duration-300 group">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500 group-hover:text-amber-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </button>
-
             <!-- BOUTON SAUVEGARDE -->
             <button onclick="saveBudget()"
-                class="relative flex-1 overflow-hidden py-3 bg-slate-900 border border-slate-700 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] text-slate-300 active:scale-95 transition-all duration-300 group">
+                class="relative flex-1 overflow-hidden py-4 bg-slate-900 border border-slate-700 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] text-slate-300 active:scale-95 transition-all duration-300 group">
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div class="relative flex items-center justify-center gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 group-hover:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -386,14 +377,6 @@ if (!isset($_SESSION['user_id'])) {
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Lien de déconnexion discret -->
-    <div class="text-left">
-        <a href="config/logout.php"
-            class="text-[9px] text-slate-700 hover:text-slate-500 transition-colors uppercase tracking-widest">
-            Se déconnecter
-        </a>
     </div>
 
     <!-- MODAL OBJECTIF -->
@@ -448,7 +431,7 @@ if (!isset($_SESSION['user_id'])) {
 
     <!-- Bouton depense -->
     <button onclick="openExpenseModal()"
-        class="fixed bottom-20 right-6 w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-600 rounded-full shadow-[0_10px_25px_-5px_rgba(245,158,11,0.5)] flex items-center justify-center text-white active:scale-95 hover:scale-110 transition-all duration-300 z-50 group">
+        class="fixed bottom-20 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-600 rounded-full flex items-center justify-center text-white active:scale-95 hover:scale-110 transition-all duration-300 z-50 group">
 
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -629,7 +612,7 @@ if (!isset($_SESSION['user_id'])) {
         startLiveClock();
     </script>
 
-    <script src="./assets/main.js?v=41"></script>
+    <script src="./assets/main.js?v=42"></script>
 </body>
 
 </html>
