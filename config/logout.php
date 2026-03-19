@@ -1,10 +1,23 @@
 <?php
 session_start();
+require 'db.php';
 
-// 1. On vide les variables de session
+// ✅ Ici on supprime VRAIMENT le cookie — déconnexion volontaire
+if (isset($_COOKIE['wari_remember'])) {
+    $pdo->prepare("UPDATE wari_users SET remember_token = NULL, remember_expires = NULL WHERE remember_token = ?")
+        ->execute([$_COOKIE['wari_remember']]);
+
+    setcookie('wari_remember', '', [
+        'expires'  => time() - 3600,
+        'path'     => '/',
+        'secure'   => true,
+        'httponly' => true,
+        'samesite' => 'Strict',
+    ]);
+}
+
 $_SESSION = array();
 
-// 2. On détruit le cookie de session
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(
@@ -18,14 +31,10 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// 3. On détruit la session
 session_destroy();
 
-// 4. On ajoute des headers pour empêcher le retour arrière
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
-
-// 5. Redirection
 header("Location: auth.php");
 exit();

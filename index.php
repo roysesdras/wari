@@ -25,7 +25,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=40">
+    <link rel="stylesheet" href="./assets/styles.css?v=41">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
@@ -52,14 +52,14 @@ if (!isset($_SESSION['user_id'])) {
                 <span id="liveClock" class="text-[9px] font-bold tracking-tight mt-0.5 text-transparent bg-clip-text bg-gradient-to-r from-amber-400/80 to-yellow-600/60"></span>
             </div>
 
-            <a href="config/logout.php" class="group flex items-center gap-2 bg-slate-800/50 hover:bg-red-500/10 border border-slate-700/50 hover:border-red-500/30 p-3 rounded-xl transition-all duration-300">
-                <span class="text-[10px] font-bold text-slate-400 group-hover:text-red-400 uppercase tracking-widest transition-colors">Quitter</span>
+            <!-- <a href="config/logout.php" class="group flex items-center gap-2 bg-slate-800/50 hover:bg-red-500/10 border border-slate-700/50 hover:border-red-500/30 p-3 rounded-xl transition-all duration-300">
+                <span class="text-[10px] font-bold text-slate-400 group-hover:text-red-400 uppercase tracking-widest transition-colors">Sortir</span>
                 <div class="w-4 h-4 rounded-lg bg-slate-900 flex items-center justify-center group-hover:bg-red-500/20 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500 group-hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
                 </div>
-            </a>
+            </a> -->
         </header>
 
         <!-- Section insertion du montant a repartire -->
@@ -242,7 +242,7 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Section Coach Intelligence Financière -->
-        <div id="reportSection" class="mt-4 glass-card p-3 mb-20 border-t-2 border-yellow-500 shadow-2xl bg-gradient-to-b from-slate-800/50 to-transparent">
+        <div id="reportSection" class="mt-4 glass-card p-3 border-t-2 border-yellow-500 shadow-2xl bg-gradient-to-b from-slate-800/50 to-transparent">
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h3 class="text-[10px] uppercase tracking-[0.2em] text-yellow-500 font-bold">📊 Intelligence Financière</h3>
@@ -337,12 +337,12 @@ if (!isset($_SESSION['user_id'])) {
         <!-- Section Bouttons -->
         <div class="fixed bottom-2 left-0 right-0 px-2 max-w-md mx-auto flex gap-3 z-[110]">
 
-            <a href="config/logout.php"
+            <!-- <a href="config/logout.php"
                 class="w-16 flex items-center justify-center bg-slate-900 border border-slate-700 rounded-2xl active:scale-95 transition-all duration-300 group">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500 group-hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
-            </a>
+            </a> -->
 
             <!-- ✅ BOUTON HISTORIQUE -->
             <button onclick="openHistoryModal()"
@@ -386,6 +386,14 @@ if (!isset($_SESSION['user_id'])) {
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Lien de déconnexion discret -->
+    <div class="text-left">
+        <a href="config/logout.php"
+            class="text-[9px] text-slate-700 hover:text-slate-500 transition-colors uppercase tracking-widest">
+            Se déconnecter
+        </a>
     </div>
 
     <!-- MODAL OBJECTIF -->
@@ -435,7 +443,8 @@ if (!isset($_SESSION['user_id'])) {
     </div>
 
     <!-- Bouton Message WhatsApp -->
-    <?php // include 'bouton_whatssap.php'; ?>
+    <?php // include 'bouton_whatssap.php'; 
+    ?>
 
     <!-- Bouton depense -->
     <button onclick="openExpenseModal()"
@@ -620,7 +629,7 @@ if (!isset($_SESSION['user_id'])) {
         startLiveClock();
     </script>
 
-    <script src="./assets/main.js?v=40"></script>
+    <script src="./assets/main.js?v=41"></script>
 </body>
 
 </html>
