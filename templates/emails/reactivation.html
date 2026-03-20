@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ton Coach Wari t'attend</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #080b10;
+        color: #e8eaf0;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+      .logo {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 42px;
+        font-weight: 800;
+        color: #f5a623;
+      }
+      .card {
+        background: #0d1117;
+        border: 1px solid rgba(245, 166, 35, 0.3);
+        border-radius: 20px;
+        padding: 40px;
+      }
+      h1 {
+        color: #f5a623;
+        font-size: 28px;
+        margin-bottom: 20px;
+      }
+      p {
+        line-height: 1.8;
+        font-size: 16px;
+        color: #e8eaf0;
+      }
+      .stats {
+        background: #161b24;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 30px 0;
+        text-align: center;
+      }
+      .stats-number {
+        font-size: 48px;
+        font-weight: 800;
+        color: #f5a623;
+      }
+      .stats-label {
+        font-size: 14px;
+        color: #556070;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+      .button {
+        display: inline-block;
+        background: #f5a623;
+        color: #000;
+        padding: 18px 40px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 16px;
+        margin: 20px 0;
+      }
+      .iphone-box {
+        background: rgba(99, 179, 237, 0.1);
+        border: 1px solid rgba(99, 179, 237, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 30px;
+      }
+      .iphone-box h3 {
+        color: #63b3ed;
+        margin-top: 0;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 40px;
+        font-size: 12px;
+        color: #556070;
+      }
+      .footer a {
+        color: #f5a623;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">WARI</div>
+
+      <div class="card">
+        <h1>Tu as abandonné ton budget ? 💰</h1>
+
+        <p>
+          Ton Coach Wari t'attend depuis
+          <strong>{{DAYS_INACTIVE}} jours</strong>.
+        </p>
+
+        <div class="stats">
+          <div class="stats-number">{{STREAK_DAYS}}</div>
+          <div class="stats-label">jours de série perdue</div>
+        </div>
+
+        <p>
+          Reprends le contrôle de tes finances en 30 secondes. Une notification
+          par jour, c'est tout ce qu'il te faut pour rester discipliné.
+        </p>
+
+        <center>
+          <a href="{{REACTIVATE_URL}}" class="button">🔥 Reprendre ma série</a>
+        </center>
+
+        <div class="iphone-box">
+          <h3>📱 Utilisateur iPhone ?</h3>
+          <p>Les notifications Web Push fonctionnent sur iOS 16.4+ :</p>
+          <ol>
+            <li>Ouvre Safari et va sur <strong>wari.digiroys.com</strong></li>
+            <li>
+              Appuie sur <strong>Partager</strong> ➜
+              <strong>Sur l'écran d'accueil</strong>
+            </li>
+            <li>Lance l'app et accepte les notifications</li>
+          </ol>
+          <center>
+            <a href="{{IPHONE_GUIDE_URL}}" style="color: #63b3ed"
+              >Voir le guide complet</a
+            >
+          </center>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>Tu reçois cet email car tu es inscrit sur Wari Finance.</p>
+        <p>
+          <a href="{{UNSUBSCRIBE_URL}}">Se désinscrire</a> |
+          <a href="https://wari.digiroys.com">wari.digiroys.com</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

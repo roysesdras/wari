@@ -1,0 +1,29 @@
+# Bloque l'accès aux fichiers sensibles
+
+<FilesMatch "^\.">
+Order allow,deny
+Deny from all
+</FilesMatch>
+
+<FilesMatch "(^#.\*#|\.(bak|config|dist|fla|inc|ini|log|psd|sh|sql|sw[op])|~)$">
+Order allow,deny
+Deny from all
+</FilesMatch>
+
+# Protection .env spécifique
+
+<Files ".env">
+Order allow,deny
+Deny from all
+</Files>
+
+# Protection audit.log
+
+<Files "audit.log">
+Order allow,deny
+Deny from all
+</Files>
+
+# Désactive l'affichage des erreurs PHP dans le navigateur
+
+php_flag display_errors off
