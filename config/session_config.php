@@ -1,5 +1,10 @@
 <?php
 // Configuration session pour 90 jours comme WhatsApp
+$sessionPath = __DIR__ . '/sessions_data';
+if (!is_dir($sessionPath)) {
+    mkdir($sessionPath, 0700, true);
+}
+ini_set('session.save_path', $sessionPath); // Stockage dédié
 ini_set('session.gc_maxlifetime', 90 * 24 * 3600); // 90 jours en secondes
 ini_set('session.cookie_lifetime', 90 * 24 * 3600); // 90 jours
 ini_set('session.cookie_httponly', 1);

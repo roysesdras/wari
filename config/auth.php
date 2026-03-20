@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="../assets/styles.css?v=43">
+    <link rel="stylesheet" href="../assets/styles.css?v=44">
     <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#0f172a">
 
@@ -225,7 +225,7 @@
         });
     </script>
 
-    <script src="../assets/main.js?v=43"></script>
+    <script src="../assets/main.js?v=44"></script>
 </body>
 
 </html>

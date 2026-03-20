@@ -132,9 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id']    = $user['id'];
             $_SESSION['user_email'] = $user['email'];
 
-            // ✅ Remember me — cookie 30 jours
+            // ✅ Remember me — cookie 90 jours
             $token   = bin2hex(random_bytes(32));
-            $expires = date('Y-m-d H:i:s', strtotime('+30 days'));
+            $expires = date('Y-m-d H:i:s', strtotime('+90 days'));
 
             $pdo->prepare("UPDATE wari_users SET remember_token = ?, remember_expires = ? WHERE id = ?")
                 ->execute([$token, $expires, $user['id']]);

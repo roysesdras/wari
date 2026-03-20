@@ -1,4 +1,4 @@
-const cacheName = "wari-v43"; // On passe de v16 à v17
+const cacheName = "wari-v44"; // On passe de v16 à v17
 // Fichiers statiques uniquement — NE PAS mettre en cache les pages d'auth/API
 const assets = [
   "./manifest.json",
