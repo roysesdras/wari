@@ -1,10 +1,18 @@
 <?php
-session_start();
+// Configuration session 90 jours avant tout output
+require 'session_config.php'; // Charge la config 90 jours
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    session_unset();
-    session_destroy();
-    session_start();
+// Ne nettoyer la session que pour login/register, pas pour toutes les requêtes POST
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST' &&
+    isset($_POST['action']) &&
+    in_array($_POST['action'], ['login', 'register'])
+) {
+
+    // Nettoyer uniquement les données d'authentification
+    unset($_SESSION['user_id']);
+    unset($_SESSION['user_email']);
+    session_regenerate_id(true); // Sécurité: nouvel ID de session
 }
 
 require 'db.php';
@@ -34,8 +42,13 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['wari_remember'])) {
             // ✅ Connexion automatique
             $_SESSION['user_id']    = $user['id'];
             $_SESSION['user_email'] = $user['email'];
+            $_SESSION['login_time'] = time(); // Pour tracker
+            $_SESSION['last_activity'] = time(); // Pour prolonger
 
-            // ✅ On renouvelle le cookie pour 30 jours supplémentaires
+            // ✅ Prolonger la session PHP aussi
+            setcookie(session_name(), session_id(), time() + (90 * 24 * 3600), '/', '', true, true);
+
+            // ✅ On renouvelle le cookie pour 90 jours supplémentaires
             $newToken = bin2hex(random_bytes(32));
             $expires  = date('Y-m-d H:i:s', strtotime('+90 days'));
 
