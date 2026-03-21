@@ -494,7 +494,17 @@ $avatar_colors = [
     /* ── RESPONSIVE carousel ───────────────────────── */
     @media (max-width: 767px) {
         .avis-card {
-            flex: 0 0 calc(85% - .5rem);
+            /* 88% permet de voir un bout de la carte suivante, 
+               ce qui est plus intuitif sur smartphone */
+            flex: 0 0 88%;
+            margin-right: 10px;
+            padding: 1.2rem;
+            /* Un peu moins de padding pour gagner de la place */
+        }
+
+        .avis-text {
+            font-size: 0.88rem;
+            /* Texte légèrement plus petit pour tout lire sans scroller */
         }
     }
 
@@ -578,40 +588,62 @@ $avatar_colors = [
 
         /* ── Autoplay toutes les 5s ── */
         function autoPlay() {
+            clearInterval(autoTimer); // Sécurité pour éviter les doubles timers
             autoTimer = setInterval(function() {
-                var next = pos + perPage;
-                goTo(next >= total ? 0 : next);
+                var next = pos + 1; // On avance de 1 en 1 pour plus de douceur
+                if (next > total - perPage) {
+                    goTo(0);
+                } else {
+                    goTo(next);
+                }
             }, 5000);
         }
 
-        function resetAuto() {
+        function stopAuto() {
             clearInterval(autoTimer);
-            autoPlay();
         }
 
-        /* ── Pause au survol ── */
+
+        /* ── Pause au survol et au TOUCH ── */
         var outer = document.getElementById('carousel-outer');
         if (outer) {
-            outer.addEventListener('mouseenter', function() {
-                clearInterval(autoTimer);
-            });
+            // Sur desktop
+            outer.addEventListener('mouseenter', stopAuto);
             outer.addEventListener('mouseleave', autoPlay);
+
+            // Sur Mobile : Si on touche, on arrête l'auto-défilement 
+            // pour laisser le temps de lire.
+            outer.addEventListener('touchstart', stopAuto, {
+                passive: true
+            });
         }
 
-        /* ── Touch/swipe ── */
+        /* ── Touch/swipe fluide ── */
         var touchStartX = 0;
+        var touchEndX = 0;
+
         track.addEventListener('touchstart', function(e) {
-            touchStartX = e.touches[0].clientX;
-            clearInterval(autoTimer);
+            touchStartX = e.changedTouches[0].clientX;
+            stopAuto();
         }, {
             passive: true
         });
+
         track.addEventListener('touchend', function(e) {
-            var diff = touchStartX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 40) {
-                goTo(diff > 0 ? pos + 1 : pos - 1);
+            touchEndX = e.changedTouches[0].clientX;
+            var diff = touchStartX - touchEndX;
+
+            // Seuil de 50px pour déclencher le mouvement
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    goTo(pos + 1); // Swipe gauche -> suivant
+                } else {
+                    goTo(pos - 1); // Swipe droite -> précédent
+                }
             }
-            autoPlay();
+            // On ne relance l'auto que si l'utilisateur ne touche plus l'écran
+            // Optionnel : on peut choisir de NE PAS relancer après un touch pour laisser lire
+            // autoPlay(); 
         }, {
             passive: true
         });

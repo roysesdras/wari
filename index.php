@@ -20,9 +20,18 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wari - Finance</title>
+    <title>Wari-Finance | Gestion Budget & Objectifs Financiers</title>
+    <meta name="description" content="Avec Wari, chaque franc a un rôle. Planifie, contrôle et fais grandir ton argent directement depuis ton téléphone.">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Wari-Finance - Gère ton argent sans stress">
+    <meta property="og:description" content="Budget, objectifs, conseils simples pour maîtriser tes finances au quotidien. Application gratuite.">
+    <meta property="og:url" content="https://wari.digiroys.com/accueil/">
+    <meta property="og:image" content="https://wari.digiroys.com/assets/wari_og_1.png">
+    <meta property="og:locale" content="fr_FR">
 
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">

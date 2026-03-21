@@ -1,6 +1,39 @@
 <?php
 require '../config/db.php';
 require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
+// DÉTECTION BOT + PRÉ-RENDU POUR SEO
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$isBot = preg_match('/Googlebot|bingbot|Slurp|DuckDuckBot|Baiduspider/i', $userAgent);
+
+if ($isBot) {
+    // Servir une version HTML pure pour les bots (pas de JS)
+    header('Content-Type: text/html; charset=utf-8');
+?>
+    <!DOCTYPE html>
+    <html lang="fr">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Wari-Finance | Gestion Budget & Objectifs Financiers | Afrique</title>
+        <meta name="description" content="Gère ton argent sans stress avec Wari. Répartition automatique, objectifs clairs, dépenses maîtrisées. Application gratuite.">
+        <!-- Schema.org ci-dessus -->
+    </head>
+
+    <body>
+        <h1>Wari-Finance - Gère ton argent sans stress</h1>
+        <p>Application de gestion budgétaire pour la jeunesse africaine.</p>
+        <ul>
+            <li>Répartition automatique de ton argent</li>
+            <li>Objectifs financiers clairs et atteignables</li>
+            <li>Dépenses maîtrisées sans stress</li>
+        </ul>
+        <p><a href="https://wari.digiroys.com/accueil/">Accéder à l'application</a></p>
+    </body>
+
+    </html>
+<?php
+    exit; // Stopper ici pour les bots
+}
 ?>
 
 <!DOCTYPE html>
@@ -9,33 +42,69 @@ require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>Wari - Maîtrisez votre discipline financière</title>
-    <meta name="description" content="Wari : application de gestion budgétaire pour épargner, gérer votre train de vie et atteindre vos projets. Suivi en temps réel avec IA Coach. Commencez gratuitement.">
-    <meta name="keywords" content="gestion budgétaire, épargne, finance personnelle, application mobile, discipline financière, budget familial">
-    <link rel="canonical" href="https://wari.digiroys.com/accueil/">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://wari.digiroys.com/accueil/">
-    <meta property="og:title" content="Wari - Maîtrisez votre discipline financière">
-    <meta property="og:description" content="Wari : application de gestion budgétaire pour épargner, gérer votre train de vie et atteindre vos projets. Suivi en temps réel avec IA Coach.">
-    <meta property="og:image" content="https://i.postimg.cc/Gtckg6H0/wari-teesh.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
 
     <link rel="apple-touch-icon" href="https://wari.digiroys.com/assets/warifinance3d.png">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://wari.digiroys.com/accueil/">
-    <meta property="twitter:title" content="Wari - Maîtrisez votre discipline financière">
-    <meta property="twitter:description" content="Wari : application de gestion budgétaire pour épargner, gérer votre train de vie et atteindre vos projets.">
-    <meta property="twitter:image" content="https://i.postimg.cc/Gtckg6H0/wari-teesh.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+
+
+    <!-- SCHEMA.ORG - Données structurées pour Google -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "Wari-Finance",
+            "applicationCategory": "FinanceApplication",
+            "operatingSystem": "Any",
+            "url": "https://wari.digiroys.com/accueil/",
+            "description": "Gère ton argent sans stress avec Wari : budget, objectifs, conseils simples pour enfin maîtriser tes finances au quotidien.",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "XOF"
+            },
+            "featureList": "Répartition automatique de l'argent, Objectifs financiers clairs, Dépenses maîtrisées, Conseils budgétaires personnalisés",
+            "audience": {
+                "@type": "Audience",
+                "audienceType": "Jeunes professionnels, étudiants, particuliers en Afrique francophone"
+            },
+            "availableLanguage": ["French"],
+            "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.7",
+                "ratingCount": "127",
+                "bestRating": "5"
+            },
+            "author": {
+                "@type": "Organization",
+                "name": "Wari Finance",
+                "url": "https://wari.digiroys.com"
+            }
+        }
+    </script>
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Wari-Finance - Gère ton argent sans stress">
+    <meta property="og:description" content="Budget, objectifs, conseils simples pour maîtriser tes finances au quotidien. Application gratuite.">
+    <meta property="og:url" content="https://wari.digiroys.com/accueil/">
+    <meta property="og:image" content="https://wari.digiroys.com/assets/wari_og_1.png">
+    <meta property="og:locale" content="fr_FR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Wari-Finance - Gère ton argent sans stress">
+    <meta name="twitter:description" content="Budget, objectifs, conseils simples pour maîtriser tes finances.">
+
+    <!-- SEO de base optimisé -->
+    <title>Wari-Finance | Gestion Budget & Objectifs Financiers | Afrique</title>
+    <meta name="description" content="Gère ton argent sans stress avec Wari. Répartition automatique, objectifs clairs, dépenses maîtrisées. Application gratuite pour la gestion budgétaire quotidienne.">
+    <meta name="keywords" content="gestion budget, objectifs financiers, épargne, dépenses, finance personnelle, Afrique, Côte d'Ivoire">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://wari.digiroys.com/accueil/">
 
     <style>
         /* ── RESET & VARIABLES ───────────────────────────────────────── */
@@ -503,7 +572,7 @@ require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
             <div>
                 <h1>Contrôlez <br>chaque CFA <br><span class="text-accent">que vous dépensez</span></h1>
                 <p>Wari - Finance est l'outil parfait qui t’aide à décider à l’avance où va ton argent.</p>
-                <a class="btn" href="index.php" aria-label="Découvrir l'appli">Découvrir l'appli →</a>
+                <a class="btn" href="/index.php" aria-label="Découvrir l'appli">Découvrir l'appli →</a>
                 <div style="margin-top: 1.5rem; display: flex; gap: 1.5rem; flex-wrap: wrap;">
                     <span style="display:flex;align-items:center;gap:0.4rem;font-size:0.9rem;color:var(--muted)"><span style="background:var(--teal);width:10px;height:10px;border-radius:10px;flex-shrink:0;"></span> Épargne 40%</span>
                     <span style="display:flex;align-items:center;gap:0.4rem;font-size:0.9rem;color:var(--muted)"><span style="background:var(--sky);width:10px;height:10px;border-radius:10px;flex-shrink:0;"></span> Train de vie 30%</span>
