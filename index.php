@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 // Configuration session 90 jours avant tout output
 require 'config/session_config.php'; // Charge la config 90 jours
 header("Cache-Control: no-cache, no-store, must-revalidate");
@@ -335,25 +336,14 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Section Bouttons -->
-        <div class="fixed bottom-2 left-0 right-0 max-w-md mx-auto flex gap-3 z-[110]">
-
-            <!-- <a href="config/logout.php"
-                class="w-16 flex items-center justify-center bg-slate-900 border border-slate-700 rounded-2xl active:scale-95 transition-all duration-300 group">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500 group-hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-            </a> -->
-
-            <!-- BOUTON SAUVEGARDE -->
+        <div class="fixed bottom-4 left-0 right-0 max-w-md mx-auto flex justify-center z-[110]">
+            <!-- BOUTON SAUVEGARDE COURT -->
             <button onclick="saveBudget()"
-                class="relative flex-1 overflow-hidden py-4 bg-slate-900 border border-slate-700 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] text-slate-300 active:scale-95 transition-all duration-300 group">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div class="relative flex items-center justify-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400 group-hover:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    <span class="group-hover:text-white">Mettre à jour</span>
-                </div>
+                class="px-6 py-3 bg-slate-900 border border-slate-700 rounded-full font-bold text-xs uppercase tracking-wider text-slate-300 active:scale-95 transition-all hover:border-blue-500 hover:text-blue-400 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Mettre a jour</span>
             </button>
         </div>
 

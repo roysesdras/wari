@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 // Configuration session pour 90 jours comme WhatsApp
 
 // ⛔ ÉVITER les inclusions multiples

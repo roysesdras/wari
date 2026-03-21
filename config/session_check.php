@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 // config/session_check.php
 if (!isset($pdo)) require 'db.php';
 

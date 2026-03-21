@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 // ── Charger les avis depuis la DB ──────────────────────────────────────────
 // (supposé inclus après require 'connexion.php' qui définit $pdo)
 

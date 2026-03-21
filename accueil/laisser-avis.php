@@ -1,5 +1,6 @@
 <?php
 require '../config/db.php'; // Ton fichier de connexion PDO
+require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 
 /* ──────────────────────────────────────────────────────────────────
    TRAITEMENT DU FORMULAIRE

@@ -4,6 +4,7 @@ require 'session_config.php'; // ← en premier, configure ET démarre la sessio
 require 'db.php';
 require 'session_check.php'; // ← vérifie le cookie si session expirée
 require 'no_cache.php';
+require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false]);

@@ -5,6 +5,8 @@ require 'session_config.php';
 require 'db.php';
 require 'no_cache.php';
 require 'session_check.php'; // ← ajout
+require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
+
 
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false]);

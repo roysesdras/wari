@@ -4,6 +4,7 @@ ob_start();
 error_reporting(0);
 ini_set('display_errors', 0);
 // Configuration session 90 jours avant tout output
+require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 require 'session_config.php'; // Charge la config 90 jours
 
 // Ne nettoyer la session que pour login/register, pas pour toutes les requêtes POST
@@ -21,6 +22,55 @@ if (
 
 require 'db.php';
 require 'no_cache.php';
+
+// ============================================
+// FONCTIONS DE DÉTECTION BRUTE FORCE
+// ============================================
+
+/**
+ * Vérifie si une IP est temporairement bloquée
+ */
+function isIpBlocked($pdo, $ip)
+{
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) FROM wari_audit 
+        WHERE action = 'LOGIN_FAILED' 
+        AND ip = ? 
+        AND time > DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+    ");
+    $stmt->execute([$ip]);
+    return $stmt->fetchColumn() >= 5; // Bloque après 5 échecs en 10 min
+}
+
+/**
+ * Enregistre une tentative dans l'audit
+ */
+function logAuthAttempt($pdo, $action, $email = null, $userId = null, $details = null)
+{
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+
+    $stmt = $pdo->prepare("
+        INSERT INTO wari_audit (action, user_id, email, ip, user_agent, details) 
+        VALUES (?, ?, ?, ?, ?, ?)
+    ");
+    $stmt->execute([$action, $userId, $email, $ip, substr($userAgent, 0, 255), $details]);
+}
+
+/**
+ * Compte les échecs récents pour une IP
+ */
+function countRecentFails($pdo, $ip)
+{
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) FROM wari_audit 
+        WHERE action = 'LOGIN_FAILED' 
+        AND ip = ? 
+        AND time > DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+    ");
+    $stmt->execute([$ip]);
+    return $stmt->fetchColumn();
+}
 
 // ─── VÉRIFICATION DU COOKIE "REMEMBER ME" AU CHARGEMENT ──────────────────────
 // Si l'utilisateur a un cookie valide, on le connecte automatiquement
@@ -116,7 +166,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // ── CONNEXION ─────────────────────────────────────────────────────────────
+    // ── CONNEXION ─────────────────────────────────────────────────────────────
     elseif ($action === 'login') {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
+        // 🔴 VÉRIFICATION : IP bloquée ?
+        if (isIpBlocked($pdo, $ip)) {
+            wari_alert("🚫 IP BLOQUÉE - Tentative depuis IP: $ip sur email: $email (trop d'échecs)", 'SECURITY');
+            die("Trop de tentatives. Réessayez dans 10 minutes.");
+        }
+
         $stmt = $pdo->prepare("SELECT * FROM wari_users WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
@@ -129,12 +188,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $licence = $stmtLic->fetch();
 
             if ($licence && $licence['statut'] === 'suspendu') {
+                logAuthAttempt($pdo, 'LOGIN_FAILED_SUSPENDED', $email, $user['id'], 'Compte suspendu');
+                wari_alert("🔒 TENTATIVE SUR COMPTE SUSPENDU - User: {$user['email']} (ID: {$user['id']}) depuis IP: $ip", 'SECURITY');
                 die("Accès suspendu. Contactez l'administrateur.");
             }
 
-            // ✅ Session
+            // ✅ CONNEXION RÉUSSIE
             $_SESSION['user_id']    = $user['id'];
             $_SESSION['user_email'] = $user['email'];
+
+            logAuthAttempt($pdo, 'LOGIN_SUCCESS', $email, $user['id'], 'Connexion normale');
+
+            // 🔐 Alerte si connexion après échecs récents
+            $recentFails = countRecentFails($pdo, $ip);
+            if ($recentFails > 0) {
+                wari_alert("✅ CONNEXION APRÈS ÉCHECS - User: {$user['email']} a réussi après $recentFails échec(s) récent(s) depuis IP: $ip", 'SECURITY');
+            }
 
             // ✅ Remember me — cookie 90 jours
             $token   = bin2hex(random_bytes(32));
@@ -154,6 +223,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: ../index.php');
             exit();
         } else {
+            // 🔴 ÉCHEC DE CONNEXION
+            logAuthAttempt($pdo, 'LOGIN_FAILED', $email, null, 'Mot de passe incorrect');
+
+            $recentFails = countRecentFails($pdo, $ip);
+
+            // Alerte progressive
+            if ($recentFails == 3) {
+                wari_alert("⚠️ TENTATIVES SUSPECTES - 3 échecs depuis IP: $ip sur email: $email", 'SECURITY');
+            } elseif ($recentFails == 5) {
+                wari_alert("🚨 BRUTE FORCE DÉTECTÉ - 5 échecs depuis IP: $ip - BLOCAGE ACTIVÉ", 'SECURITY');
+            }
+
             die("Identifiants incorrects.");
         }
     }
