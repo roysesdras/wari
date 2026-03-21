@@ -1,6 +1,9 @@
 <?php
-require_once 'db.php'; // Ton fichier de connexion PDO
 session_start();
+require 'session_config.php';
+require 'db.php';
+require 'no_cache.php';
+require 'session_check.php'; // ← ajout // Ton fichier de connexion PDO
 
 if (!isset($_SESSION['user_id'])) {
     exit(json_encode(['success' => false, 'message' => 'Non connecté']));

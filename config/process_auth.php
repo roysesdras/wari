@@ -1,4 +1,8 @@
 <?php
+// ← Ces deux lignes EN PREMIER, avant tout
+ob_start();
+error_reporting(0);
+ini_set('display_errors', 0);
 // Configuration session 90 jours avant tout output
 require 'session_config.php'; // Charge la config 90 jours
 

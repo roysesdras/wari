@@ -19,8 +19,21 @@ let vaultTransactions = []; // À ajouter dans ton loadBudget plus tard
 const mainInput = document.getElementById("mainAmount");
 const container = document.getElementById("categoryContainer");
 
+// Vérifier si nous sommes sur la bonne page avant d'exécuter le code
+if (!mainInput || !container) {
+  console.log("Wari-Finance: Éléments principaux non trouvés - arrêt du script");
+  // Arrêter l'exécution du script si nous ne sommes pas sur la page principale
+  return;
+}
+
 // 3. Fonction principale (Calculs + UI)
 function render() {
+  // Vérification de sécurité supplémentaire
+  if (!mainInput) {
+    console.warn("Wari-Finance: mainInput non disponible");
+    return;
+  }
+  
   const rawValue = mainInput.value.trim();
   const total = parseFloat(rawValue) || 0;
 

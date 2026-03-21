@@ -150,16 +150,23 @@ if (isset($_GET['action'])) {
                 jsonResponse(true, ['user' => $user]);
 
             case 'get_stats':
-                $stats = [
-                    'total_users'    => $pdo->query("SELECT COUNT(*) FROM wari_users")->fetchColumn(),
-                    'active_today'   => $pdo->query("SELECT COUNT(*) FROM wari_users WHERE DATE(last_budget_at) = CURDATE()")->fetchColumn(),
-                    'active_week'    => $pdo->query("SELECT COUNT(*) FROM wari_users WHERE last_budget_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)")->fetchColumn(),
-                    'total_expenses' => $pdo->query("SELECT COALESCE(SUM(amount),0) FROM wari_expenses")->fetchColumn(),
-                    'total_capital'  => $pdo->query("SELECT COALESCE(SUM(project_capital),0) FROM wari_users")->fetchColumn(),
-                    'licences_dispo' => $pdo->query("SELECT COUNT(*) FROM wari_licences WHERE statut='disponible'")->fetchColumn(),
-                    'licences_total' => $pdo->query("SELECT COUNT(*) FROM wari_licences")->fetchColumn(),
-                ];
-                jsonResponse(true, ['stats' => $stats]);
+                try {
+                    $stats = [
+                        'total_users'    => $pdo->query("SELECT COUNT(*) FROM wari_users")->fetchColumn(),
+                        'active_today'   => $pdo->query("SELECT COUNT(*) FROM wari_users WHERE DATE(last_budget_at) = CURDATE()")->fetchColumn(),
+                        'active_week'    => $pdo->query("SELECT COUNT(*) FROM wari_users WHERE last_budget_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)")->fetchColumn(),
+                        'total_expenses' => $pdo->query("SELECT COALESCE(SUM(amount),0) FROM wari_expenses")->fetchColumn(),
+                        'total_capital'  => $pdo->query("SELECT COALESCE(SUM(project_capital),0) FROM wari_users")->fetchColumn(),
+                        'licences_dispo' => $pdo->query("SELECT COUNT(*) FROM wari_licences WHERE statut='disponible'")->fetchColumn(),
+                        'licences_total' => $pdo->query("SELECT COUNT(*) FROM wari_licences")->fetchColumn(),
+                        // REMPLACÉ : Push subscribers au lieu de sessions actives
+                        'push_subscribers' => $pdo->query("SELECT COUNT(DISTINCT user_id) FROM wari_subscriptions")->fetchColumn(),
+                    ];
+                    jsonResponse(true, ['stats' => $stats]);
+                } catch (Exception $e) {
+                    error_log('get_stats error: ' . $e->getMessage());
+                    jsonResponse(false, ['msg' => 'Erreur base de données'], 500);
+                }
 
             case 'get_licences':
                 $licences = $pdo->query("SELECT l.*, u.email FROM wari_licences l
@@ -180,8 +187,13 @@ if (isset($_GET['action'])) {
                 jsonResponse(true, ['code' => $code]);
 
             case 'push_all':
-                $message = cleanInput(urldecode($_GET['message'] ?? ''), 500);
-                $url = filter_var(urldecode($_GET['url'] ?? ''), FILTER_VALIDATE_URL) ?: 'https://wari.digiroys.com';
+                // Récupération et nettoyage du message (sans double encodage)
+                $message = isset($_GET['message']) ? trim($_GET['message']) : '';
+                $message = strip_tags($message); // Retire les balises HTML
+                $message = mb_substr($message, 0, 500); // Limite à 500 caractères UTF-8
+
+                // URL avec validation
+                $url = filter_var($_GET['url'] ?? '', FILTER_VALIDATE_URL) ?: 'https://wari.digiroys.com';
 
                 if (empty($message)) {
                     jsonResponse(false, ['msg' => 'Message vide'], 400);
@@ -189,15 +201,26 @@ if (isset($_GET['action'])) {
 
                 $webPush = new WebPush(VAPID_CONFIG);
 
-                $subs = $pdo->query("SELECT endpoint, p256dh, auth FROM wari_subscriptions")
+                // Récupérer les abonnements avec info utilisateur pour le compteur
+                $subs = $pdo->query("SELECT s.endpoint, s.p256dh, s.auth, s.user_id, u.email 
+                    FROM wari_subscriptions s
+                    LEFT JOIN wari_users u ON u.id = s.user_id")
                     ->fetchAll(PDO::FETCH_ASSOC);
 
+                // Payload JSON avec accents préservés
                 $payload = json_encode([
                     'title' => 'Wari Finance',
                     'body'  => $message,
                     'icon'  => 'https://i.postimg.cc/NFhtHvBK/wari-logos-sfnd.png',
                     'url'   => $url,
-                ], JSON_UNESCAPED_UNICODE);
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+                // Tableau pour tracker les résultats par utilisateur
+                $results = [
+                    'success' => [],
+                    'expired' => [],
+                    'failed' => []
+                ];
 
                 foreach ($subs as $sub) {
                     $webPush->queueNotification(
@@ -209,18 +232,58 @@ if (isset($_GET['action'])) {
                     );
                 }
 
-                $sent = 0;
+                $index = 0;
                 foreach ($webPush->flush() as $report) {
-                    if ($report->isSuccess()) $sent++;
+                    $userEmail = $subs[$index]['email'] ?? 'Inconnu';
+                    $userId = $subs[$index]['user_id'] ?? 0;
+
+                    if ($report->isSuccess()) {
+                        $results['success'][] = ['email' => $userEmail, 'user_id' => $userId];
+                    } elseif ($report->isSubscriptionExpired()) {
+                        $results['expired'][] = ['email' => $userEmail, 'user_id' => $userId];
+                        // Supprimer l'abonnement expiré
+                        $pdo->prepare("DELETE FROM wari_subscriptions WHERE endpoint = ?")
+                            ->execute([$subs[$index]['endpoint']]);
+                    } else {
+                        $results['failed'][] = [
+                            'email' => $userEmail,
+                            'user_id' => $userId,
+                            'reason' => $report->getReason()
+                        ];
+                    }
+                    $index++;
                 }
 
+                $sent = count($results['success']);
+                $expired = count($results['expired']);
+                $failed = count($results['failed']);
+                $total = count($subs);
+
                 auditLog('PUSH_ALL', [
-                    'recipients' => count($subs),
+                    'recipients' => $total,
                     'sent' => $sent,
-                    'admin' => $adminId
+                    'expired' => $expired,
+                    'failed' => $failed,
+                    'admin' => $adminId,
+                    'message_preview' => mb_substr($message, 0, 50)
                 ]);
 
-                jsonResponse(true, ['msg' => "Envoyé à {$sent} / " . count($subs) . " abonné(s)"]);
+                // Message détaillé avec compteur
+                $msgDetail = "📊 Résultat du push :\n";
+                $msgDetail .= "✅ Reçus : {$sent}/{$total}\n";
+                if ($expired > 0) $msgDetail .= "💀 Expirés : {$expired}\n";
+                if ($failed > 0) $msgDetail .= "❌ Échecs : {$failed}";
+
+                jsonResponse(true, [
+                    'msg' => $msgDetail,
+                    'details' => $results,
+                    'stats' => [
+                        'total' => $total,
+                        'success' => $sent,
+                        'expired' => $expired,
+                        'failed' => $failed
+                    ]
+                ]);
 
             case 'export_csv':
                 header('Content-Type: text/csv; charset=utf-8');
@@ -291,6 +354,8 @@ if ($_SESSION['is_admin'] ?? false) {
     ")->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -299,9 +364,8 @@ if ($_SESSION['is_admin'] ?? false) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
     <title>WARI — Admin Console (Sécurisé)</title>
-    <!-- ... [le CSS reste identique à ton original] ... -->
     <style>
-        /* Copie-colle ton CSS ici - inchangé */
+        /* [Votre CSS inchangé] */
         :root {
             --gold: #F5A623;
             --gold-dim: rgba(245, 166, 35, 0.12);
@@ -345,7 +409,6 @@ if ($_SESSION['is_admin'] ?? false) {
             z-index: 0;
         }
 
-        /* LOGIN */
         .login-wrap {
             min-height: 100vh;
             display: flex;
@@ -431,7 +494,6 @@ if ($_SESSION['is_admin'] ?? false) {
             margin-bottom: 14px;
         }
 
-        /* LAYOUT */
         .admin-wrap {
             position: relative;
             z-index: 1;
@@ -521,7 +583,6 @@ if ($_SESSION['is_admin'] ?? false) {
             margin: 0 auto;
         }
 
-        /* STATS */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -574,7 +635,10 @@ if ($_SESSION['is_admin'] ?? false) {
             color: var(--orange);
         }
 
-        /* SECTION */
+        .stat-value.purple {
+            color: #9F7AEA;
+        }
+
         .section-header {
             display: flex;
             align-items: center;
@@ -597,7 +661,6 @@ if ($_SESSION['is_admin'] ?? false) {
             align-items: center;
         }
 
-        /* TABLE */
         .table-wrap {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -685,7 +748,6 @@ if ($_SESSION['is_admin'] ?? false) {
             line-height: 1.6;
         }
 
-        /* ACTIONS */
         .actions-wrap {
             display: flex;
             gap: 5px;
@@ -753,7 +815,6 @@ if ($_SESSION['is_admin'] ?? false) {
             background: rgba(237, 137, 54, 0.22);
         }
 
-        /* LICENCES */
         .licences-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -819,7 +880,6 @@ if ($_SESSION['is_admin'] ?? false) {
             color: var(--red);
         }
 
-        /* MODALS */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -915,7 +975,6 @@ if ($_SESSION['is_admin'] ?? false) {
             background: #ffbe3d;
         }
 
-        /* DETAIL */
         .detail-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -979,7 +1038,6 @@ if ($_SESSION['is_admin'] ?? false) {
             color: var(--muted);
         }
 
-        /* CONFIRM */
         #confirmModal {
             display: none;
             position: fixed;
@@ -1053,7 +1111,6 @@ if ($_SESSION['is_admin'] ?? false) {
             background: #fc8181;
         }
 
-        /* TOAST */
         #toast {
             position: fixed;
             bottom: 24px;
@@ -1102,6 +1159,51 @@ if ($_SESSION['is_admin'] ?? false) {
 
         .log-row:last-child {
             border-bottom: none;
+        }
+
+        /* NOUVEAU : Styles pour le rapport de push */
+        .push-report {
+            background: var(--surface2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .push-report h4 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            color: var(--gold);
+        }
+
+        .push-report ul {
+            list-style: none;
+            font-size: 11px;
+        }
+
+        .push-report li {
+            padding: 4px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .push-report li:last-child {
+            border-bottom: none;
+        }
+
+        .push-success {
+            color: var(--green);
+        }
+
+        .push-expired {
+            color: var(--orange);
+        }
+
+        .push-failed {
+            color: var(--red);
         }
 
         ::-webkit-scrollbar {
@@ -1201,6 +1303,10 @@ if ($_SESSION['is_admin'] ?? false) {
                         <div class="stat-value blue" id="stat-week">—</div>
                     </div>
                     <div class="stat-card">
+                        <div class="stat-label">Abonnés Push</div>
+                        <div class="stat-value purple" id="stat-push">—</div>
+                    </div>
+                    <div class="stat-card">
                         <div class="stat-label">Dépenses totales</div>
                         <div class="stat-value orange" id="stat-expenses">—</div>
                     </div>
@@ -1297,7 +1403,7 @@ if ($_SESSION['is_admin'] ?? false) {
         </div>
         <!-- PUSH MODAL -->
         <div class="modal-overlay" id="pushModal">
-            <div class="modal-box">
+            <div class="modal-box" style="max-width: 520px;">
                 <div class="flex items-center gap-3 mb-1">
                     <div style="width:40px;height:40px;border-radius:12px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;">📣</div>
                     <div>
@@ -1313,6 +1419,12 @@ if ($_SESSION['is_admin'] ?? false) {
                     <input type="url" id="pushUrl" placeholder="https://wari.digiroys.com/avis.php" class="modal-input" style="min-height:unset;padding-top:12px;padding-bottom:12px;">
                 </div>
                 <p style="font-size:9px;color:#3a4555;margin-bottom:20px;margin-left:4px;">Laisse vide pour ouvrir l'app normalement</p>
+
+                <!-- NOUVEAU : Zone d'affichage du rapport -->
+                <div id="pushReportContainer" style="display:none;">
+                    <div class="push-report" id="pushReportContent"></div>
+                </div>
+
                 <div class="modal-actions">
                     <button class="btn-cancel-m" onclick="closePushModal()">Annuler</button>
                     <button class="btn-confirm-m" onclick="sendPush()">Envoyer 🚀</button>
@@ -1398,6 +1510,7 @@ if ($_SESSION['is_admin'] ?? false) {
                     document.getElementById('stat-users').innerText = s.total_users;
                     document.getElementById('stat-today').innerText = s.active_today;
                     document.getElementById('stat-week').innerText = s.active_week;
+                    document.getElementById('stat-push').innerText = s.push_subscribers || '0';
                     document.getElementById('stat-expenses').innerText = parseInt(s.total_expenses).toLocaleString('fr-FR') + ' F';
                     document.getElementById('stat-capital').innerText = parseInt(s.total_capital).toLocaleString('fr-FR') + ' F';
                     document.getElementById('stat-licences').innerText = s.licences_dispo + ' / ' + s.licences_total;
@@ -1447,6 +1560,9 @@ if ($_SESSION['is_admin'] ?? false) {
 
         function openPushModal() {
             document.getElementById('pushModal').classList.add('show');
+            // Cacher le rapport précédent
+            document.getElementById('pushReportContainer').style.display = 'none';
+            document.getElementById('pushReportContent').innerHTML = '';
         }
 
         function closePushModal() {
@@ -1471,10 +1587,14 @@ if ($_SESSION['is_admin'] ?? false) {
                 const data = await res.json();
 
                 if (data.success) {
-                    showToast(`✅ ${data.msg}`, 'success');
+                    showToast('✅ Push envoyé !', 'success');
+
+                    // Afficher le rapport détaillé
+                    displayPushReport(data.details, data.stats);
+
+                    // Vider les champs
                     document.getElementById('pushMessage').value = '';
                     document.getElementById('pushUrl').value = '';
-                    closePushModal();
                 } else {
                     showToast(`❌ ${data.msg}`, 'error');
                 }
@@ -1486,6 +1606,46 @@ if ($_SESSION['is_admin'] ?? false) {
                 btn.style.opacity = '1';
                 btn.style.cursor = 'pointer';
             }
+        }
+
+        // NOUVEAU : Fonction d'affichage du rapport de push
+        function displayPushReport(details, stats) {
+            const container = document.getElementById('pushReportContainer');
+            const content = document.getElementById('pushReportContent');
+
+            let html = `
+                <h4>📊 Résultats : ${stats.success}/${stats.total} reçus</h4>
+            `;
+
+            // Succès
+            if (details.success && details.success.length > 0) {
+                html += `<div style="margin-bottom:12px;"><strong style="color:var(--green);">✅ Reçus (${details.success.length})</strong><ul>`;
+                details.success.forEach(u => {
+                    html += `<li class="push-success">${u.email}</li>`;
+                });
+                html += '</ul></div>';
+            }
+
+            // Expirés
+            if (details.expired && details.expired.length > 0) {
+                html += `<div style="margin-bottom:12px;"><strong style="color:var(--orange);">💀 Expirés (${details.expired.length})</strong><ul>`;
+                details.expired.forEach(u => {
+                    html += `<li class="push-expired">${u.email}</li>`;
+                });
+                html += '</ul></div>';
+            }
+
+            // Échecs
+            if (details.failed && details.failed.length > 0) {
+                html += `<div><strong style="color:var(--red);">❌ Échecs (${details.failed.length})</strong><ul>`;
+                details.failed.forEach(u => {
+                    html += `<li class="push-failed">${u.email} <span style="color:var(--muted);">(${u.reason})</span></li>`;
+                });
+                html += '</ul></div>';
+            }
+
+            content.innerHTML = html;
+            container.style.display = 'block';
         }
 
         async function openDetail(userId) {

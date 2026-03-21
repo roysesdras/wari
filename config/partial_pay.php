@@ -1,7 +1,9 @@
 <?php
 session_start();
+require 'session_config.php';
 require 'db.php';
 require 'no_cache.php';
+require 'session_check.php'; // ← ajout
 
 $data = json_decode(file_get_contents('php://input'), true);
 $userId = $_SESSION['user_id'];

@@ -1,10 +1,14 @@
 <?php
 // add_expense.php
+error_reporting(0);     // ← masque les warnings
+ini_set('display_errors', 0); // ← empêche l'affichage des erreurs
+
 session_start();
+require 'session_config.php';
 require 'db.php';
 require 'no_cache.php';
+require 'session_check.php'; // ← ajout
 
-// 1. Sécurité : Vérifier que l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Non autorisé']);
@@ -43,7 +47,7 @@ if (isset($data['amount']) && isset($data['category_id'])) {
                     break;
                 }
             }
- 
+
             // Si c'est une catégorie Projet, on déduit du capital
             if ($matchedCat && stripos($matchedCat['name'], 'projet') !== false) {
                 $stmtCap = $pdo->prepare("

@@ -26,7 +26,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=44">
+    <link rel="stylesheet" href="./assets/styles.css?v=45">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
@@ -610,7 +610,7 @@ if (!isset($_SESSION['user_id'])) {
         startLiveClock();
     </script>
 
-    <script src="./assets/main.js?v=44"></script>
+    <script src="./assets/main.js?v=45"></script>
 </body>
 
 </html>

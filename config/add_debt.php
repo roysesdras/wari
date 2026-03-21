@@ -1,6 +1,8 @@
 <?php
 session_start();
+require 'session_config.php'; // ← en premier, configure ET démarre la session
 require 'db.php';
+require 'session_check.php'; // ← vérifie le cookie si session expirée
 require 'no_cache.php';
 
 if (!isset($_SESSION['user_id'])) exit();

@@ -15,9 +15,25 @@ let vaultTransactions = [];
 const mainInput = document.getElementById("mainAmount");
 const container = document.getElementById("categoryContainer");
 
+// Vérifier si nous sommes sur la bonne page avant d'exécuter le code
+// Ligne 19-23 remplacées par :
+if (mainInput && container) {
+  // ... tout votre code principal ici ...
+} else {
+  console.log(
+    "Wari-Finance: Éléments principaux non trouvés - arrêt du script",
+  );
+}
+
 // ─── RENDER ────────────────────────────────────────────────────────────────
 
 function render() {
+  // Vérification de sécurité supplémentaire
+  if (!mainInput) {
+    console.warn("Wari-Finance: mainInput non disponible");
+    return;
+  }
+
   const rawValue = mainInput.value.trim();
   const total = parseFloat(rawValue) || 0;
 
@@ -598,6 +614,14 @@ window.saveBudget = function (silent = false) {
 // ─── CHARGEMENT ────────────────────────────────────────────────────────────
 
 function loadBudget() {
+  // Vérifier si les éléments nécessaires sont présents
+  if (!mainInput || !container) {
+    console.log(
+      "Wari-Finance: Page non principale détectée - chargement annulé",
+    );
+    return;
+  }
+
   let data = null;
 
   if (typeof dbData !== "undefined" && dbData !== null) {
@@ -659,9 +683,12 @@ function loadBudget() {
 
 // ─── DÉMARRAGE ─────────────────────────────────────────────────────────────
 
-loadBudget();
-loadVaultHistory();
-updateGoalDisplay();
+// Exécuter uniquement si nous sommes sur la page principale
+if (mainInput && container) {
+  loadBudget();
+  loadVaultHistory();
+  updateGoalDisplay();
+}
 
 setTimeout(() => {
   isInitialLoad = false;
@@ -861,8 +888,10 @@ window.submitExpense = function () {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ amount, category_id: catId, description: note }),
   })
-    .then((res) => res.json())
-    .then((data) => {
+    .then((res) => res.text()) // ← text() d'abord pour voir ce qui arrive
+    .then((raw) => {
+      console.log("Réponse brute :", raw); // ← diagnostic
+      const data = JSON.parse(raw);
       if (data.success) {
         if (!currentExpenses[catId]) currentExpenses[catId] = 0;
         currentExpenses[catId] = parseInt(currentExpenses[catId]) + amount;
@@ -871,7 +900,6 @@ window.submitExpense = function () {
         if (cat && cat.name.toLowerCase().includes("projet")) {
           projectCapital = Math.max(0, projectCapital - amount);
           addVaultTransaction("out", amount, note);
-          // ✅ On sauvegarde le nouveau projectCapital immédiatement
           saveBudget(true);
         }
 
@@ -1181,14 +1209,17 @@ function loadMonthlyHistory(months = 6) {
     .then((res) => res.json())
     .then((data) => {
       const container = document.getElementById("historyContent");
-      const currency  = document.getElementById("currencySelector")?.value || "F";
+      const currency =
+        document.getElementById("currencySelector")?.value || "F";
 
       if (!data.success || data.history.length === 0) {
         container.innerHTML = `<p class="text-slate-500 text-[10px] italic text-center py-4">Aucun historique disponible.</p>`;
         return;
       }
 
-      container.innerHTML = data.history.map((month) => `
+      container.innerHTML = data.history
+        .map(
+          (month) => `
         <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 mb-3">
 
           <!-- En-tête du mois -->
@@ -1197,14 +1228,18 @@ function loadMonthlyHistory(months = 6) {
               ${month.label}
             </p>
             <span class="text-[9px] bg-slate-700/50 text-slate-400 px-2 py-0.5 rounded-full">
-              ${month.nb_repartitions} répartition${month.nb_repartitions > 1 ? 's' : ''}
+              ${month.nb_repartitions} répartition${month.nb_repartitions > 1 ? "s" : ""}
             </span>
           </div>
 
           <!-- Détail des répartitions individuelles -->
-          ${month.details.length > 0 ? `
+          ${
+            month.details.length > 0
+              ? `
             <div class="space-y-1 mb-3">
-              ${month.details.map((d) => `
+              ${month.details
+                .map(
+                  (d) => `
                 <div class="flex justify-between items-center px-2 py-1.5 bg-slate-900/40 rounded-lg border border-white/5">
                   <div class="flex items-center gap-2">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
@@ -1214,9 +1249,13 @@ function loadMonthlyHistory(months = 6) {
                     +${d.amount.toLocaleString()} ${currency}
                   </span>
                 </div>
-              `).join("")}
+              `,
+                )
+                .join("")}
             </div>
-          ` : ""}
+          `
+              : ""
+          }
  
           <!-- Totaux du mois -->
           <div class="border-t border-slate-700/50 pt-2 space-y-1">
@@ -1241,7 +1280,9 @@ function loadMonthlyHistory(months = 6) {
           </div>
 
         </div>
-      `).join("");
+      `,
+        )
+        .join("");
     })
     .catch(() => {
       document.getElementById("historyContent").innerHTML =
@@ -1265,8 +1306,7 @@ function showWariNotification(title, message, score) {
   let statusIcon = "https://i.postimg.cc/x80KpBqW/warifinance3d.png";
   if (score >= 8)
     statusIcon = "https://i.postimg.cc/x80KpBqW/warifinance3d.png";
-  if (score < 5)
-    statusIcon = "https://i.postimg.cc/x80KpBqW/warifinance3d.png";
+  if (score < 5) statusIcon = "https://i.postimg.cc/x80KpBqW/warifinance3d.png";
 
   const options = {
     body: message,

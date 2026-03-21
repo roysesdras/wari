@@ -1,6 +1,9 @@
 <?php
 session_start();
+require 'session_config.php';
 require 'db.php';
+require 'no_cache.php';
+require 'session_check.php'; // ← ajout
 
 if (!isset($_SESSION['user_id'])) {
     http_response_code(403);
@@ -13,10 +16,18 @@ if (!in_array($months, [3, 6, 12])) $months = 6;
 
 // ✅ Traduction manuelle des mois en français
 $moisFr = [
-    '01' => 'Janvier', '02' => 'Février',  '03' => 'Mars',
-    '04' => 'Avril',   '05' => 'Mai',       '06' => 'Juin',
-    '07' => 'Juillet', '08' => 'Août',      '09' => 'Septembre',
-    '10' => 'Octobre', '11' => 'Novembre',  '12' => 'Décembre',
+    '01' => 'Janvier',
+    '02' => 'Février',
+    '03' => 'Mars',
+    '04' => 'Avril',
+    '05' => 'Mai',
+    '06' => 'Juin',
+    '07' => 'Juillet',
+    '08' => 'Août',
+    '09' => 'Septembre',
+    '10' => 'Octobre',
+    '11' => 'Novembre',
+    '12' => 'Décembre',
 ];
 
 try {
@@ -107,7 +118,6 @@ try {
     }
 
     echo json_encode(['success' => true, 'history' => $history]);
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
