@@ -1,6 +1,7 @@
 {
     "require": {
         "minishlink/web-push": "^10.0",
-        "phpmailer/phpmailer": "^7.0"
+        "phpmailer/phpmailer": "^7.0",
+        "fedapay/fedapay-php": "^0.4.8"
     }
 }

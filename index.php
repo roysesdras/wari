@@ -36,7 +36,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=45">
+    <link rel="stylesheet" href="./assets/styles.css?v=46">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
@@ -51,7 +51,7 @@ if (!isset($_SESSION['user_id'])) {
 
 </head>
 
-<body class="p-4 pb-20">
+<body class="p-3 pb-20">
 
     <div class="max-w-md mx-auto">
         <header class="flex items-center justify-between mt-2 mb-8">
@@ -59,7 +59,7 @@ if (!isset($_SESSION['user_id'])) {
                 <h1 class="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
                     WARI - Finance
                 </h1>
-                <p class="text-[8px] font-bold uppercase tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-slate-400 to-slate-600">Budget & Liberté</p>
+                <p class="text-[8px] font-bold uppercase tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-slate-400 to-slate-600">Discipline | Liberté | Suivis</p>
                 <span id="liveClock" class="text-[9px] font-bold tracking-tight mt-0.5 text-transparent bg-clip-text bg-gradient-to-r from-amber-400/80 to-yellow-600/60"></span>
             </div>
 
@@ -72,8 +72,40 @@ if (!isset($_SESSION['user_id'])) {
             </button>
         </header>
 
+        <!-- Jauge de Santé Financière -->
+        <div id="healthGauge" class="mt-4 mb-4 glass-card p-3 border-l-4 border-emerald-500/50 shadow-xl">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">💡 Santé financière</h3>
+                <span id="gaugePercent" class="text-emerald-400 font-black text-sm">—</span>
+            </div>
+
+            <!-- Barre principale -->
+            <div class="w-full h-3 bg-slate-950/60 rounded-full overflow-hidden border border-white/5 mb-4">
+                <div id="gaugeBar" class="h-full rounded-full transition-all duration-700 ease-out" style="width:0%"></div>
+            </div>
+
+            <!-- Banque / Cash -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-700/30">
+                    <p class="text-[9px] uppercase tracking-widest text-slate-500 mb-1">🔒 Sécuriser en banque</p>
+                    <p id="bankAmount" class="text-white font-black text-sm">0 F</p>
+                    <p id="bankSpent" class="text-[9px] text-red-400 mt-0.5"></p>
+                    <p class="text-[8px] text-slate-600 mt-1 uppercase tracking-wider">Épargne + Capital Projet</p>
+                </div>
+                <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-700/30">
+                    <p class="text-[9px] uppercase tracking-widest text-slate-500 mb-1">💵 Poche / MoMo</p>
+                    <p id="cashAmount" class="text-emerald-400 font-black text-sm">0 F</p>
+                    <p id="cashSpent" class="text-[9px] text-red-400 mt-0.5"></p>
+                    <p class="text-[8px] text-slate-600 mt-1 uppercase tracking-wider">Train de vie + Imprévus</p>
+                </div>
+            </div>
+
+            <!-- Message coach contextuel -->
+            <div id="gaugeAlert" class="text-[10px] text-center py-2 px-3 rounded-lg font-bold"></div>
+        </div>
+
         <!-- Section insertion du montant a repartire -->
-        <div class="glass-card gold-border p-4 mb-8 shadow-2xl relative">
+        <div class="glass-card gold-border p-4 mb-4 shadow-2xl relative">
             <div class="flex justify-between items-center mb-3">
                 <label class="block text-[10px] uppercase tracking-[0.2em] text-yellow-500 font-bold">Montant à répartir</label>
                 <select id="currencySelector" onchange="render()" class="bg-slate-800 text-yellow-500 text-xs font-bold border border-slate-700 rounded px-2 py-1 outline-none focus:border-yellow-500">
@@ -90,7 +122,7 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Section categorie des de repartition -->
-        <div class="mb-6 flex items-center justify-between bg-yellow-600/10 border border-yellow-600/20 p-3 rounded-2xl">
+        <div class="mb-4 flex items-center justify-between bg-yellow-600/10 border border-yellow-600/20 p-3 rounded-2xl">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-xl">🌟</div>
                 <div>
@@ -115,13 +147,13 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Section Juge barre de % -->
-        <div id="statusIndicator" class="flex items-center justify-center space-x-2 p-4 rounded-2xl transition-all duration-500">
+        <div id="statusIndicator" class="mt-4 flex items-center justify-center space-x-2 p-4 rounded-2xl transition-all duration-500">
             <div id="statusIcon"></div>
             <span id="statusText" class="font-bold text-sm uppercase tracking-wider"></span>
         </div>
 
         <!-- Section Versement a la banque (capital investir)-->
-        <div id="projectVault" class="mt-8 glass-card p-3 border-t-2 border-emerald-500/50 shadow-[0_20px_50px_rgba(16,185,129,0.1)] relative overflow-hidden group">
+        <div id="projectVault" class="mt-4 glass-card p-3 border-t-2 border-emerald-500/50 shadow-[0_20px_50px_rgba(16,185,129,0.1)] relative overflow-hidden group">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
 
             <div class="flex items-center justify-between mb-4 relative z-10">
@@ -203,38 +235,6 @@ if (!isset($_SESSION['user_id'])) {
                     }
                 };
             </script>
-        </div>
-
-        <!-- Jauge de Santé Financière -->
-        <div id="healthGauge" class="mt-4 glass-card p-3 border-l-4 border-emerald-500/50 shadow-xl">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">💡 Santé financière</h3>
-                <span id="gaugePercent" class="text-emerald-400 font-black text-sm">—</span>
-            </div>
-
-            <!-- Barre principale -->
-            <div class="w-full h-3 bg-slate-950/60 rounded-full overflow-hidden border border-white/5 mb-4">
-                <div id="gaugeBar" class="h-full rounded-full transition-all duration-700 ease-out" style="width:0%"></div>
-            </div>
-
-            <!-- Banque / Cash -->
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-700/30">
-                    <p class="text-[9px] uppercase tracking-widest text-slate-500 mb-1">🔒 À sécuriser en banque</p>
-                    <p id="bankAmount" class="text-white font-black text-sm">0 F</p>
-                    <p id="bankSpent" class="text-[9px] text-red-400 mt-0.5"></p>
-                    <p class="text-[8px] text-slate-600 mt-1 uppercase tracking-wider">Épargne + Capital Projet</p>
-                </div>
-                <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-700/30">
-                    <p class="text-[9px] uppercase tracking-widest text-slate-500 mb-1">💵 Poche / MoMo</p>
-                    <p id="cashAmount" class="text-emerald-400 font-black text-sm">0 F</p>
-                    <p id="cashSpent" class="text-[9px] text-red-400 mt-0.5"></p>
-                    <p class="text-[8px] text-slate-600 mt-1 uppercase tracking-wider">Train de vie + Imprévus</p>
-                </div>
-            </div>
-
-            <!-- Message coach contextuel -->
-            <div id="gaugeAlert" class="text-[10px] text-center py-2 px-3 rounded-lg font-bold"></div>
         </div>
 
         <!-- Dette Section -->
@@ -609,7 +609,7 @@ if (!isset($_SESSION['user_id'])) {
         startLiveClock();
     </script>
 
-    <script src="./assets/main.js?v=45"></script>
+    <script src="./assets/main.js?v=46"></script>
 </body>
 
 </html>

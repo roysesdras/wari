@@ -85,8 +85,9 @@ $csrf = $_SESSION['csrf'];
             --surface2: #1e3040;
             --border: #243447;
             --border2: #2d4155;
-            --teal: #2dd4bf;
-            --teal-lt: #5eead4;
+            --gold: #F5A623;
+            --gold-dk: #d4921f;
+            --gold-lt: #ffbe3d;
             --text: #e2e8f0;
             --muted: #7a93aa;
             --muted2: #4e6478;
@@ -117,7 +118,7 @@ $csrf = $_SESSION['csrf'];
         .page-logo {
             font-size: 1.8rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #94a3b8, var(--teal));
+            background: linear-gradient(135deg, var(--gold-dk), var(--gold), var(--gold-lt));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -129,7 +130,7 @@ $csrf = $_SESSION['csrf'];
         .page-tagline {
             font-size: .85rem;
             color: var(--muted2);
-            border-left: 3px solid var(--teal);
+            border-left: 3px solid var(--gold);
             padding-left: .75rem;
             margin-bottom: 2.5rem;
         }
@@ -139,7 +140,7 @@ $csrf = $_SESSION['csrf'];
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 28px;
-            padding: 1rem 1rem;
+            padding: 15px;
             width: 100%;
             max-width: 520px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
@@ -174,7 +175,7 @@ $csrf = $_SESSION['csrf'];
         }
 
         label .req {
-            color: var(--teal);
+            color: var(--gold);
             margin-left: 2px;
         }
 
@@ -291,13 +292,13 @@ $csrf = $_SESSION['csrf'];
         .alert-success {
             background: rgba(45, 212, 191, .1);
             border: 1px solid rgba(45, 212, 191, .3);
-            color: var(--teal);
+            color: var(--gold);
         }
 
         /* ── Bouton submit ── */
         .btn-submit {
             width: 100%;
-            background: var(--teal);
+            background: var(--gold);
             color: #0f172a;
             font-weight: 700;
             font-size: 1rem;
@@ -306,12 +307,12 @@ $csrf = $_SESSION['csrf'];
             border: none;
             cursor: pointer;
             transition: background .2s, transform .15s;
-            box-shadow: 0 8px 20px rgba(45, 212, 191, .2);
+            box-shadow: 0 8px 20px rgba(245, 166, 35, 0.2);
             margin-top: .5rem;
         }
 
         .btn-submit:hover {
-            background: var(--teal-lt);
+            background: var(--gold-lt);
             transform: translateY(-2px);
         }
 
@@ -334,7 +335,7 @@ $csrf = $_SESSION['csrf'];
         }
 
         .back-link:hover {
-            color: var(--teal);
+            color: var(--gold);
         }
 
         /* ── Page succès ── */
@@ -378,7 +379,7 @@ $csrf = $_SESSION['csrf'];
         /* ── Responsive ── */
         @media (min-width: 640px) {
             .form-card {
-                padding: 3rem 2.5rem;
+                padding: 1rem 1rem;
             }
         }
     </style>

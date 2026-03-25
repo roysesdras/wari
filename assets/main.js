@@ -518,7 +518,7 @@ function updateStatus(total) {
   const status = document.getElementById("statusIndicator");
   const text = document.getElementById("statusText");
   const baseClass =
-    "mt-8 flex items-center justify-center p-3 rounded-2xl border transition-all duration-300 ";
+    "mt-4 flex items-center justify-center p-3 rounded-2xl border transition-all duration-300 ";
 
   if (total === 100) {
     status.className =

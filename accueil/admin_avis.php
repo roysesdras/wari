@@ -6,7 +6,7 @@ require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 /* ══════════════════════════════════════════════════════════════════
    CONNEXION INTÉGRÉE
 ══════════════════════════════════════════════════════════════════ */
-define('ADMIN_PASSWORD', '@wariFinance-2026'); // ← Remplace par ton mot de passe
+define('ADMIN_PASSWORD', '@softiP24'); // ← Remplace par ton mot de passe
 
 $auth_error = '';
 
@@ -175,7 +175,7 @@ if ($logged_in) {
         .login-logo {
             font-size: 1.8rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #94a3b8, var(--teal));
+            background: linear-gradient(135deg, var(--gold-dk), var(--gold), var(--gold-lt));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -188,7 +188,7 @@ if ($logged_in) {
             text-align: center;
             font-size: .82rem;
             color: var(--muted2);
-            border-left: 3px solid var(--teal);
+            border-left: 3px solid var(--gold);
             padding-left: .6rem;
             margin: 0 auto 2rem;
             width: fit-content;
@@ -228,8 +228,8 @@ if ($logged_in) {
 
         .login-field input:focus {
             outline: none;
-            border-color: rgba(45, 212, 191, .5);
-            box-shadow: 0 0 0 3px rgba(45, 212, 191, .08);
+            border-color: rgba(245, 166, 35, .5);
+            box-shadow: 0 0 0 3px rgba(245, 166, 35, .08);
         }
 
         .login-error {
@@ -245,7 +245,7 @@ if ($logged_in) {
 
         .btn-login {
             width: 100%;
-            background: var(--teal);
+            background: var(--gold);
             color: #0f172a;
             font-weight: 700;
             font-size: .95rem;
@@ -281,7 +281,7 @@ if ($logged_in) {
         .page-logo {
             font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #94a3b8, var(--teal));
+            background: linear-gradient(135deg, var(--gold-dk), var(--gold), var(--gold-lt));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -346,8 +346,8 @@ if ($logged_in) {
         }
 
         .tab:hover {
-            border-color: var(--teal);
-            color: var(--teal);
+            border-color: var(--gold);
+            color: var(--gold);
         }
 
         .tab.active {
@@ -396,7 +396,7 @@ if ($logged_in) {
         }
 
         .avis-card.published {
-            border-left: 3px solid var(--teal);
+            border-left: 3px solid var(--gold);
         }
 
         .card-top {
@@ -431,7 +431,7 @@ if ($logged_in) {
 
         .status-badge.published {
             background: rgba(45, 212, 191, .12);
-            color: var(--teal);
+            color: var(--gold);
         }
 
         .card-author {
@@ -480,7 +480,7 @@ if ($logged_in) {
 
         .btn-approuver {
             background: rgba(45, 212, 191, .12);
-            color: var(--teal);
+            color: var(--gold);
             border-color: rgba(45, 212, 191, .25);
         }
 
@@ -621,7 +621,7 @@ if ($logged_in) {
 
         .btn-save-pub {
             background: rgba(45, 212, 191, .12);
-            color: var(--teal);
+            color: var(--gold);
             border-color: rgba(45, 212, 191, .25);
         }
 
@@ -665,7 +665,7 @@ if ($logged_in) {
 
         #toast.ok {
             border-color: rgba(45, 212, 191, .4);
-            color: var(--teal);
+            color: var(--gold);
         }
 
         #toast.err {

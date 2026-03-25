@@ -29,14 +29,37 @@ try {
         ];
     }
 
-    // Liste des avis publiés
-    $stmt = $pdo->query("
+    // Configuration pagination adaptative
+    $avis_par_page = [
+        'mobile' => 3,   // 3 avis sur mobile
+        'desktop' => 6   // 6 avis sur desktop
+    ];
+    
+    // Détection device
+    $is_mobile = preg_match('/Mobile|Android|iPhone/i', $_SERVER['HTTP_USER_AGENT']);
+    $limit = $is_mobile ? $avis_par_page['mobile'] : $avis_par_page['desktop'];
+    
+    // Page actuelle
+    $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+    $offset = ($page - 1) * $limit;
+    
+    // Liste des avis publiés avec pagination
+    $stmt = $pdo->prepare("
         SELECT nom, ville, note, texte, created_at
         FROM avis
         WHERE visible = 1
         ORDER BY created_at DESC
+        LIMIT :limit OFFSET :offset
     ");
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $avis_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Compter total pour pagination
+    $total_stmt = $pdo->query("SELECT COUNT(*) FROM avis WHERE visible = 1");
+    $total_avis = $total_stmt->fetchColumn();
+    $total_pages = $total_avis > 0 ? ceil($total_avis / $limit) : 1;
 } catch (PDOException $e) {
     // Fail silently côté visiteur
 }
@@ -50,12 +73,12 @@ function initiales(string $nom): string
     return htmlspecialchars($i);
 }
 
-// Couleurs d'avatar cycliques
+// Couleurs d'avatar cycliques - PALETTE WARI
 $avatar_colors = [
-    ['bg' => 'rgba(45,212,191,.12)',  'color' => '#2dd4bf'],
-    ['bg' => 'rgba(56,189,248,.12)',  'color' => '#38bdf8'],
-    ['bg' => 'rgba(251,191,36,.12)',  'color' => '#fbbf24'],
-    ['bg' => 'rgba(248,113,113,.12)', 'color' => '#f87171'],
+    ['bg' => 'rgba(245,166,35,.12)',  'color' => '#F5A623'],  // Gold WARI
+    ['bg' => 'rgba(99,179,237,.12)',  'color' => '#63B3ED'],  // Blue WARI
+    ['bg' => 'rgba(245,166,35,.15)',  'color' => '#F5A623'],  // Gold variant
+    ['bg' => 'rgba(72,187,120,.12)', 'color' => '#48BB78'],   // Green WARI
 ];
 ?>
 
@@ -108,44 +131,94 @@ $avatar_colors = [
 
     <?php endif; ?>
 
-    <!-- Carousel ──────────────────────────────────────────────────────── -->
+    <!-- Avis - Structure adaptative -->
     <?php if (!empty($avis_list)): ?>
-
-        <div class="carousel-outer" id="carousel-outer">
-            <div class="carousel-viewport" id="carousel-viewport">
-                <div class="carousel-track" id="carousel-track">
-                    <?php foreach ($avis_list as $i => $a):
-                        $col = $avatar_colors[$i % count($avatar_colors)];
-                        $loc = $a['ville'] ? htmlspecialchars($a['ville']) . ' · ' : '';
-                        $date = date('M Y', strtotime($a['created_at']));
-                    ?>
-                        <div class="avis-card" role="listitem">
-                            <div class="avis-stars">
-                                <?php for ($s = 1; $s <= 5; $s++): ?>
-                                    <span class="<?= $s <= $a['note'] ? 'star' : 'star-empty' ?>">★</span>
-                                <?php endfor; ?>
-                            </div>
-                            <p class="avis-text">"<?= htmlspecialchars($a['texte']) ?>"</p>
-                            <div class="avis-author">
-                                <div class="avis-avatar" style="background:<?= $col['bg'] ?>;color:<?= $col['color'] ?>;">
-                                    <?= initiales($a['nom']) ?>
-                                </div>
-                                <div>
-                                    <div class="avis-name"><?= htmlspecialchars($a['nom']) ?></div>
-                                    <div class="avis-meta"><?= $loc ?><?= $date ?></div>
-                                    <span class="avis-verified">✓ Utilisateur vérifié</span>
-                                </div>
-                            </div>
+        
+        <!-- Version Mobile -->
+        <div class="avis-mobile">
+            <?php foreach ($avis_list as $i => $a):
+                $col = $avatar_colors[$i % count($avatar_colors)];
+                $loc = $a['ville'] ? htmlspecialchars($a['ville']) . ' · ' : '';
+                $date = date('M Y', strtotime($a['created_at']));
+            ?>
+                <div class="avis-card-mobile" role="listitem">
+                    <div class="avis-stars">
+                        <?php for ($s = 1; $s <= 5; $s++): ?>
+                            <span class="<?= $s <= $a['note'] ? 'star' : 'star-empty' ?>">★</span>
+                        <?php endfor; ?>
+                    </div>
+                    <p class="avis-text">"<?= htmlspecialchars($a['texte']) ?>"</p>
+                    <div class="avis-author">
+                        <div class="avis-avatar" style="background:<?= $col['bg'] ?>;color:<?= $col['color'] ?>;">
+                            <?= initiales($a['nom']) ?>
                         </div>
-                    <?php endforeach; ?>
+                        <div>
+                            <div class="avis-name"><?= htmlspecialchars($a['nom']) ?></div>
+                            <div class="avis-meta"><?= $loc ?><?= $date ?></div>
+                            <span class="avis-verified">✓ Utilisateur vérifié</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Contrôles carousel -->
-            <div class="carousel-controls">
-                <button class="carousel-btn" id="carousel-prev" aria-label="Précédent" disabled>‹</button>
-                <div class="carousel-dots" id="carousel-dots" aria-label="Navigation avis"></div>
-                <button class="carousel-btn" id="carousel-next" aria-label="Suivant">›</button>
+            <?php endforeach; ?>
+            
+            <!-- Pagination Mobile -->
+            <?php if ($total_pages > 1): ?>
+                <div class="pagination-mobile">
+                    <?php if ($page > 1): ?>
+                        <a href="?page=<?= $page-1 ?>#avis" class="pagination-btn pagination-prev">← Précédent</a>
+                    <?php else: ?>
+                        <span class="pagination-btn pagination-disabled">← Précédent</span>
+                    <?php endif; ?>
+                    
+                    <span class="pagination-info"><?= $page ?> / <?= $total_pages ?></span>
+                    
+                    <?php if ($page < $total_pages): ?>
+                        <a href="?page=<?= $page+1 ?>#avis" class="pagination-btn pagination-next">Suivant →</a>
+                    <?php else: ?>
+                        <span class="pagination-btn pagination-disabled">Suivant →</span>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Version Desktop - Carousel simplifié -->
+        <div class="avis-desktop">
+            <div class="carousel-outer" id="carousel-outer">
+                <div class="carousel-viewport" id="carousel-viewport">
+                    <div class="carousel-track" id="carousel-track">
+                        <?php foreach ($avis_list as $i => $a):
+                            $col = $avatar_colors[$i % count($avatar_colors)];
+                            $loc = $a['ville'] ? htmlspecialchars($a['ville']) . ' · ' : '';
+                            $date = date('M Y', strtotime($a['created_at']));
+                        ?>
+                            <div class="avis-card" role="listitem">
+                                <div class="avis-stars">
+                                    <?php for ($s = 1; $s <= 5; $s++): ?>
+                                        <span class="<?= $s <= $a['note'] ? 'star' : 'star-empty' ?>">★</span>
+                                    <?php endfor; ?>
+                                </div>
+                                <p class="avis-text">"<?= htmlspecialchars($a['texte']) ?>"</p>
+                                <div class="avis-author">
+                                    <div class="avis-avatar" style="background:<?= $col['bg'] ?>;color:<?= $col['color'] ?>;">
+                                        <?= initiales($a['nom']) ?>
+                                    </div>
+                                    <div>
+                                        <div class="avis-name"><?= htmlspecialchars($a['nom']) ?></div>
+                                        <div class="avis-meta"><?= $loc ?><?= $date ?></div>
+                                        <span class="avis-verified">✓ Utilisateur vérifié</span>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                
+                <!-- Contrôles carousel desktop -->
+                <div class="carousel-controls">
+                    <button class="carousel-btn" id="carousel-prev" aria-label="Précédent" disabled>‹</button>
+                    <div class="carousel-dots" id="carousel-dots" aria-label="Navigation avis"></div>
+                    <button class="carousel-btn" id="carousel-next" aria-label="Suivant">›</button>
+                </div>
             </div>
         </div>
 
@@ -178,9 +251,9 @@ $avatar_colors = [
     }
 
     .badge-avis {
-        background: rgba(45, 212, 191, 0.1);
-        color: var(--teal);
-        border: 1px solid rgba(45, 212, 191, 0.25);
+        background: rgba(245, 166, 35, 0.1);
+        color: var(--gold);
+        border: 1px solid rgba(245, 166, 35, 0.25);
         padding: 0.3rem 1rem;
         border-radius: 30px;
         font-size: 0.8rem;
@@ -294,6 +367,29 @@ $avatar_colors = [
     /* Carousel */
     .carousel-outer {
         position: relative;
+        touch-action: pan-x;
+        /* Permet le swipe horizontal uniquement */
+    }
+
+    /* Indicateur tactile mobile */
+    @media (max-width: 767px) {
+        .carousel-outer::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 4px;
+            background: var(--gold);
+            border-radius: 2px;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+
+        .carousel-outer:hover::before {
+            opacity: 0.6;
+        }
     }
 
     .carousel-viewport {
@@ -305,6 +401,12 @@ $avatar_colors = [
         display: flex;
         gap: 1rem;
         transition: transform .4s cubic-bezier(.4, 0, .2, 1);
+        cursor: grab;
+        user-select: none;
+    }
+
+    .carousel-track:active {
+        cursor: grabbing;
     }
 
     /* Cartes */
@@ -327,7 +429,7 @@ $avatar_colors = [
         right: 1.2rem;
         font-size: 3.5rem;
         font-weight: 700;
-        color: var(--teal);
+        color: var(--gold);
         opacity: .1;
         line-height: 1;
         pointer-events: none;
@@ -393,9 +495,9 @@ $avatar_colors = [
         align-items: center;
         gap: .3rem;
         font-size: .72rem;
-        color: var(--teal);
-        background: rgba(45, 212, 191, .08);
-        border: 1px solid rgba(45, 212, 191, .2);
+        color: var(--gold);
+        background: rgba(245, 165, 35, 0.14);
+        border: 1px solid rgba(245, 165, 35, 0.46);
         border-radius: 20px;
         padding: .15rem .5rem;
         margin-top: .3rem;
@@ -433,8 +535,8 @@ $avatar_colors = [
 
     .carousel-btn:not(:disabled):hover {
         background: var(--surface);
-        border-color: var(--teal);
-        color: var(--teal);
+        border-color: var(--gold);
+        color: var(--gold);
     }
 
     .carousel-dots {
@@ -456,7 +558,7 @@ $avatar_colors = [
 
     .carousel-dot.active {
         width: 18px;
-        background: var(--teal);
+        background: var(--gold);
     }
 
     /* CTA */
@@ -475,39 +577,128 @@ $avatar_colors = [
         align-items: center;
         gap: .5rem;
         background: transparent;
-        color: var(--teal);
+        color: var(--gold);
         font-weight: 600;
         padding: .75rem 1.8rem;
         border-radius: 40px;
-        border: 1.5px solid rgba(45, 212, 191, .4);
+        border: 1.5px solid rgba(245, 166, 35, 0.2);
         text-decoration: none;
         font-size: .95rem;
         transition: background .2s, border-color .2s, transform .15s;
     }
 
     .btn-avis:hover {
-        background: rgba(45, 212, 191, .08);
-        border-color: var(--teal);
+        background: rgba(245, 166, 35, 0.2);
+        border-color: var(--gold);
         transform: translateY(-2px);
+    }
+
+    /* ── STRUCTURE ADAPTATIVE ───────────────────────── */
+    
+    /* Version Mobile - Cards empilées */
+    .avis-mobile {
+        display: block;
+    }
+    
+    .avis-desktop {
+        display: none;
+    }
+    
+    .avis-card-mobile {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .avis-card-mobile:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    
+    /* Pagination Mobile */
+    .pagination-mobile {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding: 1rem 0;
+    }
+    
+    .pagination-btn {
+        padding: 0.6rem 1.2rem;
+        background: var(--surface2);
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        color: var(--text);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    
+    .pagination-btn:hover {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: var(--bg);
+        transform: translateY(-1px);
+    }
+    
+    .pagination-btn.pagination-disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
+    .pagination-info {
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 500;
     }
 
     /* ── RESPONSIVE carousel ───────────────────────── */
     @media (max-width: 767px) {
-        .avis-card {
-            /* 88% permet de voir un bout de la carte suivante, 
-               ce qui est plus intuitif sur smartphone */
-            flex: 0 0 88%;
-            margin-right: 10px;
+        /* Structure adaptative mobile */
+        .avis-mobile {
+            display: block;
+        }
+        .avis-desktop {
+            display: none;
+        }
+        
+        .avis-card-mobile {
             padding: 1.2rem;
             /* Un peu moins de padding pour gagner de la place */
         }
-
+        
         .avis-text {
             font-size: 0.88rem;
             /* Texte légèrement plus petit pour tout lire sans scroller */
         }
+        
+        /* Cacher le carousel original sur mobile */
+        .carousel-outer {
+            display: none;
+        }
     }
 
+    @media (min-width: 768px) {
+        /* Structure adaptative desktop */
+        .avis-mobile {
+            display: none;
+        }
+        .avis-desktop {
+            display: block;
+        }
+        
+        /* Afficher le carousel sur desktop */
+        .carousel-outer {
+            display: block;
+        }
+    }
+    
     @media (min-width: 768px) and (max-width: 1023px) {
         .avis-card {
             flex: 0 0 calc(50% - .5rem);
@@ -523,6 +714,9 @@ $avatar_colors = [
 ══════════════════════════════════════════════ -->
 <script>
     (function() {
+        // Ne charger le carousel que sur desktop
+        if (window.innerWidth < 768) return;
+        
         var track = document.getElementById('carousel-track');
         var dotsEl = document.getElementById('carousel-dots');
         var btnPrev = document.getElementById('carousel-prev');
@@ -578,44 +772,21 @@ $avatar_colors = [
 
         /* ── Boutons ── */
         btnPrev.addEventListener('click', function() {
-            resetAuto();
             goTo(pos - perPage);
         });
         btnNext.addEventListener('click', function() {
-            resetAuto();
             goTo(pos + perPage);
         });
 
-        /* ── Autoplay toutes les 5s ── */
-        function autoPlay() {
-            clearInterval(autoTimer); // Sécurité pour éviter les doubles timers
-            autoTimer = setInterval(function() {
-                var next = pos + 1; // On avance de 1 en 1 pour plus de douceur
-                if (next > total - perPage) {
-                    goTo(0);
-                } else {
-                    goTo(next);
-                }
-            }, 5000);
-        }
-
-        function stopAuto() {
-            clearInterval(autoTimer);
-        }
+        /* ── Pas d'autoplay - contrôle manuel uniquement ── */
+        // Les fonctions autoPlay et stopAuto ont été supprimées
 
 
-        /* ── Pause au survol et au TOUCH ── */
+        /* ── Contrôle manuel uniquement ── */
         var outer = document.getElementById('carousel-outer');
         if (outer) {
-            // Sur desktop
-            outer.addEventListener('mouseenter', stopAuto);
-            outer.addEventListener('mouseleave', autoPlay);
-
-            // Sur Mobile : Si on touche, on arrête l'auto-défilement 
-            // pour laisser le temps de lire.
-            outer.addEventListener('touchstart', stopAuto, {
-                passive: true
-            });
+            // Désactivation complète de l'auto-défilement
+            // L'utilisateur contrôle totalement le carousel
         }
 
         /* ── Touch/swipe fluide ── */
@@ -624,7 +795,6 @@ $avatar_colors = [
 
         track.addEventListener('touchstart', function(e) {
             touchStartX = e.changedTouches[0].clientX;
-            stopAuto();
         }, {
             passive: true
         });
@@ -641,15 +811,17 @@ $avatar_colors = [
                     goTo(pos - 1); // Swipe droite -> précédent
                 }
             }
-            // On ne relance l'auto que si l'utilisateur ne touche plus l'écran
-            // Optionnel : on peut choisir de NE PAS relancer après un touch pour laisser lire
-            // autoPlay(); 
+            // Pas de relance automatique - contrôle manuel
         }, {
             passive: true
         });
 
         /* ── Resize ── */
         function onResize() {
+            if (window.innerWidth < 768) {
+                // Sur mobile, on ne fait rien (pas de carousel)
+                return;
+            }
             var newPer = calcPerPage();
             if (newPer !== perPage) {
                 perPage = newPer;
@@ -664,6 +836,9 @@ $avatar_colors = [
         perPage = calcPerPage();
         buildDots();
         goTo(0);
-        autoPlay();
+        // Pas d'auto-play - contrôle manuel uniquement
+        
+        // Gérer le resize proprement
+        window.addEventListener('resize', onResize);
     })();
 </script>

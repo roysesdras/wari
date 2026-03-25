@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="../assets/styles.css?v=45">
+    <link rel="stylesheet" href="../assets/styles.css?v=46">
     <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#0f172a">
 
@@ -81,7 +81,12 @@
                 </div>
 
                 <div>
-                    <label class="block text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2 ml-1">Mot de passe</label>
+                    <div class="flex justify-between items-center mb-2 ml-1">
+                        <label class="block text-[10px] uppercase tracking-widest text-slate-500 font-bold">Mot de passe</label>
+                        <a href="forgot-password.php" class="text-[9px] uppercase tracking-widest text-slate-600 hover:text-amber-500 font-bold transition-colors">
+                            Oublié ?
+                        </a>
+                    </div>
                     <input type="password" name="password" placeholder="••••••••" required
                         class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 outline-none focus:border-amber-500/50 transition-all">
                 </div>
@@ -107,8 +112,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-[10px] uppercase tracking-widest text-amber-500 font-bold mb-2 ml-1">N° de Commande (Vérification)</label>
-                    <input type="text" name="commande_id" placeholder="Ex: 10984523..." required
+                    <label class="block text-[10px] uppercase tracking-widest text-amber-500 font-bold mb-2 ml-1">N° de Commande (Vérification License)</label>
+                    <input type="text" name="commande_id" placeholder="Ex: UMR3-6E6..." required
                         class="w-full bg-slate-900/50 border border-amber-500/30 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 outline-none focus:border-amber-500 transition-all">
                 </div>
 
@@ -225,7 +230,7 @@
         });
     </script>
 
-    <script src="../assets/main.js?v=45"></script>
+    <script src="../assets/main.js?v=46"></script>
 </body>
 
 </html>

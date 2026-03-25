@@ -155,12 +155,10 @@ if (isset($_GET['action'])) {
                         'total_users'    => $pdo->query("SELECT COUNT(*) FROM wari_users")->fetchColumn(),
                         'active_today'   => $pdo->query("SELECT COUNT(*) FROM wari_users WHERE DATE(last_budget_at) = CURDATE()")->fetchColumn(),
                         'active_week'    => $pdo->query("SELECT COUNT(*) FROM wari_users WHERE last_budget_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)")->fetchColumn(),
-                        'total_expenses' => $pdo->query("SELECT COALESCE(SUM(amount),0) FROM wari_expenses")->fetchColumn(),
-                        'total_capital'  => $pdo->query("SELECT COALESCE(SUM(project_capital),0) FROM wari_users")->fetchColumn(),
+
                         'licences_dispo' => $pdo->query("SELECT COUNT(*) FROM wari_licences WHERE statut='disponible'")->fetchColumn(),
                         'licences_total' => $pdo->query("SELECT COUNT(*) FROM wari_licences")->fetchColumn(),
-                        // REMPLACÉ : Push subscribers au lieu de sessions actives
-                        'push_subscribers' => $pdo->query("SELECT COUNT(DISTINCT user_id) FROM wari_subscriptions")->fetchColumn(),
+                        'push_subscribers' => $pdo->query("SELECT COUNT(DISTINCT user_id) FROM wari_subscriptions")->fetchColumn()
                     ];
                     jsonResponse(true, ['stats' => $stats]);
                 } catch (Exception $e) {
@@ -397,6 +395,7 @@ if ($_SESSION['is_admin'] ?? false) {
             color: var(--text);
             min-height: 100vh;
             font-size: 13px;
+            padding: 15px;
         }
 
         body::before {
@@ -587,7 +586,66 @@ if ($_SESSION['is_admin'] ?? false) {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 12px;
-            margin-bottom: 36px;
+            margin-bottom: 24px;
+        }
+
+        .search-container {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 20px 16px 48px;
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--gold-border);
+            box-shadow: 0 0 0 3px var(--gold-dim);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 16px;
+        }
+
+        .quick-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--muted);
+            transition: all 0.15s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--gold-border);
+            color: var(--gold);
+            background: var(--gold-dim);
         }
 
         .stat-card {
@@ -1149,17 +1207,7 @@ if ($_SESSION['is_admin'] ?? false) {
             color: var(--gold);
         }
 
-        .log-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px;
-            border-bottom: 1px solid var(--border);
-        }
 
-        .log-row:last-child {
-            border-bottom: none;
-        }
 
         /* NOUVEAU : Styles pour le rapport de push */
         .push-report {
@@ -1307,14 +1355,6 @@ if ($_SESSION['is_admin'] ?? false) {
                         <div class="stat-value purple" id="stat-push">—</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-label">Dépenses totales</div>
-                        <div class="stat-value orange" id="stat-expenses">—</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Capital cumulé</div>
-                        <div class="stat-value green" id="stat-capital">—</div>
-                    </div>
-                    <div class="stat-card">
                         <div class="stat-label">Licences libres</div>
                         <div class="stat-value" id="stat-licences">—</div>
                     </div>
@@ -1322,7 +1362,22 @@ if ($_SESSION['is_admin'] ?? false) {
                 <!-- USERS -->
                 <div class="section-header">
                     <div class="section-title">👥 Utilisateurs</div>
-                    <span style="font-size:11px;color:var(--muted)"><?= count($users) ?> comptes</span>
+                    <span style="font-size:11px;color:var(--muted)"><span id="user-count"><?= count($users) ?></span> comptes</span>
+                </div>
+
+                <!-- BARRE DE RECHERCHE -->
+                <div class="search-container">
+                    <div class="search-icon">🔍</div>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Rechercher par email, ID ou code d'accès... (ex: jean, WARI-26, 154)">
+                </div>
+
+                <!-- FILTRES RAPIDES -->
+                <div class="quick-filters">
+                    <button class="filter-btn" data-filter="all">Tous</button>
+                    <button class="filter-btn" data-filter="active-today">Actifs aujourd'hui</button>
+                    <button class="filter-btn" data-filter="inactive-7d">Inactifs 7j</button>
+                    <button class="filter-btn" data-filter="suspended">Suspendus</button>
+                    <button class="filter-btn" data-filter="capital-high">Capital >50K</button>
                 </div>
                 <div class="table-wrap">
                     <div class="user-row header">
@@ -1371,23 +1426,7 @@ if ($_SESSION['is_admin'] ?? false) {
                 <div class="licences-grid" id="licencesGrid">
                     <div style="font-size:11px;color:var(--muted);padding:20px;">Chargement...</div>
                 </div>
-                <!-- LOGS -->
-                <div class="section-header">
-                    <div class="section-title">📋 Dernières connexions</div>
-                </div>
-                <div class="table-wrap" style="margin-bottom:60px;">
-                    <?php foreach (array_slice($users, 0, 15) as $user):
-                        $t = $user['last_budget_at'] ? (new DateTime($user['last_budget_at']))->format('d/m/Y à H:i') : 'Jamais';
-                    ?>
-                        <div class="log-row">
-                            <div>
-                                <div style="font-size:13px;color:var(--text)"><?= htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') ?></div>
-                                <div style="font-size:10px;color:var(--muted)"><?= htmlspecialchars($user['commande_id'] ?? '', ENT_QUOTES, 'UTF-8') ?></div>
-                            </div>
-                            <span style="font-size:11px;color:var(--muted)"><?= $t ?></span>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
+
             </div>
         </div>
         <!-- CONFIRM -->
@@ -1507,12 +1546,11 @@ if ($_SESSION['is_admin'] ?? false) {
                 const data = await res.json();
                 if (data.success) {
                     const s = data.stats;
+                    console.log('Stats reçues:', s); // DEBUG
                     document.getElementById('stat-users').innerText = s.total_users;
                     document.getElementById('stat-today').innerText = s.active_today;
                     document.getElementById('stat-week').innerText = s.active_week;
                     document.getElementById('stat-push').innerText = s.push_subscribers || '0';
-                    document.getElementById('stat-expenses').innerText = parseInt(s.total_expenses).toLocaleString('fr-FR') + ' F';
-                    document.getElementById('stat-capital').innerText = parseInt(s.total_capital).toLocaleString('fr-FR') + ' F';
                     document.getElementById('stat-licences').innerText = s.licences_dispo + ' / ' + s.licences_total;
                     showToast('✅ Stats mises à jour', 'success');
                 }
@@ -1695,6 +1733,97 @@ if ($_SESSION['is_admin'] ?? false) {
         refreshStats();
         loadLicences();
     </script>
+    <script>
+        // 🔍 BARRE DE RECHERCHE & FILTRES
+        (function() {
+            const searchInput = document.getElementById('searchInput');
+            const userRows = document.querySelectorAll('.user-row:not(.header)');
+            const userCount = document.getElementById('user-count');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+
+            let currentFilter = 'all';
+
+            // 🔍 Recherche instantanée
+            searchInput.addEventListener('input', function() {
+                filterUsers();
+            });
+
+            // 🎯 Filtres rapides
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    filterUsers();
+                });
+            });
+
+            // 🧠 Fonction de filtrage principale
+            function filterUsers() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                let visibleCount = 0;
+
+                userRows.forEach(row => {
+                    const email = row.querySelector('.user-email')?.textContent.toLowerCase() || '';
+                    const userId = row.querySelector('.user-id')?.textContent.toLowerCase() || '';
+                    const commandeId = row.querySelector('.user-email')?.nextElementSibling?.textContent.toLowerCase() || '';
+                    const lastActivity = row.querySelector('.last-seen')?.textContent || '';
+                    const statusBadge = row.querySelector('.badge')?.textContent.toLowerCase() || '';
+                    const capitalText = row.querySelector('.user-capital')?.textContent || '';
+
+                    // 🔍 Test recherche texte
+                    const matchesSearch = !searchTerm ||
+                        email.includes(searchTerm) ||
+                        userId.includes(searchTerm) ||
+                        commandeId.includes(searchTerm) ||
+                        extractNumber(searchTerm) === extractNumber(commandeId);
+
+                    // 🎯 Test filtre actif
+                    const matchesFilter = checkFilter(row, lastActivity, statusBadge, capitalText);
+
+                    // 👁️ Afficher/masquer
+                    if (matchesSearch && matchesFilter) {
+                        row.style.display = 'grid';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // 📊 Mise à jour compteur
+                userCount.textContent = visibleCount;
+            }
+
+            // 🎯 Vérification des filtres
+            function checkFilter(row, lastActivity, statusBadge, capitalText) {
+                switch (currentFilter) {
+                    case 'all':
+                        return true;
+                    case 'active-today':
+                        return lastActivity.includes('Aujourd\'hui') || lastActivity.includes('aujourd\'hui');
+                    case 'inactive-7d':
+                        return lastActivity.includes('Jamais') || lastActivity.includes('jours') || lastActivity.includes('semaine');
+                    case 'suspended':
+                        return statusBadge.includes('suspendu');
+                    case 'capital-high':
+                        const capital = parseInt(capitalText.replace(/[^0-9]/g, ''));
+                        return capital > 50000;
+                    default:
+                        return true;
+                }
+            }
+
+            // 🔢 Extracteur de numéros pour ID/commande
+            function extractNumber(text) {
+                const match = text.match(/\d+/);
+                return match ? match[0] : '';
+            }
+
+            // 🚀 Initialisation
+            filterBtns[0].classList.add('active'); // Activer "Tous" par défaut
+        })();
+    </script>
+
 </body>
 
 </html>
