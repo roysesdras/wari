@@ -779,7 +779,7 @@ $product_name = "WARI Finance - Licence Pro";
             </div>
 
             <!-- Payment -->
-            <div class="card-payment">
+            <div class="card-payment" id="achat-licence">
                 <div class="pay-title">💳 WARI PRO LICENCE</div>
                 <p class="pay-subtitle">
                     Libérez toute la puissance de Wari. Payez une seule fois, profitez à vie. Votre licence Pro arrive dans votre boîte mail juste après validation.

@@ -25,7 +25,7 @@ require_once __DIR__ . '/../config/db.php';
 
 $mailer = new Mailer();
 
-// 2. Sélection des 50 cibles (priorité aux plus anciens inactifs)
+// 2. Sélection des 150 cibles (Sécurité Gmail : ~1000/semaine max pour être tranquille)
 $inactiveUsers = $pdo->query("
     SELECT u.id, u.email, 
     DATEDIFF(NOW(), COALESCE(u.last_budget_at, u.date_inscription)) as days_inactive,
@@ -35,17 +35,20 @@ $inactiveUsers = $pdo->query("
      AND date_expense > DATE_SUB(NOW(), INTERVAL 30 DAY)) as streak_lost
     FROM wari_users u
     WHERE u.email IS NOT NULL AND u.email != ''
+    -- CONDITION CRUCIALE : On ne relance pas quelqu'un qui a reçu un mail il y a moins de 7 jours
     AND (u.last_email_sent IS NULL OR u.last_email_sent < DATE_SUB(NOW(), INTERVAL 7 DAY))
+    -- On cible ceux inactifs depuis au moins 3 jours
     AND DATEDIFF(NOW(), COALESCE(u.last_budget_at, u.date_inscription)) >= 3
-    ORDER BY days_inactive DESC
-    LIMIT 50
+    -- On priorise ceux qui n'ont JAMAIS reçu de relance, puis les plus anciens
+    ORDER BY (u.last_email_sent IS NULL) DESC, days_inactive DESC
+    LIMIT 150
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 if (empty($inactiveUsers)) {
-    die("✅ Aucun utilisateur à relancer aujourd'hui.\n");
+    die("✅ Tout le monde a été relancé cette semaine.\n");
 }
 
-echo "📧 " . count($inactiveUsers) . " emails en cours de préparation...\n";
+echo "📧 " . count($inactiveUsers) . " cibles identifiées pour aujourd'hui.\n";
 
 // 3. Chargement du template HTML
 $templatePath = '/var/www/html/templates/emails/reactivation.html'; // Vérifie bien ce chemin !
@@ -78,7 +81,8 @@ foreach ($inactiveUsers as $user) {
         echo "❌ (" . $result['message'] . ")\n";
     }
     
-    usleep(800000); // 0.8s de pause pour respecter les quotas SMTP
+    // Pause de 2 secondes pour Gmail (Crucial pour 150 mails)
+    usleep(2000000);
 }
 
 echo "🏁 Fin du traitement.\n";

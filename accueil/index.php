@@ -43,7 +43,8 @@ if ($isBot) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 
-    <link rel="apple-touch-icon" href="https://wari.digiroys.com/assets/warifinance3d.png">
+    <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
+    <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

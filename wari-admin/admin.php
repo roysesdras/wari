@@ -362,6 +362,8 @@ if ($_SESSION['is_admin'] ?? false) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
     <title>WARI — Admin Console (Sécurisé)</title>
+    <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
+    <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
     <style>
         /* [Votre CSS inchangé] */
         :root {

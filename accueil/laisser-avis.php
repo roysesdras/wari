@@ -72,6 +72,10 @@ $csrf = $_SESSION['csrf'];
     <title>Laisser un avis — Wari</title>
     <meta name="description" content="Partagez votre expérience avec Wari, l'application de gestion budgétaire.">
     <!-- Pas d'indexation sur la page formulaire -->
+
+    <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
+    <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
+
     <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

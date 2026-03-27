@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="../assets/styles.css?v=46">
+    <link rel="stylesheet" href="../assets/styles.css?v=47">
     <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#0f172a">
 
@@ -131,6 +131,27 @@
             </form>
         </div>
 
+        <!-- bandeau de license -->
+        <!-- <div class="mt-6 text-center px-4 animate-fade-in">
+            <p class="text-[11px] uppercase tracking-widest text-slate-500 font-medium mb-3">
+                Pas encore de licence WARI ?
+            </p>
+            <a href="https://wari.digiroys.com/paid/landing-vente.php#achat-licence"
+                class="inline-flex items-center gap-3 bg-slate-900/40 border border-slate-800 hover:border-amber-500/50 px-6 py-3 rounded-2xl transition-all group">
+                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/10 text-amber-500 group-hover:bg-amber-500 group-hover:text-black transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </span>
+                <div class="text-left">
+                    <div class="text-[11px] text-white font-black uppercase tracking-tighter">Obtenir ma licence Wari</div>
+                    <div class="text-[9px] text-amber-500/80 font-bold uppercase tracking-widest">Seulement 2 500 F CFA</div>
+                </div>
+                <span class="text-slate-700 group-hover:text-amber-500 transition-colors ml-2">→</span>
+            </a>
+        </div> -->
+
+        <!-- Bouton install PWA -->
         <div id="installBtn" onclick="triggerInstall()" class="hidden mt-6 group cursor-pointer">
             <div class="glass border-amber-500/20 bg-amber-500/5 p-4 rounded-2xl flex items-center justify-between hover:bg-amber-500/10 transition-all active:scale-95 border border-dashed">
                 <div class="flex items-center gap-3">
@@ -230,7 +251,7 @@
         });
     </script>
 
-    <script src="../assets/main.js?v=46"></script>
+    <script src="../assets/main.js?v=47"></script>
 </body>
 
 </html>
