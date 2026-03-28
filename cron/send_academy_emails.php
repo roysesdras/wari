@@ -7,7 +7,7 @@ ini_set('display_errors', 1);
 echo "🚀 [" . date('Y-m-d H:i:s') . "] Démarrage de la campagne Academy...\n";
 
 // ── 1. Chargement du .env ─────────────────────────────────────
-$envFile = '/var/www/html/wari-admin/.env';
+$envFile = __DIR__ . '/../wari-admin/.env';
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
@@ -169,7 +169,7 @@ if (empty($users)) {
 echo "📧 " . count($users) . " utilisateurs ciblés...\n";
 
 // ── 4. CHARGEMENT DU TEMPLATE ─────────────────────────────────
-$templatePath = '/var/www/html/templates/emails/academy.html';
+$templatePath = __DIR__ . '/../templates/emails/academy.html';
 if (!file_exists($templatePath)) {
     die("❌ Template introuvable : $templatePath\n");
 }

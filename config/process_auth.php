@@ -117,7 +117,12 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['wari_remember'])) {
                 'samesite' => 'Strict',
             ]);
 
-            header('Location: ../index.php');
+            $redir = $_GET['redirect'] ?? $_POST['redirect'] ?? '';
+            if (!empty($redir)) {
+                header('Location: ' . $redir);
+            } else {
+                header('Location: ../index.php');
+            }
             exit();
         }
     } else {
@@ -155,7 +160,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("UPDATE wari_licences SET statut = 'utilise' WHERE commande_id = ?");
                 $stmt->execute([$commande_id]);
 
-                header('Location: auth.php?success=1');
+                $redirParam = isset($_POST['redirect']) && !empty($_POST['redirect']) ? '&redirect=' . urlencode($_POST['redirect']) : '';
+                header('Location: auth.php?success=1' . $redirParam);
                 exit();
             } catch (Exception $e) {
                 die("Erreur : Cet email est peut-être déjà utilisé.");
@@ -220,7 +226,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'samesite' => 'Strict',
             ]);
 
-            header('Location: ../index.php');
+            $redir = $_GET['redirect'] ?? $_POST['redirect'] ?? '';
+            if (!empty($redir)) {
+                header('Location: ' . $redir);
+            } else {
+                header('Location: ../index.php');
+            }
             exit();
         } else {
             // 🔴 ÉCHEC DE CONNEXION

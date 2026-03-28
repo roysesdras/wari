@@ -71,8 +71,11 @@
                 <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-2 text-sm font-bold text-slate-400 rounded-lg transition-all duration-300">Activer</button>
             </div>
 
-            <form id="form-login" action="process_auth.php" method="POST" class="space-y-4">
+            <form id="form-login" action="/config/process_auth.php" method="POST" class="space-y-4">
                 <input type="hidden" name="action" value="login">
+                <?php if (isset($_GET['redirect'])): ?>
+                    <input type="hidden" name="redirect" value="<?= htmlspecialchars($_GET['redirect']) ?>">
+                <?php endif; ?>
 
                 <div>
                     <label class="block text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2 ml-1">Email</label>
@@ -96,8 +99,11 @@
                 </button>
             </form>
 
-            <form id="form-register" action="process_auth.php" method="POST" class="space-y-4 hidden">
+            <form id="form-register" action="/config/process_auth.php" method="POST" class="space-y-4 hidden">
                 <input type="hidden" name="action" value="register">
+                <?php if (isset($_GET['redirect'])): ?>
+                    <input type="hidden" name="redirect" value="<?= htmlspecialchars($_GET['redirect']) ?>">
+                <?php endif; ?>
 
                 <div>
                     <label class="block text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2 ml-1">Email</label>

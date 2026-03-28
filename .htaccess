@@ -1,4 +1,9 @@
-# Dans votre fichier .htaccess
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^login/?$ config/auth.php [QSA,L]
+    RewriteRule ^register/?$ config/auth.php [QSA,L]
+</IfModule>
+
 <IfModule mod_headers.c>
     <FilesMatch "\.php$">
         Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"

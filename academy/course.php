@@ -4,7 +4,9 @@
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../classes/Academy.php';
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../config/session_check.php';
+
 $user_id = $_SESSION['user_id'] ?? null;
 
 // Redirection si non connecté
@@ -143,9 +145,9 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
             Retour aux cours
         </a>
 
-        <a href="https://wari.digiroys.com/profil" class="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl transition-all">
-            <span class="text-xs font-bold text-white/80">Mon profi</span>
-            <div class="w-8 h-8 bg-wari-gold rounded-lg flex items-center justify-center text-slate-950 font-bold text-xs uppercase"><?= substr($_SESSION['user_name'] ?? 'U', 0, 2) ?></div>
+        <a href="#" class="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl transition-all">
+            <span class="text-xs font-bold text-white/80">Profil</span>
+            <div class="w-8 h-8 bg-wari-gold rounded-lg flex items-center justify-center text-slate-950 font-bold text-xs uppercase"><?= substr($_SESSION['user_email'] ?? 'U', 0, 2) ?></div>
         </a>
     </nav>
 

@@ -296,8 +296,14 @@ $courses = $pdo->query("
 
                     <!-- Titre -->
                     <div class="col-span-2">
-                        <label class="field-label">Titre du cours *</label>
-                        <input type="text" name="titre" class="field-input"
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="field-label mb-0">Titre du cours *</label>
+                            <button type="button" onclick="generateDraft()" id="btn-ai-draft"
+                                    class="text-[10px] font-bold uppercase tracking-wider text-gold-500 hover:text-gold-400 flex items-center gap-1.5 transition-all opacity-70 hover:opacity-100">
+                                <span class="text-xs">🪄</span> Draft Magique (IA)
+                            </button>
+                        </div>
+                        <input type="text" id="course_title" name="titre" class="field-input"
                                placeholder="ex: Gérer son budget au quotidien"
                                value="<?= htmlspecialchars($courseEdit['titre'] ?? '') ?>"
                                required>
@@ -557,5 +563,62 @@ $courses = $pdo->query("
     </div>
 </div>
 
+    <script>
+        async function generateDraft() {
+            const titleInput = document.getElementById('course_title');
+            const descInput  = document.querySelector('textarea[name="description"]');
+            const btn        = document.getElementById('btn-ai-draft');
+            const levelSelect = document.querySelector('select[name="niveau"]');
+            const durationInput = document.querySelector('input[name="duree_minutes"]');
+
+            if (!titleInput.value.trim()) {
+                alert("Veuillez d'abord saisir un sujet dans le champ Titre.");
+                titleInput.focus();
+                return;
+            }
+
+            const originalBtnHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="text-xs">⌛</span> Génération...';
+            btn.classList.add('animate-pulse');
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'draft_course');
+                formData.append('sujet', titleInput.value);
+
+                const response = await fetch('ai_gateway.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                let data = await response.json();
+                
+                // Sécurité : si l'IA renvoie un tableau au lieu d'un objet
+                if (Array.isArray(data)) data = data[0];
+
+                if (data.error) {
+                    alert("Erreur IA : " + data.error);
+                } else {
+                    // Remplissage des champs
+                    if (data.titre) titleInput.value = data.titre;
+                    if (data.description) descInput.value = data.description;
+                    if (data.niveau) levelSelect.value = data.niveau;
+                    if (data.duree_minutes) durationInput.value = data.duree_minutes;
+
+                    // Petit effet visuel
+                    descInput.classList.add('ring-2', 'ring-gold-500/50');
+                    setTimeout(() => descInput.classList.remove('ring-2', 'ring-gold-500/50'), 2000);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erreur lors de la communication avec l'IA.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+                btn.classList.remove('animate-pulse');
+            }
+        }
+    </script>
 </body>
 </html>

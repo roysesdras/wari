@@ -109,9 +109,9 @@ if ($user_id && !empty($coursesWithProgress)) {
         </div>
 
         <?php if ($user_id): ?>
-            <a href="https://wari.digiroys.com/profil" class="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:bg-white/10 transition-all">
-                <span class="text-xs font-bold text-white/80">Mon Profil</span>
-                <div class="w-8 h-8 bg-wari-gold rounded-lg flex items-center justify-center text-black font-bold text-xs">ES</div>
+            <a href="#" class="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:bg-white/10 transition-all">
+                <span class="text-xs font-bold text-white/80">Profil</span>
+                <div class="w-8 h-8 bg-wari-gold rounded-lg flex items-center justify-center text-black font-bold text-xs"><?= substr($_SESSION['user_email'] ?? 'U', 0, 2) ?></div>
             </a>
         <?php else: ?>
             <a href="https://wari.digiroys.com/register" class="bg-wari-gold text-black px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-wari-gold/20">
@@ -207,7 +207,7 @@ if ($user_id && !empty($coursesWithProgress)) {
                 <a href="/academy/categorie.php?slug=<?= $cat['slug'] ?>" class="bento-card rounded-3xl p-6 text-center group">
                     <div class="text-3xl mb-3 group-hover:scale-125 transition-transform"><?= $cat['icone'] ?></div>
                     <div class="text-[10px] font-black uppercase text-white/80"><?= $cat['titre'] ?></div>
-                    <div class="text-[9px] text-wari-gold/50 mt-1"><?= $cat['nb_cours'] ?> COURS</div>
+                    <div class="text-[9px] text-wari-gold/50 mt-1"><span class="text-wari-gold font-bold"><?= $cat['nb_cours'] ?></span> COURS</div>
                 </a>
             <?php endforeach; ?>
         </div>

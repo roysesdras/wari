@@ -515,6 +515,12 @@ if ($filterCourseId) {
                                             &lt;<?= $label ?>&gt;
                                         </button>
                                     <?php endforeach; ?>
+
+                                    <!-- Bouton IA -->
+                                    <button type="button" onclick="generateLessonContent()" id="btn-ai-write"
+                                        class="text-[10px] font-bold uppercase tracking-widest bg-gold-950/30 border border-gold-500/30 text-gold-500 hover:text-gold-400 hover:border-gold-500 hover:bg-gold-900/40 px-3 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1.5">
+                                        ✨ Rédiger avec l'IA
+                                    </button>
                                 </div>
                             </div>
 
@@ -757,6 +763,71 @@ if ($filterCourseId) {
             textarea.value = text.slice(0, start) + tag + text.slice(end);
             textarea.selectionStart = textarea.selectionEnd = start + tag.length;
             textarea.focus();
+        }
+
+        // --- GÉNÉRATION IA ---
+        async function generateLessonContent() {
+            const titleField = document.querySelector('input[name="titre"]');
+            const contentArea = document.querySelector('textarea[name="contenu"]');
+            const btn = document.getElementById('btn-ai-write');
+            
+            // On essaie de récupérer le contexte du cours
+            let courseContext = "";
+            const courseSelect = document.querySelector('select[name="course_id"]');
+            if (courseSelect) {
+                courseContext = courseSelect.options[courseSelect.selectedIndex].text;
+            } else {
+                // Si on édite, on peut avoir le titre via le PHP injecté ou un titre de page
+                courseContext = "Cours Wari Academy";
+            }
+
+            if (!titleField.value.trim()) {
+                alert("Veuillez d'abord saisir le titre de la leçon.");
+                titleField.focus();
+                return;
+            }
+
+            if (contentArea.value.trim() && !confirm("L'IA va remplacer le contenu actuel. Continuer ?")) {
+                return;
+            }
+
+            const originalBtnHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⌛ Rédaction...';
+            btn.classList.add('animate-pulse');
+
+            try {
+                const formData = new FormData();
+                formData.append('action', 'write_lesson');
+                formData.append('titre_lecon', titleField.value);
+                formData.append('cours_context', courseContext);
+
+                const response = await fetch('ai_gateway.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                let data = await response.json();
+
+                // Sécurité : si l'IA renvoie un tableau au lieu d'un objet
+                if (Array.isArray(data)) data = data[0];
+
+                if (data.error) {
+                    alert("Erreur IA : " + data.error);
+                } else if (data.contenu) {
+                    contentArea.value = data.contenu;
+                    // Petit effet visuel
+                    contentArea.classList.add('ring-2', 'ring-gold-500/50');
+                    setTimeout(() => contentArea.classList.remove('ring-2', 'ring-gold-500/50'), 2000);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Erreur lors de la communication avec l'IA.");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+                btn.classList.remove('animate-pulse');
+            }
         }
     </script>
 
