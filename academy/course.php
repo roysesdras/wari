@@ -56,7 +56,7 @@ $doneLecons    = count(array_filter($lessons, fn($l) => $l['complete']));
 $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
@@ -64,853 +64,353 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
     <title><?= htmlspecialchars($course['titre']) ?> — Wari Academy</title>
 
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
-    <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
+    <link rel="apple-touch-icon" href="../assets/warifinance3d.png" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Utilisation de Outfit (Titres) et Plus Jakarta Sans (Corps) comme défini par le standard Tailwind de Wari -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        wari: {
+                            gold: '#C9A84C',
+                            goldLight: '#F0D080',
+                            goldDark: '#8B6914',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        /* ── VARIABLES ───────────────────────────────────────── */
-        :root {
-            --or: #C9A84C;
-            --or-light: #F0D080;
-            --or-dark: #8B6914;
-            --terre: #1A1209;
-            --encre: #0F0A02;
-            --creme: #FAF5E9;
-            --creme2: #F0E8D0;
-            --blanc: #FFFFFF;
-            --gris: #6B6050;
-            --cat-color: <?= htmlspecialchars($course['category_couleur'] ?? '#C9A84C') ?>;
-
-            --font-titre: 'Playfair Display', serif;
-            --font-corps: 'DM Sans', sans-serif;
-
-            --rayon: 14px;
-            --ombre: 0 4px 24px rgba(0, 0, 0, .10);
-            --transition: .25s cubic-bezier(.4, 0, .2, 1);
-        }
-
-        /* ── RESET ───────────────────────────────────────────── */
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: var(--font-corps);
-            background: var(--creme);
-            color: var(--terre);
-            min-height: 100vh;
-        }
-
-        /* ── NAV ──────────────────────────────────────────────── */
-        .topnav {
-            background: var(--encre);
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(201, 168, 76, .15);
-        }
-
-        .topnav-logo {
-            font-family: var(--font-titre);
-            font-size: 1.1rem;
-            font-weight: 900;
-            color: var(--or);
-            text-decoration: none;
-        }
-
-        .topnav-logo span {
-            color: var(--blanc);
-        }
-
-        .topnav-back {
-            font-size: .82rem;
-            color: rgba(255, 255, 255, .55);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color var(--transition);
-        }
-
-        .topnav-back:hover {
-            color: var(--or);
-        }
-
-        .topnav-user {
-            font-size: .8rem;
-            font-weight: 600;
-            color: var(--or-light);
-            background: rgba(201, 168, 76, .12);
-            border: 1px solid rgba(201, 168, 76, .25);
-            padding: 6px 14px;
-            border-radius: 999px;
-            text-decoration: none;
-        }
-
-        /* ── HERO COURS ───────────────────────────────────────── */
-        .course-hero {
-            background: var(--encre);
-            padding: 48px 24px 40px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .course-hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg,
-                    color-mix(in srgb, var(--cat-color) 20%, transparent) 0%,
-                    transparent 60%);
-        }
-
-        .course-hero::after {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            border: 1px solid rgba(201, 168, 76, .08);
-            top: -80px;
-            right: -60px;
-            pointer-events: none;
-        }
-
-        .course-hero-inner {
-            max-width: 860px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .course-breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .course-breadcrumb a {
-            font-size: .78rem;
-            color: rgba(255, 255, 255, .45);
-            text-decoration: none;
-            transition: color var(--transition);
-        }
-
-        .course-breadcrumb a:hover {
-            color: var(--or);
-        }
-
-        .course-breadcrumb span {
-            color: rgba(255, 255, 255, .2);
-            font-size: .78rem;
-        }
-
-        .course-breadcrumb strong {
-            font-size: .78rem;
-            color: var(--or-light);
-        }
-
-        .cat-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: .72rem;
-            font-weight: 600;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            color: var(--cat-color);
-            background: color-mix(in srgb, var(--cat-color) 15%, transparent);
-            border: 1px solid color-mix(in srgb, var(--cat-color) 30%, transparent);
-            padding: 4px 12px;
-            border-radius: 999px;
-            margin-bottom: 16px;
-        }
-
-        .course-hero h1 {
-            font-family: var(--font-titre);
-            font-size: clamp(1.6rem, 4vw, 2.4rem);
-            font-weight: 900;
-            color: var(--blanc);
-            line-height: 1.2;
-            margin-bottom: 14px;
-        }
-
-        .course-hero p {
-            font-size: .95rem;
-            color: rgba(255, 255, 255, .6);
-            line-height: 1.7;
-            max-width: 600px;
-            margin-bottom: 28px;
-        }
-
-        .course-hero-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .meta-item {
-            font-size: .8rem;
-            color: rgba(255, 255, 255, .5);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .meta-item strong {
-            color: rgba(255, 255, 255, .85);
-        }
-
-        /* ── BARRE PROGRESSION HERO ───────────────────────────── */
-        .hero-progress {
-            margin-top: 28px;
-            background: rgba(255, 255, 255, .08);
-            border-radius: 12px;
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .hero-progress-info {
-            flex: 1;
-        }
-
-        .hero-progress-label {
-            font-size: .8rem;
-            color: rgba(255, 255, 255, .5);
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .hero-progress-label strong {
-            color: var(--or);
-        }
-
-        .progress-bar {
-            height: 6px;
-            background: rgba(255, 255, 255, .1);
-            border-radius: 999px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--or-dark), var(--or));
-            border-radius: 999px;
-            transition: width .8s ease;
-        }
-
-        .hero-cta-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--or);
-            color: var(--encre);
-            font-weight: 700;
-            font-size: .88rem;
-            padding: 12px 24px;
-            border-radius: 999px;
-            text-decoration: none;
-            white-space: nowrap;
-            transition: all var(--transition);
-            flex-shrink: 0;
-        }
-
-        .hero-cta-btn:hover {
-            background: var(--or-light);
-            transform: translateY(-2px);
-        }
-
-        .hero-cta-btn.termine {
-            background: #2E7D32;
-            color: var(--blanc);
-        }
-
-        /* ── LAYOUT PRINCIPAL ─────────────────────────────────── */
-        .course-layout {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 24px;
-            display: grid;
-            grid-template-columns: 1fr 320px;
-            gap: 28px;
-            align-items: start;
-        }
-
-        @media (max-width: 768px) {
-            .course-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                order: -1;
-            }
-        }
-
-        /* ── LISTE DES LEÇONS ─────────────────────────────────── */
-        .lessons-block {
-            background: var(--blanc);
-            border-radius: var(--rayon);
-            border: 1.5px solid var(--creme2);
-            overflow: hidden;
-        }
-
-        .lessons-block-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--creme2);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .lessons-block-header h2 {
-            font-family: var(--font-titre);
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--encre);
-        }
-
-        .lessons-count {
-            font-size: .78rem;
-            color: var(--gris);
-            background: var(--creme);
-            padding: 3px 10px;
-            border-radius: 999px;
-        }
-
-        .lesson-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px 24px;
-            border-bottom: 1px solid var(--creme2);
-            text-decoration: none;
-            color: var(--terre);
-            transition: background var(--transition);
-            position: relative;
-        }
-
-        .lesson-item:last-child {
-            border-bottom: none;
-        }
-
-        .lesson-item:hover {
-            background: var(--creme);
-        }
-
-        .lesson-item.active {
-            background: color-mix(in srgb, var(--cat-color) 6%, var(--blanc));
-            border-left: 3px solid var(--cat-color);
-        }
-
-        .lesson-num {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: .78rem;
-            font-weight: 700;
-            background: var(--creme2);
-            color: var(--gris);
-            flex-shrink: 0;
-            transition: all var(--transition);
-        }
-
-        .lesson-item.complete .lesson-num {
-            background: #E8F5E9;
-            color: #2E7D32;
-        }
-
-        .lesson-item.active .lesson-num {
-            background: var(--cat-color);
-            color: var(--blanc);
-        }
-
-        .lesson-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .lesson-titre {
-            font-size: .9rem;
-            font-weight: 600;
-            color: var(--encre);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .lesson-item.complete .lesson-titre {
-            color: var(--gris);
-        }
-
-        .lesson-meta {
-            font-size: .75rem;
-            color: var(--gris);
-            margin-top: 2px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .lesson-status {
-            flex-shrink: 0;
-            font-size: 1rem;
-        }
-
-        /* ── SIDEBAR ──────────────────────────────────────────── */
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .sidebar-card {
-            background: var(--blanc);
-            border-radius: var(--rayon);
-            border: 1.5px solid var(--creme2);
-            overflow: hidden;
-        }
-
-        .sidebar-card-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--creme2);
-            font-family: var(--font-titre);
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--encre);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sidebar-card-body {
-            padding: 18px 20px;
-        }
-
-        /* Stats du cours */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .stat-box {
-            background: var(--creme);
-            border-radius: 10px;
-            padding: 14px;
-            text-align: center;
-        }
-
-        .stat-box strong {
-            display: block;
-            font-family: var(--font-titre);
-            font-size: 1.5rem;
-            color: var(--or-dark);
-            line-height: 1;
-        }
-
-        .stat-box span {
-            font-size: .72rem;
-            color: var(--gris);
-            margin-top: 4px;
-            display: block;
-        }
-
-        /* PDF payants */
-        .pdf-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--creme2);
-        }
-
-        .pdf-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .pdf-icone {
-            font-size: 1.4rem;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .pdf-info {
-            flex: 1;
-        }
-
-        .pdf-titre {
-            font-size: .85rem;
-            font-weight: 600;
-            color: var(--encre);
-            margin-bottom: 2px;
-        }
-
-        .pdf-desc {
-            font-size: .75rem;
-            color: var(--gris);
-            line-height: 1.4;
-            margin-bottom: 8px;
-        }
-
-        .pdf-prix {
-            font-size: .78rem;
-            font-weight: 700;
-            color: var(--or-dark);
-        }
-
-        .pdf-prix.gratuit {
-            color: #2E7D32;
-        }
-
-        .pdf-btn {
-            display: inline-block;
-            font-size: .75rem;
-            font-weight: 600;
-            padding: 5px 14px;
-            border-radius: 999px;
-            text-decoration: none;
-            background: var(--encre);
-            color: var(--blanc);
-            transition: background var(--transition);
-            margin-top: 6px;
-        }
-
-        .pdf-btn:hover {
-            background: var(--or-dark);
-        }
-
-        .pdf-btn.gratuit {
-            background: #E8F5E9;
-            color: #2E7D32;
-        }
-
-        /* Auteur */
-        .auteur-card {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .auteur-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--or-dark), var(--or));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            flex-shrink: 0;
-        }
-
-        .auteur-nom {
-            font-weight: 600;
-            font-size: .9rem;
-            color: var(--encre);
-            margin-bottom: 2px;
-        }
-
-        .auteur-role {
-            font-size: .75rem;
-            color: var(--gris);
-        }
-
-        /* Badge terminé */
-        .badge-termine {
-            background: #E8F5E9;
-            border: 1px solid #A5D6A7;
-            border-radius: 10px;
-            padding: 14px 16px;
-            text-align: center;
-        }
-
-        .badge-termine .icone {
-            font-size: 2rem;
-            margin-bottom: 6px;
-        }
-
-        .badge-termine strong {
-            display: block;
-            font-size: .9rem;
-            color: #1B5E20;
-            font-weight: 700;
-        }
-
-        .badge-termine span {
-            font-size: .78rem;
-            color: #388E3C;
-        }
-
-        /* ── ANIMATIONS ───────────────────────────────────────── */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .course-hero-inner {
-            animation: fadeUp .5s ease both;
-        }
-
-        .lessons-block,
-        .sidebar-card {
-            animation: fadeUp .5s ease both;
-        }
-
-        .lesson-item {
-            animation: fadeUp .35s ease both;
-        }
-
-        /* ── EMPTY ────────────────────────────────────────────── */
-        .empty {
-            padding: 40px 24px;
-            text-align: center;
-            color: var(--gris);
+        .cat-color {
+            color: <?= htmlspecialchars($course['category_couleur'] ?? '#C9A84C') ?>;
+        }
+        .bg-cat-color {
+            background-color: <?= htmlspecialchars($course['category_couleur'] ?? '#C9A84C') ?>;
+        }
+        .border-cat-color {
+            border-color: <?= htmlspecialchars($course['category_couleur'] ?? '#C9A84C') ?>;
+        }
+        
+        /* Glassmorphism Bento Cards */
+        .bento-card {
+            background: rgba(30, 41, 59, 0.4); /* base slate-800 with transparency */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .bento-card:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(30, 41, 59, 0.6);
+        }
+        .bento-card-highlight {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border: 1px solid rgba(201, 168, 76, 0.2);
         }
     </style>
 </head>
 
-<body>
+<body class="bg-slate-950 text-slate-300 font-sans antialiased min-h-screen flex flex-col selection:bg-wari-gold selection:text-slate-950">
 
     <!-- ── NAVIGATION ──────────────────────────────────────────── -->
-    <nav class="topnav">
-        <a href="/academy/" class="topnav-logo">Wari<span> Academy</span></a>
-        <a href="/academy/" class="topnav-back">← Retour aux cours</a>
-        <a href="https://wari.digiroys.com/profil" class="topnav-user">👤 Mon profil</a>
+    <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5 px-6 h-20 flex items-center justify-between">
+        <a href="/academy/" class="font-heading text-2xl font-black text-wari-gold tracking-tight">
+            Wari<span class="font-light text-white">Academy.</span>
+        </a>
+        
+        <a href="/academy/" class="hidden md:flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Retour aux cours
+        </a>
+
+        <a href="https://wari.digiroys.com/profil" class="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl transition-all">
+            <span class="text-xs font-bold text-white/80">Mon profi</span>
+            <div class="w-8 h-8 bg-wari-gold rounded-lg flex items-center justify-center text-slate-950 font-bold text-xs uppercase"><?= substr($_SESSION['user_name'] ?? 'U', 0, 2) ?></div>
+        </a>
     </nav>
 
-    <!-- ── HERO ────────────────────────────────────────────────── -->
-    <section class="course-hero">
-        <div class="course-hero-inner">
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 flex flex-col gap-8 md:gap-12">
+        
+        <!-- ── HERO BENTO (Span full) ────────────────────────────── -->
+        <section class="bento-card bento-card-highlight p-8 md:p-12 relative overflow-hidden group rounded-[2.5rem]">
+            <!-- Decorative background elements -->
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-cat-color rounded-full mix-blend-multiply filter blur-3xl opacity-10 group-hover:opacity-[0.15] transition-opacity duration-700"></div>
+            <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-wari-gold rounded-full mix-blend-multiply filter blur-3xl opacity-10 group-hover:opacity-[0.15] transition-opacity duration-700"></div>
 
-            <div class="course-breadcrumb">
-                <a href="/academy/">Academy</a>
-                <span>/</span>
-                <a href="/academy/?cat=<?= htmlspecialchars($course['category_slug']) ?>">
-                    <?= htmlspecialchars($course['category_titre']) ?>
-                </a>
-                <span>/</span>
-                <strong><?= htmlspecialchars($course['titre']) ?></strong>
-            </div>
-
-            <div class="cat-badge">
-                <?= htmlspecialchars($course['category_titre']) ?>
-            </div>
-
-            <h1><?= htmlspecialchars($course['titre']) ?></h1>
-
-            <?php if ($course['description']): ?>
-                <p><?= htmlspecialchars($course['description']) ?></p>
-            <?php endif; ?>
-
-            <div class="course-hero-meta">
-                <div class="meta-item">⏱ <strong><?= $course['duree_minutes'] ?> min</strong> estimées</div>
-                <div class="meta-item">📖 <strong><?= $totalLecons ?> leçon<?= $totalLecons > 1 ? 's' : '' ?></strong></div>
-                <div class="meta-item">🎯 <strong><?= ucfirst($course['niveau']) ?></strong></div>
-                <div class="meta-item">✍️ Par <strong><?= htmlspecialchars($course['auteur']) ?></strong></div>
-            </div>
-
-            <!-- Progression -->
-            <div class="hero-progress">
-                <div class="hero-progress-info">
-                    <div class="hero-progress-label">
-                        <span><?= $doneLecons ?> / <?= $totalLecons ?> leçons terminées</span>
-                        <strong><?= $progress ?>%</strong>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width:<?= $progress ?>%"></div>
-                    </div>
-                </div>
-
-                <?php if ($nextLesson): ?>
-                    <a
-                        href="/academy/lesson.php?id=<?= $nextLesson['id'] ?>"
-                        class="hero-cta-btn <?= $coursTermine ? 'termine' : '' ?>">
-                        <?php if ($coursTermine): ?>
-                            ✅ Revoir le cours
-                        <?php elseif ($progress > 0): ?>
-                            ▶ Continuer
-                        <?php else: ?>
-                            🚀 Commencer
-                        <?php endif; ?>
-                    </a>
-                <?php endif; ?>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- ── LAYOUT ──────────────────────────────────────────────── -->
-    <div class="course-layout">
-
-        <!-- ── LISTE DES LEÇONS ─────────────────────────────────── -->
-        <div>
-            <div class="lessons-block">
-                <div class="lessons-block-header">
-                    <h2>Leçons du cours</h2>
-                    <span class="lessons-count"><?= $doneLecons ?>/<?= $totalLecons ?> complétées</span>
-                </div>
-
-                <?php if (!empty($lessons)): ?>
-                    <?php foreach ($lessons as $i => $lesson): ?>
-                        <?php
-                        $isComplete = $lesson['complete'];
-                        $isCurrent  = $nextLesson && $lesson['id'] === $nextLesson['id'] && !$coursTermine;
-                        $classes    = 'lesson-item';
-                        if ($isComplete) $classes .= ' complete';
-                        if ($isCurrent)  $classes .= ' active';
-                        ?>
-                        <a
-                            href="/academy/lesson.php?id=<?= $lesson['id'] ?>"
-                            class="<?= $classes ?>"
-                            style="animation-delay: <?= $i * .06 ?>s">
-                            <div class="lesson-num">
-                                <?php if ($isComplete): ?>✓
-                            <?php else: echo $i + 1; ?>
-                            <?php endif; ?>
-                            </div>
-
-                            <div class="lesson-info">
-                                <div class="lesson-titre"><?= htmlspecialchars($lesson['titre']) ?></div>
-                                <div class="lesson-meta">
-                                    <?php
-                                    $types = ['texte' => '📄 Lecture', 'video' => '🎥 Vidéo', 'quiz' => '🧩 Quiz'];
-                                    echo $types[$lesson['type']] ?? '📄 Lecture';
-                                    ?>
-                                </div>
-                            </div>
-
-                            <div class="lesson-status">
-                                <?php if ($isComplete): ?>✅
-                                <?php elseif ($isCurrent): ?>▶️
-                                <?php else: ?>🔒
-                            <?php endif; ?>
-                            </div>
+            <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
+                <div class="flex-1">
+                    <!-- Breadcrumb -->
+                    <div class="flex items-center gap-2 text-xs md:text-sm text-slate-400 mb-6 font-medium">
+                        <a href="/academy/" class="hover:text-wari-gold transition-colors">Academy</a>
+                        <span>/</span>
+                        <a href="/academy/?cat=<?= htmlspecialchars($course['category_slug']) ?>" class="hover:text-wari-gold transition-colors">
+                            <?= htmlspecialchars($course['category_titre']) ?>
                         </a>
-                    <?php endforeach; ?>
+                        <span>/</span>
+                        <strong class="text-wari-goldLight truncate max-w-[200px] sm:max-w-none block"><?= htmlspecialchars($course['titre']) ?></strong>
+                    </div>
 
-                <?php else: ?>
-                    <div class="empty">
-                        <p>Aucune leçon disponible pour ce cours pour le moment.</p>
+                    <!-- Category Badge -->
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 border border-cat-color bg-slate-900/50 cat-color shadow-[0_0_15px_rgba(0,0,0,0.2)]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-cat-color"></span>
+                        <?= htmlspecialchars($course['category_titre']) ?>
+                    </div>
+
+                    <!-- Title & Description -->
+                    <h1 class="font-heading text-4xl md:text-5xl lg:text-7xl font-black text-white leading-[1.1] mb-6">
+                        <?= htmlspecialchars($course['titre']) ?>
+                    </h1>
+
+                    <?php if ($course['description']): ?>
+                        <p class="text-slate-400 text-sm md:text-lg max-w-2xl leading-relaxed mb-8">
+                            <?= htmlspecialchars($course['description']) ?>
+                        </p>
+                    <?php endif; ?>
+
+                    <!-- Meta Tags -->
+                    <div class="flex flex-wrap gap-4 text-xs font-bold uppercase tracking-widest text-slate-400">
+                        <div class="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+                            <span class="text-lg">⏱</span> <strong class="text-white"><?= $course['duree_minutes'] ?> min</strong>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+                            <span class="text-lg">📖</span> <strong class="text-white"><?= $totalLecons ?> leçon<?= $totalLecons > 1 ? 's' : '' ?></strong>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
+                            <span class="text-lg">🎯</span> <strong class="text-white"><?= ucfirst($course['niveau']) ?></strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress & CTA Box -->
+                <div class="bg-slate-900/60 backdrop-blur-md rounded-3xl p-6 border border-white/10 shrink-0 w-full md:w-80 shadow-2xl">
+                    <div class="flex justify-between items-end mb-3">
+                        <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Progression</div>
+                        <div class="text-3xl font-heading font-black text-wari-gold"><?= $progress ?>%</div>
+                    </div>
+                    
+                    <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden mb-4">
+                        <div class="h-full bg-gradient-to-r from-wari-goldDark to-wari-gold rounded-full transition-all duration-1000 relative" style="width:<?= $progress ?>%">
+                            <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                        </div>
+                    </div>
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center mb-6">
+                        <?= $doneLecons ?> / <?= $totalLecons ?> terminées
+                    </div>
+
+                    <?php if ($nextLesson): ?>
+                        <a href="/academy/lesson.php?id=<?= $nextLesson['id'] ?>" 
+                           class="group flex items-center justify-center gap-2 w-full py-4 px-6 rounded-2xl font-black text-xs uppercase tracking-widest transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg <?= $coursTermine ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20' : 'bg-wari-gold text-slate-950 hover:bg-wari-goldLight shadow-wari-gold/20' ?>">
+                            <?php if ($coursTermine): ?>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                Revoir le module
+                            <?php elseif ($progress > 0): ?>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Continuer
+                            <?php else: ?>
+                                🚀 Commencer
+                            <?php endif; ?>
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── MAIN CONTENT GRID ────────────────────────────────── -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- LISTE DES LEÇONS -->
+            <div class="lg:col-span-8 space-y-6">
+                <div class="bento-card rounded-[2.5rem] overflow-hidden">
+                    <div class="p-6 md:p-8 border-b border-white/5 flex items-center justify-between bg-slate-900/40">
+                        <h2 class="font-heading text-2xl md:text-3xl font-black text-white flex items-center gap-3">
+                            <span class="text-wari-gold text-3xl">📚</span> Programme
+                        </h2>
+                        <span class="px-4 py-1 bg-slate-800 text-slate-300 text-xs font-black uppercase tracking-widest rounded-full border border-slate-700">
+                            <?= $doneLecons ?> / <?= $totalLecons ?>
+                        </span>
+                    </div>
+
+                    <div class="divide-y divide-white/5">
+                        <?php if (!empty($lessons)): ?>
+                            <?php foreach ($lessons as $i => $lesson): ?>
+                                <?php
+                                $isComplete = $lesson['complete'];
+                                $isCurrent  = $nextLesson && $lesson['id'] === $nextLesson['id'] && !$coursTermine;
+                                ?>
+                                <a href="/academy/lesson.php?id=<?= $lesson['id'] ?>" 
+                                   class="group p-5 md:p-6 flex items-center gap-5 hover:bg-slate-800/50 transition-colors <?= $isCurrent ? 'bg-slate-800/30 border-l-4 border-cat-color' : 'border-l-4 border-transparent' ?>">
+                                    
+                                    <!-- Lesson Number or Check -->
+                                    <div class="w-12 h-12 shrink-0 rounded-2xl flex items-center justify-center font-black text-base transition-all <?= $isComplete ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : ($isCurrent ? 'bg-cat-color text-slate-950 shadow-lg shadow-cat-color/30' : 'bg-slate-800 text-slate-500 group-hover:bg-slate-700') ?>">
+                                        <?php if ($isComplete): ?>
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                        <?php else: ?>
+                                            <?= str_pad($i + 1, 2, '0', STR_PAD_LEFT) ?>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <!-- Lesson Info -->
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-base md:text-lg font-bold truncate transition-colors <?= $isComplete ? 'text-slate-500 line-through decoration-slate-600/50' : ($isCurrent ? 'text-white' : 'text-slate-200 group-hover:text-white') ?>">
+                                            <?= htmlspecialchars($lesson['titre']) ?>
+                                        </div>
+                                        <div class="text-[10px] uppercase font-bold tracking-widest mt-1.5 flex items-center gap-2 <?= $isComplete ? 'text-slate-600' : 'text-slate-400' ?>">
+                                            <?php
+                                            $types = ['texte' => '📄 LECTURE', 'video' => '🎥 VIDÉO', 'quiz' => '🧩 QUIZ'];
+                                            echo $types[$lesson['type']] ?? '📄 LECTURE';
+                                            ?>
+                                        </div>
+                                    </div>
+
+                                    <!-- Lesson Status Icon -->
+                                    <div class="shrink-0 text-2xl opacity-50 group-hover:opacity-100 transition-opacity group-hover:scale-110 transform duration-300">
+                                        <?php if ($isComplete): ?>
+                                            ✅
+                                        <?php elseif ($isCurrent): ?>
+                                            <span class="animate-pulse">▶️</span>
+                                        <?php else: ?>
+                                            🔒
+                                        <?php endif; ?>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="p-16 text-center text-slate-500">
+                                <svg class="w-16 h-16 mx-auto mb-4 opacity-30 block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                <p class="text-sm font-medium">Aucune leçon disponible pour ce cours pour le moment.</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIDEBAR -->
+            <aside class="lg:col-span-4 space-y-6">
+                
+                <!-- Badge cours terminé -->
+                <?php if ($coursTermine): ?>
+                    <div class="bento-card rounded-[2rem] overflow-hidden border border-emerald-500/30">
+                        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent"></div>
+                        <div class="relative p-8 text-center">
+                            <div class="text-5xl mb-4 animate-bounce">🏆</div>
+                            <h3 class="font-heading text-xl font-black text-emerald-400 mb-2">MASTERCLASS</h3>
+                            <p class="text-sm text-emerald-400/80 font-medium leading-relaxed">Félicitations, tu as complété ce module avec succès.</p>
+                        </div>
                     </div>
                 <?php endif; ?>
-            </div>
-        </div>
 
-        <!-- ── SIDEBAR ──────────────────────────────────────────── -->
-        <aside class="sidebar">
-
-            <!-- Badge cours terminé -->
-            <?php if ($coursTermine): ?>
-                <div class="badge-termine">
-                    <div class="icone">🏆</div>
-                    <strong>Cours terminé !</strong>
-                    <span>Félicitations, tu as complété ce cours.</span>
-                </div>
-            <?php endif; ?>
-
-            <!-- Stats -->
-            <div class="sidebar-card">
-                <div class="sidebar-card-header">📊 Résumé</div>
-                <div class="sidebar-card-body">
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <strong><?= $totalLecons ?></strong>
-                            <span>Leçons</span>
+                <!-- Stats Bento -->
+                <div class="bento-card rounded-[2rem] p-8">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                        📊 <span>Statistiques</span>
+                        <div class="flex-1 h-[1px] bg-white/5 ml-2"></div>
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-5 text-center hover:bg-slate-800/80 transition-colors">
+                            <div class="font-heading text-4xl font-black text-white mb-2"><?= $totalLecons ?></div>
+                            <div class="text-[9px] uppercase font-black text-slate-500 tracking-[0.2em]">Leçons</div>
                         </div>
-                        <div class="stat-box">
-                            <strong><?= $course['duree_minutes'] ?></strong>
-                            <span>Minutes</span>
+                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-5 text-center hover:bg-slate-800/80 transition-colors">
+                            <div class="font-heading text-4xl font-black text-white mb-2"><?= $course['duree_minutes'] ?></div>
+                            <div class="text-[9px] uppercase font-black text-slate-500 tracking-[0.2em]">Minutes</div>
                         </div>
-                        <div class="stat-box">
-                            <strong><?= $progress ?>%</strong>
-                            <span>Progression</span>
+                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-5 text-center hover:bg-slate-800/80 transition-colors">
+                            <div class="font-heading text-4xl font-black text-wari-gold mb-2"><?= $progress ?>%</div>
+                            <div class="text-[9px] uppercase font-black text-slate-500 tracking-[0.2em]">Acquis</div>
                         </div>
-                        <div class="stat-box">
-                            <strong><?= ucfirst($course['niveau'][0]) ?></strong>
-                            <span><?= ucfirst($course['niveau']) ?></span>
+                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-5 text-center hover:bg-slate-800/80 transition-colors">
+                            <div class="font-heading text-4xl font-black text-white mb-2"><?= ucfirst($course['niveau'][0]) ?></div>
+                            <div class="text-[9px] uppercase font-black text-slate-500 tracking-[0.2em]"><?= ucfirst($course['niveau']) ?></div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- PDF Payants -->
-            <?php if (!empty($pdfs)): ?>
-                <div class="sidebar-card">
-                    <div class="sidebar-card-header">📄 Ressources du cours</div>
-                    <div class="sidebar-card-body">
-                        <?php foreach ($pdfs as $pdf): ?>
-                            <?php $acheté = $academy->hasUserBoughtPdf($user_id, $pdf['id']); ?>
-                            <div class="pdf-item">
-                                <div class="pdf-icone">📘</div>
-                                <div class="pdf-info">
-                                    <div class="pdf-titre"><?= htmlspecialchars($pdf['titre']) ?></div>
-                                    <?php if ($pdf['description']): ?>
-                                        <div class="pdf-desc"><?= htmlspecialchars($pdf['description']) ?></div>
-                                    <?php endif; ?>
+                <!-- PDF Payants -->
+                <?php if (!empty($pdfs)): ?>
+                    <div class="bento-card rounded-[2rem] p-8">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                            📄 <span>Ressources</span>
+                            <div class="flex-1 h-[1px] bg-white/5 ml-2"></div>
+                        </h3>
+                        <div class="space-y-4">
+                            <?php foreach ($pdfs as $pdf): ?>
+                                <?php $acheté = $academy->hasUserBoughtPdf($user_id, $pdf['id']); ?>
+                                <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors">
+                                    <div class="flex gap-4">
+                                        <div class="text-3xl">📘</div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="font-bold text-white text-sm mb-1 line-clamp-2"><?= htmlspecialchars($pdf['titre']) ?></div>
+                                            <?php if ($pdf['description']): ?>
+                                                <div class="text-[11px] text-slate-500 mb-4 line-clamp-2 leading-relaxed"><?= htmlspecialchars($pdf['description']) ?></div>
+                                            <?php endif; ?>
 
-                                    <?php if ($pdf['est_gratuit'] || $acheté): ?>
-                                        <div class="pdf-prix gratuit">✅ Gratuit</div>
-                                        <a href="/academy/pdf_download.php?id=<?= $pdf['id'] ?>" class="pdf-btn gratuit">
-                                            Télécharger
-                                        </a>
-                                    <?php else: ?>
-                                        <div class="pdf-prix"><?= number_format($pdf['prix'], 0, ',', ' ') ?> FCFA</div>
-                                        <a href="/academy/pdf_achat.php?id=<?= $pdf['id'] ?>" class="pdf-btn">
-                                            Obtenir ce guide
-                                        </a>
-                                    <?php endif; ?>
+                                            <div class="flex items-center justify-between mt-auto">
+                                                <?php if ($pdf['est_gratuit'] || $acheté): ?>
+                                                    <span class="text-[9px] font-black uppercase tracking-widest text-emerald-400 px-3 py-1 bg-emerald-500/10 rounded-lg">Gratuit</span>
+                                                    <a href="/academy/pdf_download.php?id=<?= $pdf['id'] ?>" class="text-[10px] font-black uppercase tracking-widest text-white bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl transition-colors">
+                                                        Télécharger
+                                                    </a>
+                                                <?php else: ?>
+                                                    <span class="text-xs font-black text-wari-gold"><?= number_format($pdf['prix'], 0, ',', ' ') ?> FCFA</span>
+                                                    <a href="/academy/pdf_achat.php?id=<?= $pdf['id'] ?>" class="text-[10px] font-black uppercase tracking-widest text-slate-900 bg-wari-gold hover:bg-wari-goldLight px-4 py-2 rounded-xl transition-colors">
+                                                        Obtenir
+                                                    </a>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
-                </div>
-            <?php endif; ?>
+                <?php endif; ?>
 
-            <!-- Auteur -->
-            <div class="sidebar-card">
-                <div class="sidebar-card-header">✍️ Auteur</div>
-                <div class="sidebar-card-body">
-                    <div class="auteur-card">
-                        <div class="auteur-avatar">🧑🏾</div>
+                <!-- Auteur -->
+                <div class="bento-card rounded-[2rem] p-8">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                        ✍️ <span>Auteur</span>
+                        <div class="flex-1 h-[1px] bg-white/5 ml-2"></div>
+                    </h3>
+                    <div class="flex items-center gap-5 bg-slate-900/50 border border-white/5 rounded-2xl p-5">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-wari-goldDark to-wari-gold flex items-center justify-center text-3xl shadow-xl shrink-0">
+                            🧑🏾
+                        </div>
                         <div>
-                            <div class="auteur-nom"><?= htmlspecialchars($course['auteur']) ?></div>
-                            <div class="auteur-role">Coach financier · Wari Finance</div>
+                            <div class="font-heading font-black text-white text-lg mb-1"><?= htmlspecialchars($course['auteur']) ?></div>
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-wari-gold">Coach financier</div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-        </aside>
-    </div>
+            </aside>
+
+        </div>
+    </main>
+    
+    <footer class="mt-auto py-10 border-t border-white/5 text-center">
+        <div class="font-heading text-lg font-black text-wari-gold mb-2 tracking-tighter">Wari Academy.</div>
+        <div class="text-[9px] font-bold text-white/30 uppercase tracking-[0.3em]">&copy; <?= date('Y') ?> WARI FINANCE — TOUS DROITS RÉSERVÉS.</div>
+    </footer>
 
 </body>
-
 </html>

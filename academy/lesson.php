@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
@@ -81,758 +81,354 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     <title><?= htmlspecialchars($lesson['titre']) ?> — Wari Academy</title>
 
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
-    <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
+    <link rel="apple-touch-icon" href="../assets/warifinance3d.png" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Outfit (Titres) et Plus Jakarta Sans (Corps) -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        wari: {
+                            gold: '#C9A84C',
+                            goldLight: '#F0D080',
+                            goldDark: '#8B6914',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        /* ── VARIABLES ───────────────────────────────────────── */
         :root {
-            --or: #C9A84C;
-            --or-light: #F0D080;
-            --or-dark: #8B6914;
-            --terre: #1A1209;
-            --encre: #0F0A02;
-            --creme: #FAF5E9;
-            --creme2: #F0E8D0;
-            --blanc: #FFFFFF;
-            --gris: #6B6050;
+            --wari-gold: #C9A84C;
             --cat-color: <?= htmlspecialchars($course['category_couleur'] ?? '#C9A84C') ?>;
-
-            --font-titre: 'Playfair Display', serif;
-            --font-corps: 'DM Sans', sans-serif;
-            --rayon: 14px;
-            --ombre: 0 4px 24px rgba(0, 0, 0, .10);
-            --transition: .25s cubic-bezier(.4, 0, .2, 1);
         }
-
-        /* ── RESET ───────────────────────────────────────────── */
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        
+        /* Glassmorphism Bento Cards */
+        .bento-card {
+            background: rgba(30, 41, 59, 0.4); /* slate-800 with opacity */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: var(--font-corps);
-            background: var(--creme);
-            color: var(--terre);
-            min-height: 100vh;
-        }
-
-        /* ── NAV ─────────────────────────────────────────────── */
-        .topnav {
-            background: var(--encre);
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(201, 168, 76, .15);
-            gap: 16px;
-        }
-
-        .topnav-logo {
-            font-family: var(--font-titre);
-            font-size: 1.1rem;
-            font-weight: 900;
-            color: var(--or);
-            text-decoration: none;
-            flex-shrink: 0;
-        }
-
-        .topnav-logo span {
-            color: var(--blanc);
-        }
-
-        /* Barre de progression dans la nav */
-        .nav-progress {
-            flex: 1;
-            max-width: 320px;
-        }
-
-        .nav-progress-label {
-            font-size: .7rem;
-            color: rgba(255, 255, 255, .4);
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .nav-progress-label span {
-            color: var(--or);
-        }
-
-        .nav-progress-bar {
-            height: 4px;
-            background: rgba(255, 255, 255, .1);
-            border-radius: 999px;
-            overflow: hidden;
-        }
-
-        .nav-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--or-dark), var(--or));
-            border-radius: 999px;
-            transition: width .6s ease;
-        }
-
-        .topnav-back {
-            font-size: .8rem;
-            color: rgba(255, 255, 255, .5);
-            text-decoration: none;
-            flex-shrink: 0;
-            transition: color var(--transition);
-        }
-
-        .topnav-back:hover {
-            color: var(--or);
-        }
-
-        /* ── LAYOUT ──────────────────────────────────────────── */
-        .lesson-layout {
-            max-width: 1060px;
-            margin: 0 auto;
-            padding: 32px 24px 60px;
-            display: grid;
-            grid-template-columns: 1fr 280px;
-            gap: 28px;
-            align-items: start;
-        }
-
-        @media (max-width: 820px) {
-            .lesson-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .lesson-sidebar {
-                order: -1;
-            }
-        }
-
-        /* ── CONTENU PRINCIPAL ───────────────────────────────── */
-        .lesson-main {}
-
-        /* En-tête leçon */
-        .lesson-header {
-            background: var(--blanc);
-            border-radius: var(--rayon);
-            border: 1.5px solid var(--creme2);
-            padding: 28px 32px;
-            margin-bottom: 20px;
+        .bento-card-highlight {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
             border-top: 4px solid var(--cat-color);
         }
 
-        .lesson-breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .lesson-breadcrumb a {
-            font-size: .75rem;
-            color: var(--gris);
-            text-decoration: none;
-            transition: color var(--transition);
-        }
-
-        .lesson-breadcrumb a:hover {
-            color: var(--or-dark);
-        }
-
-        .lesson-breadcrumb span {
-            font-size: .75rem;
-            color: var(--creme2);
-        }
-
-        .lesson-breadcrumb strong {
-            font-size: .75rem;
-            color: var(--terre);
-        }
-
-        .lesson-num-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: .72rem;
-            font-weight: 700;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            color: var(--cat-color);
-            background: color-mix(in srgb, var(--cat-color) 12%, transparent);
-            padding: 3px 12px;
-            border-radius: 999px;
-            margin-bottom: 12px;
-        }
-
-        .lesson-header h1 {
-            font-family: var(--font-titre);
-            font-size: clamp(1.4rem, 3vw, 2rem);
-            font-weight: 900;
-            color: var(--encre);
-            line-height: 1.25;
-            margin-bottom: 14px;
-        }
-
-        .lesson-meta-row {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .lesson-meta-item {
-            font-size: .78rem;
-            color: var(--gris);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .badge-complete {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #E8F5E9;
-            color: #2E7D32;
-            border: 1px solid #A5D6A7;
-            font-size: .75rem;
-            font-weight: 700;
-            padding: 3px 12px;
-            border-radius: 999px;
-        }
-
-        /* ── VIDÉO ───────────────────────────────────────────── */
-        .video-wrap {
-            background: #000;
-            border-radius: var(--rayon);
-            overflow: hidden;
-            margin-bottom: 20px;
-            aspect-ratio: 16/9;
-        }
-
-        .video-wrap iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* ── CONTENU TEXTE ───────────────────────────────────── */
+        /* Variables CSS pour les éléments générés depuis la BDD */
         .lesson-content {
-            background: var(--blanc);
-            border-radius: var(--rayon);
-            border: 1.5px solid var(--creme2);
-            padding: 36px 40px;
-            margin-bottom: 20px;
-            line-height: 1.85;
-            font-size: .97rem;
-        }
-
-        @media (max-width: 600px) {
-            .lesson-content {
-                padding: 24px 20px;
-            }
-
-            .lesson-header {
-                padding: 20px;
-            }
-        }
-
-        /* Styles du contenu HTML des leçons */
-        .lesson-content h2 {
-            font-family: var(--font-titre);
-            font-size: 1.35rem;
-            color: var(--encre);
-            margin: 28px 0 12px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--creme2);
-        }
-
-        .lesson-content h3 {
             font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--terre);
-            margin: 22px 0 8px;
+            line-height: 1.8;
+            color: #cbd5e1; /* text-slate-300 */
         }
-
+        .lesson-content h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.5rem;
+        }
+        .lesson-content h3 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
         .lesson-content p {
-            margin-bottom: 16px;
-            color: var(--terre);
+            margin-bottom: 1.25rem;
+            color: #cbd5e1;
         }
-
-        .lesson-content ul,
-        .lesson-content ol {
-            padding-left: 22px;
-            margin-bottom: 16px;
+        .lesson-content ul, .lesson-content ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1.25rem;
+            color: #cbd5e1;
         }
-
-        .lesson-content li {
-            margin-bottom: 8px;
-            color: var(--terre);
-        }
-
-        .lesson-content strong {
-            color: var(--encre);
-            font-weight: 700;
-        }
-
-        .lesson-content em {
-            font-style: italic;
-            color: var(--gris);
-        }
-
+        .lesson-content ul { list-style-type: disc; }
+        .lesson-content ol { list-style-type: decimal; }
+        .lesson-content li { margin-bottom: 0.5rem; }
+        .lesson-content strong { color: #f8fafc; font-weight: 700; }
+        .lesson-content em { font-style: italic; color: #94a3b8; }
         .lesson-content blockquote {
-            border-left: 4px solid var(--or);
-            background: color-mix(in srgb, var(--or) 6%, var(--blanc));
-            padding: 16px 20px;
-            border-radius: 0 10px 10px 0;
-            margin: 20px 0;
+            border-left: 4px solid var(--wari-gold);
+            background: rgba(201, 168, 76, 0.08);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 1rem 1rem 0;
+            margin: 2rem 0;
             font-style: italic;
-            color: var(--terre);
+            color: #e2e8f0;
+            font-size: 1.1rem;
         }
-
         .lesson-content .encadre {
-            background: color-mix(in srgb, var(--cat-color) 8%, var(--blanc));
-            border: 1px solid color-mix(in srgb, var(--cat-color) 25%, transparent);
-            border-radius: 10px;
-            padding: 18px 20px;
-            margin: 20px 0;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(201, 168, 76, 0.2);
+            border-radius: 1.25rem;
+            padding: 1.5rem 1.75rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
-
         .lesson-content .encadre-titre {
-            font-weight: 700;
-            font-size: .85rem;
-            color: var(--cat-color);
-            margin-bottom: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--wari-gold);
+            margin-bottom: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: .06em;
+            letter-spacing: 0.1em;
         }
-
         .lesson-content a {
-            color: var(--or-dark);
+            color: var(--wari-gold);
             text-decoration: underline;
+            text-underline-offset: 4px;
+            transition: color 0.2s;
         }
-
+        .lesson-content a:hover {
+            color: #ffffff;
+        }
         .lesson-content img {
             max-width: 100%;
-            border-radius: 10px;
-            margin: 16px 0;
+            height: auto;
+            border-radius: 1rem;
+            margin: 2rem auto;
+            display: block;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        /* ── NAVIGATION ENTRE LEÇONS ─────────────────────────── */
-        .lesson-nav {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-
-        .lesson-nav-btn {
-            background: var(--blanc);
-            border: 1.5px solid var(--creme2);
-            border-radius: var(--rayon);
-            padding: 16px 20px;
-            text-decoration: none;
-            transition: all var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .lesson-nav-btn:hover {
-            border-color: var(--or);
-            box-shadow: var(--ombre);
-            transform: translateY(-2px);
-        }
-
-        .lesson-nav-btn.prev {
-            flex-direction: row;
-        }
-
-        .lesson-nav-btn.next {
-            flex-direction: row-reverse;
-            text-align: right;
-            margin-left: auto;
-        }
-
-        .lesson-nav-btn.disabled {
-            opacity: .4;
-            pointer-events: none;
-        }
-
-        .nav-arrow {
-            font-size: 1.2rem;
-            flex-shrink: 0;
-            color: var(--or-dark);
-        }
-
-        .nav-btn-label {
-            font-size: .68rem;
-            color: var(--gris);
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            margin-bottom: 3px;
-        }
-
-        .nav-btn-titre {
-            font-size: .85rem;
-            font-weight: 600;
-            color: var(--encre);
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+        /* Video Wrapper */
+        .video-wrap {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 1.5rem;
             overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        /* ── BOUTON MARQUER COMPLÉTÉE ────────────────────────── */
-        .complete-section {
-            background: var(--blanc);
-            border: 1.5px solid var(--creme2);
-            border-radius: var(--rayon);
-            padding: 24px 28px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .complete-section p {
-            font-size: .88rem;
-            color: var(--gris);
-            margin-bottom: 16px;
-            line-height: 1.6;
-        }
-
-        .btn-complete {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--encre);
-            color: var(--blanc);
-            font-weight: 700;
-            font-size: .92rem;
-            padding: 14px 32px;
-            border-radius: 999px;
+        .video-wrap iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             border: none;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-family: var(--font-corps);
         }
-
-        .btn-complete:hover {
-            background: var(--or-dark);
-            transform: translateY(-2px);
-        }
-
-        .btn-complete.done {
-            background: #2E7D32;
-            cursor: default;
-            transform: none;
-        }
-
-        /* ── SIDEBAR ─────────────────────────────────────────── */
-        .lesson-sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .sidebar-card {
-            background: var(--blanc);
-            border-radius: var(--rayon);
-            border: 1.5px solid var(--creme2);
-            overflow: hidden;
-        }
-
-        .sidebar-card-header {
-            padding: 14px 18px;
-            border-bottom: 1px solid var(--creme2);
-            font-weight: 700;
-            font-size: .88rem;
-            color: var(--encre);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .sidebar-progress-text {
-            font-size: .75rem;
-            color: var(--gris);
-            font-weight: 400;
-        }
-
-        /* Liste toutes les leçons dans la sidebar */
-        .sidebar-lesson {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 18px;
-            border-bottom: 1px solid var(--creme2);
-            text-decoration: none;
-            color: var(--terre);
-            transition: background var(--transition);
-            font-size: .82rem;
-        }
-
-        .sidebar-lesson:last-child {
-            border-bottom: none;
-        }
-
-        .sidebar-lesson:hover {
-            background: var(--creme);
-        }
-
-        .sidebar-lesson.active {
-            background: color-mix(in srgb, var(--cat-color) 8%, var(--blanc));
-            font-weight: 600;
-            border-left: 3px solid var(--cat-color);
-        }
-
-        .sidebar-lesson.complete {
-            color: var(--gris);
-        }
-
-        .s-num {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--creme2);
-            color: var(--gris);
-            font-size: .68rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .sidebar-lesson.complete .s-num {
-            background: #E8F5E9;
-            color: #2E7D32;
-        }
-
-        .sidebar-lesson.active .s-num {
-            background: var(--cat-color);
-            color: var(--blanc);
-        }
-
-        .s-titre {
-            flex: 1;
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* Sidebar progress bar */
-        .sidebar-progress-wrap {
-            padding: 14px 18px;
-        }
-
-        .sidebar-progress-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: .75rem;
-            color: var(--gris);
-            margin-bottom: 6px;
-        }
-
-        .sidebar-progress-label strong {
-            color: var(--or-dark);
-        }
-
-        .progress-bar {
-            height: 5px;
-            background: var(--creme2);
-            border-radius: 999px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--or-dark), var(--or));
-            border-radius: 999px;
-            transition: width .6s ease;
-        }
-
-        /* ── ANIMATIONS ───────────────────────────────────────── */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(14px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .lesson-header {
-            animation: fadeUp .4s ease both;
-        }
-
-        .lesson-content {
-            animation: fadeUp .4s ease both .08s;
-        }
-
-        .complete-section {
-            animation: fadeUp .4s ease both .14s;
-        }
-
-        .lesson-nav {
-            animation: fadeUp .4s ease both .18s;
-        }
+        
     </style>
 </head>
 
-<body>
+<body class="bg-slate-950 text-slate-300 font-sans antialiased min-h-screen flex flex-col selection:bg-wari-gold selection:text-slate-950">
 
-    <!-- ── NAVIGATION ──────────────────────────────────────────── -->
-    <nav class="topnav">
-        <a href="/academy/" class="topnav-logo">Wari<span> Academy</span></a>
+    <!-- ── NAVIGATION ── -->
+    <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5 h-20 flex flex-col justify-center px-4 md:px-8">
+        <div class="flex items-center justify-between gap-4 md:gap-8 w-full">
+            
+            <a href="/academy/" class="font-heading text-xl md:text-2xl font-black text-wari-gold tracking-tight shrink-0">
+                Wari<span class="font-light text-white">Academy</span>
+            </a>
 
-        <div class="nav-progress">
-            <div class="nav-progress-label">
-                Cours : <?= htmlspecialchars($course['titre']) ?>
-                <span><?= $progress ?>%</span>
+            <!-- Progress Bar inside Nav -->
+            <div class="hidden md:flex flex-col flex-1 max-w-sm ml-auto mr-auto">
+                <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+                    <span class="truncate pr-4">Cours : <?= htmlspecialchars($course['titre']) ?></span>
+                    <span class="text-wari-gold shrink-0"><?= $progress ?>%</span>
+                </div>
+                <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-wari-goldDark to-wari-gold rounded-full transition-all duration-700" style="width:<?= $progress ?>%"></div>
+                </div>
             </div>
-            <div class="nav-progress-bar">
-                <div class="nav-progress-fill" style="width:<?= $progress ?>%"></div>
+
+            <a href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>" class="shrink-0 flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl transition-all text-xs font-bold uppercase tracking-widest text-slate-300 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                <span class="hidden sm:inline">Vue du cours</span>
+            </a>
+        </div>
+        <!-- Mobile progress bar (under nav elements) -->
+        <div class="md:hidden w-full mt-2 flex flex-col">
+            <div class="flex justify-between text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+                <span class="truncate">Progression</span>
+                <span class="text-wari-gold"><?= $progress ?>%</span>
+            </div>
+            <div class="h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-wari-goldDark to-wari-gold rounded-full" style="width:<?= $progress ?>%"></div>
             </div>
         </div>
-
-        <a href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>" class="topnav-back">
-            ← Vue du cours
-        </a>
     </nav>
 
-    <!-- ── LAYOUT ──────────────────────────────────────────────── -->
-    <div class="lesson-layout">
+    <!-- ── LAYOUT PRINCIPAL ── -->
+    <div class="flex-1 w-full max-w-[1400px] mx-auto px-4 md:px-8 py-8 md:py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        <!-- ── CONTENU PRINCIPAL ─────────────────────────────────── -->
-        <main class="lesson-main">
+        <!-- ── MAIN (Gauche) ── -->
+        <main class="lg:col-span-8 flex flex-col gap-8 w-full max-w-4xl mx-auto">
 
-            <!-- En-tête -->
-            <div class="lesson-header">
-                <div class="lesson-breadcrumb">
-                    <a href="/academy/">Academy</a>
-                    <span>/</span>
-                    <a href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>">
-                        <?= htmlspecialchars($course['titre']) ?>
-                    </a>
-                    <span>/</span>
-                    <strong><?= htmlspecialchars($lesson['titre']) ?></strong>
+            <!-- En-tête leçon (Bento Card) -->
+            <header class="bento-card bento-card-highlight p-8 md:p-10 relative overflow-hidden">
+                <!-- Decorative glares -->
+                <div class="absolute -top-32 -right-32 w-64 h-64 bg-[var(--cat-color)] rounded-full mix-blend-multiply opacity-20 blur-3xl"></div>
+                
+                <div class="relative z-10">
+                    <!-- Breadcrumbs -->
+                    <div class="flex flex-wrap items-center gap-2 text-xs md:text-sm font-medium text-slate-400 mb-6">
+                        <a href="/academy/" class="hover:text-white transition-colors">Academy</a>
+                        <span>/</span>
+                        <a href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>" class="hover:text-white transition-colors">
+                            <?= htmlspecialchars($course['titre']) ?>
+                        </a>
+                        <span>/</span>
+                        <strong class="text-wari-goldLight truncate max-w-[150px] sm:max-w-none"><?= htmlspecialchars($lesson['titre']) ?></strong>
+                    </div>
+
+                    <!-- Lesson Badge -->
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border border-white/10 bg-black/40 shadow-inner">
+                        <span class="w-2 h-2 rounded-full bg-[var(--cat-color)] shadow-[0_0_10px_var(--cat-color)] animate-pulse"></span>
+                        Leçon <?= str_pad($currentIndex + 1, 2, '0', STR_PAD_LEFT) ?> sur <?= str_pad($totalLecons, 2, '0', STR_PAD_LEFT) ?>
+                    </div>
+
+                    <!-- Title -->
+                    <h1 class="font-heading text-3xl md:text-5xl font-black text-white leading-[1.15] mb-6">
+                        <?= htmlspecialchars($lesson['titre']) ?>
+                    </h1>
+
+                    <!-- Meta Tags -->
+                    <div class="flex flex-wrap items-center gap-4 text-xs font-bold uppercase tracking-widest text-slate-400">
+                        <?php $typesIcon = ['texte' => '📄', 'video' => '🎥', 'quiz' => '🧩']; ?>
+                        <div class="flex items-center gap-2 bg-slate-900/60 px-4 py-2 rounded-xl border border-white/5">
+                            <span class="text-lg"><?= $typesIcon[$lesson['type']] ?? '📄' ?></span>
+                            <span class="text-white"><?= ucfirst($lesson['type'] ?: 'Lecture') ?></span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-slate-900/60 px-4 py-2 rounded-xl border border-white/5">
+                            <span class="text-lg">✍️</span>
+                            <span class="text-white"><?= htmlspecialchars($course['auteur']) ?></span>
+                        </div>
+                        
+                        <?php if ($isComplete): ?>
+                            <div class="flex items-center gap-2 bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20 text-emerald-400 ml-auto md:ml-0">
+                                <span class="text-lg">✅</span> Validé
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
+            </header>
 
-                <div class="lesson-num-badge">
-                    Leçon <?= $currentIndex + 1 ?> sur <?= $totalLecons ?>
-                </div>
-
-                <h1><?= htmlspecialchars($lesson['titre']) ?></h1>
-
-                <div class="lesson-meta-row">
-                    <?php
-                    $types = ['texte' => '📄 Lecture', 'video' => '🎥 Vidéo', 'quiz' => '🧩 Quiz'];
-                    ?>
-                    <span class="lesson-meta-item"><?= $types[$lesson['type']] ?? '📄 Lecture' ?></span>
-                    <span class="lesson-meta-item">✍️ <?= htmlspecialchars($course['auteur']) ?></span>
-                    <?php if ($isComplete): ?>
-                        <span class="badge-complete">✅ Leçon complétée</span>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Vidéo si applicable -->
+            <!-- Video Section -->
             <?php if ($lesson['type'] === 'video' && $lesson['video_url']): ?>
-                <div class="video-wrap">
-                    <iframe
-                        src="<?= htmlspecialchars($lesson['video_url']) ?>"
-                        allowfullscreen
-                        loading="lazy"></iframe>
+                <div class="video-wrap group">
+                    <!-- Overlay gradient for extra style until interact -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-50 pointer-events-none group-hover:opacity-0 transition-opacity duration-500 z-10"></div>
+                    <iframe src="<?= htmlspecialchars($lesson['video_url']) ?>" allowfullscreen loading="lazy"></iframe>
                 </div>
             <?php endif; ?>
 
-            <!-- Contenu de la leçon -->
-            <div class="lesson-content">
-                <?= $lesson['contenu'] /* Contenu HTML stocké en BDD — à filtrer avec HTMLPurifier en production */ ?>
-            </div>
+            <!-- Contenu Texte -->
+            <?php if (!empty(trim($lesson['contenu']))): ?>
+                <article class="bento-card p-8 md:p-12">
+                    <div class="lesson-content">
+                        <?= $lesson['contenu'] ?>
+                    </div>
+                </article>
+            <?php endif; ?>
 
-            <!-- Bouton marquer complétée -->
-            <div class="complete-section">
-                <?php if ($isComplete): ?>
-                    <button class="btn-complete done" disabled>
-                        ✅ Leçon déjà complétée
-                    </button>
-                    <?php if ($nextLesson): ?>
-                        <p style="margin-top:14px; margin-bottom:0; font-size:.82rem; color:var(--gris);">
-                            <a href="/academy/lesson.php?id=<?= $nextLesson['id'] ?>" style="color:var(--or-dark); font-weight:600;">
-                                Passer à la leçon suivante →
+            <!-- Complete Action block -->
+            <div class="bento-card p-8 md:p-10 text-center relative overflow-hidden border-t-4 border-t-wari-gold/40 hover:border-t-wari-gold transition-colors">
+                <div class="absolute inset-0 bg-gradient-to-b from-wari-gold/5 to-transparent opacity-50"></div>
+                
+                <div class="relative z-10 flex flex-col items-center">
+                    <?php if ($isComplete): ?>
+                        <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center text-3xl mb-4 border border-emerald-500/30">✅</div>
+                        <h3 class="font-heading text-xl font-bold text-white mb-2">Leçon validée !</h3>
+                        <p class="text-slate-400 text-sm mb-8">Excellent travail. Vous avez déjà accompli cette étape.</p>
+                        
+                        <?php if ($nextLesson): ?>
+                            <a href="/academy/lesson.php?id=<?= $nextLesson['id'] ?>" class="inline-flex items-center gap-3 bg-wari-gold hover:bg-wari-goldLight text-slate-900 font-black text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition-all shadow-lg shadow-wari-gold/20 transform hover:-translate-y-1">
+                                Étape suivante →
                             </a>
-                        </p>
+                        <?php else: ?>
+                            <a href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>" class="inline-flex items-center gap-3 bg-emerald-500 text-white font-black text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition-all shadow-lg shadow-emerald-500/20 transform hover:-translate-y-1">
+                                🏆 Terminer le module
+                            </a>
+                        <?php endif; ?>
+                        
                     <?php else: ?>
-                        <p style="margin-top:14px; margin-bottom:0; font-size:.82rem; color:#2E7D32; font-weight:600;">
-                            🏆 Tu as terminé toutes les leçons de ce cours !
-                        </p>
+                        <div class="w-16 h-16 bg-white/5 text-wari-gold rounded-full flex items-center justify-center text-3xl mb-4 border border-white/10">🎓</div>
+                        <h3 class="font-heading text-2xl font-black text-white mb-2">Avez-vous compris l'essentiel ?</h3>
+                        <p class="text-slate-400 text-sm mb-8 max-w-md">Validez cette leçon pour enregistrer votre progression et débloquer la suite de la masterclass.</p>
+
+                        <form method="POST" class="w-full sm:w-auto">
+                            <input type="hidden" name="action" value="complete">
+                            <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-wari-gold hover:bg-wari-goldLight text-slate-900 font-black text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition-all shadow-lg shadow-wari-gold/20 transform hover:scale-105 active:scale-95">
+                                ✅ Valider la leçon
+                            </button>
+                        </form>
                     <?php endif; ?>
-                <?php else: ?>
-                    <p>Tu as lu cette leçon jusqu'au bout ? Marque-la comme complétée pour suivre ta progression.</p>
-                    <form method="POST">
-                        <input type="hidden" name="action" value="complete">
-                        <button type="submit" class="btn-complete">
-                            ✅ Marquer comme complétée
-                            <?php if ($nextLesson): ?>→ Leçon suivante<?php endif; ?>
-                        </button>
-                    </form>
-                <?php endif; ?>
+                </div>
             </div>
 
-            <!-- Navigation précédent / suivant -->
-            <div class="lesson-nav">
+            <!-- Pre/Next Navigations Bottom -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- Précédente -->
                 <?php if ($prevLesson): ?>
-                    <a href="/academy/lesson.php?id=<?= $prevLesson['id'] ?>" class="lesson-nav-btn prev">
-                        <span class="nav-arrow">←</span>
-                        <div>
-                            <div class="nav-btn-label">Précédente</div>
-                            <div class="nav-btn-titre"><?= htmlspecialchars($prevLesson['titre']) ?></div>
+                    <a href="/academy/lesson.php?id=<?= $prevLesson['id'] ?>" class="group bento-card p-6 flex items-center gap-4 hover:-translate-x-1 transition-all">
+                        <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-wari-gold group-hover:bg-wari-gold/20 transition-colors shrink-0">
+                            ←
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Leçon précédente</div>
+                            <div class="font-bold text-white text-sm truncate"><?= htmlspecialchars($prevLesson['titre']) ?></div>
                         </div>
                     </a>
                 <?php else: ?>
-                    <div class="lesson-nav-btn prev disabled">
-                        <span class="nav-arrow">←</span>
+                    <div class="bento-card p-6 flex items-center gap-4 opacity-50 cursor-not-allowed">
+                        <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-600 shrink-0">←</div>
                         <div>
-                            <div class="nav-btn-label">Précédente</div>
-                            <div class="nav-btn-titre">Début du cours</div>
+                            <div class="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1.5">Début du cours</div>
+                            <div class="font-bold text-slate-500 text-sm">Première leçon</div>
                         </div>
                     </div>
                 <?php endif; ?>
 
                 <!-- Suivante -->
                 <?php if ($nextLesson): ?>
-                    <a href="/academy/lesson.php?id=<?= $nextLesson['id'] ?>" class="lesson-nav-btn next">
-                        <span class="nav-arrow">→</span>
-                        <div>
-                            <div class="nav-btn-label">Suivante</div>
-                            <div class="nav-btn-titre"><?= htmlspecialchars($nextLesson['titre']) ?></div>
+                    <a href="/academy/lesson.php?id=<?= $nextLesson['id'] ?>" class="group bento-card p-6 flex items-center gap-4 text-right hover:translate-x-1 transition-all flex-row-reverse">
+                        <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-wari-gold group-hover:bg-wari-gold/20 transition-colors shrink-0">
+                            →
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Leçon suivante</div>
+                            <div class="font-bold text-white text-sm truncate"><?= htmlspecialchars($nextLesson['titre']) ?></div>
                         </div>
                     </a>
                 <?php else: ?>
-                    <a href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>" class="lesson-nav-btn next">
-                        <span class="nav-arrow">🏁</span>
-                        <div>
-                            <div class="nav-btn-label">Fin du cours</div>
-                            <div class="nav-btn-titre">Retour au cours</div>
+                    <a href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>" class="group bento-card border-emerald-500/20 bg-emerald-500/5 p-6 flex items-center gap-4 text-right hover:-translate-y-1 transition-all flex-row-reverse">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                            🏁
+                        </div>
+                        <div class="min-w-0">
+                            <div class="text-[10px] font-black text-emerald-500/70 uppercase tracking-widest mb-1.5">Fin du cours</div>
+                            <div class="font-bold text-emerald-400 text-sm">Retour au sommaire</div>
                         </div>
                     </a>
                 <?php endif; ?>
@@ -840,65 +436,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
         </main>
 
-        <!-- ── SIDEBAR ────────────────────────────────────────────── -->
-        <aside class="lesson-sidebar">
+        <!-- ── SIDEBAR (Droite) ── -->
+        <aside class="lg:col-span-4 w-full flex flex-col gap-6 sticky top-28">
 
-            <!-- Progression du cours -->
-            <div class="sidebar-card">
-                <div class="sidebar-card-header">
-                    📊 Progression
-                    <span class="sidebar-progress-text"><?= $doneLecons ?>/<?= $totalLecons ?></span>
+            <!-- Progression block -->
+            <div class="bento-card p-6 rounded-[2rem]">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
+                    📊 <span>Global</span>
+                    <div class="flex-1 h-[1px] bg-white/5 ml-2"></div>
+                </h3>
+                
+                <div class="flex justify-between items-end mb-3">
+                    <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Progression</div>
+                    <div class="text-3xl font-heading font-black text-wari-gold"><?= $progress ?>%</div>
                 </div>
-                <div class="sidebar-progress-wrap">
-                    <div class="sidebar-progress-label">
-                        <span>Cours complété</span>
-                        <strong><?= $progress ?>%</strong>
+                
+                <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden mb-4">
+                    <div class="h-full bg-gradient-to-r from-wari-goldDark to-wari-gold rounded-full transition-all duration-1000 relative" style="width:<?= $progress ?>%">
+                        <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
                     </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width:<?= $progress ?>%"></div>
-                    </div>
+                </div>
+                <div class="text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">
+                    <?= $doneLecons ?> / <?= $totalLecons ?> terminées
                 </div>
             </div>
 
-            <!-- Toutes les leçons -->
-            <div class="sidebar-card">
-                <div class="sidebar-card-header">
-                    📖 Plan du cours
+            <!-- List of lessons -->
+            <div class="bento-card rounded-[2rem] overflow-hidden flex flex-col max-h-[600px]">
+                <div class="p-6 border-b border-white/5 shrink-0 bg-slate-900/40">
+                    <h3 class="text-[10px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-2 mb-1">
+                        📖 <span>Plan d'action</span>
+                    </h3>
+                    <div class="text-xs text-slate-500 font-medium"><?= htmlspecialchars($course['titre']) ?></div>
                 </div>
-                <?php foreach ($lessons as $i => $l): ?>
-                    <?php
-                    $isActive = $l['id'] === $lesson_id;
-                    $isDone   = $l['complete'];
-                    $cls = 'sidebar-lesson';
-                    if ($isActive) $cls .= ' active';
-                    if ($isDone)   $cls .= ' complete';
-                    ?>
-                    <a href="/academy/lesson.php?id=<?= $l['id'] ?>" class="<?= $cls ?>">
-                        <div class="s-num">
-                            <?= $isDone ? '✓' : ($i + 1) ?>
-                        </div>
-                        <div class="s-titre"><?= htmlspecialchars($l['titre']) ?></div>
-                    </a>
-                <?php endforeach; ?>
+                
+                <!-- Scrollable list -->
+                <div class="overflow-y-auto overflow-x-hidden flex-1 divide-y divide-white/5 custom-scrollbar">
+                    <?php foreach ($lessons as $i => $l): ?>
+                        <?php
+                        $isActive = $l['id'] === $lesson_id;
+                        $isDone   = $l['complete'];
+                        ?>
+                        <a href="/academy/lesson.php?id=<?= $l['id'] ?>" class="group p-4 flex items-center gap-3 transition-colors <?= $isActive ? 'bg-slate-800/60 border-l-4 border-[var(--cat-color)]' : 'hover:bg-slate-800/30 border-l-4 border-transparent' ?>">
+                            
+                            <!-- Icon/Number -->
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shrink-0 transition-colors <?= $isDone ? 'bg-emerald-500/10 text-emerald-400' : ($isActive ? 'bg-[var(--cat-color)] text-slate-900' : 'bg-slate-800 text-slate-500 group-hover:bg-slate-700') ?>">
+                                <?= $isDone ? '✓' : str_pad($i + 1, 2, '0', STR_PAD_LEFT) ?>
+                            </div>
+                            
+                            <!-- title -->
+                            <div class="text-sm font-semibold line-clamp-2 <?= $isDone ? 'text-slate-500 line-through decoration-slate-600/50' : ($isActive ? 'text-white' : 'text-slate-300 group-hover:text-white') ?>">
+                                <?= htmlspecialchars($l['titre']) ?>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
             </div>
 
-            <!-- Lien retour cours -->
-            <a
-                href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>"
-                style="
-                display:block; text-align:center;
-                background:var(--encre); color:var(--or);
-                padding:12px; border-radius:var(--rayon);
-                font-size:.82rem; font-weight:600;
-                text-decoration:none;
-                transition: opacity .2s;
-            ">
-                ← Retour à la page du cours
+            <a href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>" class="w-full text-center p-4 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-colors text-xs font-bold uppercase tracking-widest">
+                ← Quitter la leçon
             </a>
 
         </aside>
+
     </div>
 
-</body>
+    <!-- Scrollbar pour la sidebar -->
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+    </style>
 
+</body>
 </html>

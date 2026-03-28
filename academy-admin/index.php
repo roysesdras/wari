@@ -205,6 +205,9 @@ $user = $_SESSION['academy_user'];
             </a>
 
             <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Contenu</p>
+            <a href="/academy-admin/categories.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">
+                <span>🗂</span> Catégories 
+            </a>
             <a href="/academy-admin/courses.php"
                 class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">
                 <span>📚</span> Cours
