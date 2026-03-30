@@ -5,7 +5,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0); // Empêche la pollution du JSON par des erreurs HTML
 
 if (session_status() === PHP_SESSION_NONE) session_start();
-if (!isset($_SESSION['academy_user'])) {
+// Autoriser soit l'admin de l'academy, soit l'utilisateur du dashboard principal
+if (!isset($_SESSION['academy_user']) && !isset($_SESSION['user_id'])) {
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Accès non autorisé']);
     exit;
@@ -77,6 +78,21 @@ try {
         - 'reponse_index' (index de la bonne réponse dans le tableau options)";
 
         $system = "Tu es l'évaluateur de Wari Academy. Tes questions vérifient la compréhension pratique de l'élève.";
+
+        echo $ai->generate($prompt, $system);
+        break;
+
+    case 'get_coach_advice':
+        $financialData = $_POST['data'] ?? ''; // JSON string des stats
+        
+        $prompt = "Analyse ma situation financière actuelle et donne-moi un conseil court (max 2 phrases) et percutant.
+        Données : $financialData.
+        Ton conseil doit être direct, utiliser un langage imagé africain si pertinent (ex: la tontine, le marché, construire brique par brique), et ne SURTOUT pas utiliser mon nom (appelle-moi 'Champion' ou 'L'ami').
+        Retourne un JSON avec une clé 'message'.";
+
+        $system = "Tu es le Coach Wari, un expert en éducation financière en Afrique. 
+        Tu es rigoureux, tu ne mâches pas tes mots si le budget est mal géré, mais tu es toujours motivant. 
+        Ton but est d'aider l'utilisateur à atteindre sa souveraineté financière.";
 
         echo $ai->generate($prompt, $system);
         break;

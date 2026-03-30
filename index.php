@@ -36,7 +36,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=47">
+    <link rel="stylesheet" href="./assets/styles.css?v=50">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
@@ -54,7 +54,7 @@ if (!isset($_SESSION['user_id'])) {
 <body class="p-3 pb-20">
 
     <div class="max-w-md mx-auto">
-        <header class="flex items-center justify-between mt-2 mb-8">
+        <header class="flex items-center justify-between mb-4">
             <div class="flex flex-col">
                 <h1 class="text-3xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
                     WARI - Finance
@@ -73,35 +73,51 @@ if (!isset($_SESSION['user_id'])) {
         </header>
 
         <!-- Jauge de Santé Financière -->
-        <div id="healthGauge" class="mt-4 mb-4 glass-card p-3 border-l-4 border-emerald-500/50 shadow-xl">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">💡 Santé financière</h3>
-                <span id="gaugePercent" class="text-emerald-400 font-black text-sm">—</span>
+        <div id="healthGauge" class="mt-2 mb-4 glass-card p-4 border-l-4 border-emerald-500/50 shadow-xl relative overflow-hidden">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex flex-col">
+                    <h3 class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">💡 Santé financière</h3>
+                    <span id="gaugePercent" class="text-emerald-400 font-black text-xs">—</span>
+                </div>
+                <div class="text-right bg-slate-900/40 px-3 py-1.5 rounded-xl border border-white/5">
+                    <span id="disciplineScore" class="text-xl font-black text-white leading-none">--</span>
+                    <p class="text-[7px] uppercase text-slate-500 font-bold tracking-widest mt-0.5">Discipline / 10</p>
+                </div>
             </div>
 
             <!-- Barre principale -->
-            <div class="w-full h-3 bg-slate-950/60 rounded-full overflow-hidden border border-white/5 mb-4">
+            <div class="w-full h-2.5 bg-slate-950/60 rounded-full overflow-hidden border border-white/5 mb-4">
                 <div id="gaugeBar" class="h-full rounded-full transition-all duration-700 ease-out" style="width:0%"></div>
             </div>
 
             <!-- Banque / Cash -->
             <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-700/30">
-                    <p class="text-[9px] uppercase tracking-widest text-slate-500 mb-1">🔒 Sécuriser en banque</p>
-                    <p id="bankAmount" class="text-white font-black text-sm">0 F</p>
-                    <p id="bankSpent" class="text-[9px] text-red-400 mt-0.5"></p>
-                    <p class="text-[8px] text-slate-600 mt-1 uppercase tracking-wider">Épargne + Capital Projet</p>
+                <div class="bg-slate-800/20 rounded-xl p-3 border border-slate-700/10">
+                    <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">🔒 Banque</p>
+                    <p id="bankAmount" class="text-white font-black text-xs">0 F</p>
+                    <p id="bankSpent" class="text-[8px] text-red-400 mt-0.5"></p>
+                    <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Épargne + Capital Projet</p>
                 </div>
-                <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-700/30">
-                    <p class="text-[9px] uppercase tracking-widest text-slate-500 mb-1">💵 Poche / MoMo</p>
-                    <p id="cashAmount" class="text-emerald-400 font-black text-sm">0 F</p>
-                    <p id="cashSpent" class="text-[9px] text-red-400 mt-0.5"></p>
-                    <p class="text-[8px] text-slate-600 mt-1 uppercase tracking-wider">Train de vie + Imprévus</p>
+                <div class="bg-slate-800/20 rounded-xl p-3 border border-slate-700/10">
+                    <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">💵 Poche</p>
+                    <p id="cashAmount" class="text-emerald-400 font-black text-xs">0 F</p>
+                    <p id="cashSpent" class="text-[8px] text-red-400 mt-0.5"></p>
+                    <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Train de vie + Imprévus</p>
                 </div>
             </div>
 
-            <!-- Message coach contextuel -->
-            <div id="gaugeAlert" class="text-[10px] text-center py-2 px-3 rounded-lg font-bold"></div>
+            <!-- Message Coach IA Connecté -->
+            <div id="aiCoachContainer" class="mt-2 mb-2 pt-3 border-t border-white/5 relative group">
+                 <div class="flex items-start gap-2">
+                    <span class="text-sm mt-0.5">🤵‍♂️</span>
+                    <p id="aiCoachMessage" class="text-[11px] text-slate-300 leading-snug italic">
+                        Enregistre tes flux pour que Wari puisse te conseiller...
+                    </p>
+                 </div>
+            </div>
+            
+            <!-- Ancien message contextual (caché mais gardé pour compatibilité JS si besoin) -->
+            <div id="gaugeAlert" class="hidden"></div>
         </div>
 
         <!-- Section insertion du montant a repartire -->
@@ -248,36 +264,6 @@ if (!isset($_SESSION['user_id'])) {
 
             <div id="debtList" class="space-y-3">
                 <p class="text-slate-500 text-[10px] italic text-center">Aucune dette ou créance en cours.</p>
-            </div>
-        </div>
-
-        <!-- Section Coach Intelligence Financière -->
-        <div id="reportSection" class="mt-4 mb-4 glass-card p-3 border-t-2 border-yellow-500 shadow-2xl bg-gradient-to-b from-slate-800/50 to-transparent">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h3 class="text-[10px] uppercase tracking-[0.2em] text-yellow-500 font-bold">📊 Intelligence Financière</h3>
-                    <p class="text-[9px] text-slate-400">Analyse de votre comportement ce mois</p>
-                </div>
-                <div class="text-right">
-                    <div id="disciplineScore" class="text-3xl font-black text-white">--</div>
-                    <p class="text-[8px] uppercase text-slate-500 font-bold tracking-widest">Score / 10</p>
-                </div>
-            </div>
-
-            <div id="reportMessage" class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/30 mb-4">
-                <p class="text-xs text-slate-300 leading-relaxed italic" id="aiCoachMessage">
-                    "Analyse en cours..."
-                </p>
-            </div>
-
-            <div class="space-y-3">
-                <div class="flex justify-between items-center text-[10px] font-bold uppercase">
-                    <span class="text-slate-400">Respect Budget</span>
-                    <span id="budgetSuccessText" class="text-emerald-400">0%</span>
-                </div>
-                <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
-                    <div id="budgetSuccessBar" class="h-full bg-emerald-500 transition-all duration-1000" style="width: 0%"></div>
-                </div>
             </div>
         </div>
 
@@ -609,7 +595,7 @@ if (!isset($_SESSION['user_id'])) {
         startLiveClock();
     </script>
 
-    <script src="./assets/main.js?v=47"></script>
+    <script src="./assets/main.js?v=50"></script>
 </body>
 
 </html>

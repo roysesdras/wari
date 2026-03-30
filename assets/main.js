@@ -1022,12 +1022,10 @@ function generateFinancialReport() {
   if (!categories || categories.length === 0) return;
 
   const scoreElement = document.getElementById("disciplineScore");
-  const progressBar = document.getElementById("budgetSuccessBar");
-  const progressText = document.getElementById("budgetSuccessText");
   const coachMessageElement = document.getElementById("aiCoachMessage");
   const currency = document.getElementById("currencySelector")?.value || "F";
 
-  if (!scoreElement || !progressBar || !coachMessageElement) return;
+  if (!scoreElement || !coachMessageElement) return;
 
   const totalCats = categories.length;
   let respectedCats = 0;
@@ -1061,40 +1059,80 @@ function generateFinancialReport() {
 
   scoreElement.innerText = `${finalScore}/10`;
   scoreElement.className =
-    "text-3xl font-black transition-all duration-500 " +
+    "text-xl font-black transition-all duration-500 " +
     (finalScore >= 8
-      ? "text-emerald-400 animate-bounce"
+      ? "text-emerald-400"
       : finalScore >= 5
         ? "text-yellow-500"
         : "text-red-500");
 
-  const successPercent = Math.round((respectedCats / totalCats) * 100);
-  progressBar.style.width = `${successPercent}%`;
-  if (progressText)
-    progressText.innerText = `${successPercent}% des objectifs tenus`;
-
   const aSolde =
     categories.some((c) => (c.balance || 0) > 0) || projectCapital > 0;
-  let message = "";
 
   if (!aSolde) {
-    message = "Enregistre tes revenus pour activer le coaching Wari. 🚀";
-  } else if (savingSacrificed) {
-    message = `🚨 ALERTE : Tu as pioché dans tes réserves ! Tu as pris ${totalOverspent.toLocaleString()} ${currency} à ton futur.`;
-  } else if (finalScore >= 9) {
-    message =
-      "💎 EXPERT : Ton épargne et tes projets sont en sécurité. Ta souveraineté financière avance !";
-  } else if (finalScore >= 7) {
-    message =
-      "✅ BIEN : L'essentiel est sauf. Surveille juste tes petits écarts de train de vie.";
-  } else if (finalScore >= 5) {
-    message = `⚖️ FRAGILE : Tu as dépassé de ${totalOverspent.toLocaleString()} ${currency}. Tes envies d'aujourd'hui menacent tes projets de demain.`;
-  } else {
-    message =
-      "⚠️ NAUFRAGE : Tu dépenses sans regarder. Ferme les vannes avant de couler !";
+    coachMessageElement.innerHTML = `<span class="italic text-slate-500">Enregistre tes revenus pour activer le coaching Wari personnalisé. 🚀</span>`;
+    return;
   }
 
-  coachMessageElement.innerHTML = `<span class="italic">"${message}"</span>`;
+  // On prépare les données pour l'IA
+  const summary = categories.map(c => `${c.name}: ${currentExpenses[c.id] || 0} / ${c.name.toLowerCase().includes('projet') ? projectCapital : c.balance || 0} ${currency}`).join(', ');
+  const statusData = {
+    score: finalScore,
+    overspent: totalOverspent,
+    summary: summary,
+    currency: currency,
+    has_sacrificed_saving: savingSacrificed
+  };
+
+  fetchAiCoachAdvice(statusData);
+}
+
+// Nouvelle fonction pour appeler Gemini
+async function fetchAiCoachAdvice(data) {
+  const coachMessageElement = document.getElementById("aiCoachMessage");
+  if (!coachMessageElement) return;
+
+  // Optimisation : On ne rappelle l'IA que toutes les 5 minutes minimum si les données changent
+  const lastCall = localStorage.getItem('wari_coach_last_call');
+  const lastData = localStorage.getItem('wari_coach_last_data');
+  const now = Date.now();
+  const currentDataStr = JSON.stringify(data);
+
+  if (lastCall && (now - lastCall < 300000) && lastData === currentDataStr) {
+    // On garde le message précédent s'il existe déjà
+    const savedMsg = localStorage.getItem('wari_coach_last_msg');
+    if (savedMsg) {
+      coachMessageElement.innerHTML = `<span class="italic">${savedMsg}</span>`;
+      return;
+    }
+  }
+
+  coachMessageElement.innerHTML = `<span class="italic animate-pulse text-yellow-500/70">Wari analyse tes chiffres...</span>`;
+
+  try {
+    const formData = new FormData();
+    formData.append('action', 'get_coach_advice');
+    formData.append('data', currentDataStr);
+
+    const res = await fetch('academy-admin/ai_gateway.php', {
+      method: 'POST',
+      body: formData
+    });
+    const result = await res.json();
+
+    if (result.message) {
+      coachMessageElement.innerHTML = `<span class="italic">${result.message}</span>`;
+      localStorage.setItem('wari_coach_last_call', now);
+      localStorage.setItem('wari_coach_last_data', currentDataStr);
+      localStorage.setItem('wari_coach_last_msg', result.message);
+    } else {
+       // Fallback en cas d'erreur IA sans perturber l'expérience
+       coachMessageElement.innerHTML = `<span class="italic text-slate-500">"Continue tes efforts, la discipline est la clé de ta liberté ! 🚀"</span>`;
+    }
+  } catch (e) {
+    console.error("Erreur coach IA:", e);
+    coachMessageElement.innerHTML = `<span class="italic text-slate-500">"Discipline et rigueur ! Ton avenir se construit aujourd'hui."</span>`;
+  }
 }
 
 // ─── MODE ÉDITION ──────────────────────────────────────────────────────────
