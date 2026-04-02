@@ -83,16 +83,19 @@ try {
         break;
 
     case 'get_coach_advice':
-        $financialData = $_POST['data'] ?? ''; // JSON string des stats
+        $financialData = $_POST['data'] ?? ''; 
         
-        $prompt = "Analyse ma situation financière actuelle et donne-moi un conseil court (max 2 phrases) et percutant.
-        Données : $financialData.
-        Ton conseil doit être direct, utiliser un langage imagé africain si pertinent (ex: la tontine, le marché, construire brique par brique), et ne SURTOUT pas utiliser mon nom (appelle-moi 'Champion' ou 'L'ami').
-        Retourne un JSON avec une clé 'message'.";
+        $prompt = "Analyse ces données financières Wari : $financialData. 
+        Tu dois impérativement retourner un objet JSON avec EXACTEMENT ces clés :
+        - 'message' : Ton conseil Wari habituel (2 phrases max, ton direct, motivant et imagé).
+        - 'prediction' : Une analyse de la fin de mois (ex: 'À ce rythme, ton cash finit le 22').
+        - 'dette_conseil' : Si des dettes existent, dis laquelle rembourser en priorité.
+        - 'academy_reco' : Le titre d'un sujet de cours utile (ex: 'Maîtriser son épargne').
+        - 'alerte_rouge' : Un message de 5 mots max si une catégorie est critique (sinon vide).";
 
-        $system = "Tu es le Coach Wari, un expert en éducation financière en Afrique. 
-        Tu es rigoureux, tu ne mâches pas tes mots si le budget est mal géré, mais tu es toujours motivant. 
-        Ton but est d'aider l'utilisateur à atteindre sa souveraineté financière.";
+        $system = "Tu es le Coach Wari, expert en souveraineté financière en Afrique. 
+        Tu es le 'Grand Frère' qui aide à construire l'avenir brique par brique. 
+        Tu es rigoureux sur la discipline mais toujours encourageant. Appelle l'utilisateur 'Champion·ne'.";
 
         echo $ai->generate($prompt, $system);
         break;

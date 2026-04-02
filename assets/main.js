@@ -850,9 +850,18 @@ function applyModel(modelKey) {
 
 mainInput.addEventListener("input", () => render());
 
-window.onload = function () {
-  isInitialLoad = false;
-};
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initialisation de ton état de chargement
+    isInitialLoad = false;
+
+    // 2. Lancement des notes de mise à jour (V55)
+    // On met un petit délai pour ne pas agresser l'utilisateur dès la première seconde
+    checkReleaseNotes(); 
+
+    // 3. Tes autres vérifications (Radar, etc.)
+    const lastClosed = localStorage.getItem('wari_push_modal_closed');
+    // ... reste de ton code existant ...
+});
 
 // ─── DÉPENSES ──────────────────────────────────────────────────────────────
 
@@ -1027,7 +1036,8 @@ function generateFinancialReport() {
 
   if (!scoreElement || !coachMessageElement) return;
 
-  const totalCats = categories.length;
+  let totalAlloue = 0;
+  let totalDepense = 0;
   let respectedCats = 0;
   let totalOverspent = 0;
   let savingSacrificed = false;
@@ -1038,81 +1048,70 @@ function generateFinancialReport() {
     const isProjet = name.includes("projet");
     const planned = isProjet ? projectCapital : cat.balance || 0;
 
+    // Recalcul des totaux pour l'IA
+    totalAlloue += isProjet ? projectCapital : (cat.balance || 0);
+    totalDepense += spent;
+
     if (planned === 0 && !isProjet) return;
 
     if (spent <= planned) {
       respectedCats++;
     } else {
       totalOverspent += spent - planned;
-      if (
-        name.includes("épargne") ||
-        name.includes("projet") ||
-        name.includes("investissement")
-      ) {
+      if (name.includes("épargne") || name.includes("projet") || name.includes("investissement")) {
         savingSacrificed = true;
       }
     }
   });
 
-  let finalScore = Math.round((respectedCats / totalCats) * 10);
+  let finalScore = Math.round((respectedCats / categories.length) * 10);
   if (savingSacrificed) finalScore = Math.max(0, finalScore - 4);
 
   scoreElement.innerText = `${finalScore}/10`;
-  scoreElement.className =
-    "text-xl font-black transition-all duration-500 " +
-    (finalScore >= 8
-      ? "text-emerald-400"
-      : finalScore >= 5
-        ? "text-yellow-500"
-        : "text-red-500");
+  scoreElement.className = "text-xl font-black transition-all duration-500 " +
+    (finalScore >= 8 ? "text-emerald-400" : finalScore >= 5 ? "text-yellow-500" : "text-red-500");
 
-  const aSolde =
-    categories.some((c) => (c.balance || 0) > 0) || projectCapital > 0;
+  const aSolde = categories.some((c) => (c.balance || 0) > 0) || projectCapital > 0;
 
   if (!aSolde) {
     coachMessageElement.innerHTML = `<span class="italic text-slate-500">Enregistre tes revenus pour activer le coaching Wari personnalisé. 🚀</span>`;
     return;
   }
 
-  // On prépare les données pour l'IA
-  const summary = categories.map(c => `${c.name}: ${currentExpenses[c.id] || 0} / ${c.name.toLowerCase().includes('projet') ? projectCapital : c.balance || 0} ${currency}`).join(', ');
-  const statusData = {
+  // Préparation du contexte complet pour l'IA
+  const fullContext = {
     score: finalScore,
-    overspent: totalOverspent,
-    summary: summary,
-    currency: currency,
-    has_sacrificed_saving: savingSacrificed
+    total_depense: totalDepense,
+    total_alloue: totalAlloue,
+    reste_a_vivre: totalAlloue - totalDepense,
+    categories: categories.map(c => ({
+      nom: c.name,
+      solde: c.balance,
+      depense: currentExpenses[c.id] || 0
+    })),
+    dettes: (window.dbDebts || []).map(d => ({
+      nom: d.person_name,
+      montant: d.amount,
+      type: d.type,
+      echeance: d.due_date
+    })),
+    capital_coffre: projectCapital,
+    devise: currency
   };
 
-  fetchAiCoachAdvice(statusData);
+  fetchAiCoachAdvice(fullContext);
 }
 
 // Nouvelle fonction pour appeler Gemini
 async function fetchAiCoachAdvice(data) {
   const coachMessageElement = document.getElementById("aiCoachMessage");
+  const gaugeAlert = document.getElementById("gaugeAlert");
   if (!coachMessageElement) return;
-
-  // Optimisation : On ne rappelle l'IA que toutes les 5 minutes minimum si les données changent
-  const lastCall = localStorage.getItem('wari_coach_last_call');
-  const lastData = localStorage.getItem('wari_coach_last_data');
-  const now = Date.now();
-  const currentDataStr = JSON.stringify(data);
-
-  if (lastCall && (now - lastCall < 300000) && lastData === currentDataStr) {
-    // On garde le message précédent s'il existe déjà
-    const savedMsg = localStorage.getItem('wari_coach_last_msg');
-    if (savedMsg) {
-      coachMessageElement.innerHTML = `<span class="italic">${savedMsg}</span>`;
-      return;
-    }
-  }
-
-  coachMessageElement.innerHTML = `<span class="italic animate-pulse text-yellow-500/70">Wari analyse tes chiffres...</span>`;
 
   try {
     const formData = new FormData();
     formData.append('action', 'get_coach_advice');
-    formData.append('data', currentDataStr);
+    formData.append('data', JSON.stringify(data));
 
     const res = await fetch('academy-admin/ai_gateway.php', {
       method: 'POST',
@@ -1121,17 +1120,24 @@ async function fetchAiCoachAdvice(data) {
     const result = await res.json();
 
     if (result.message) {
-      coachMessageElement.innerHTML = `<span class="italic">${result.message}</span>`;
-      localStorage.setItem('wari_coach_last_call', now);
-      localStorage.setItem('wari_coach_last_data', currentDataStr);
-      localStorage.setItem('wari_coach_last_msg', result.message);
-    } else {
-       // Fallback en cas d'erreur IA sans perturber l'expérience
-       coachMessageElement.innerHTML = `<span class="italic text-slate-500">"Continue tes efforts, la discipline est la clé de ta liberté ! 🚀"</span>`;
+      // Affichage du message principal (Ton Wari)
+      coachMessageElement.innerHTML = `
+        <div class="space-y-1">
+          <p class="text-slate-200">"${result.message}"</p>
+          ${result.prediction ? `<p class="text-[10px] text-amber-400/80 font-bold">PRÉDICTION : ${result.prediction}</p>` : ''}
+          ${result.dette_conseil ? `<p class="text-[10px] text-blue-400/80 font-bold">DETTES : ${result.dette_conseil}</p>` : ''}
+          ${result.academy_reco ? `<p class="text-[10px] text-emerald-400/80 font-bold">ACADEMY : "Apprends à ${result.academy_reco}"</p>` : ''}
+        </div>
+      `;
+
+      // Mise à jour de l'alerte de la jauge si l'IA détecte un danger
+      if (result.alerte_rouge && gaugeAlert) {
+        gaugeAlert.innerHTML = `🚨 ${result.alerte_rouge}`;
+        gaugeAlert.classList.add('animate-bounce');
+      }
     }
   } catch (e) {
-    console.error("Erreur coach IA:", e);
-    coachMessageElement.innerHTML = `<span class="italic text-slate-500">"Discipline et rigueur ! Ton avenir se construit aujourd'hui."</span>`;
+    console.error("Erreur Coach Wari:", e);
   }
 }
 
@@ -1477,4 +1483,75 @@ function checkDebtReminders() {
       );
     }
   });
+}
+
+
+
+// ========================================================================================================================================================================================================================================================================================================
+
+
+// --- GESTION DES NOTES DE MISE À JOUR (RELEASE NOTES) ---
+
+const WARI_VERSION = 55; // Ta version actuelle
+
+function checkReleaseNotes() {
+    const lastSeenVersion = localStorage.getItem('wari_last_seen_version');
+
+    // Si l'utilisateur n'a jamais vu la v55, on affiche le modal
+    if (!lastSeenVersion || parseInt(lastSeenVersion) < WARI_VERSION) {
+        setTimeout(showReleaseNotesModal, 2000); // Apparaît 2 secondes après le chargement
+    }
+}
+
+function showReleaseNotesModal() {
+    const modalHtml = `
+        <div id="release-modal" style="position:fixed; inset:0; background:rgba(8,11,16,0.98); z-index:10001; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(15px);">
+            <div style="background:#0d1117; border:1px solid rgba(245,166,35,0.3); border-radius:35px; padding:35px; max-width:450px; width:100%; box-shadow: 0 25px 60px rgba(0,0,0,0.6); position:relative; overflow:hidden;">
+                
+                <!-- Badge Version -->
+                <div style="position:absolute; top:20px; right:20px; background:#f5a623; color:#000; padding:5px 12px; border-radius:10px; font-size:10px; font-weight:900;">V1.5.5</div>
+
+                <div style="text-align:center; margin-bottom:25px;">
+                    <h2 style="color:#fff; font-weight:900; letter-spacing:-1px; text-transform:uppercase; margin:0;">Quoi de neuf ?</h2>
+                    <p style="color:#f5a623; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-top:5px;">Wari Finance évolue pour toi</p>
+                </div>
+
+                <div style="max-height:300px; overflow-y:auto; padding-right:10px; margin-bottom:30px;" class="custom-scrollbar">
+                    
+                    <div style="margin-bottom:20px;">
+                        <h4 style="color:#fff; font-size:14px; margin-bottom:5px;">Coach Wari Plus intelligent</h4>
+                        <p style="color:#64748b; font-size:12px; line-height:1.5; margin:0;">Ton coach prédit désormais ta fin de mois et te conseille sur tes dettes prioritaires.</p>
+                    </div>
+
+                    <div style="margin-bottom:20px;">
+                        <h4 style="color:#fff; font-size:14px; margin-bottom:5px;">Radar & Notifications</h4>
+                        <p style="color:#64748b; font-size:12px; line-height:1.5; margin:0;">Nouveau guide visuel pour activer ton radar si ton téléphone bloque les alertes enfin de toujours rester informé</p>
+                    </div>
+
+                    <div style="margin-bottom:20px;">
+                        <h4 style="color:#fff; font-size:14px; margin-bottom:5px;">Wari Academy</h4>
+                        <p style="color:#64748b; font-size:12px; line-height:1.5; margin:0;">Wari te suggère maintenant les cours exacts dont tu as besoin selon tes dépenses.</p>
+                    </div>
+
+                    <div style="margin-bottom:10px;">
+                        <h4 style="color:#fff; font-size:14px; margin-bottom:5px;">Corrections</h4>
+                        <p style="color:#64748b; font-size:12px; line-height:1.5; margin:0;">Amélioration de la jauge de santé et synchronisation plus rapide des données.</p>
+                    </div>
+
+                </div>
+
+                <button onclick="closeReleaseNotes()" style="background:#f5a623; color:#000; border:none; padding:10px; border-radius:18px; font-weight:900; cursor:pointer; width:100%; font-size:14px; text-transform:uppercase; transition: transform 0.2s; box-shadow: 0 10px 20px rgba(245,166,35,0.2);">
+                    C'est génial, merci !
+                </button>
+            </div>
+        </div>`;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function closeReleaseNotes() {
+    // On enregistre que l'utilisateur a vu la v55
+    localStorage.setItem('wari_last_seen_version', WARI_VERSION);
+    const modal = document.getElementById('release-modal');
+    if (modal) modal.remove();
 }

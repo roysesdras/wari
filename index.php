@@ -40,7 +40,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=53">
+    <link rel="stylesheet" href="./assets/styles.css?v=55">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000308ff">
@@ -613,12 +613,13 @@ if (!isset($_SESSION['user_id'])) {
             // On affiche si : 
             // 1. Pas de permission accordée
             // 2. ET (Jamais fermé OU fermé il y a plus de 24h)
-            if ((isDefault || isDenied) && (!lastClosed || (now - lastClosed > twentyFourHours))) {
-                setTimeout(showWariPushModal, 3000);
-            }
+            if ((isDefault || isDenied) && (!lastClosed || (now - parseInt(lastClosed) > twentyFourHours))) {
+    setTimeout(showWariPushModal, 3000);
+}
         });
 
         function showWariPushModal() {
+            if (document.getElementById('push-modal')) return; // Si le modal existe déjà, on ne fait rien
             const modalHtml = `
                 <div id="push-modal" style="position:fixed; inset:0; background:#080b10; z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(10px);">
                     <div style="background:#0d1117; border:1px solid #f5a623; border-radius:30px; padding:40px; text-align:center; max-width:400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
@@ -673,7 +674,7 @@ if (!isset($_SESSION['user_id'])) {
                 });
 
                 // 4. Envoyer les données à ton serveur (save_subscription.php)
-                await fetch('save_subscription.php', {
+                await fetch('./config/save_subscription.php', {
                     method: 'POST',
                     body: JSON.stringify(subscription),
                     headers: {
@@ -683,10 +684,16 @@ if (!isset($_SESSION['user_id'])) {
 
                 console.log('✅ Radar activé avec succès !');
 
+            // Dans ta fonction subscribeUserToPush()
             } catch (error) {
                 console.error('❌ Erreur lors de la souscription :', error);
-                // Si l'utilisateur a bloqué au niveau système, on peut l'alerter ici
-                alert("Champion·ne, vérifie les réglages de ton navigateur pour autoriser Wari.");
+
+                // On vérifie si c'est un refus de permission
+                if (Notification.permission === 'denied') {
+                    showNotificationHelp(); // On appelle notre nouveau guide
+                } else {
+                    alert("Oups ! Une petite erreur technique. Réessaie dans un instant, Champion.");
+                }
             }
         }
 
@@ -701,9 +708,27 @@ if (!isset($_SESSION['user_id'])) {
             }
             return outputArray;
         }
+
+
+        function showNotificationHelp() {
+            const helpHtml = `
+                <div id="help-modal" style="position:fixed; inset:0; background:rgba(8,11,16,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(10px);">
+                    <div style="background:#0d1117; border:2px solid #f5a623; border-radius:30px; padding:30px; text-align:center; max-width:450px; box-shadow: 0 0 40px rgba(245,166,35,0.15);">
+                        <div style="font-size:40px; margin-bottom:15px;">⚙️</div>
+                        <h2 style="color:#fff; font-weight:900; margin-bottom:15px; text-transform:uppercase;">RÉGLAGES DU RADAR</h2>
+                        <p style="color:#94a3b8; font-size:13px; line-height:1.6; margin-bottom:25px; text-align:left;">
+                            Champion·ne, ton radar est bloqué par ton système. Pour l'activer :<br><br>
+                            <strong>Sur Android :</strong> Reste appuyé sur l'icône Wari > Infos > Notifications > Autoriser.<br><br>
+                            <strong>Sur iPhone :</strong> Réglages > Notifications > Wari > Autoriser.
+                        </p>
+                        <button onclick="document.getElementById('help-modal').remove()" style="background:#f5a623; color:#000; border:none; padding:18px; border-radius:15px; font-weight:900; cursor:pointer; width:100%; text-transform:uppercase;">J'ai compris !</button>
+                    </div>
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', helpHtml);
+        }
     </script>
 
-    <script src="./assets/main.js?v=53"></script>
+    <script src="./assets/main.js?v=55"></script>
 </body>
 
 </html>

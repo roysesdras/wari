@@ -4,32 +4,32 @@
       "content": {
         "parts": [
           {
-            "text": "{\n  \"message\": \"Champion, l'épargne est le pilier de toute construction financière solide. Commence à bâtir ta maison, brique par brique, même si la première est petite.\"\n}"
+            "text": "{\n  \"message\": \"Champion·ne, tu as un bon socle ! Bâtis ta richesse avec discipline et le succès suivra.\",\n  \"prediction\": \"Avec une allocation bien gérée, tu es sur la bonne voie pour sécuriser ton mois.\",\n  \"dette_conseil\": null,\n  \"academy_reco\": \"Optimiser l'allocation de son budget\",\n  \"alerte_rouge\": \"\"\n}"
           }
         ],
         "role": "model"
       },
       "finishReason": "STOP",
-      "avgLogprobs": -0.36780369800070056
+      "avgLogprobs": -0.25989965597788495
     }
   ],
   "usageMetadata": {
-    "promptTokenCount": 238,
-    "candidatesTokenCount": 46,
-    "totalTokenCount": 284,
+    "promptTokenCount": 365,
+    "candidatesTokenCount": 96,
+    "totalTokenCount": 461,
     "promptTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 238
+        "tokenCount": 365
       }
     ],
     "candidatesTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 46
+        "tokenCount": 96
       }
     ]
   },
   "modelVersion": "gemini-2.0-flash",
-  "responseId": "1v3NabfmKIL-xN8Ph_fEwQQ"
+  "responseId": "633OadnAKKzhkdUPv4wW"
 }
