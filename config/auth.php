@@ -11,9 +11,28 @@
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="../assets/styles.css?v=50">
+    <link rel="stylesheet" href="../assets/styles.css?v=53">
     <link rel="manifest" href="../manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#000308ff">
+
+    <!-- Balises SEO de base -->
+    <meta name="description" content="Gérez votre budget, épargnez et maîtrisez vos finances à vie avec l'IA.">
+    <meta name="keywords" content="Wari Finance, gestion budget, épargne, finance personnelle, Afrique, licence pro">
+    <meta name="author" content="Digiroys">
+
+    <!-- Open Graph / Facebook / WhatsApp (Ce qui s'affiche quand on partage le lien) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://wari.digiroys.com/">
+    <meta property="og:title" content="WARI Finance : Prennez le contrôle de votre argent">
+    <meta property="og:description" content="Prenez le contrôle de votre argent.">
+    <meta property="og:image" content="https://wari.digiroys.com/assets/wari_og_1.png"> <!-- METTEZ UNE BELLE IMAGE ICI -->
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://wari.digiroys.com/">
+    <meta property="twitter:title" content="WARI Finance : Prennez le contrôle de votre argent">
+    <meta property="twitter:description" content="Gérez vos finances comme un champion. Accès à vie sans abonnement.">
+    <meta property="twitter:image" content="https://wari.digiroys.com/assets/wari_og_1.png">
 
     <script src="https://stats.digiroys.com/tracker.js" data-key="key_wari_789"></script>
 
@@ -187,7 +206,7 @@
     </div>
 
     <!-- Bouton Message WhatsApp -->
-    <?php include '../bouton_whatssap.php';
+    <?php include '../bouton_paid_license.php';
     ?>
 
     <script>
@@ -257,7 +276,7 @@
         });
     </script>
 
-    <script src="../assets/main.js?v=50"></script>
+    <script src="../assets/main.js?v=53"></script>
 </body>
 
 </html>

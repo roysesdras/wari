@@ -35,11 +35,47 @@ if ($user_id && !empty($coursesWithProgress)) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wari Academy — Éducation Financière</title>
 
+    <meta name="description" content="Maîtrisez votre destin financier avec Wari Academy. Formations exclusives, outils de gestion premium et coaching pour les bâtisseurs d'empire.">
+    <meta name="keywords" content="éducation financière, gestion de budget, investissement, wari academy, rebonly, finance personnelle, coaching business">
+    <meta name="author" content="Wari-Academy">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://wari.digiroys.com/academy">
+    <meta property="og:title" content="Wari Academy — L'Élite de l'Éducation Financière">
+    <meta property="og:description" content="Prenez le contrôle de votre cash. Rejoignez la communauté des Warieures et transformez votre gestion en empire.">
+    <meta property="og:image" content="https://i.postimg.cc/x80KpBqW/warifinance3d.png">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Wari Academy — Éducation Financière">
+    <meta name="twitter:description" content="Ne subissez plus vos finances. Apprenez à dominer chaque franc avec les experts en Finance.">
+    <meta name="twitter:image" content="https://i.postimg.cc/x80KpBqW/warifinance3d.png">
+
+    <meta name="theme-color" content="#080b10">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
+    <link rel="canonical" href="https://wari.digiroys.com/academy" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-outfit {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+        }
+    </style>
+
+
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -150,7 +186,7 @@ if ($user_id && !empty($coursesWithProgress)) {
                 <div class="bento-card rounded-[2.5rem] p-8 flex items-center justify-between bg-wari-gold !text-black">
                     <div>
                         <p class="text-[10px] font-black uppercase mb-1 text-wari-gold">Accès</p>
-                        <div class="text-4xl font-heading font-black text-white">Free</div>
+                        <div class="text-4xl font-heading font-black text-white">Libre</div>
                     </div>
                     <span class="text-4xl opacity-100">🔓</span>
                 </div>
@@ -204,7 +240,7 @@ if ($user_id && !empty($coursesWithProgress)) {
 
         <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-20">
             <?php foreach ($categories as $cat): ?>
-                <a href="/academy/categorie.php?slug=<?= $cat['slug'] ?>" class="bento-card rounded-3xl p-6 text-center group">
+                <a href="/academy/categorie.php?slug=<?= $cat['slug'] ?>" class="bento-card rounded-3xl p-4 text-center group">
                     <div class="text-3xl mb-3 group-hover:scale-125 transition-transform"><?= $cat['icone'] ?></div>
                     <div class="text-[10px] font-black uppercase text-white/80"><?= $cat['titre'] ?></div>
                     <div class="text-[9px] text-wari-gold/50 mt-1"><span class="text-wari-gold font-bold"><?= $cat['nb_cours'] ?></span> COURS</div>
@@ -221,7 +257,7 @@ if ($user_id && !empty($coursesWithProgress)) {
             <?php foreach ($coursesWithProgress as $course): ?>
                 <a href="/academy/course.php?slug=<?= $course['slug'] ?>" class="bento-card rounded-[2.5rem] overflow-hidden group flex flex-col">
                     <div class="h-3 bg-wari-gold shadow-[0_0_20px_rgba(201,168,76,0.3)]"></div>
-                    <div class="p-8 flex-1">
+                    <div class="p-6 flex-1">
                         <div class="flex justify-between items-start mb-6">
                             <span class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg text-[9px] font-black uppercase text-wari-gold">
                                 <?= $course['category_icone'] ?> <?= $course['category_titre'] ?>

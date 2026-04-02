@@ -4,32 +4,32 @@
       "content": {
         "parts": [
           {
-            "text": "{\n  \"contenu\": \"\u003ch2\u003eÉviter les excuses : Le chemin vers une épargne réussie\u003c/h2\u003e\\n\u003cp\u003eDans notre quête pour bâtir un trésor, même petit à petit, l'un des plus grands obstacles est... nous-mêmes ! Plus précisément, les excuses que nous nous trouvons pour ne pas épargner. Reconnaître ces excuses et les démanteler est crucial pour avancer.\u003c/p\u003e\\n\\n\u003ch2\u003eLes excuses les plus courantes et comment les contrer\u003c/h2\u003e\\n\u003cp\u003eVoici quelques excuses typiques et des stratégies pour les surmonter :\u003c/p\u003e\\n\u003cul\u003e\\n  \u003cli\u003e\u003cb\u003e\\\"Je n'ai pas assez d'argent.\\\"\u003c/b\u003e\u003cbr\u003e\\n    C'est l'excuse numéro un. Mais rappelez-vous, même les petites sommes comptent. Commencez par suivre vos dépenses pendant une semaine. Vous serez surpris de voir où va votre argent. Ensuite, identifiez les petites dépenses que vous pouvez réduire (un café par jour, un soda, etc.) et mettez cet argent de côté.\u003c/li\u003e\\n  \u003cli\u003e\u003cb\u003e\\\"J'épargnerai quand j'aurai une augmentation.\\\"\u003c/b\u003e\u003cbr\u003e\\n    N'attendez pas ! Commencez dès maintenant, même avec une petite somme. Si vous attendez une augmentation, vous risquez de vous habituer à dépenser tout ce que vous gagnez. Quand l'augmentation arrivera, vous aurez déjà pris de bonnes habitudes d'épargne.\u003c/li\u003e\\n  \u003cli\u003e\u003cb\u003e\\\"Je ne sais pas comment épargner.\\\"\u003c/b\u003e\u003cbr\u003e\\n    C'est pour cela que Wari Academy est là ! Commencez par ce cours. Ouvrez un compte d'épargne dédié (même un simple compte Wari) et automatisez des virements réguliers, même petits, de votre compte courant vers votre compte d'épargne.\u003c/li\u003e\\n  \u003cli\u003e\u003cb\u003e\\\"J'ai trop de dépenses imprévues.\\\"\u003c/b\u003e\u003cbr\u003e\\n    C'est inévitable, mais prévisible ! Créez un fonds d'urgence. Même une petite somme mise de côté chaque mois peut vous aider à couvrir ces imprévus sans saboter vos objectifs d'épargne à long terme.\u003c/li\u003e\\n  \u003cli\u003e\u003cb\u003e\\\"C'est trop difficile.\\\"\u003c/b\u003e\u003cbr\u003e\\n    Rien n'est facile au début. Mais avec de la persévérance et un plan clair, vous pouvez y arriver. Fixez-vous des objectifs réalistes et suivez vos progrès. Chaque petite victoire vous motivera à continuer.\u003c/li\u003e\\n\u003c/ul\u003e\\n\\n\u003cdiv class='bg-slate-800 border-l-4 border-gold-500 p-4 my-4'\u003e\u003cdiv class='text-gold-500 font-bold mb-1'\u003e💡 CONSEIL WARI\u003c/div\u003eVisualisez vos objectifs ! Avoir une image claire de ce pour quoi vous épargnez (un voyage, une maison, l'éducation de vos enfants) vous aidera à rester motivé et à surmonter les moments de découragement.\u003c/div\u003e\\n\\n\u003ch2\u003eTransformer les excuses en actions\u003c/h2\u003e\\n\u003cp\u003eLe secret est de transformer les excuses en actions concrètes. Au lieu de dire \\\"Je n'ai pas assez d'argent\\\", demandez-vous : \\\"Où puis-je trouver 500 FCFA de plus par jour ?\\\". Au lieu de dire \\\"C'est trop difficile\\\", demandez-vous : \\\"Quelle est la première petite étape que je peux faire aujourd'hui ?\\\".\u003c/p\u003e\\n\\n\u003ch2\u003eLe pouvoir de la discipline\u003c/h2\u003e\\n\u003cp\u003eL'épargne est une question de discipline. C'est un muscle qu'il faut entraîner régulièrement. Plus vous vous entraînerez, plus il deviendra fort. Ne vous découragez pas si vous manquez un jour. Recommencez le lendemain. L'important est de ne jamais abandonner votre objectif.\u003c/p\u003e\\n\\n\u003ch2\u003eConclusion\u003c/h2\u003e\\n\u003cp\u003eÉviter les excuses est essentiel pour réussir votre parcours d'épargne. Reconnaissez vos excuses, démanteler-les avec des actions concrètes, et cultivez la discipline. Bientôt, vous verrez votre trésor grandir petit à petit, et vous serez fier de vous-même.\u003c/p\u003e\"\n}"
+            "text": "{\n  \"message\": \"Champion, l'épargne est le pilier de toute construction financière solide. Commence à bâtir ta maison, brique par brique, même si la première est petite.\"\n}"
           }
         ],
         "role": "model"
       },
       "finishReason": "STOP",
-      "avgLogprobs": -0.18361531707631562
+      "avgLogprobs": -0.36780369800070056
     }
   ],
   "usageMetadata": {
-    "promptTokenCount": 246,
-    "candidatesTokenCount": 924,
-    "totalTokenCount": 1170,
+    "promptTokenCount": 238,
+    "candidatesTokenCount": 46,
+    "totalTokenCount": 284,
     "promptTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 246
+        "tokenCount": 238
       }
     ],
     "candidatesTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 924
+        "tokenCount": 46
       }
     ]
   },
   "modelVersion": "gemini-2.0-flash",
-  "responseId": "s3XKaZHnD9qDvdIPzoLOoQU"
+  "responseId": "1v3NabfmKIL-xN8Ph_fEwQQ"
 }

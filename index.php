@@ -22,6 +22,10 @@ if (!isset($_SESSION['user_id'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wari-Finance | Gestion Budget & Objectifs Financiers</title>
     <meta name="description" content="Avec Wari, chaque franc a un rôle. Planifie, contrôle et fais grandir ton argent directement depuis ton téléphone.">
+
+    <meta name="keywords" content="Wari Finance, gestion budget, épargne, finance personnelle, Afrique, licence pro">
+    <meta name="author" content="Digiroys">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 
@@ -36,10 +40,10 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=50">
+    <link rel="stylesheet" href="./assets/styles.css?v=53">
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#000308ff">
 
     <script src="https://stats.digiroys.com/tracker.js" data-key="key_wari_789"></script>
     <script>
@@ -108,14 +112,14 @@ if (!isset($_SESSION['user_id'])) {
 
             <!-- Message Coach IA Connecté -->
             <div id="aiCoachContainer" class="mt-2 mb-2 pt-3 border-t border-white/5 relative group">
-                 <div class="flex items-start gap-2">
+                <div class="flex items-start gap-2">
                     <span class="text-sm mt-0.5">🤵‍♂️</span>
                     <p id="aiCoachMessage" class="text-[11px] text-slate-300 leading-snug italic">
                         Enregistre tes flux pour que Wari puisse te conseiller...
                     </p>
-                 </div>
+                </div>
             </div>
-            
+
             <!-- Ancien message contextual (caché mais gardé pour compatibilité JS si besoin) -->
             <div id="gaugeAlert" class="hidden"></div>
         </div>
@@ -595,7 +599,111 @@ if (!isset($_SESSION['user_id'])) {
         startLiveClock();
     </script>
 
-    <script src="./assets/main.js?v=50"></script>
+    <script>
+        // On attend que la page soit prête
+        document.addEventListener('DOMContentLoaded', () => {
+            const lastClosed = localStorage.getItem('wari_push_modal_closed');
+            const isDenied = Notification.permission === 'denied';
+            const isDefault = Notification.permission === 'default';
+
+            // 24 heures en millisecondes
+            const twentyFourHours = 24 * 60 * 60 * 1000;
+            const now = Date.now();
+
+            // On affiche si : 
+            // 1. Pas de permission accordée
+            // 2. ET (Jamais fermé OU fermé il y a plus de 24h)
+            if ((isDefault || isDenied) && (!lastClosed || (now - lastClosed > twentyFourHours))) {
+                setTimeout(showWariPushModal, 3000);
+            }
+        });
+
+        function showWariPushModal() {
+            const modalHtml = `
+                <div id="push-modal" style="position:fixed; inset:0; background:#080b10; z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(10px);">
+                    <div style="background:#0d1117; border:1px solid #f5a623; border-radius:30px; padding:40px; text-align:center; max-width:400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                        <div style="font-size:50px; margin-bottom:20px;">📡</div>
+                        <h2 style="color:#fff; font-weight:900; letter-spacing:-1px; margin-bottom:10px; text-transform:uppercase;">RADAR DÉSACTIVÉ</h2>
+                        <p style="color:#556070; font-size:14px; line-height:1.6; margin-bottom:30px;">
+                            Champion&middot;ne, ton système d'alerte est éteint. 
+                            Sans tes notifications, tu navigues à vue et ton budget risque de déraper.
+                        </p>
+                        <button id="activate-push" style="background:#f5a623; color:#000; border:none; padding:18px 30px; border-radius:15px; font-weight:800; cursor:pointer; width:100%; font-size:14px; text-transform:uppercase; transition: transform 0.2s;">
+                            ACTIVER MON RADAR ⚡️
+                        </button>
+                        <button onclick="closeWariModal()" style="background:transparent; border:none; margin-top:20px; color:#556070; font-size:11px; cursor:pointer; text-decoration:underline; text-transform:uppercase; letter-spacing:1px;">
+                            Je préfère rester dans le noir
+                        </button>
+                    </div>
+                </div>`;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+            document.getElementById('activate-push').addEventListener('click', function() {
+                subscribeUserToPush(); // Ton script VAPID existant
+                document.getElementById('push-modal').remove();
+            });
+        }
+
+        function closeWariModal() {
+            // On cache le modal et on s'en souvient pour 24h pour ne pas être "lourd"
+            localStorage.setItem('wari_push_modal_closed', Date.now());
+            document.getElementById('push-modal').remove();
+        }
+
+
+        async function subscribeUserToPush() {
+            // 1. Vérifier si le navigateur supporte les notifications
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                console.warn('Push non supporté sur ce navigateur.');
+                return;
+            }
+
+            try {
+                const registration = await navigator.serviceWorker.ready;
+
+                // 2. Ta clé VAPID Publique (celle que tu as dans ton PHP)
+                const vapidPublicKey = 'BH9WpcuMhkSEOjnwf8KVZfDTv9Ps6nGaQ9RQ77e4D15ywgPmO7wNgTlldejjFjyWCp3PoBYareDXjlFBTdpzm40';
+                const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+
+                // 3. Demander la souscription au navigateur
+                const subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: convertedVapidKey
+                });
+
+                // 4. Envoyer les données à ton serveur (save_subscription.php)
+                await fetch('save_subscription.php', {
+                    method: 'POST',
+                    body: JSON.stringify(subscription),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('✅ Radar activé avec succès !');
+
+            } catch (error) {
+                console.error('❌ Erreur lors de la souscription :', error);
+                // Si l'utilisateur a bloqué au niveau système, on peut l'alerter ici
+                alert("Champion·ne, vérifie les réglages de ton navigateur pour autoriser Wari.");
+            }
+        }
+
+        // Fonction utilitaire indispensable pour VAPID
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+    </script>
+
+    <script src="./assets/main.js?v=53"></script>
 </body>
 
 </html>
