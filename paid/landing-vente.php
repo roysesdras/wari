@@ -306,7 +306,7 @@ $product_name = "WARI Finance — Licence Pro";
                 </form>
 
                 <!-- Moyen 2 : CinetPay (Commenté en attente d'activation business) -->
-                <!-- 
+                
                 <form action="cinetpay-checkout.php" method="POST">
                     <input type="hidden" name="customer_email" value="..."> 
                     <button type="submit" class="pay-btn-modern btn-cinetpay">
@@ -314,7 +314,7 @@ $product_name = "WARI Finance — Licence Pro";
                         <span>Payer avec CinetPay</span>
                     </button>
                 </form>
-                -->
+               
 
                 <div class="trust-strip">
                     <div class="trust-item-small">🛡️ Sécurisé</div>

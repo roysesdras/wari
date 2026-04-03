@@ -40,7 +40,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=55">
+    <link rel="stylesheet" href="./assets/styles.css?v=59">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#000308ff">
@@ -77,58 +77,57 @@ if (!isset($_SESSION['user_id'])) {
         </header>
 
         <!-- Jauge de Santé Financière -->
-        <div id="healthGauge" class="mt-2 mb-4 glass-card p-4 border-l-4 border-emerald-500/50 shadow-xl relative overflow-hidden">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex flex-col">
-                    <h3 class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">💡 Santé financière</h3>
-                    <span id="gaugePercent" class="text-emerald-400 font-black text-xs">—</span>
+        <section class="glass-card p-5 mb-4 shine-effect">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold mb-1">Santé financière</h3>
+                    <div class="flex items-baseline gap-1">
+                        <span id="gaugePercent" class="text-2xl font-black text-white">Stable</span>
+                        <!-- <span class="text-xs font-bold text-emerald-500">+0.99%</span> -->
+                    </div>
                 </div>
-                <div class="text-right bg-slate-900/40 px-3 py-1.5 rounded-xl border border-white/5">
-                    <span id="disciplineScore" class="text-xl font-black text-white leading-none">--</span>
-                    <p class="text-[7px] uppercase text-slate-500 font-bold tracking-widest mt-0.5">Discipline / 10</p>
-                </div>
-            </div>
-
-            <!-- Barre principale -->
-            <div class="w-full h-2.5 bg-slate-950/60 rounded-full overflow-hidden border border-white/5 mb-4">
-                <div id="gaugeBar" class="h-full rounded-full transition-all duration-700 ease-out" style="width:0%"></div>
-            </div>
-
-            <!-- Banque / Cash -->
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-slate-800/20 rounded-xl p-3 border border-slate-700/10">
-                    <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">🔒 Banque</p>
-                    <p id="bankAmount" class="text-white font-black text-xs">0 F</p>
-                    <p id="bankSpent" class="text-[8px] text-red-400 mt-0.5"></p>
-                    <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Épargne + Capital Projet</p>
-                </div>
-                <div class="bg-slate-800/20 rounded-xl p-3 border border-slate-700/10">
-                    <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">💵 Poche</p>
-                    <p id="cashAmount" class="text-emerald-400 font-black text-xs">0 F</p>
-                    <p id="cashSpent" class="text-[8px] text-red-400 mt-0.5"></p>
-                    <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Train de vie + Imprévus</p>
+                <div class="text-right bg-slate-900/40 px-3 py-2 rounded-2xl border border-white/5">
+                    <span id="disciplineScore" class="text-2xl font-black text-white leading-none">--</span>
+                    <p class="text-[7px] uppercase text-slate-500 font-bold tracking-widest mt-1">Discipline / 10</p>
                 </div>
             </div>
 
-            <!-- Message Coach IA Connecté -->
-            <div id="aiCoachContainer" class="mt-2 mb-2 pt-3 border-t border-white/5 relative group">
-                <div class="flex items-start gap-2">
-                    <span class="text-sm mt-0.5">🤵‍♂️</span>
-                    <p id="aiCoachMessage" class="text-[11px] text-slate-300 leading-snug italic">
-                        Enregistre tes flux pour que Wari puisse te conseiller...
-                    </p>
+            <div class="w-full h-2 bg-slate-950/60 rounded-full overflow-hidden border border-white/5 mb-4">
+                <div id="gaugeBar"
+                    class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-700"
+                    style="width: 0%">
                 </div>
             </div>
 
-            <!-- Ancien message contextual (caché mais gardé pour compatibilité JS si besoin) -->
-            <div id="gaugeAlert" class="hidden"></div>
+            <div class="flex items-start gap-2 pt-3 border-t border-white/5">
+                <div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                    <span class="text-xs">🤵‍♂️</span>
+                </div>
+                <p id="aiCoachMessage" class="text-[11px] text-slate-300 leading-snug italic">
+                    Belle progression ! Ton épargne couvre maintenant 3 mois de besoins.
+                </p>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="glass-card p-4">
+                <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">🔒 Banque</p>
+                <p id="bankAmount" class="text-lg font-black text-white">0 F</p>
+                <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Épargne + Capital Projet</p>
+            </div>
+
+            <div class="glass-card p-4">
+                <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">💵 Poche</p>
+                <p id="cashAmount" class="text-lg font-black text-emerald-400">0 F</p>
+                <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Train de vie + Imprévus</p>
+            </div>
         </div>
 
         <!-- Section insertion du montant a repartire -->
         <div class="glass-card gold-border p-4 mb-4 shadow-2xl relative">
             <div class="flex justify-between items-center mb-3">
                 <label class="block text-[10px] uppercase tracking-[0.2em] text-yellow-500 font-bold">Montant à répartir</label>
-                <select id="currencySelector" onchange="render()" class="bg-slate-800 text-yellow-500 text-xs font-bold border border-slate-700 rounded px-2 py-1 outline-none focus:border-yellow-500">
+                <select id="currencySelector" onchange="render()" class="bg-slate-800 text-yellow-500 text-xs font-bold rounded px-1 py-1 outline-none">
                     <option value="F">CFA</option>
                     <option value="$">USD ($)</option>
                     <option value="€">EUR (€)</option>
@@ -141,29 +140,17 @@ if (!isset($_SESSION['user_id'])) {
             </div>
         </div>
 
-        <!-- Section categorie des de repartition -->
-        <div class="mb-4 flex items-center justify-between bg-yellow-600/10 border border-yellow-600/20 p-3 rounded-2xl">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-xl">🌟</div>
-                <div>
-                    <h4 class="text-[10px] uppercase tracking-widest text-yellow-500 font-bold">Stratégie Active</h4>
-                    <p class="text-white font-bold text-xs">Configuration "Mon Wari" (15/50/25/10)</p>
-                </div>
-            </div>
-            <span class="text-[8px] bg-yellow-500 text-black px-2 py-1 rounded-md font-black uppercase shadow-lg shadow-yellow-500/20">Optimal</span>
-        </div>
-
         <!-- Section de contrôle de l'édition -->
-        <div class="flex justify-between items-center mb-4 px-2">
+        <div class="flex justify-between items-center mb-4">
             <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500">Répartition</h3>
-            <button id="lockBtn" onclick="toggleEditMode()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 transition-all active:scale-95">
+            <button id="lockBtn" onclick="toggleEditMode()"
+                class="flex items-center gap-1 px-2 py-1 rounded-full bg-slate-900 border border-slate-700 transition-all active:scale-95 shadow-lg">
                 <span>🔒</span>
-                <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Lecture</span>
+                <span class="text-[11px] font-black uppercase tracking-[0.1em] text-slate-400">Lecture</span>
             </button>
         </div>
-
         <!-- Conteneur des catégories -->
-        <div id="categoryContainer" class="space-y-4">
+        <div id="categoryContainer" class="grid grid-cols-2 gap-3 mb-6">
         </div>
 
         <!-- Section Juge barre de % -->
@@ -173,94 +160,85 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Section Versement a la banque (capital investir)-->
-        <div id="projectVault" class="mt-4 glass-card p-3 border-t-2 border-emerald-500/50 shadow-[0_20px_50px_rgba(16,185,129,0.1)] relative overflow-hidden group">
-            <div class="absolute -right-10 -top-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
+        <div id="projectVault" class="mt-6 glass-card p-4 relative overflow-hidden group border-none shadow-2xl">
+            <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/15 transition-all duration-1000"></div>
 
-            <div class="flex items-center justify-between mb-4 relative z-10">
+            <div class="flex items-start justify-between mb-6 relative z-10">
                 <div>
-                    <h3 class="text-[11px] uppercase tracking-[0.25em] text-emerald-400 font-black mb-1">🚀 Capital Investir</h3>
-                    <p class="text-[10px] text-slate-500 font-medium leading-tight">Trésor accumulé pour tes projets</p>
+                    <div class="flex items-center gap-2 mb-1">
+                        <h3 class="text-[10px] uppercase tracking-[0.3em] text-emerald-400 font-black">Graine de Richesse</h3>
+                    </div>
+                    <p class="text-[10px] text-slate-500 font-medium">Plantée à chaque répartition</p>
                 </div>
                 <div class="text-right">
-                    <span id="totalProjectSaved" class="text-3xl font-black text-white tracking-tighter transition-all duration-500 drop-shadow-lg">
-                        0 <span id="capitalCurrency">F</span>
-                    </span>
-                </div>
-            </div>
-
-            <div class="relative w-full h-1.5 bg-slate-800/50 rounded-full overflow-hidden mb-6">
-                <div id="vaultProgress" class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)] transition-all duration-1000 ease-out" style="width: 0%"></div>
-            </div>
-
-            <div class="h-[1px] w-full bg-gradient-to-r from-transparent via-slate-700/50 to-transparent mb-6"></div>
-
-            <div class="w-full py-2 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl 
-                text-emerald-400 text-[10px] uppercase tracking-[0.2em] font-black 
-                flex items-center justify-center gap-2">
-                <!-- <span class="text-base">💎</span> -->
-                <span>Capital sécurisé à chaque répartition</span>
-            </div>
-
-            <!-- OBJECTIF DU COFFRE -->
-            <div class="mt-4 flex items-center justify-between bg-slate-900/40 px-2 py-2 rounded-xl border border-slate-700/30">
-                <div>
-                    <p class="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Objectif</p>
-                    <p id="vaultGoalLabel" class="text-[11px] text-white font-black">—</p>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <span id="vaultGoalAmount" class="text-[10px] text-emerald-400 font-black"></span>
-                    <button onclick="openGoalModal()"
-                        class="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-sm flex items-center justify-center hover:bg-emerald-500/40 transition-all">
-                        ✏️
-                    </button>
-                    <button onclick="deleteGoal()" id="deleteGoalBtn"
-                        class="w-7 h-7 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 text-sm hidden items-center justify-center hover:bg-red-500/40 transition-all">
-                        ✕
-                    </button>
-                </div>
-            </div>
-
-            <div class="mt-8 border-t border-slate-800/50 pt-5">
-                <div class="flex justify-between items-center mb-4">
-                    <div class="flex items-center gap-2">
-                        <span class="text-[10px]">📊</span>
-                        <p class="text-[9px] uppercase tracking-[0.15em] text-slate-500 font-bold">Historiques</p>
+                    <div class="flex items-baseline justify-end gap-1">
+                        <span id="totalProjectSaved" class="text-3xl font-black text-white tracking-tighter drop-shadow-sm">0</span>
+                        <!-- <span id="capitalCurrency" class="text-xs font-bold text-emerald-500/80 uppercase">F</span> -->
                     </div>
-                    <button onclick="window.toggleVaultHistory()" id="toggleHistBtn"
-                        class="text-[9px] text-emerald-500 font-black hover:text-emerald-400 transition-colors tracking-widest uppercase">
-                        Détails
-                    </button>
-                </div>
-
-                <div id="vaultHistory" class="space-y-2 max-h-28 overflow-hidden custom-scrollbar">
-                    <p class="text-[11px] text-slate-600 italic text-center py-4">Tes premiers pas vers la fortune apparaîtront ici...</p>
                 </div>
             </div>
 
-            <script>
-                let isHistoryExpanded = false;
+            <div class="relative mb-6">
+                <div class="flex justify-between items-center mb-1.5 px-0.5">
+                    <!-- <span id="vaultPercentLabel" class="text-[9px] font-black text-emerald-500/80 tracking-widest uppercase">0% Atteint</span> -->
+                    <span id="vaultGoalAmountDisplay" class="text-[9px] font-bold text-emerald-500/80 tracking-widest uppercase">Objectif: --</span>
+                </div>
+                <div class="relative w-full h-2 bg-slate-900/60 rounded-full p-[2px] border border-white/5 shadow-inner">
+                    <div id="vaultProgress" class="h-full bg-gradient-to-r from-emerald-600 via-emerald-400 to-teal-300 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.3)] transition-all duration-1000 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
 
-                window.toggleVaultHistory = function() {
-                    const container = document.getElementById("vaultHistory");
-                    isHistoryExpanded = !isHistoryExpanded;
+            <div class="grid grid-cols-2 gap-3 mt-4">
+                <div class="bg-slate-900/40 px-3 py-2 rounded-2xl border border-slate-800/50 flex flex-col justify-center">
+                    <p class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mb-1">Cible</p>
+                    <div class="flex items-center justify-between gap-2">
+                        <p id="vaultGoalLabel" class="text-[10px] text-white font-black truncate">Définir</p>
+                        <div class="flex gap-2">
+                            <button onclick="openGoalModal()" class="text-emerald-500 hover:scale-110 transition-transform text-[10px]">✏️</button>
+                            <button id="deleteGoalBtn" onclick="deleteGoal()" class="text-red-400/70 hover:text-red-500 transition-colors text-[10px] hidden">✕</button>
+                        </div>
+                    </div>
+                </div>
 
-                    if (isHistoryExpanded) {
-                        container.style.maxHeight = "400px"; // On déplie
-                        container.style.overflowY = "auto";
-                    } else {
-                        container.style.maxHeight = "96px"; // On réduit (environ 3 lignes)
-                        container.style.overflowY = "hidden";
-                        container.scrollTop = 0;
-                    }
-                };
-            </script>
+                <div class="bg-emerald-500/5 px-3 py-2 rounded-2xl border border-emerald-500/10 flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span class="text-[8px] text-emerald-400/80 uppercase tracking-widest font-black leading-tight">Capital<br>Sécurisé</span>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-800/40">
+                <div class="flex justify-between items-center mb-3">
+                    <p class="text-[8px] uppercase tracking-[0.2em] text-slate-500 font-bold flex items-center gap-2">Historique</p>
+                    <button onclick="window.toggleVaultHistory()" id="toggleHistBtn" class="text-[9px] text-slate-400 font-black uppercase tracking-widest">Détails</button>
+                </div>
+                <div id="vaultHistory" class="space-y-1.5 max-h-12 overflow-hidden transition-all duration-500">
+                    <p class="text-[10px] text-slate-600 italic text-center py-2">Aucun mouvement</p>
+                </div>
+            </div>
         </div>
 
+        <script>
+            let isHistoryExpanded = false;
+
+            window.toggleVaultHistory = function() {
+                const container = document.getElementById("vaultHistory");
+                isHistoryExpanded = !isHistoryExpanded;
+
+                if (isHistoryExpanded) {
+                    container.style.maxHeight = "400px"; // On déplie
+                    container.style.overflowY = "auto";
+                } else {
+                    container.style.maxHeight = "96px"; // On réduit (environ 3 lignes)
+                    container.style.overflowY = "hidden";
+                    container.scrollTop = 0;
+                }
+            };
+        </script>
+
         <!-- Dette Section -->
-        <div id="debtSection" class="mt-4 glass-card p-3 border-t-2 border-red-500 shadow-2xl relative">
+        <div id="debtSection" class="mt-4 glass-card p-3 shadow-2xl relative">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-[10px] uppercase tracking-[0.2em] text-red-400 font-bold">📖 Carnet de Dettes</h3>
+                <h3 class="text-[10px] uppercase tracking-[0.2em] text-red-400 font-bold">Carnet de Dettes</h3>
                 <button onclick="openDebtModal()" class="text-[10px] bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30 font-bold hover:bg-red-500/40 transition-all">
                     + Ajouter
                 </button>
@@ -338,7 +316,7 @@ if (!isset($_SESSION['user_id'])) {
         <div class="fixed bottom-4 left-0 right-0 max-w-md mx-auto flex justify-center z-[110]">
             <!-- BOUTON SAUVEGARDE COURT -->
             <button onclick="saveBudget()"
-                class="px-6 py-3 bg-slate-900 border border-slate-700 rounded-full font-bold text-xs uppercase tracking-wider text-slate-300 active:scale-95 transition-all hover:border-blue-500 hover:text-blue-400 flex items-center gap-2">
+                class="px-6 py-3 bg-slate-900 rounded-full font-bold text-xs uppercase tracking-wider text-slate-300 active:scale-95 transition-all hover:border-blue-500 hover:text-blue-400 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -372,7 +350,7 @@ if (!isset($_SESSION['user_id'])) {
     <!-- MODAL OBJECTIF -->
     <div id="goalModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm hidden items-center justify-center p-4 z-[130]">
         <div class="glass-card w-full max-w-sm p-4 border border-slate-700 shadow-2xl">
-            <h3 class="text-emerald-400 font-bold uppercase tracking-widest text-sm mb-4">🎯 Définir un objectif</h3>
+            <h3 class="text-emerald-400 font-bold uppercase tracking-widest text-sm mb-4">Définir un objectif</h3>
             <div class="space-y-4">
                 <div>
                     <label class="block text-[10px] text-slate-400 mb-1 uppercase">Nom de l'objectif</label>
@@ -397,7 +375,7 @@ if (!isset($_SESSION['user_id'])) {
         <div class="glass-card w-full max-w-sm p-4 border border-slate-700 shadow-2xl">
 
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-amber-400 font-bold uppercase tracking-widest text-sm">📊 Historique Mensuel</h3>
+                <h3 class="text-amber-400 font-bold uppercase tracking-widest text-sm">Historique Mensuel</h3>
 
                 <select onchange="loadMonthlyHistory(this.value)"
                     class="bg-slate-800 text-slate-300 text-[10px] border border-slate-700 rounded-lg px-2 py-1">
@@ -433,7 +411,7 @@ if (!isset($_SESSION['user_id'])) {
             <div class="space-y-5 p-1">
                 <div>
                     <label class="block text-[10px] uppercase tracking-[0.15em] text-slate-500 mb-2 font-black">
-                        💰 Montant à déduire (<span class="currencyLabel">F</span>)
+                        Montant à déduire (<span class="currencyLabel">F</span>)
                     </label>
                     <input type="number" id="expAmount"
                         class="w-full bg-slate-900/50 border border-slate-700/50 rounded-2xl p-4 text-white text-xl font-black outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:text-slate-700"
@@ -442,7 +420,7 @@ if (!isset($_SESSION['user_id'])) {
 
                 <div>
                     <label class="block text-[10px] uppercase tracking-[0.15em] text-slate-500 mb-2 font-black">
-                        📝 Motif de la dépense
+                        Motif de la dépense
                     </label>
                     <input type="text" id="expNote"
                         class="w-full bg-slate-900/50 border border-slate-700/50 rounded-2xl p-4 text-white text-sm outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder:text-slate-700"
@@ -451,7 +429,7 @@ if (!isset($_SESSION['user_id'])) {
 
                 <div>
                     <label class="block text-[10px] uppercase tracking-[0.15em] text-slate-500 mb-2 font-black">
-                        📁 Catégorie cible
+                        Catégorie cible
                     </label>
                     <select id="expCategory"
                         class="w-full bg-slate-900/50 border border-slate-700/50 rounded-2xl p-4 text-white text-sm outline-none focus:border-emerald-500/50 appearance-none cursor-pointer tracking-wide">
@@ -623,7 +601,7 @@ if (!isset($_SESSION['user_id'])) {
             const modalHtml = `
                 <div id="push-modal" style="position:fixed; inset:0; background:#080b10; z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(10px);">
                     <div style="background:#0d1117; border:1px solid #f5a623; border-radius:30px; padding:40px; text-align:center; max-width:400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-                        <div style="font-size:50px; margin-bottom:20px;">📡</div>
+                        <div style="font-size:30px; margin-bottom:20px;">📡</div>
                         <h2 style="color:#fff; font-weight:900; letter-spacing:-1px; margin-bottom:10px; text-transform:uppercase;">RADAR DÉSACTIVÉ</h2>
                         <p style="color:#556070; font-size:14px; line-height:1.6; margin-bottom:30px;">
                             Champion&middot;ne, ton système d'alerte est éteint. 
@@ -728,7 +706,7 @@ if (!isset($_SESSION['user_id'])) {
         }
     </script>
 
-    <script src="./assets/main.js?v=55"></script>
+    <script src="./assets/main.js?v=59"></script>
 </body>
 
 </html>

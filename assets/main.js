@@ -117,214 +117,80 @@ function render() {
         ? parseInt(currentExpenses[cat.id])
         : 0;
 
-    // ── CARTE PROJET : mode journal ───────────────────────────────────────
-    if (isProjet) {
-      const partSimulation = cat.amount - (cat.balance || 0);
+    const currentBalance = parseFloat(cat.balance) || 0;
+    const currentPercent = parseFloat(cat.percent) || 0;
+    const amountToDistribute = total;
 
-      const percentConsumed =
-        projectCapital > 0
-          ? Math.min((spent / (projectCapital + spent)) * 100, 100)
-          : 0;
+    const montantAjoute = Math.round(
+      amountToDistribute * (currentPercent / 100),
+    );
+    const totalPrevisionnel = isProjet
+      ? parseFloat(projectCapital) || 0
+      : currentBalance + montantAjoute;
 
-      let barColor = "bg-emerald-500";
-      let alertColor = "text-emerald-400";
-      let alertMsg = "Aucune dépense sur ce projet.";
+    const remaining = Math.max(0, totalPrevisionnel - spent);
+    const progress =
+      totalPrevisionnel > 0
+        ? Math.min(100, (spent / totalPrevisionnel) * 100)
+        : 0;
 
-      if (percentConsumed > 80) {
-        barColor = "bg-red-500 animate-pulse";
-        alertColor = "text-red-400";
-        alertMsg = "🚨 Capital très entamé — ralentis les dépenses projet.";
-      } else if (percentConsumed > 50) {
-        barColor = "bg-orange-500";
-        alertColor = "text-orange-400";
-        alertMsg = "⚠️ Plus de la moitié du capital consommé.";
-      } else if (spent > 0) {
-        alertMsg = "Capital sous contrôle.";
-      }
+    const card = document.createElement("div");
+    card.className = `glass-card p-3 flex flex-col transition-all duration-300`;
 
-      const depensesProjet = vaultTransactions
-        .filter((tx) => tx.type === "out")
-        .slice(0, 5);
-
-      const card = document.createElement("div");
-      card.className = `glass-card p-3 flex flex-col gap-2 relative mb-4 transition-all duration-300 border-l-4 border-amber-500/50 hover:border-amber-500/80`;
-
-      card.innerHTML = `
-        <div class="flex justify-between items-start">
-          <div class="flex items-center gap-3">
-            <span class="text-2xl drop-shadow-md">${cat.icon}</span>
-            <div>
-              <div class="font-black text-slate-100 text-sm uppercase tracking-tight flex items-center gap-2">
-                ${cat.name}
-                <span class="text-[9px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-bold">journal</span>
-              </div>
-              <div class="text-[10px] text-slate-500 mt-0.5">
-                ${
-                  spent > 0
-                    ? `${spent.toLocaleString()} ${currency} prélevés sur le capital`
-                    : "Aucune dépense sur ce projet"
-                }
-              </div>
-            </div>
+    card.innerHTML = `
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-xl">${cat.icon}</span>
+            <div class="flex items-center justify-center bg-slate-900/80 py-1 rounded-lg border border-white/5 gap-[2px]">
+              <input type="number" value="${currentPercent}" 
+                  ${isEditMode ? "" : "disabled"}
+                  oninput="updatePercent(${cat.id}, this.value)"
+                  /* w-auto et text-right supprimés pour favoriser le centrage global */
+                  class="w-[22px] bg-transparent text-[11px] font-black outline-none text-right p-0 m-0 ${isEditMode ? "text-amber-400" : "text-slate-400"} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+              
+              <span class="text-[11px] font-bold text-slate-600 p-0 m-0">%</span>
           </div>
-          <div class="text-right">
-            <div class="font-black text-lg leading-tight ${
-              spent > 0
-                ? "text-red-400"
-                : partSimulation > 0
-                  ? "text-amber-400"
-                  : "text-emerald-400"
-            }">
-              ${
-                spent > 0
-                  ? `−${spent.toLocaleString()}`
-                  : partSimulation > 0
-                    ? `+${partSimulation.toLocaleString()}`
-                    : "0"
-              }
-              <span class="ml-1 text-sm">${currency}</span>
+        </div>
+
+        <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+            ${cat.name}
+        </h4>
+
+        <div class="mb-4">
+            <div class="flex items-end justify-between">
+                <div class="text-xl font-black text-white leading-none">
+                    ${totalPrevisionnel.toLocaleString()}
+                    <span class="text-[10px] text-slate-600 font-normal uppercase">${currency}</span>
+                </div>
+                
+                <div class="text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                    +${montantAjoute.toLocaleString()}
+                </div>
             </div>
-            <div class="inline-flex items-center bg-slate-900/60 px-2 py-1 rounded-lg border border-white/5 mt-1">
-              <span class="text-[11px] font-black text-slate-300">${cat.percent}</span>
-              <span class="text-[10px] text-slate-600 font-bold ml-0.5">%</span>
+        </div>
+
+        <div class="mt-auto pt-2">
+            <div class="flex justify-between items-center mb-1.5">
+                <span class="text-[9px] text-slate-500 uppercase font-bold">Reste: ${remaining.toLocaleString()}</span>
+                <span class="text-[9px] font-black ${progress > 90 ? "text-red-500" : "text-slate-400"}">${Math.round(progress)}%</span>
             </div>
-          </div>
+            <div class="w-full h-1 bg-slate-950/60 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-700" 
+                     style="width: ${progress}%">
+                </div>
+            </div>
         </div>
 
         ${
-          partSimulation > 0
+          isEditMode
             ? `
-          <div class="flex items-center justify-between bg-amber-500/10 border border-amber-500/30 px-3 py-2 rounded-xl">
-            <div class="flex items-center gap-2">
-              <span class="text-sm">⏳</span>
-              <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">À verser au coffre</span>
+            <div class="mt-4 pt-2 border-t border-white/5">
+                <input type="range" min="0" max="100" value="${currentPercent}" 
+                    oninput="updatePercent(${cat.id}, this.value)"
+                    class="w-full h-1 accent-amber-500 cursor-pointer">
             </div>
-            <span class="text-amber-400 font-black text-sm">+${partSimulation.toLocaleString()} ${currency}</span>
-          </div>
         `
             : ""
         }
-
-        <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden border border-white/5">
-          <div class="h-full ${barColor} transition-all duration-700 ease-out" style="width: ${percentConsumed}%"></div>
-        </div>
-
-        <div class="mt-1 pt-2 border-t border-slate-800/20">
-          ${
-            depensesProjet.length > 0
-              ? `
-            <div class="text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-2">
-              Pourquoi le capital a diminué
-            </div>
-            <div class="space-y-1.5">
-              ${depensesProjet
-                .map(
-                  (tx) => `
-                <div class="flex justify-between items-center bg-slate-900/40 px-3 py-2 rounded-lg border border-white/5">
-                  <div>
-                    <p class="text-[11px] text-slate-300 font-medium">${tx.label}</p>
-                    <p class="text-[9px] text-slate-600">${tx.date}</p>
-                  </div>
-                  <span class="text-[11px] font-black text-red-400">−${tx.amount.toLocaleString()} ${currency}</span>
-                </div>
-              `,
-                )
-                .join("")}
-            </div>
-          `
-              : `
-            <div class="text-[10px] ${alertColor} font-bold text-center py-1">
-              ${alertMsg}
-            </div>
-          `
-          }
-        </div>
-
-        <div class="pt-1">
-          <p class="text-[9px] text-slate-600 italic tracking-wide">
-            ${getCatSubtitle(cat.name)}
-          </p>
-        </div>
-      `;
-
-      container.appendChild(card);
-      return;
-    }
-
-    // ── CARTES NORMALES ───────────────────────────────────────────────────
-    const remaining = cat.amount - spent;
-    const percentSpent =
-      cat.amount > 0 ? Math.min((spent / cat.amount) * 100, 100) : 0;
-
-    let barColor = "bg-emerald-500";
-    let remainingTextColor = "text-slate-400";
-
-    if (percentSpent > 90) {
-      barColor = "bg-red-500 animate-pulse";
-      remainingTextColor = "text-red-500 font-black";
-    } else if (percentSpent > 70) {
-      barColor = "bg-orange-500";
-      remainingTextColor = "text-orange-400";
-    }
-
-    const card = document.createElement("div");
-    card.className = `glass-card p-3 flex flex-col gap-2 relative mb-3 transition-all duration-300 border-l-4 border-amber-500/50 hover:border-amber-500/80`;
-
-    card.innerHTML = `
-      <div class="flex justify-between items-start">
-        <div class="flex items-center gap-3">
-          <span class="text-2xl drop-shadow-md">${cat.icon}</span>
-          <input type="text" value="${cat.name}"
-            ${isEditMode ? "" : "disabled"}
-            onchange="updateName(${cat.id}, this.value)"
-            class="bg-transparent font-black text-slate-100 text-sm outline-none w-32 focus:text-amber-400 transition-colors uppercase tracking-tight">
-        </div>
-        <div class="text-right">
-          <div class="text-[10px] text-slate-500 font-medium uppercase tracking-tighter">
-            Solde : ${(cat.balance || 0).toLocaleString()} ${currency}
-          </div>
-          <div class="text-amber-400 font-black text-lg leading-tight">
-            ${(cat.balance || 0).toLocaleString()}
-            <span class="text-white/40 text-sm font-light">+</span>
-            <span class="text-emerald-400">${(cat.amount - (cat.balance || 0)).toLocaleString()}</span>
-            <span class="ml-1">${currency}</span>
-          </div>
-          <div class="inline-flex items-center bg-slate-900/60 px-2 py-1 rounded-lg border border-white/5 mt-1">
-            <input type="number" value="${cat.percent}" min="0" max="100"
-              ${isEditMode ? "" : "disabled"}
-              onchange="updatePercent(${cat.id}, this.value)"
-              class="bg-transparent text-[11px] font-black text-slate-300 w-7 outline-none text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-            <span class="text-[10px] text-slate-600 font-bold ml-0.5">%</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="relative flex items-center h-2">
-        <input type="range" value="${cat.percent}" min="0" max="100" step="1"
-          ${isEditMode ? "" : "disabled"}
-          oninput="updatePercent(${cat.id}, this.value)"
-          class="w-full h-1.5 bg-slate-800 rounded-full appearance-none accent-amber-500 cursor-pointer transition-all ${isEditMode ? "opacity-100" : "opacity-30 cursor-not-allowed"}">
-      </div>
-
-      <div class="mt-1 pt-2 border-t border-slate-800/20">
-        <div class="flex justify-between text-[10px] font-bold mb-1.5 uppercase tracking-tighter">
-          <span class="text-slate-400 font-medium">Reste : <span class="${remainingTextColor}">${remaining.toLocaleString()} ${currency}</span></span>
-          <span class="${percentSpent > 90 ? "text-red-500 animate-pulse" : "text-slate-400"}">${Math.round(percentSpent)}%</span>
-        </div>
-        <div class="w-full h-1.5 bg-slate-950/50 rounded-full overflow-hidden border border-white/5">
-          <div class="h-full ${barColor} transition-all duration-700 ease-out" style="width: ${percentSpent}%"></div>
-        </div>
-        <div class="flex justify-between mt-1">
-          <p class="text-[8px] text-slate-700 uppercase font-medium">Utilisé : ${spent.toLocaleString()} ${currency}</p>
-          <p class="text-[8px] text-slate-800 font-black">ID: #${cat.id}</p>
-        </div>
-      </div>
-
-      <div class="pt-1">
-        <p class="text-[9px] text-slate-600 italic tracking-wide">
-          ${getCatSubtitle(cat.name)}
-        </p>
-      </div>
     `;
 
     container.appendChild(card);
@@ -434,9 +300,11 @@ function render() {
 function updateVaultDisplay() {
   const projectEl = document.getElementById("totalProjectSaved");
   const progressBar = document.getElementById("vaultProgress");
+  const deleteBtn = document.getElementById("deleteGoalBtn"); // On récupère le bouton X
   const currency = document.getElementById("currencySelector")?.value || "F";
 
   if (projectEl) {
+    // Garder ton animation de couleur
     const oldAmount = parseInt(projectEl.innerText.replace(/[^0-9]/g, "")) || 0;
     projectEl.innerText = `${projectCapital.toLocaleString()} ${currency}`;
 
@@ -448,13 +316,25 @@ function updateVaultDisplay() {
       setTimeout(() => projectEl.classList.remove("scale-95"), 300);
     }
 
+    // Gestion de la Jauge et du Bouton Supprimer
+    const savedGoal = JSON.parse(
+      localStorage.getItem("wari_vault_goal") || "null",
+    );
+
+    // 1. La Jauge
     if (progressBar) {
-      const savedGoal = JSON.parse(
-        localStorage.getItem("wari_vault_goal") || "null",
-      );
       const goal = savedGoal ? savedGoal.amount : 1000000;
       const progress = Math.min((projectCapital / goal) * 100, 100);
       progressBar.style.width = `${progress}%`;
+    }
+
+    // 2. Le bouton de suppression (Affiché seulement si un objectif existe)
+    if (deleteBtn) {
+      if (savedGoal) {
+        deleteBtn.classList.remove("hidden");
+      } else {
+        deleteBtn.classList.add("hidden");
+      }
     }
 
     setTimeout(() => {
@@ -462,7 +342,6 @@ function updateVaultDisplay() {
     }, 2000);
   }
 }
-
 // Neutralisé — le versement est automatique dans saveBudget()
 window.addToProjectVault = function () {
   return;
@@ -481,7 +360,18 @@ window.resetVault = function () {
 window.updatePercent = function (id, val) {
   const cat = categories.find((c) => c.id === id);
   if (cat) {
-    cat.percent = parseInt(val);
+    // 1. On sécurise la valeur (0 si vide)
+    cat.percent = parseFloat(val) || 0;
+
+    // 2. ON FORCE LE CALCUL IMMEDIAT du montant pour cette catégorie
+    // On récupère le montant de l'input principal en direct
+    const totalInput = document.getElementById("mainAmount");
+    const total = parseFloat(totalInput.value) || 0;
+
+    // On met à jour la propriété .amount de la catégorie pour le rendu
+    cat.amount = Math.round((total * cat.percent) / 100);
+
+    // 3. ON RELANCE LE RENDU (pour que les chiffres changent sur la carte)
     render();
     notifyUnsavedChanges();
   }
@@ -518,17 +408,14 @@ function updateStatus(total) {
   const status = document.getElementById("statusIndicator");
   const text = document.getElementById("statusText");
   const baseClass =
-    "mt-4 flex items-center justify-center p-3 rounded-2xl border transition-all duration-300 ";
+    "mt-4 flex items-center justify-center p-3 rounded-2xl transition-all duration-300 ";
 
   if (total === 100) {
-    status.className =
-      baseClass +
-      "bg-emerald-500/10 border-emerald-500/30 text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.2)]";
-    text.innerHTML = `<span class="mr-2">✅</span> 100% - Ton argent est dompté !`;
+    status.className = baseClass + "bg-emerald-500/10 text-emerald-500";
+    text.innerHTML = `<span class="mr-2"></span> 100% - Ton argent est dompté !`;
   } else if (total === 0) {
-    status.className =
-      baseClass + "bg-slate-800/50 border-slate-700 text-slate-500";
-    text.innerHTML = `💰 WARI-FINANCE : Prêt pour le calcul`;
+    status.className = baseClass + "bg-slate-800/50 text-slate-500";
+    text.innerHTML = `WARI-FINANCE : Prêt pour le calcul`;
   } else {
     const isOver = total > 100;
     status.className =
@@ -592,23 +479,36 @@ window.saveBudget = function (silent = false) {
   render();
   console.log("Rendu rafraîchi");
 
-  fetch("config/save_data.php", {
+  // 1. Sauvegarde des données générales
+fetch("config/save_data.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(dataToSave),
-  })
-    .then(() => console.log("Synchro serveur réussie"))
-    .catch((err) =>
-      console.warn("Erreur synchro serveur (mais local OK) :", err),
-    );
+})
+.then(response => {
+    if (!response.ok) throw new Error(`Status: ${response.status}`);
+    return response.json();
+})
+.then(() => console.log("✅ Synchro serveur réussie"))
+.catch((err) => {
+    console.error("❌ Erreur critique save_data :", err.message);
+    // Optionnel : Alerter l'utilisateur que ses données ne sont que locales
+});
 
-  if (totalAAjouter > 0) {
+// 2. Ajout de la distribution
+if (totalAAjouter > 0) {
     fetch("config/add_distribution.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: totalAAjouter }),
-    }).catch((err) => console.warn("Erreur synchro distribution :", err));
-  }
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: totalAAjouter }),
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        return response.json();
+    })
+    .then(() => console.log("✅ Distribution synchronisée"))
+    .catch((err) => console.error("❌ Erreur synchro distribution :", err.message));
+}
 };
 
 // ─── CHARGEMENT ────────────────────────────────────────────────────────────
@@ -808,17 +708,17 @@ function renderDebts() {
   debtList.innerHTML = dbDebts
     .map(
       (debt) => `
-    <div class="flex items-center justify-between bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 hover:border-slate-500 transition-all">
+    <div class="flex items-center justify-between bg-slate-800/50 p-2 rounded-xl transition-all">
       <div>
         <p class="text-[9px] font-black ${debt.type === "loan" ? "text-emerald-400" : "text-red-400"} uppercase tracking-wider">
-          ${debt.type === "loan" ? "💰 On me doit" : "💸 Je dois"}
+          ${debt.type === "loan" ? "On me doit" : "Je dois"}
         </p>
         <p class="text-white font-bold text-sm">${debt.person_name}</p>
       </div>
       <div class="flex items-center gap-3">
         <span class="text-white font-black text-sm">${parseInt(debt.amount).toLocaleString()} ${currency}</span>
         <button onclick="openPayModal(${debt.id}, '${debt.person_name}', ${debt.amount}, '${debt.type}')"
-                class="w-10 h-10 rounded-full bg-slate-700/50 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 active:scale-95 transition-all shadow-lg">
+                class="w-8 h-8 rounded-full bg-slate-700/50 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 active:scale-95 transition-all shadow-lg">
           💰
         </button>
       </div>
@@ -850,17 +750,17 @@ function applyModel(modelKey) {
 
 mainInput.addEventListener("input", () => render());
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialisation de ton état de chargement
-    isInitialLoad = false;
+document.addEventListener("DOMContentLoaded", () => {
+  // 1. Initialisation de ton état de chargement
+  isInitialLoad = false;
 
-    // 2. Lancement des notes de mise à jour (V55)
-    // On met un petit délai pour ne pas agresser l'utilisateur dès la première seconde
-    checkReleaseNotes(); 
+  // 2. Lancement des notes de mise à jour (V55)
+  // On met un petit délai pour ne pas agresser l'utilisateur dès la première seconde
+  checkReleaseNotes();
 
-    // 3. Tes autres vérifications (Radar, etc.)
-    const lastClosed = localStorage.getItem('wari_push_modal_closed');
-    // ... reste de ton code existant ...
+  // 3. Tes autres vérifications (Radar, etc.)
+  const lastClosed = localStorage.getItem("wari_push_modal_closed");
+  // ... reste de ton code existant ...
 });
 
 // ─── DÉPENSES ──────────────────────────────────────────────────────────────
@@ -1036,8 +936,7 @@ function generateFinancialReport() {
 
   if (!scoreElement || !coachMessageElement) return;
 
-  let totalAlloue = 0;
-  let totalDepense = 0;
+  const totalCats = categories.length;
   let respectedCats = 0;
   let totalOverspent = 0;
   let savingSacrificed = false;
@@ -1048,58 +947,58 @@ function generateFinancialReport() {
     const isProjet = name.includes("projet");
     const planned = isProjet ? projectCapital : cat.balance || 0;
 
-    // Recalcul des totaux pour l'IA
-    totalAlloue += isProjet ? projectCapital : (cat.balance || 0);
-    totalDepense += spent;
-
     if (planned === 0 && !isProjet) return;
 
     if (spent <= planned) {
       respectedCats++;
     } else {
       totalOverspent += spent - planned;
-      if (name.includes("épargne") || name.includes("projet") || name.includes("investissement")) {
+      if (
+        name.includes("épargne") ||
+        name.includes("projet") ||
+        name.includes("investissement")
+      ) {
         savingSacrificed = true;
       }
     }
   });
 
-  let finalScore = Math.round((respectedCats / categories.length) * 10);
+  let finalScore = Math.round((respectedCats / totalCats) * 10);
   if (savingSacrificed) finalScore = Math.max(0, finalScore - 4);
 
   scoreElement.innerText = `${finalScore}/10`;
-  scoreElement.className = "text-xl font-black transition-all duration-500 " +
-    (finalScore >= 8 ? "text-emerald-400" : finalScore >= 5 ? "text-yellow-500" : "text-red-500");
+  scoreElement.className =
+    "text-xl font-black transition-all duration-500 " +
+    (finalScore >= 8
+      ? "text-emerald-400"
+      : finalScore >= 5
+        ? "text-yellow-500"
+        : "text-red-500");
 
-  const aSolde = categories.some((c) => (c.balance || 0) > 0) || projectCapital > 0;
+  const aSolde =
+    categories.some((c) => (c.balance || 0) > 0) || projectCapital > 0;
 
   if (!aSolde) {
     coachMessageElement.innerHTML = `<span class="italic text-slate-500">Enregistre tes revenus pour activer le coaching Wari personnalisé. 🚀</span>`;
     return;
   }
 
-  // Préparation du contexte complet pour l'IA
-  const fullContext = {
+  // On prépare les données pour l'IA
+  const summary = categories
+    .map(
+      (c) =>
+        `${c.name}: ${currentExpenses[c.id] || 0} / ${c.name.toLowerCase().includes("projet") ? projectCapital : c.balance || 0} ${currency}`,
+    )
+    .join(", ");
+  const statusData = {
     score: finalScore,
-    total_depense: totalDepense,
-    total_alloue: totalAlloue,
-    reste_a_vivre: totalAlloue - totalDepense,
-    categories: categories.map(c => ({
-      nom: c.name,
-      solde: c.balance,
-      depense: currentExpenses[c.id] || 0
-    })),
-    dettes: (window.dbDebts || []).map(d => ({
-      nom: d.person_name,
-      montant: d.amount,
-      type: d.type,
-      echeance: d.due_date
-    })),
-    capital_coffre: projectCapital,
-    devise: currency
+    overspent: totalOverspent,
+    summary: summary,
+    currency: currency,
+    has_sacrificed_saving: savingSacrificed,
   };
 
-  fetchAiCoachAdvice(fullContext);
+  fetchAiCoachAdvice(statusData);
 }
 
 // Nouvelle fonction pour appeler Gemini
@@ -1124,9 +1023,9 @@ async function fetchAiCoachAdvice(data) {
       coachMessageElement.innerHTML = `
         <div class="space-y-1">
           <p class="text-slate-200">"${result.message}"</p>
-          ${result.prediction ? `<p class="text-[10px] text-amber-400/80 font-bold">PRÉDICTION : ${result.prediction}</p>` : ''}
-          ${result.dette_conseil ? `<p class="text-[10px] text-blue-400/80 font-bold">DETTES : ${result.dette_conseil}</p>` : ''}
-          ${result.academy_reco ? `<p class="text-[10px] text-emerald-400/80 font-bold">ACADEMY : "Apprends à ${result.academy_reco}"</p>` : ''}
+          ${result.prediction ? `<p class="text-[10px] text-amber-400/80 font-bold">${result.prediction}</p>` : ''}
+          ${result.dette_conseil ? `<p class="text-[10px] text-blue-400/80 font-bold">${result.dette_conseil}</p>` : ''}
+          ${result.academy_reco ? `<p class="text-[10px] text-emerald-400/80 font-bold">Je te recommande ce cours : "${result.academy_reco}"</p>` : ''}
         </div>
       `;
 
@@ -1148,15 +1047,18 @@ window.toggleEditMode = function () {
   const btn = document.getElementById("lockBtn");
 
   if (isEditMode) {
-    btn.innerHTML = `<span>🔓</span> <span class="text-amber-500">MODIFIER</span>`;
+    // État ÉDITION (Ambre)
+    btn.innerHTML = `<span>🔓</span> <span class="text-amber-500">ÉDITION</span>`;
     btn.className =
-      "flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/50 transition-all scale-105";
+      "flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/50 transition-all scale-105 shadow-[0_0_15px_rgba(245,158,11,0.2)]";
   } else {
+    // État LECTURE (Slate)
     btn.innerHTML = `<span>🔒</span> <span class="text-slate-400">LECTURE</span>`;
     btn.className =
-      "flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 transition-all";
+      "flex items-center gap-1 px-2 py-1 rounded-full bg-slate-800 border border-slate-700 transition-all shadow-lg";
     saveBudget(true);
   }
+
   render();
 };
 
@@ -1192,12 +1094,18 @@ window.saveGoal = function () {
 function updateGoalDisplay() {
   const currency = document.getElementById("currencySelector")?.value || "F";
   const goal = JSON.parse(localStorage.getItem("wari_vault_goal") || "null");
+
+  // Correction des IDs pour correspondre à ton HTML
   const labelEl = document.getElementById("vaultGoalLabel");
-  const amountEl = document.getElementById("vaultGoalAmount");
+  const amountEl = document.getElementById("vaultGoalAmountDisplay"); // Ajout de "Display"
   const progressBar = document.getElementById("vaultProgress");
   const deleteBtn = document.getElementById("deleteGoalBtn");
 
-  if (!goal || !labelEl) {
+  // Si pas d'objectif, on reset l'affichage proprement
+  if (!goal) {
+    if (labelEl) labelEl.innerText = "Définir";
+    if (amountEl) amountEl.innerText = "Objectif: --";
+    if (progressBar) progressBar.style.width = "0%";
     if (deleteBtn) {
       deleteBtn.classList.add("hidden");
       deleteBtn.classList.remove("flex");
@@ -1205,12 +1113,19 @@ function updateGoalDisplay() {
     return;
   }
 
-  labelEl.innerText = goal.label;
-  amountEl.innerText = `${projectCapital.toLocaleString()} / ${goal.amount.toLocaleString()} ${currency}`;
+  // Mise à jour si l'objectif existe
+  if (labelEl) labelEl.innerText = goal.label || goal.name || "Objectif";
+
+  if (amountEl) {
+    // On affiche le montant cible de l'objectif
+    amountEl.innerText = `Objectif: ${goal.amount.toLocaleString()} ${currency}`;
+  }
 
   if (progressBar) {
-    progressBar.style.width = `${Math.min((projectCapital / goal.amount) * 100, 100)}%`;
+    const progress = Math.min((projectCapital / goal.amount) * 100, 100);
+    progressBar.style.width = `${progress}%`;
   }
+
   if (deleteBtn) {
     deleteBtn.classList.remove("hidden");
     deleteBtn.classList.add("flex");
@@ -1219,18 +1134,34 @@ function updateGoalDisplay() {
 
 window.deleteGoal = function () {
   if (!confirm("Supprimer cet objectif ?")) return;
+
+  // 1. On supprime du stockage
   localStorage.removeItem("wari_vault_goal");
-  document.getElementById("vaultGoalLabel").innerText = "—";
-  document.getElementById("vaultGoalAmount").innerText = "";
+
+  // 2. On récupère les éléments avec les bons IDs
+  const labelEl = document.getElementById("vaultGoalLabel");
+  const amountEl = document.getElementById("vaultGoalAmountDisplay"); // L'ID de ton nouveau HTML
+  const progressBar = document.getElementById("vaultProgress");
   const deleteBtn = document.getElementById("deleteGoalBtn");
+
+  // 3. On reset l'affichage SANS planter (avec des vérifications "if")
+  if (labelEl) labelEl.innerText = "Définir";
+
+  if (amountEl) amountEl.innerText = "Objectif: --";
+
+  if (progressBar) progressBar.style.width = "0%";
+
   if (deleteBtn) {
     deleteBtn.classList.add("hidden");
     deleteBtn.classList.remove("flex");
   }
-  const progressBar = document.getElementById("vaultProgress");
-  if (progressBar) {
-    progressBar.style.width = `${Math.min((projectCapital / 1000000) * 100, 100)}%`;
+
+  // 4. On rafraîchit le reste de l'interface
+  if (typeof updateVaultDisplay === "function") {
+    updateVaultDisplay();
   }
+
+  console.log("Objectif supprimé avec succès.");
 };
 
 // ─── HISTORIQUE MENSUEL ────────────────────────────────────────────────────
@@ -1487,12 +1418,13 @@ function checkDebtReminders() {
 
 
 
+
 // ========================================================================================================================================================================================================================================================================================================
 
 
 // --- GESTION DES NOTES DE MISE À JOUR (RELEASE NOTES) ---
 
-const WARI_VERSION = 55; // Ta version actuelle
+const WARI_VERSION = 56; // Ta version actuelle
 
 function checkReleaseNotes() {
     const lastSeenVersion = localStorage.getItem('wari_last_seen_version');
@@ -1506,38 +1438,20 @@ function checkReleaseNotes() {
 function showReleaseNotesModal() {
     const modalHtml = `
         <div id="release-modal" style="position:fixed; inset:0; background:rgba(8,11,16,0.98); z-index:10001; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(15px);">
-            <div style="background:#0d1117; border:1px solid rgba(245,166,35,0.3); border-radius:35px; padding:35px; max-width:450px; width:100%; box-shadow: 0 25px 60px rgba(0,0,0,0.6); position:relative; overflow:hidden;">
+            <div style="background:#0d1117; border:1px solid rgba(245,166,35,0.3); border-radius:35px; padding:20px; max-width:450px; width:100%; box-shadow: 0 25px 60px rgba(0,0,0,0.6); position:relative; overflow:hidden;">
                 
                 <!-- Badge Version -->
-                <div style="position:absolute; top:20px; right:20px; background:#f5a623; color:#000; padding:5px 12px; border-radius:10px; font-size:10px; font-weight:900;">V1.5.5</div>
+                <div style="position:absolute; top:20px; right:20px; background:#f5a623; color:#000; padding:5px 12px; border-radius:10px; font-size:10px; font-weight:900;">V1.5.6</div>
 
                 <div style="text-align:center; margin-bottom:25px;">
                     <h2 style="color:#fff; font-weight:900; letter-spacing:-1px; text-transform:uppercase; margin:0;">Quoi de neuf ?</h2>
                     <p style="color:#f5a623; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-top:5px;">Wari Finance évolue pour toi</p>
                 </div>
 
-                <div style="max-height:300px; overflow-y:auto; padding-right:10px; margin-bottom:30px;" class="custom-scrollbar">
-                    
-                    <div style="margin-bottom:20px;">
-                        <h4 style="color:#fff; font-size:14px; margin-bottom:5px;">Coach Wari Plus intelligent</h4>
-                        <p style="color:#64748b; font-size:12px; line-height:1.5; margin:0;">Ton coach prédit désormais ta fin de mois et te conseille sur tes dettes prioritaires.</p>
-                    </div>
-
-                    <div style="margin-bottom:20px;">
-                        <h4 style="color:#fff; font-size:14px; margin-bottom:5px;">Radar & Notifications</h4>
-                        <p style="color:#64748b; font-size:12px; line-height:1.5; margin:0;">Nouveau guide visuel pour activer ton radar si ton téléphone bloque les alertes enfin de toujours rester informé</p>
-                    </div>
-
-                    <div style="margin-bottom:20px;">
-                        <h4 style="color:#fff; font-size:14px; margin-bottom:5px;">Wari Academy</h4>
-                        <p style="color:#64748b; font-size:12px; line-height:1.5; margin:0;">Wari te suggère maintenant les cours exacts dont tu as besoin selon tes dépenses.</p>
-                    </div>
-
-                    <div style="margin-bottom:10px;">
-                        <h4 style="color:#fff; font-size:14px; margin-bottom:5px;">Corrections</h4>
-                        <p style="color:#64748b; font-size:12px; line-height:1.5; margin:0;">Amélioration de la jauge de santé et synchronisation plus rapide des données.</p>
-                    </div>
-
+                <div style="max-height:300px; overflow-y:auto; padding-right:10px; margin-bottom:30px; text-align:justify;" class="custom-scrollbar">
+                    <p style="color:#94a3b8; font-size:13px; line-height:1.7; margin:0;">
+                        À l'occasion des fêtes de Pâques, période de renouveau et de partage, Wari Finance franchit une nouvelle étape pour transformer la gestion de votre patrimoine en une expérience de sérénité absolue. Cette version 1.5.6 a été conçue pour refléter cette clarté : l'interface évolue vers plus de précision, vous offrant un contrôle total sur chaque flux financier. Le Coach Wari monte en puissance avec une intelligence prédictive capable d'analyser vos habitudes de consommation en temps réel pour anticiper votre solde de fin de mois et vous orienter vers les dettes à solder prioritairement. 
+                    </p>
                 </div>
 
                 <button onclick="closeReleaseNotes()" style="background:#f5a623; color:#000; border:none; padding:10px; border-radius:18px; font-weight:900; cursor:pointer; width:100%; font-size:14px; text-transform:uppercase; transition: transform 0.2s; box-shadow: 0 10px 20px rgba(245,166,35,0.2);">
