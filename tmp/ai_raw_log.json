@@ -4,32 +4,32 @@
       "content": {
         "parts": [
           {
-            "text": "{\n  \"message\": \"Champion·ne, ton train de vie impacte tes projets. Ajuste le tir pour construire ton avenir !\",\n  \"prediction\": \"À ce rythme, ton cash finit le 25.\",\n  \"dette_conseil\": null,\n  \"academy_reco\": \"Maîtriser son budget mensuel\",\n  \"alerte_rouge\": \"Train de vie critique\"\n}"
+            "text": "{\n  \"message\": \"Champion·ne, chaque franc compte ! Transforme tes dépenses en investissements pour un futur solide.\",\n  \"prediction\": \"À ce rythme, ton cash finit le 21.\",\n  \"dette_conseil\": null,\n  \"academy_reco\": \"Équilibrer son budget\",\n  \"alerte_rouge\": \"Train de vie : Attention !\"\n}"
           }
         ],
         "role": "model"
       },
       "finishReason": "STOP",
-      "avgLogprobs": -0.15241363774175229
+      "avgLogprobs": -0.12785930847853758
     }
   ],
   "usageMetadata": {
-    "promptTokenCount": 317,
-    "candidatesTokenCount": 92,
-    "totalTokenCount": 409,
+    "promptTokenCount": 318,
+    "candidatesTokenCount": 89,
+    "totalTokenCount": 407,
     "promptTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 317
+        "tokenCount": 318
       }
     ],
     "candidatesTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 92
+        "tokenCount": 89
       }
     ]
   },
   "modelVersion": "gemini-2.0-flash",
-  "responseId": "2tzPabK5IeqCkdUPtd-qIQ"
+  "responseId": "G_HPaefQL73gkdUP1b-P8Ao"
 }

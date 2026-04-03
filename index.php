@@ -40,10 +40,10 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=59">
+    <link rel="stylesheet" href="./assets/styles.css?v=60">
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000308ff">
+    <meta name="theme-color" content="#0B141A;">
 
     <script src="https://stats.digiroys.com/tracker.js" data-key="key_wari_789"></script>
     <script>
@@ -706,7 +706,7 @@ if (!isset($_SESSION['user_id'])) {
         }
     </script>
 
-    <script src="./assets/main.js?v=59"></script>
+    <script src="./assets/main.js?v=60"></script>
 </body>
 
 </html>

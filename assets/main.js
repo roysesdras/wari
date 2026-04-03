@@ -246,15 +246,32 @@ function render() {
     cashSpentEl.innerText =
       cashSpent > 0 ? `▼ ${cashSpent.toLocaleString()} dépensés` : "";
 
+  
+// On calcule l'épargne actuelle dans les cartes (Montant - Dépenses)
+  const totalEpargneCartes = results.reduce((acc, cat) => {
+    const name = cat.name.toLowerCase();
+    if (name.includes("épargne") && !name.includes("projet")) {
+      const spent = typeof currentExpenses !== "undefined" ? (currentExpenses[cat.id] || 0) : 0;
+      return acc + (cat.amount - spent);
+    }
+    return acc;
+  }, 0);
+
+  // PUISSANCE RÉELLE = Ce qu'il y a dans la DB + l'épargne des cartes
+  const puissanceFinanciereTotale = (parseFloat(projectCapital) || 0) + totalEpargneCartes;
+
+
   // ── Jauge de santé ────────────────────────────────────────────────────
   const gaugeBar = document.getElementById("gaugeBar");
   const gaugePercent = document.getElementById("gaugePercent");
   const gaugeAlert = document.getElementById("gaugeAlert");
 
-  if (gaugeBar && totalAlloue > 0) {
+  if (gaugeBar && puissanceFinanciereTotale > 0) {
+    // On calcule l'intégrité du patrimoine face aux dépenses du mois
     const pctIntact = Math.round(
-      ((totalAlloue - totalDepense) / totalAlloue) * 100,
+      ((puissanceFinanciereTotale - totalDepense) / puissanceFinanciereTotale) * 100
     );
+
     const pctDepense = 100 - pctIntact;
     gaugePercent.innerText = pctIntact + "% intact";
 
@@ -288,55 +305,87 @@ function render() {
       gaugeAlert.className = `text-[10px] text-center py-2 px-3 rounded-lg font-bold ${alertStyle}`;
       gaugeAlert.innerText = alertMsg;
     }
+
+    gaugeBar.style.width = `${pctIntact}%`;
+    gaugePercent.innerText = pctIntact + "% intact";
   }
 
-  updateVaultDisplay();
+  // APPEL DU COFFRE AVEC LA SOMME CALCULÉE
+  updateVaultDisplay(totalEpargneCartes);
+
+  // ── CALCUL DE L'ÉPARGNE POUR LE COFFRE ───────────────────────────────
+  // On calcule la somme des balances de toutes les catégories "Épargne"
+  const totalEpargneSeule = results.reduce((acc, cat) => {
+    const name = cat.name.toLowerCase();
+    // On ne prend que les catégories qui contiennent "épargne" et PAS "projet"
+    if (name.includes("épargne") && !name.includes("projet")) {
+      const spent = typeof currentExpenses !== "undefined" ? (currentExpenses[cat.id] || 0) : 0;
+      return acc + (cat.amount - spent);
+    }
+    return acc;
+  }, 0);
+
+  // On appelle le coffre en lui passant cette valeur
+  updateVaultDisplay(totalEpargneSeule); 
+  
   updateStatus(currentTotalPercent);
   if (typeof generateFinancialReport === "function") generateFinancialReport();
 }
 
+
 // ─── COFFRE ────────────────────────────────────────────────────────────────
 
-function updateVaultDisplay() {
+function updateVaultDisplay(totalSaved = 0) {
   const projectEl = document.getElementById("totalProjectSaved");
   const progressBar = document.getElementById("vaultProgress");
-  const deleteBtn = document.getElementById("deleteGoalBtn"); // On récupère le bouton X
+  const goalAmountEl = document.getElementById("vaultGoalAmountDisplay");
+  const goalLabelEl = document.getElementById("vaultGoalLabel");
+  const deleteBtn = document.getElementById("deleteGoalBtn");
   const currency = document.getElementById("currencySelector")?.value || "F";
 
   if (projectEl) {
-    // Garder ton animation de couleur
-    const oldAmount = parseInt(projectEl.innerText.replace(/[^0-9]/g, "")) || 0;
-    projectEl.innerText = `${projectCapital.toLocaleString()} ${currency}`;
+    // 1. CALCUL DE LA PUISSANCE FINANCIÈRE (Somme des deux comptes)
+    // On s'assure que les valeurs sont bien des nombres
+    const totalGlobal = (parseFloat(projectCapital) || 0) + (parseFloat(totalSaved) || 0);
 
-    if (projectCapital > oldAmount) {
-      projectEl.classList.add("text-emerald-400", "scale-110");
-      setTimeout(() => projectEl.classList.remove("scale-110"), 300);
-    } else if (projectCapital < oldAmount) {
-      projectEl.classList.add("text-red-400", "scale-95");
-      setTimeout(() => projectEl.classList.remove("scale-95"), 300);
+    // Animation de couleur lors du changement
+    const currentDisplayed = parseInt(projectEl.innerText.replace(/[^0-9]/g, "")) || 0;
+    projectEl.innerText = `${totalGlobal.toLocaleString()} ${currency}`;
+
+    if (totalGlobal > currentDisplayed) {
+      projectEl.classList.add("text-emerald-400", "scale-105");
+      setTimeout(() => projectEl.classList.remove("scale-105"), 300);
+    } else if (totalGlobal < currentDisplayed) {
+      projectEl.classList.add("text-red-400");
     }
 
-    // Gestion de la Jauge et du Bouton Supprimer
-    const savedGoal = JSON.parse(
-      localStorage.getItem("wari_vault_goal") || "null",
-    );
+    // 2. RÉCUPÉRATION DE L'OBJECTIF (Goal)
+    const savedGoal = JSON.parse(localStorage.getItem("wari_vault_goal") || "null");
 
-    // 1. La Jauge
-    if (progressBar) {
-      const goal = savedGoal ? savedGoal.amount : 1000000;
-      const progress = Math.min((projectCapital / goal) * 100, 100);
-      progressBar.style.width = `${progress}%`;
+    if (savedGoal) {
+        const goalValue = parseFloat(savedGoal.amount) || 1000000;
+        
+        // Mise à jour des textes de la cible
+        if (goalLabelEl) goalLabelEl.innerText = savedGoal.name || "Projet";
+        if (goalAmountEl) goalAmountEl.innerText = `Objectif: ${goalValue.toLocaleString()} ${currency}`;
+        
+        // Calcul et mise à jour de la jauge
+        if (progressBar) {
+            const progress = Math.min((totalGlobal / goalValue) * 100, 100);
+            progressBar.style.width = `${progress}%`;
+        }
+        
+        // Affichage du bouton supprimer
+        if (deleteBtn) deleteBtn.classList.remove("hidden");
+    } else {
+        // État par défaut si aucun objectif n'est défini
+        if (goalLabelEl) goalLabelEl.innerText = "Définir";
+        if (goalAmountEl) goalAmountEl.innerText = "Objectif: --";
+        if (progressBar) progressBar.style.width = "0%";
+        if (deleteBtn) deleteBtn.classList.add("hidden");
     }
 
-    // 2. Le bouton de suppression (Affiché seulement si un objectif existe)
-    if (deleteBtn) {
-      if (savedGoal) {
-        deleteBtn.classList.remove("hidden");
-      } else {
-        deleteBtn.classList.add("hidden");
-      }
-    }
-
+    // Nettoyage des couleurs d'animation
     setTimeout(() => {
       projectEl.classList.remove("text-emerald-400", "text-red-400");
     }, 2000);
