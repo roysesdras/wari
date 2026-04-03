@@ -3,6 +3,8 @@
 //
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+// Autorise le script à tourner pendant 20 minutes (1200 secondes)
+set_time_limit(1200);
 
 echo "🚀 [" . date('Y-m-d H:i:s') . "] Démarrage de la campagne Academy...\n";
 
@@ -145,7 +147,6 @@ if (!$coursActif) {
 echo "📘 Cours sélectionné : {$coursActif['titre']}\n";
 
 // ── 3. SÉLECTION DES DESTINATAIRES ───────────────────────────
-// Users qui n'ont PAS encore reçu CE cours spécifique
 $users = $pdo->prepare("
     SELECT u.id, u.email
     FROM wari_users u
@@ -154,12 +155,17 @@ $users = $pdo->prepare("
     AND u.id NOT IN (
         SELECT el.user_id
         FROM academy_email_log el
-        WHERE el.course_id = ? AND el.statut = 'envoye'
+        WHERE el.course_id = :course_id AND el.statut = 'envoye'
     )
     ORDER BY u.date_inscription ASC
-    LIMIT ?
+    LIMIT :limit
 ");
-$users->execute([$coursActif['id'], $BATCH]);
+
+// On lie les paramètres manuellement pour préciser le type INT pour la limite
+$users->bindValue(':course_id', $coursActif['id'], PDO::PARAM_INT);
+$users->bindValue(':limit', (int)$BATCH, PDO::PARAM_INT); // <-- ICI on force l'entier
+$users->execute();
+
 $users = $users->fetchAll(PDO::FETCH_ASSOC);
 
 if (empty($users)) {
@@ -231,7 +237,7 @@ foreach ($users as $user) {
         ")->execute([$user['id'], $coursActif['id'], $subject]);
     }
 
-    usleep(2000000); // 2s de pause — respect quota SMTP Gmail
+    usleep(3000000); // 3s de pause — respect quota SMTP Gmail
 }
 
 // ── 6. RÉSUMÉ ─────────────────────────────────────────────────
