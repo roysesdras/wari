@@ -10,7 +10,7 @@ session_start();
 // -------------------------------------------------------
 // Configuration CinetPay
 // -------------------------------------------------------
-$cinetpay_apikey  = "sk_test_k3kvVZsEGJxXHpnROn719fhx";   // Remplace par ta clé API CinetPay
+$cinetpay_apikey  = "";   // Remplace par ta clé API CinetPay
 $cinetpay_site_id = "TON_SITE_ID";        // Disponible dans ton backoffice CinetPay
 $cinetpay_mode    = "TEST";               // Passe en "PRODUCTION" quand tu es prêt
 
