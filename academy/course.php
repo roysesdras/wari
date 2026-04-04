@@ -11,7 +11,7 @@ $user_id = $_SESSION['user_id'] ?? null;
 
 // Redirection si non connecté
 if (!$user_id) {
-    header('Location: https://wari.digiroys.com/login?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+    header('Location: https://wari.digiroys.com/config/auth.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit;
 }
 
@@ -135,7 +135,7 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
 <body class="bg-slate-950 text-slate-300 font-sans antialiased min-h-screen flex flex-col selection:bg-wari-gold selection:text-slate-950">
 
     <!-- ── NAVIGATION ──────────────────────────────────────────── -->
-    <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5 px-6 h-20 flex items-center justify-between">
+    <nav class="bg-slate-950/80 backdrop-blur-md mt-3 mb-2 px-4 h-18 flex items-center justify-between">
         <a href="/academy/" class="font-heading text-2xl font-black text-wari-gold tracking-tight">
             Wari<span class="font-light text-white">Academy.</span>
         </a>
@@ -145,16 +145,15 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
             Retour aux cours
         </a>
 
-        <a href="#" class="flex items-center gap-3 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl transition-all">
-            <span class="text-xs font-bold text-white/80">Profil</span>
+        <a href="#" class="flex items-center gap-3 bg-white/5 hover:bg-white/10">
             <div class="w-8 h-8 bg-wari-gold rounded-lg flex items-center justify-center text-slate-950 font-bold text-xs uppercase"><?= substr($_SESSION['user_email'] ?? 'U', 0, 2) ?></div>
         </a>
     </nav>
 
-    <main class="flex-1 w-full max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 flex flex-col gap-8 md:gap-12">
+    <main class="flex-1 w-full max-w-7xl mx-auto px-2 md:px-2 py-2 md:py-4 flex flex-col gap-8 md:gap-12">
         
         <!-- ── HERO BENTO (Span full) ────────────────────────────── -->
-        <section class="bento-card bento-card-highlight p-8 md:p-12 relative overflow-hidden group rounded-[2.5rem]">
+        <section class="bento-card bento-card-highlight p-2 md:p-12 relative overflow-hidden group rounded-[1rem]">
             <!-- Decorative background elements -->
             <div class="absolute -top-40 -right-40 w-96 h-96 bg-cat-color rounded-full mix-blend-multiply filter blur-3xl opacity-10 group-hover:opacity-[0.15] transition-opacity duration-700"></div>
             <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-wari-gold rounded-full mix-blend-multiply filter blur-3xl opacity-10 group-hover:opacity-[0.15] transition-opacity duration-700"></div>
@@ -192,19 +191,19 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
                     <!-- Meta Tags -->
                     <div class="flex flex-wrap gap-4 text-xs font-bold uppercase tracking-widest text-slate-400">
                         <div class="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
-                            <span class="text-lg">⏱</span> <strong class="text-white"><?= $course['duree_minutes'] ?> min</strong>
+                            <strong class="text-white"><?= $course['duree_minutes'] ?> min</strong>
                         </div>
                         <div class="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
-                            <span class="text-lg">📖</span> <strong class="text-white"><?= $totalLecons ?> leçon<?= $totalLecons > 1 ? 's' : '' ?></strong>
+                            <strong class="text-white"><?= $totalLecons ?> leçon<?= $totalLecons > 1 ? 's' : '' ?></strong>
                         </div>
                         <div class="flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700/50">
-                            <span class="text-lg">🎯</span> <strong class="text-white"><?= ucfirst($course['niveau']) ?></strong>
+                            <strong class="text-white"><?= ucfirst($course['niveau']) ?></strong>
                         </div>
                     </div>
                 </div>
 
                 <!-- Progress & CTA Box -->
-                <div class="bg-slate-900/60 backdrop-blur-md rounded-3xl p-6 border border-white/10 shrink-0 w-full md:w-80 shadow-2xl">
+                <div class="bg-slate-900/60 backdrop-blur-md rounded-3xl p-4 border border-white/10 shrink-0 w-full md:w-80 shadow-2xl">
                     <div class="flex justify-between items-end mb-3">
                         <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">Progression</div>
                         <div class="text-3xl font-heading font-black text-wari-gold"><?= $progress ?>%</div>
@@ -229,7 +228,7 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 Continuer
                             <?php else: ?>
-                                🚀 Commencer
+                                Commencer
                             <?php endif; ?>
                         </a>
                     <?php endif; ?>
@@ -242,10 +241,10 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
             
             <!-- LISTE DES LEÇONS -->
             <div class="lg:col-span-8 space-y-6">
-                <div class="bento-card rounded-[2.5rem] overflow-hidden">
+                <div class="bento-card rounded-[1rem] overflow-hidden">
                     <div class="p-6 md:p-8 border-b border-white/5 flex items-center justify-between bg-slate-900/40">
                         <h2 class="font-heading text-2xl md:text-3xl font-black text-white flex items-center gap-3">
-                            <span class="text-wari-gold text-3xl">📚</span> Programme
+                            Programme
                         </h2>
                         <span class="px-4 py-1 bg-slate-800 text-slate-300 text-xs font-black uppercase tracking-widest rounded-full border border-slate-700">
                             <?= $doneLecons ?> / <?= $totalLecons ?>
@@ -322,25 +321,25 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
                 <?php endif; ?>
 
                 <!-- Stats Bento -->
-                <div class="bento-card rounded-[2rem] p-8">
+                <div class="bento-card rounded-[1rem] p-4">
                     <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
-                        📊 <span>Statistiques</span>
+                        <span>Statistiques</span>
                         <div class="flex-1 h-[1px] bg-white/5 ml-2"></div>
                     </h3>
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-5 text-center hover:bg-slate-800/80 transition-colors">
+                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-4 text-center hover:bg-slate-800/80 transition-colors">
                             <div class="font-heading text-4xl font-black text-white mb-2"><?= $totalLecons ?></div>
                             <div class="text-[9px] uppercase font-black text-slate-500 tracking-[0.2em]">Leçons</div>
                         </div>
-                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-5 text-center hover:bg-slate-800/80 transition-colors">
+                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-4 text-center hover:bg-slate-800/80 transition-colors">
                             <div class="font-heading text-4xl font-black text-white mb-2"><?= $course['duree_minutes'] ?></div>
                             <div class="text-[9px] uppercase font-black text-slate-500 tracking-[0.2em]">Minutes</div>
                         </div>
-                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-5 text-center hover:bg-slate-800/80 transition-colors">
+                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-4 text-center hover:bg-slate-800/80 transition-colors">
                             <div class="font-heading text-4xl font-black text-wari-gold mb-2"><?= $progress ?>%</div>
                             <div class="text-[9px] uppercase font-black text-slate-500 tracking-[0.2em]">Acquis</div>
                         </div>
-                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-5 text-center hover:bg-slate-800/80 transition-colors">
+                        <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-4 text-center hover:bg-slate-800/80 transition-colors">
                             <div class="font-heading text-4xl font-black text-white mb-2"><?= ucfirst($course['niveau'][0]) ?></div>
                             <div class="text-[9px] uppercase font-black text-slate-500 tracking-[0.2em]"><?= ucfirst($course['niveau']) ?></div>
                         </div>
@@ -351,7 +350,7 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
                 <?php if (!empty($pdfs)): ?>
                     <div class="bento-card rounded-[2rem] p-8">
                         <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
-                            📄 <span>Ressources</span>
+                           <span>Ressources</span>
                             <div class="flex-1 h-[1px] bg-white/5 ml-2"></div>
                         </h3>
                         <div class="space-y-4">
@@ -359,7 +358,7 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
                                 <?php $acheté = $academy->hasUserBoughtPdf($user_id, $pdf['id']); ?>
                                 <div class="bg-slate-900/50 border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors">
                                     <div class="flex gap-4">
-                                        <div class="text-3xl">📘</div>
+                                       
                                         <div class="flex-1 min-w-0">
                                             <div class="font-bold text-white text-sm mb-1 line-clamp-2"><?= htmlspecialchars($pdf['titre']) ?></div>
                                             <?php if ($pdf['description']): ?>
@@ -388,9 +387,9 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
                 <?php endif; ?>
 
                 <!-- Auteur -->
-                <div class="bento-card rounded-[2rem] p-8">
+                <div class="bento-card rounded-[1rem] p-4">
                     <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
-                        ✍️ <span>Auteur</span>
+                       <span>Auteur</span>
                         <div class="flex-1 h-[1px] bg-white/5 ml-2"></div>
                     </h3>
                     <div class="flex items-center gap-5 bg-slate-900/50 border border-white/5 rounded-2xl p-5">

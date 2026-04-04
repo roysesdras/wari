@@ -117,7 +117,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['wari_remember'])) {
                 'samesite' => 'Strict',
             ]);
 
-            $redir = $_GET['redirect'] ?? $_POST['redirect'] ?? '';
+            $redir = !empty($_POST['redirect']) ? $_POST['redirect'] : (!empty($_GET['redirect']) ? $_GET['redirect'] : '');
             if (!empty($redir)) {
                 header('Location: ' . $redir);
             } else {
@@ -226,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'samesite' => 'Strict',
             ]);
 
-            $redir = $_GET['redirect'] ?? $_POST['redirect'] ?? '';
+            $redir = !empty($_POST['redirect']) ? $_POST['redirect'] : (!empty($_GET['redirect']) ? $_GET['redirect'] : '');
             if (!empty($redir)) {
                 header('Location: ' . $redir);
             } else {

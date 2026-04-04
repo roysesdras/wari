@@ -127,13 +127,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 1.5rem;
+            border-radius: 1rem;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
         .bento-card-highlight {
             background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
-            border-top: 4px solid var(--cat-color);
+            /* border-top: 4px solid var(--cat-color); */
         }
 
         /* Variables CSS pour les éléments générés depuis la BDD */
@@ -244,7 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 <body class="bg-slate-950 text-slate-300 font-sans antialiased min-h-screen flex flex-col selection:bg-wari-gold selection:text-slate-950">
 
     <!-- ── NAVIGATION ── -->
-    <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-white/5 h-20 flex flex-col justify-center px-4 md:px-8">
+    <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md h-20 flex flex-col justify-center px-2 md:px-4">
         <div class="flex items-center justify-between gap-4 md:gap-8 w-full">
             
             <a href="/academy/" class="font-heading text-xl md:text-2xl font-black text-wari-gold tracking-tight shrink-0">
@@ -268,7 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             </a>
         </div>
         <!-- Mobile progress bar (under nav elements) -->
-        <div class="md:hidden w-full mt-2 flex flex-col">
+        <div class="md:hidden w-full mt-1 flex flex-col">
             <div class="flex justify-between text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1">
                 <span class="truncate">Progression</span>
                 <span class="text-wari-gold"><?= $progress ?>%</span>
@@ -280,15 +280,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     </nav>
 
     <!-- ── LAYOUT PRINCIPAL ── -->
-    <div class="flex-1 w-full max-w-[1400px] mx-auto px-4 md:px-8 py-8 md:py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="flex-1 w-full max-w-[1400px] mx-auto px-2 md:px-4 py-8 md:py-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
         <!-- ── MAIN (Gauche) ── -->
         <main class="lg:col-span-8 flex flex-col gap-8 w-full max-w-4xl mx-auto">
 
             <!-- En-tête leçon (Bento Card) -->
-            <header class="bento-card bento-card-highlight p-8 md:p-10 relative overflow-hidden">
+            <header class="bento-card bento-card-highlight p-2 md:p-4 relative overflow-hidden">
                 <!-- Decorative glares -->
-                <div class="absolute -top-32 -right-32 w-64 h-64 bg-[var(--cat-color)] rounded-full mix-blend-multiply opacity-20 blur-3xl"></div>
+                <!-- <div class="absolute -top-32 -right-32 w-64 h-64 bg-[var(--cat-color)] rounded-full mix-blend-multiply opacity-20 blur-3xl"></div> -->
                 
                 <div class="relative z-10">
                     <!-- Breadcrumbs -->
@@ -315,19 +315,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                     <!-- Meta Tags -->
                     <div class="flex flex-wrap items-center gap-4 text-xs font-bold uppercase tracking-widest text-slate-400">
-                        <?php $typesIcon = ['texte' => '📄', 'video' => '🎥', 'quiz' => '🧩']; ?>
+                        <?php // $typesIcon = ['texte', 'video', 'quiz']; ?>
                         <div class="flex items-center gap-2 bg-slate-900/60 px-4 py-2 rounded-xl border border-white/5">
-                            <span class="text-lg"><?= $typesIcon[$lesson['type']] ?? '📄' ?></span>
+                            <!--  -->
                             <span class="text-white"><?= ucfirst($lesson['type'] ?: 'Lecture') ?></span>
                         </div>
                         <div class="flex items-center gap-2 bg-slate-900/60 px-4 py-2 rounded-xl border border-white/5">
-                            <span class="text-lg">✍️</span>
                             <span class="text-white"><?= htmlspecialchars($course['auteur']) ?></span>
                         </div>
                         
                         <?php if ($isComplete): ?>
                             <div class="flex items-center gap-2 bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20 text-emerald-400 ml-auto md:ml-0">
-                                <span class="text-lg">✅</span> Validé
+                                Validé
                             </div>
                         <?php endif; ?>
                     </div>
@@ -345,7 +344,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
             <!-- Contenu Texte -->
             <?php if (!empty(trim($lesson['contenu']))): ?>
-                <article class="bento-card p-8 md:p-12">
+                <article class="bento-card p-2 md:p-4">
                     <div class="lesson-content">
                         <?= $lesson['contenu'] ?>
                     </div>
@@ -353,7 +352,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <?php endif; ?>
 
             <!-- Complete Action block -->
-            <div class="bento-card p-8 md:p-10 text-center relative overflow-hidden border-t-4 border-t-wari-gold/40 hover:border-t-wari-gold transition-colors">
+            <div class="bento-card p-2 md:p-4 text-center relative overflow-hidden hover:border-t-wari-gold transition-colors">
                 <div class="absolute inset-0 bg-gradient-to-b from-wari-gold/5 to-transparent opacity-50"></div>
                 
                 <div class="relative z-10 flex flex-col items-center">
@@ -380,7 +379,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <form method="POST" class="w-full sm:w-auto">
                             <input type="hidden" name="action" value="complete">
                             <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-wari-gold hover:bg-wari-goldLight text-slate-900 font-black text-sm uppercase tracking-widest px-8 py-4 rounded-xl transition-all shadow-lg shadow-wari-gold/20 transform hover:scale-105 active:scale-95">
-                                ✅ Valider la leçon
+                                Valider la leçon
                             </button>
                         </form>
                     <?php endif; ?>
@@ -440,9 +439,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         <aside class="lg:col-span-4 w-full flex flex-col gap-6 sticky top-28">
 
             <!-- Progression block -->
-            <div class="bento-card p-6 rounded-[2rem]">
+            <div class="bento-card p-3 rounded-[1rem]">
                 <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
-                    📊 <span>Global</span>
+                    <span>Global</span>
                     <div class="flex-1 h-[1px] bg-white/5 ml-2"></div>
                 </h3>
                 
@@ -462,10 +461,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             </div>
 
             <!-- List of lessons -->
-            <div class="bento-card rounded-[2rem] overflow-hidden flex flex-col max-h-[600px]">
-                <div class="p-6 border-b border-white/5 shrink-0 bg-slate-900/40">
+            <div class="bento-card rounded-[1rem] overflow-hidden flex flex-col max-h-[600px]">
+                <div class="p-3 border-b border-white/5 shrink-0 bg-slate-900/40">
                     <h3 class="text-[10px] font-black text-white uppercase tracking-[0.3em] flex items-center gap-2 mb-1">
-                        📖 <span>Plan d'action</span>
+                        <span>Plan d'action</span>
                     </h3>
                     <div class="text-xs text-slate-500 font-medium"><?= htmlspecialchars($course['titre']) ?></div>
                 </div>

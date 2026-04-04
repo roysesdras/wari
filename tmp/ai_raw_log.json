@@ -4,19 +4,19 @@
       "content": {
         "parts": [
           {
-            "text": "{\n  \"message\": \"Champion·ne, ta discipline est ta force ! Construis ton empire financier brique par brique.\",\n  \"prediction\": \"À ce rythme, ton cash finit le 21.\",\n  \"dette_conseil\": null,\n  \"academy_reco\": \"L'art de budgétiser\",\n  \"alerte_rouge\": \"Train de vie à surveiller\"\n}"
+            "text": "{\n\"message\": \"Champion·ne, chaque franc compte ! Ton avenir financier se construit dès aujourd'hui, brique par brique.\",\n\"prediction\": \"À ce rythme, attention à ne pas dépasser ton budget train de vie avant la fin du mois.\",\n\"dette_conseil\": null,\n\"academy_reco\": \"Équilibrer son budget : la clé de la sérénité financière\",\n\"alerte_rouge\": \"Train de vie : vigilance accrue\"\n}"
           }
         ],
         "role": "model"
       },
       "finishReason": "STOP",
-      "avgLogprobs": -0.17796335938156291
+      "avgLogprobs": -0.16075765306704512
     }
   ],
   "usageMetadata": {
     "promptTokenCount": 318,
-    "candidatesTokenCount": 93,
-    "totalTokenCount": 411,
+    "candidatesTokenCount": 107,
+    "totalTokenCount": 425,
     "promptTokensDetails": [
       {
         "modality": "TEXT",
@@ -26,10 +26,10 @@
     "candidatesTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 93
+        "tokenCount": 107
       }
     ]
   },
   "modelVersion": "gemini-2.0-flash",
-  "responseId": "zQXQaZinCd37xs0PpreO6Qo"
+  "responseId": "LnnRaZGhHIeonsEPq7LumAk"
 }

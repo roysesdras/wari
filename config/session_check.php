@@ -46,10 +46,14 @@ if (!isset($_SESSION['user_id'])) {
         exit(json_encode(['error' => 'Non autorisé']));
     } 
     
-    // Si c'est un utilisateur qui navigue (on le renvoie au login)
-    // Ne redirige pas si on est déjà sur la page de login pour éviter les boucles
-    if (basename($_SERVER['PHP_SELF']) !== 'login.php') {
-        header('Location: login.php');
+    // On récupère l'URL complète actuelle pour la redirection future
+    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http");
+    $current_url = $protocol . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+    // Si c'est un utilisateur qui navigue
+    if (basename($_SERVER['PHP_SELF']) !== 'auth.php') {
+        // ✅ ON AJOUTE LE PARAMÈTRE REDIRECT ICI
+        header('Location: https://wari.digiroys.com/config/auth.php?redirect=' . urlencode($current_url));
         exit();
     }
 }

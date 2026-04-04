@@ -40,7 +40,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=60">
+    <link rel="stylesheet" href="./assets/styles.css?v=63">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0B141A;">
@@ -80,7 +80,7 @@ if (!isset($_SESSION['user_id'])) {
         <section class="glass-card p-5 mb-4 shine-effect">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h3 class="text-[10px] uppercase tracking-widest text-emerald-400 font-bold mb-1">Santé financière</h3>
+                    <h3 class="text-[11px] uppercase tracking-widest text-emerald-400 font-bold mb-1">Santé financière</h3>
                     <div class="flex items-baseline gap-1">
                         <span id="gaugePercent" class="text-2xl font-black text-white">Stable</span>
                         <!-- <span class="text-xs font-bold text-emerald-500">+0.99%</span> -->
@@ -100,9 +100,9 @@ if (!isset($_SESSION['user_id'])) {
             </div>
 
             <div class="flex items-start gap-2 pt-3 border-t border-white/5">
-                <div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                <!-- <div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
                     <span class="text-xs">🤵‍♂️</span>
-                </div>
+                </div> -->
                 <p id="aiCoachMessage" class="text-[11px] text-slate-300 leading-snug italic">
                     Belle progression ! Ton épargne couvre maintenant 3 mois de besoins.
                 </p>
@@ -111,13 +111,13 @@ if (!isset($_SESSION['user_id'])) {
 
         <div class="grid grid-cols-2 gap-3 mb-4">
             <div class="glass-card p-4">
-                <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">🔒 Banque</p>
+                <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">Banque</p>
                 <p id="bankAmount" class="text-lg font-black text-white">0 F</p>
                 <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Épargne + Capital Projet</p>
             </div>
 
             <div class="glass-card p-4">
-                <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">💵 Poche</p>
+                <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">Poche</p>
                 <p id="cashAmount" class="text-lg font-black text-emerald-400">0 F</p>
                 <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Train de vie + Imprévus</p>
             </div>
@@ -126,7 +126,7 @@ if (!isset($_SESSION['user_id'])) {
         <!-- Section insertion du montant a repartire -->
         <div class="glass-card gold-border p-4 mb-4 shadow-2xl relative">
             <div class="flex justify-between items-center mb-3">
-                <label class="block text-[10px] uppercase tracking-[0.2em] text-yellow-500 font-bold">Montant à répartir</label>
+                <label class="block text-[11px] uppercase tracking-[0.2em] text-yellow-500 font-bold">Montant à répartir</label>
                 <select id="currencySelector" onchange="render()" class="bg-slate-800 text-yellow-500 text-xs font-bold rounded px-1 py-1 outline-none">
                     <option value="F">CFA</option>
                     <option value="$">USD ($)</option>
@@ -145,7 +145,7 @@ if (!isset($_SESSION['user_id'])) {
             <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500">Répartition</h3>
             <button id="lockBtn" onclick="toggleEditMode()"
                 class="flex items-center gap-1 px-2 py-1 rounded-full bg-slate-900 border border-slate-700 transition-all active:scale-95 shadow-lg">
-                <span>🔒</span>
+                <!-- <span>🔒</span> -->
                 <span class="text-[11px] font-black uppercase tracking-[0.1em] text-slate-400">Lecture</span>
             </button>
         </div>
@@ -166,9 +166,9 @@ if (!isset($_SESSION['user_id'])) {
             <div class="flex items-start justify-between mb-6 relative z-10">
                 <div>
                     <div class="flex items-center gap-2 mb-1">
-                        <h3 class="text-[10px] uppercase tracking-[0.3em] text-emerald-400 font-black">Graine de Richesse</h3>
+                        <h3 class="text-[11px] uppercase tracking-[0.1em] text-emerald-400 font-black">Graine de Richesse</h3>
                     </div>
-                    <p class="text-[10px] text-slate-500 font-medium">Plantée à chaque répartition</p>
+                    <p class="text-[11px] text-slate-500 font-medium">Plantée à chaque répartition</p>
                 </div>
                 <div class="text-right">
                     <div class="flex items-baseline justify-end gap-1">
@@ -192,10 +192,10 @@ if (!isset($_SESSION['user_id'])) {
                 <div class="bg-slate-900/40 px-3 py-2 rounded-2xl border border-slate-800/50 flex flex-col justify-center">
                     <p class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mb-1">Cible</p>
                     <div class="flex items-center justify-between gap-2">
-                        <p id="vaultGoalLabel" class="text-[10px] text-white font-black truncate">Définir</p>
+                        <p id="vaultGoalLabel" class="text-[11px] text-white font-black truncate">Définir</p>
                         <div class="flex gap-2">
-                            <button onclick="openGoalModal()" class="text-emerald-500 hover:scale-110 transition-transform text-[10px]">✏️</button>
-                            <button id="deleteGoalBtn" onclick="deleteGoal()" class="text-red-400/70 hover:text-red-500 transition-colors text-[10px] hidden">✕</button>
+                            <button onclick="openGoalModal()" class="text-emerald-500 hover:scale-110 transition-transform text-[11px]">✏️</button>
+                            <button id="deleteGoalBtn" onclick="deleteGoal()" class="text-red-400/70 hover:text-red-500 transition-colors text-[11px] hidden">✕</button>
                         </div>
                     </div>
                 </div>
@@ -212,7 +212,7 @@ if (!isset($_SESSION['user_id'])) {
                     <button onclick="window.toggleVaultHistory()" id="toggleHistBtn" class="text-[9px] text-slate-400 font-black uppercase tracking-widest">Détails</button>
                 </div>
                 <div id="vaultHistory" class="space-y-1.5 max-h-12 overflow-hidden transition-all duration-500">
-                    <p class="text-[10px] text-slate-600 italic text-center py-2">Aucun mouvement</p>
+                    <p class="text-[11px] text-slate-600 italic text-center py-2">Aucun mouvement</p>
                 </div>
             </div>
         </div>
@@ -238,14 +238,14 @@ if (!isset($_SESSION['user_id'])) {
         <!-- Dette Section -->
         <div id="debtSection" class="mt-4 glass-card p-3 shadow-2xl relative">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-[10px] uppercase tracking-[0.2em] text-red-400 font-bold">Carnet de Dettes</h3>
-                <button onclick="openDebtModal()" class="text-[10px] bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30 font-bold hover:bg-red-500/40 transition-all">
+                <h3 class="text-[11px] uppercase tracking-[0.1em] text-red-400 font-bold">Carnet de Dettes</h3>
+                <button onclick="openDebtModal()" class="text-[11px] bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30 font-bold hover:bg-red-500/40 transition-all">
                     + Ajouter
                 </button>
             </div>
 
             <div id="debtList" class="space-y-3">
-                <p class="text-slate-500 text-[10px] italic text-center">Aucune dette ou créance en cours.</p>
+                <p class="text-slate-500 text-[11px] italic text-center">Aucune dette ou créance en cours.</p>
             </div>
         </div>
 
@@ -256,25 +256,25 @@ if (!isset($_SESSION['user_id'])) {
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[10px] text-slate-400 mb-1">TYPE</label>
+                        <label class="block text-[11px] text-slate-400 mb-1">TYPE</label>
                         <select id="debtType" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white outline-none">
                             <option value="loan">On me doit (Créance)</option>
                             <option value="debt">Je dois (Dette)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[10px] text-slate-400 mb-1">NOM DE LA PERSONNE</label>
+                        <label class="block text-[11px] text-slate-400 mb-1">NOM DE LA PERSONNE</label>
                         <input type="text" id="debtPerson" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white outline-none" placeholder="Ex: Moussa">
                     </div>
                     <div>
-                        <label class="block text-[10px] text-slate-400 mb-1 uppercase">
+                        <label class="block text-[11px] text-slate-400 mb-1 uppercase">
                             Montant (<span class="currencyLabel">F</span>)
                         </label>
                         <input type="number" id="debtAmount" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white outline-none" placeholder="0">
                     </div>
 
                     <div>
-                        <label class="block text-[10px] text-slate-400 mb-1 uppercase">Date d'échéance (optionnel)</label>
+                        <label class="block text-[11px] text-slate-400 mb-1 uppercase">Date d'échéance (optionnel)</label>
                         <input type="date" id="debtDueDate"
                             class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white outline-none">
                     </div>
@@ -291,14 +291,14 @@ if (!isset($_SESSION['user_id'])) {
         <div id="payModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm hidden items-center justify-center p-4 z-[120]">
             <div class="glass-card w-full max-w-sm p-4 border border-slate-700 shadow-2xl">
                 <h3 class="text-emerald-400 font-bold mb-1 uppercase text-sm">Remboursement</h3>
-                <p id="payModalTarget" class="text-slate-400 text-[10px] mb-4"></p>
+                <p id="payModalTarget" class="text-slate-400 text-[11px] mb-4"></p>
 
                 <input type="hidden" id="payDebtId">
                 <input type="hidden" id="payDebtType">
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[10px] text-slate-400 mb-1 uppercase">
+                        <label class="block text-[11px] text-slate-400 mb-1 uppercase">
                             Montant du versement (<span class="currencyLabel">F</span>)
                         </label>
                         <input type="number" id="payPartAmount" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-emerald-500" placeholder="0">
@@ -334,7 +334,7 @@ if (!isset($_SESSION['user_id'])) {
                         </svg>
                     </div>
                     <div>
-                        <h4 class="text-[10px] uppercase tracking-widest text-amber-500 font-black">Expérience Mobile</h4>
+                        <h4 class="text-[11px] uppercase tracking-widest text-amber-500 font-black">Expérience Mobile</h4>
                         <p class="text-white font-bold text-xs">Installer l'application Wari</p>
                     </div>
                 </div>
@@ -353,12 +353,12 @@ if (!isset($_SESSION['user_id'])) {
             <h3 class="text-emerald-400 font-bold uppercase tracking-widest text-sm mb-4">Définir un objectif</h3>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-[10px] text-slate-400 mb-1 uppercase">Nom de l'objectif</label>
+                    <label class="block text-[11px] text-slate-400 mb-1 uppercase">Nom de l'objectif</label>
                     <input type="text" id="goalLabel" placeholder="Ex: MacBook Pro, Terrain..."
                         class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-slate-400 mb-1 uppercase">Montant cible</label>
+                    <label class="block text-[11px] text-slate-400 mb-1 uppercase">Montant cible</label>
                     <input type="number" id="goalAmount" placeholder="0"
                         class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-emerald-500">
                 </div>
@@ -378,7 +378,7 @@ if (!isset($_SESSION['user_id'])) {
                 <h3 class="text-amber-400 font-bold uppercase tracking-widest text-sm">Historique Mensuel</h3>
 
                 <select onchange="loadMonthlyHistory(this.value)"
-                    class="bg-slate-800 text-slate-300 text-[10px] border border-slate-700 rounded-lg px-2 py-1">
+                    class="bg-slate-800 text-slate-300 text-[11px] border border-slate-700 rounded-lg px-2 py-1">
                     <option value="3">3 mois</option>
                     <option value="6" selected>6 mois</option>
                     <option value="12">12 mois</option>
@@ -388,14 +388,14 @@ if (!isset($_SESSION['user_id'])) {
             </div>
 
             <div id="historyContent" class="space-y-3 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                <p class="text-slate-500 text-[10px] italic text-center py-4">Chargement...</p>
+                <p class="text-slate-500 text-[11px] italic text-center py-4">Chargement...</p>
             </div>
         </div>
     </div>
 
     <!-- Bouton depense -->
     <button onclick="openExpenseModal()"
-        class="fixed bottom-20 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-600 rounded-full flex items-center justify-center text-white active:scale-95 hover:scale-110 transition-all duration-300 z-50 group">
+        class="fixed bottom-20 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-900 rounded-full flex items-center justify-center text-white active:scale-95 hover:scale-110 transition-all duration-300 z-50 group">
 
         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
@@ -410,7 +410,7 @@ if (!isset($_SESSION['user_id'])) {
 
             <div class="space-y-5 p-1">
                 <div>
-                    <label class="block text-[10px] uppercase tracking-[0.15em] text-slate-500 mb-2 font-black">
+                    <label class="block text-[11px] uppercase tracking-[0.15em] text-slate-500 mb-2 font-black">
                         Montant à déduire (<span class="currencyLabel">F</span>)
                     </label>
                     <input type="number" id="expAmount"
@@ -419,7 +419,7 @@ if (!isset($_SESSION['user_id'])) {
                 </div>
 
                 <div>
-                    <label class="block text-[10px] uppercase tracking-[0.15em] text-slate-500 mb-2 font-black">
+                    <label class="block text-[11px] uppercase tracking-[0.15em] text-slate-500 mb-2 font-black">
                         Motif de la dépense
                     </label>
                     <input type="text" id="expNote"
@@ -428,7 +428,7 @@ if (!isset($_SESSION['user_id'])) {
                 </div>
 
                 <div>
-                    <label class="block text-[10px] uppercase tracking-[0.15em] text-slate-500 mb-2 font-black">
+                    <label class="block text-[11px] uppercase tracking-[0.15em] text-slate-500 mb-2 font-black">
                         Catégorie cible
                     </label>
                     <select id="expCategory"
@@ -438,11 +438,11 @@ if (!isset($_SESSION['user_id'])) {
 
                 <div class="flex gap-3 pt-4">
                     <button onclick="closeExpenseModal()"
-                        class="flex-1 py-4 bg-slate-800/50 hover:bg-slate-800 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">
+                        class="flex-1 py-4 bg-slate-800/50 hover:bg-slate-800 text-slate-400 rounded-2xl font-black text-[11px] uppercase tracking-widest transition-all">
                         Annuler
                     </button>
                     <button onclick="submitExpense()"
-                        class="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-900/40 active:scale-[0.98] transition-all">
+                        class="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-emerald-900/40 active:scale-[0.98] transition-all">
                         Enregistrer
                     </button>
                 </div>
@@ -599,16 +599,15 @@ if (!isset($_SESSION['user_id'])) {
         function showWariPushModal() {
             if (document.getElementById('push-modal')) return; // Si le modal existe déjà, on ne fait rien
             const modalHtml = `
-                <div id="push-modal" style="position:fixed; inset:0; background:#080b10; z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(10px);">
+                <div id="push-modal" style="position:fixed; inset:0; background:#080b10; z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(11px);">
                     <div style="background:#0d1117; border:1px solid #f5a623; border-radius:30px; padding:40px; text-align:center; max-width:400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-                        <div style="font-size:30px; margin-bottom:20px;">📡</div>
-                        <h2 style="color:#fff; font-weight:900; letter-spacing:-1px; margin-bottom:10px; text-transform:uppercase;">RADAR DÉSACTIVÉ</h2>
+                        <h2 style="color:#fff; font-weight:900; letter-spacing:-1px; margin-bottom:11px; text-transform:uppercase;">RADAR DÉSACTIVÉ</h2>
                         <p style="color:#556070; font-size:14px; line-height:1.6; margin-bottom:30px;">
                             Champion&middot;ne, ton système d'alerte est éteint. 
                             Sans tes notifications, tu navigues à vue et ton budget risque de déraper.
                         </p>
                         <button id="activate-push" style="background:#f5a623; color:#000; border:none; padding:18px 30px; border-radius:15px; font-weight:800; cursor:pointer; width:100%; font-size:14px; text-transform:uppercase; transition: transform 0.2s;">
-                            ACTIVER MON RADAR ⚡️
+                            ACTIVER MON RADAR
                         </button>
                         <button onclick="closeWariModal()" style="background:transparent; border:none; margin-top:20px; color:#556070; font-size:11px; cursor:pointer; text-decoration:underline; text-transform:uppercase; letter-spacing:1px;">
                             Je préfère rester dans le noir
@@ -690,7 +689,7 @@ if (!isset($_SESSION['user_id'])) {
 
         function showNotificationHelp() {
             const helpHtml = `
-                <div id="help-modal" style="position:fixed; inset:0; background:rgba(8,11,16,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(10px);">
+                <div id="help-modal" style="position:fixed; inset:0; background:rgba(8,11,16,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(11px);">
                     <div style="background:#0d1117; border:2px solid #f5a623; border-radius:30px; padding:30px; text-align:center; max-width:450px; box-shadow: 0 0 40px rgba(245,166,35,0.15);">
                         <div style="font-size:40px; margin-bottom:15px;">⚙️</div>
                         <h2 style="color:#fff; font-weight:900; margin-bottom:15px; text-transform:uppercase;">RÉGLAGES DU RADAR</h2>
@@ -706,7 +705,7 @@ if (!isset($_SESSION['user_id'])) {
         }
     </script>
 
-    <script src="./assets/main.js?v=60"></script>
+    <script src="./assets/main.js?v=63"></script>
 </body>
 
 </html>

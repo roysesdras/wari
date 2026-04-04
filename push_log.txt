@@ -11,3 +11,5 @@
 2026-03-31 20:00:03 | {"total":21,"success":19,"expired":2,"failed":0,"invalid":0}
 2026-04-01 20:00:04 | {"total":25,"success":19,"expired":6,"failed":0,"invalid":0}
 2026-04-02 20:00:04 | {"total":54,"success":21,"expired":33,"failed":0,"invalid":0}
+2026-04-03 20:00:02 | {"total":23,"success":21,"expired":2,"failed":0,"invalid":0}
+2026-04-04 20:00:05 | {"total":66,"success":20,"expired":46,"failed":0,"invalid":0}

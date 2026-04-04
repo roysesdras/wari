@@ -1,10 +1,17 @@
 // ─── CONFIGURATION INITIALE ────────────────────────────────────────────────
 
+const SVG_ICONS = {
+  rocket: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-5c1.62-2.2 5-3 5-3"></path><path d="M12 15v5s3.03-.55 5-2c2.2-1.62 3-5 3-3"></path></svg>`,
+  piggy: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z"></path><path d="M2 9v1c0 1.1.9 2 2 2h1"></path><path d="M16 11h0"></path></svg>`,
+  alert: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-red-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>`,
+  home: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`
+};
+
 let categories = [
-  { id: 3, name: "Projet", percent: 25, icon: "🚀", balance: 0 },
-  { id: 1, name: "Épargne", percent: 15, icon: "💰", balance: 0 },
-  { id: 4, name: "Imprévu", percent: 10, icon: "🆘", balance: 0 },
-  { id: 2, name: "Train de vie", percent: 50, icon: "🏠", balance: 0 },
+  { id: 3, name: "Projet", percent: 25, icon: SVG_ICONS.rocket, balance: 0 },
+  { id: 1, name: "Épargne", percent: 15, icon: SVG_ICONS.piggy, balance: 0 },
+  { id: 4, name: "Imprévu", percent: 10, icon: SVG_ICONS.alert, balance: 0 },
+  { id: 2, name: "Train de vie", percent: 50, icon: SVG_ICONS.home, balance: 0 },
 ];
 
 let projectCapital = 0;
@@ -54,7 +61,7 @@ function render() {
     if (btnVault) {
       btnVault.disabled = true;
       btnVault.classList.remove("opacity-50", "grayscale");
-      btnVault.innerHTML = `<span>💎</span> Capital sécurisé à chaque répartition`;
+      btnVault.innerHTML = `Capital sécurisé à chaque répartition`;
     }
   } catch (e) {
     console.error("Erreur affichage coffre:", e);
@@ -139,7 +146,9 @@ function render() {
 
     card.innerHTML = `
         <div class="flex items-center justify-between mb-4">
-            <span class="text-xl">${cat.icon}</span>
+            <div class="h-10 w-10 flex items-center justify-center bg-white/5 rounded-xl border border-white/5 shadow-inner">
+              ${cat.icon}
+            </div>
             <div class="flex items-center justify-center bg-slate-900/80 py-1 rounded-lg border border-white/5 gap-[2px]">
               <input type="number" value="${currentPercent}" 
                   ${isEditMode ? "" : "disabled"}
@@ -151,7 +160,7 @@ function render() {
           </div>
         </div>
 
-        <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+        <h4 class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">
             ${cat.name}
         </h4>
 
@@ -159,7 +168,7 @@ function render() {
             <div class="flex items-end justify-between">
                 <div class="text-xl font-black text-white leading-none">
                     ${totalPrevisionnel.toLocaleString()}
-                    <span class="text-[10px] text-slate-600 font-normal uppercase">${currency}</span>
+                    <span class="text-[11px] text-slate-600 font-normal uppercase">${currency}</span>
                 </div>
                 
                 <div class="text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">
@@ -281,20 +290,20 @@ function render() {
       barColor = "bg-emerald-500";
       alertStyle =
         "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-      alertMsg = "✅ Excellente discipline — ton budget est bien préservé.";
+      alertMsg = "Excellente discipline — ton budget est bien préservé.";
     } else if (pctDepense <= 60) {
       barColor = "bg-amber-500";
       alertStyle = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
-      alertMsg = "⚡ Mi-parcours — surveille tes sorties cash.";
+      alertMsg = "Mi-parcours — surveille tes sorties cash.";
     } else if (pctDepense <= 85) {
       barColor = "bg-orange-500";
       alertStyle =
         "bg-orange-500/10 text-orange-400 border border-orange-500/20";
-      alertMsg = "⚠️ Budget entamé — ralentis tes dépenses.";
+      alertMsg = "Budget entamé — ralentis tes dépenses.";
     } else {
       barColor = "bg-red-500 animate-pulse";
       alertStyle = "bg-red-500/10 text-red-400 border border-red-500/20";
-      alertMsg = "🚨 ALERTE — Il ne reste presque rien. Stop les dépenses.";
+      alertMsg = "ALERTE — Il ne reste presque rien. Stop les dépenses.";
     }
 
     gaugeBar.className = `h-full rounded-full transition-all duration-700 ease-out ${barColor}`;
@@ -302,7 +311,7 @@ function render() {
     gaugePercent.className = `font-black text-sm ${barColor.replace("bg-", "text-").replace(" animate-pulse", "")}`;
 
     if (gaugeAlert) {
-      gaugeAlert.className = `text-[10px] text-center py-2 px-3 rounded-lg font-bold ${alertStyle}`;
+      gaugeAlert.className = `text-[11px] text-center py-2 px-3 rounded-lg font-bold ${alertStyle}`;
       gaugeAlert.innerText = alertMsg;
     }
 
@@ -471,8 +480,8 @@ function updateStatus(total) {
       baseClass +
       "bg-orange-500/10 border-orange-500/30 text-orange-500 animate-pulse";
     text.innerHTML = isOver
-      ? `<span class="mr-2">⚠️</span> Oups ! ${total}% ? Tu dépenses plus que tu n'as.`
-      : `<span class="mr-2">⏳</span> ${total}% répartis... Continue jusqu'à 100%.`;
+      ? `Oups ! ${total}% ? Tu dépenses plus que tu n'as.`
+      : `${total}% répartis... Continue jusqu'à 100%.`;
   }
 }
 
@@ -500,7 +509,7 @@ window.saveBudget = function (silent = false) {
         addVaultTransaction(
           "in",
           partNouvelle,
-          "Versement automatique — répartition",
+          "Versement",
         );
         console.log(`Coffre alimenté : +${partNouvelle} ${currentCurrency}`);
       }
@@ -589,7 +598,16 @@ function loadBudget() {
     const lastSavedMonth = data.lastSavedMonth || null;
 
     // ── On charge les variables AVANT d'ajouter le séparateur ────────────
-    if (data.categories) categories = data.categories;
+    if (data.categories) {
+      categories = data.categories.map(cat => {
+        // Migration émojis -> SVG
+        if (cat.icon === "🚀") cat.icon = SVG_ICONS.rocket;
+        if (cat.icon === "💰") cat.icon = SVG_ICONS.piggy;
+        if (cat.icon === "🆘") cat.icon = SVG_ICONS.alert;
+        if (cat.icon === "🏠") cat.icon = SVG_ICONS.home;
+        return cat;
+      });
+    }
     projectCapital = data.projectCapital || 0;
     vaultTransactions = data.vaultTransactions || [];
 
@@ -612,7 +630,7 @@ function loadBudget() {
 
       setTimeout(() => {
         alert(
-          "🌟 NOUVEAU MOIS, NOUVEL OBJECTIF !\n\nFélicitations Champion·ne, tes compteurs sont remis à zéro. Le coffre, lui, continue de grandir !",
+          "NOUVEAU MOIS, NOUVEL OBJECTIF !\n\nFélicitations Champion·ne, tes compteurs sont remis à zéro. Le coffre, lui, continue de grandir !",
         );
       }, 1000);
 
@@ -648,20 +666,30 @@ setTimeout(() => {
 
 function loadVaultHistory() {
   fetch("config/get_vault_history.php")
-    .then((res) => res.json())
+    .then((res) => {
+      const contentType = res.headers.get("content-type");
+      
+      // 1. Si la réponse n'est pas OK OU si ce n'est pas du JSON (ex: redirection HTML)
+      if (!res.ok || (contentType && !contentType.includes("application/json"))) {
+        if (res.status === 403 || (contentType && contentType.includes("text/html"))) {
+          console.warn("Session expirée ou redirection détectée.");
+          window.location.href = "config/auth.php"; 
+          throw new Error("Session expirée (Réponse HTML reçue)");
+        }
+        throw new Error(`Erreur serveur: ${res.status}`);
+      }
+      
+      return res.json();
+    })
     .then((data) => {
-      if (data.success && data.history) {
-        // ✅ On reconstruit les séparateurs depuis les données serveur
-        // en détectant les changements de mois entre transactions
+      if (data && data.success && data.history) {
         const withSeparators = [];
         let lastMonth = null;
 
         data.history.forEach((tx) => {
-          // Le serveur renvoie la date au format "18 mars" — on extrait le mois
-          const moisTx = tx.date.split(" ")[1]; // "mars", "avr.", etc.
+          const moisTx = tx.date ? tx.date.split(" ")[1] : null;
 
-          if (lastMonth && moisTx !== lastMonth) {
-            // Changement de mois détecté → on insère un séparateur
+          if (lastMonth && moisTx && moisTx !== lastMonth) {
             withSeparators.push({
               type: "separator",
               label: `── ${lastMonth} ──`,
@@ -678,7 +706,10 @@ function loadVaultHistory() {
         renderVaultHistory();
       }
     })
-    .catch((err) => console.error("Erreur lors du chargement du coffre:", err));
+    .catch((err) => {
+      // On affiche uniquement le message d'erreur propre
+      console.error("Erreur lors du chargement du coffre :", err.message);
+    });
 }
 
 window.addVaultTransaction = function (type, amount, label) {
@@ -713,7 +744,7 @@ function renderVaultHistory() {
   if (!container) return;
 
   if (vaultTransactions.length === 0) {
-    container.innerHTML = `<p class="text-[10px] text-slate-600 italic text-center">En attente de ton premier investissement...</p>`;
+    container.innerHTML = `<p class="text-[11px] text-slate-600 italic text-center">En attente de ton premier investissement...</p>`;
     return;
   }
 
@@ -731,10 +762,10 @@ function renderVaultHistory() {
       return `
         <div class="flex justify-between items-center py-2 px-3 bg-slate-900/20 rounded-lg border border-white/5 shadow-sm">
           <div class="flex flex-col">
-            <span class="text-[10px] text-slate-200 font-semibold">${tx.label}</span>
+            <span class="text-[11px] text-slate-200 font-semibold">${tx.label}</span>
             <span class="text-[8px] text-slate-500 font-medium">${tx.date}</span>
           </div>
-          <span class="text-[10px] font-black ${tx.type === "in" ? "text-emerald-400" : "text-red-400"}">
+          <span class="text-[11px] font-black ${tx.type === "in" ? "text-emerald-400" : "text-red-400"}">
             ${tx.type === "in" ? "+" : "−"} ${tx.amount.toLocaleString()} ${currency}
           </span>
         </div>
@@ -750,7 +781,7 @@ function renderDebts() {
   const currency = document.getElementById("currencySelector")?.value || "F";
 
   if (!dbDebts || dbDebts.length === 0) {
-    debtList.innerHTML = `<p class="text-slate-500 text-[10px] italic text-center uppercase tracking-widest">Paix totale : Aucune dette en cours.</p>`;
+    debtList.innerHTML = `<p class="text-slate-500 text-[11px] italic text-center uppercase tracking-widest">Paix totale : Aucune dette en cours.</p>`;
     return;
   }
 
@@ -784,10 +815,10 @@ document.addEventListener("DOMContentLoaded", renderDebts);
 function applyModel(modelKey) {
   const models = {
     wari: [
-      { id: 3, name: "Projet", percent: 25, icon: "🚀" },
-      { id: 1, name: "Épargne", percent: 15, icon: "💰" },
-      { id: 4, name: "Imprévu", percent: 10, icon: "🆘" },
-      { id: 2, name: "Train de vie", percent: 50, icon: "🏠" },
+      { id: 3, name: "Projet", percent: 25, icon: SVG_ICONS.rocket },
+      { id: 1, name: "Épargne", percent: 15, icon: SVG_ICONS.piggy },
+      { id: 4, name: "Imprévu", percent: 10, icon: SVG_ICONS.alert },
+      { id: 2, name: "Train de vie", percent: 50, icon: SVG_ICONS.home },
     ],
   };
   if (confirm("Appliquer ce modèle ?")) {
@@ -824,7 +855,7 @@ window.openExpenseModal = function () {
     .forEach((el) => (el.innerText = currency));
 
   select.innerHTML = categories
-    .map((cat) => `<option value="${cat.id}">${cat.icon} ${cat.name}</option>`)
+    .map((cat) => `<option value="${cat.id}">${cat.name}</option>`)
     .join("");
 
   modal.classList.remove("hidden");
@@ -1028,7 +1059,7 @@ function generateFinancialReport() {
     categories.some((c) => (c.balance || 0) > 0) || projectCapital > 0;
 
   if (!aSolde) {
-    coachMessageElement.innerHTML = `<span class="italic text-slate-500">Enregistre tes revenus pour activer le coaching Wari personnalisé. 🚀</span>`;
+    coachMessageElement.innerHTML = `<span class="italic text-slate-500">Enregistre tes revenus pour activer le coaching Wari personnalisé.</span>`;
     return;
   }
 
@@ -1072,15 +1103,15 @@ async function fetchAiCoachAdvice(data) {
       coachMessageElement.innerHTML = `
         <div class="space-y-1">
           <p class="text-slate-200">"${result.message}"</p>
-          ${result.prediction ? `<p class="text-[10px] text-amber-400/80 font-bold">${result.prediction}</p>` : ''}
-          ${result.dette_conseil ? `<p class="text-[10px] text-blue-400/80 font-bold">${result.dette_conseil}</p>` : ''}
-          ${result.academy_reco ? `<p class="text-[10px] text-emerald-400/80 font-bold">Je te recommande ce cours : "${result.academy_reco}"</p>` : ''}
+          ${result.prediction ? `<p class="text-[11px] text-amber-400/80 font-bold">${result.prediction}</p>` : ''}
+          ${result.dette_conseil ? `<p class="text-[11px] text-blue-400/80 font-bold">${result.dette_conseil}</p>` : ''}
+          ${result.academy_reco ? `<p class="text-[11px] text-emerald-400/80 font-bold">Je te recommande ce cours : "${result.academy_reco}"</p>` : ''}
         </div>
       `;
 
       // Mise à jour de l'alerte de la jauge si l'IA détecte un danger
       if (result.alerte_rouge && gaugeAlert) {
-        gaugeAlert.innerHTML = `🚨 ${result.alerte_rouge}`;
+        gaugeAlert.innerHTML = `${result.alerte_rouge}`;
         gaugeAlert.classList.add('animate-bounce');
       }
     }
@@ -1237,7 +1268,7 @@ function loadMonthlyHistory(months = 6) {
         document.getElementById("currencySelector")?.value || "F";
 
       if (!data.success || data.history.length === 0) {
-        container.innerHTML = `<p class="text-slate-500 text-[10px] italic text-center py-4">Aucun historique disponible.</p>`;
+        container.innerHTML = `<p class="text-slate-500 text-[11px] italic text-center py-4">Aucun historique disponible.</p>`;
         return;
       }
 
@@ -1248,7 +1279,7 @@ function loadMonthlyHistory(months = 6) {
 
           <!-- En-tête du mois -->
           <div class="flex items-center justify-between mb-3">
-            <p class="text-amber-400 font-black text-[10px] uppercase tracking-widest">
+            <p class="text-amber-400 font-black text-[11px] uppercase tracking-widest">
               ${month.label}
             </p>
             <span class="text-[9px] bg-slate-700/50 text-slate-400 px-2 py-0.5 rounded-full">
@@ -1267,9 +1298,9 @@ function loadMonthlyHistory(months = 6) {
                 <div class="flex justify-between items-center px-2 py-1.5 bg-slate-900/40 rounded-lg border border-white/5">
                   <div class="flex items-center gap-2">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                    <span class="text-[9px] text-slate-400">Répartition du ${d.datetime}</span>
+                    <span class="text-[10px] text-slate-400">Répartition du ${d.datetime}</span>
                   </div>
-                  <span class="text-[10px] font-black text-emerald-400">
+                  <span class="text-[11px] font-black text-emerald-400">
                     +${d.amount.toLocaleString()} ${currency}
                   </span>
                 </div>
@@ -1283,19 +1314,19 @@ function loadMonthlyHistory(months = 6) {
  
           <!-- Totaux du mois -->
           <div class="border-t border-slate-700/50 pt-2 space-y-1">
-            <div class="flex justify-between text-[10px]">
+            <div class="flex justify-between text-[11px]">
               <span class="text-slate-400">Total réparti</span>
               <span class="text-white font-bold">
                 ${parseInt(month.total_distributed).toLocaleString()} ${currency}
               </span>
             </div>
-            <div class="flex justify-between text-[10px]">
+            <div class="flex justify-between text-[11px]">
               <span class="text-slate-400">Dépensé</span>
               <span class="text-red-400 font-bold">
                 −${parseInt(month.total_spent).toLocaleString()} ${currency}
               </span>
             </div>
-            <div class="flex justify-between text-[10px]">
+            <div class="flex justify-between text-[11px]">
               <span class="text-slate-400">Préservé</span>
               <span class="text-emerald-400 font-bold">
                 ${parseInt(month.total_saved).toLocaleString()} ${currency}
@@ -1310,7 +1341,7 @@ function loadMonthlyHistory(months = 6) {
     })
     .catch(() => {
       document.getElementById("historyContent").innerHTML =
-        `<p class="text-red-400 text-[10px] italic text-center py-4">Erreur de chargement.</p>`;
+        `<p class="text-red-400 text-[11px] italic text-center py-4">Erreur de chargement.</p>`;
     });
 }
 
@@ -1366,9 +1397,9 @@ async function initialiserNotificationsWari() {
         if (lastNotify !== today && now.getHours() >= 18) {
           navigator.serviceWorker.ready.then((reg) => {
             const messages = [
-              "Champion·ne, fais un petit point sur tes entrées-sorties 💰",
-              "Salut, n'oublie pas de noter tes dépenses pour rester discipliné. 🚀",
-              "Champion.ne, as-tu enregistré tes flux pour aujourd'hui ? 🌟",
+              "Champion·ne, fais un petit point sur tes entrées-sorties",
+              "Salut, n'oublie pas de noter tes dépenses pour rester discipliné.",
+              "Champion.ne, as-tu enregistré tes flux pour aujourd'hui ?",
             ];
             reg.showNotification("Wari - Coach", {
               body: messages[Math.floor(Math.random() * messages.length)],
@@ -1490,20 +1521,20 @@ function showReleaseNotesModal() {
             <div style="background:#0d1117; border:1px solid rgba(245,166,35,0.3); border-radius:35px; padding:20px; max-width:450px; width:100%; box-shadow: 0 25px 60px rgba(0,0,0,0.6); position:relative; overflow:hidden;">
                 
                 <!-- Badge Version -->
-                <div style="position:absolute; top:20px; right:20px; background:#f5a623; color:#000; padding:5px 12px; border-radius:10px; font-size:10px; font-weight:900;">V1.5.6</div>
+                <div style="position:absolute; top:20px; right:20px; background:#f5a623; color:#000; padding:5px 12px; border-radius:11px; font-size:11px; font-weight:900;">V1.5.6</div>
 
                 <div style="text-align:center; margin-bottom:25px;">
                     <h2 style="color:#fff; font-weight:900; letter-spacing:-1px; text-transform:uppercase; margin:0;">Quoi de neuf ?</h2>
                     <p style="color:#f5a623; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-top:5px;">Wari Finance évolue pour toi</p>
                 </div>
 
-                <div style="max-height:300px; overflow-y:auto; padding-right:10px; margin-bottom:30px; text-align:justify;" class="custom-scrollbar">
+                <div style="max-height:300px; overflow-y:auto; padding-right:11px; margin-bottom:30px; text-align:justify;" class="custom-scrollbar">
                     <p style="color:#94a3b8; font-size:13px; line-height:1.7; margin:0;">
                         À l'occasion des fêtes de Pâques, période de renouveau et de partage, Wari Finance franchit une nouvelle étape pour transformer la gestion de votre patrimoine en une expérience de sérénité absolue. Cette version 1.5.6 a été conçue pour refléter cette clarté : l'interface évolue vers plus de précision, vous offrant un contrôle total sur chaque flux financier. Le Coach Wari monte en puissance avec une intelligence prédictive capable d'analyser vos habitudes de consommation en temps réel pour anticiper votre solde de fin de mois et vous orienter vers les dettes à solder prioritairement. 
                     </p>
                 </div>
 
-                <button onclick="closeReleaseNotes()" style="background:#f5a623; color:#000; border:none; padding:10px; border-radius:18px; font-weight:900; cursor:pointer; width:100%; font-size:14px; text-transform:uppercase; transition: transform 0.2s; box-shadow: 0 10px 20px rgba(245,166,35,0.2);">
+                <button onclick="closeReleaseNotes()" style="background:#f5a623; color:#000; border:none; padding:11px; border-radius:18px; font-weight:900; cursor:pointer; width:100%; font-size:14px; text-transform:uppercase; transition: transform 0.2s; box-shadow: 0 11px 20px rgba(245,166,35,0.2);">
                     C'est génial, merci !
                 </button>
             </div>

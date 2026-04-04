@@ -49,7 +49,7 @@ $user = $_SESSION['academy_user'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — Wari Academy Admin</title>
+    <title>Dashboard - Wari Academy Admin</title>
 
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
@@ -201,53 +201,50 @@ $user = $_SESSION['academy_user'];
             <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-2 pb-1">Principal</p>
             <a href="/academy-admin/index.php"
                 class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]">
-                <span>📊</span> Dashboard
+                Dashboard
             </a>
 
             <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Contenu</p>
             <a href="/academy-admin/categories.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">
-                <span>🗂</span> Catégories 
+                Catégories 
             </a>
             <a href="/academy-admin/courses.php"
                 class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">
-                <span>📚</span> Cours
+                Cours
             </a>
             <a href="/academy-admin/lessons.php"
                 class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">
-                <span>📖</span> Leçons
+                Leçons
             </a>
             <a href="/academy-admin/pdfs.php"
                 class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">
-                <span>📄</span> PDF Payants
+                PDF Payants
             </a>
 
             <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Données</p>
             <a href="/academy-admin/stats.php"
                 class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">
-                <span>📈</span> Statistiques
+                Statistiques
             </a>
             <a href="/academy-admin/emails.php"
                 class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">
-                <span>✉️</span> Emails
+                Emails
             </a>
 
             <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">App</p>
             <a href="/academy/" target="_blank"
                 class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">
-                <span>🌐</span> Voir Academy
+                Voir Academy
             </a>
             <a href="https://wari.digiroys.com/accueil/" target="_blank"
                 class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">
-                <span>←</span> Retour Wari
+                Retour Wari
             </a>
         </nav>
 
         <!-- User + logout -->
         <div class="px-3 py-4 border-t border-gold-900/20">
             <div class="flex items-center gap-3 px-2 py-2 mb-1">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gold-700 to-gold-500 flex items-center justify-center text-sm shrink-0">
-                    👤
-                </div>
                 <div>
                     <p class="text-[13px] font-semibold text-gold-400 leading-none">
                         <?= htmlspecialchars($user) ?>
@@ -257,7 +254,7 @@ $user = $_SESSION['academy_user'];
             </div>
             <a href="/academy-admin/logout.php"
                 class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-950/30 text-[12px] transition-all">
-                🚪 Se déconnecter
+                Se déconnecter
             </a>
         </div>
     </aside>
@@ -304,7 +301,11 @@ $user = $_SESSION['academy_user'];
 
                 <!-- ── Carte Apprenants (large) -->
                 <div class="col-span-3 relative bg-ink-900 border border-gold-900/25 rounded-2xl p-6 gold-glow card-gold-top animate-fade-up overflow-hidden">
-                    <div class="absolute top-4 right-5 text-3xl opacity-75">👥</div>
+                    <div class="absolute top-4 right-5 text-3xl opacity-75">
+                        <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 12a5.25 5.25 0 1 0 0-10.499A5.25 5.25 0 0 0 12 12Zm0 1.5c-3.254 0-9.75 2.01-9.75 6v3h19.5v-3c0-3.99-6.496-6-9.75-6Z"></path>
+</svg>
+                    </div>
                     <p class="text-[10px] font-bold tracking-[.14em] uppercase text-slate-500 mb-3">
                         Apprenants
                     </p>
@@ -314,13 +315,17 @@ $user = $_SESSION['academy_user'];
                     <p class="text-slate-500 text-[12px]">utilisateurs actifs sur Academy</p>
                     <div class="mt-4 h-px bg-gradient-to-r from-gold-900/40 to-transparent"></div>
                     <p class="text-[11px] text-slate-600 mt-3">
-                        📈 Nombre total d'apprenants inscrits
+                        Nombre total d'apprenants inscrits
                     </p>
                 </div>
 
                 <!-- ── Carte Completions -->
                 <div class="col-span-3 relative bg-ink-900 border border-gold-900/25 rounded-2xl p-6 card-gold-top animate-fade-up-d1 overflow-hidden">
-                    <div class="absolute top-4 right-5 text-3xl opacity-75">✅</div>
+                    <div class="absolute top-4 right-5 text-3xl opacity-75">
+                        <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10Zm-.997-6 7.07-7.071-1.414-1.414-5.656 5.657-2.829-2.829-1.414 1.414L11.003 16Z"></path>
+                        </svg> 
+                    </div>
                     <p class="text-[10px] font-bold tracking-[.14em] uppercase text-slate-500 mb-3">
                         Completions
                     </p>
@@ -330,13 +335,17 @@ $user = $_SESSION['academy_user'];
                     <p class="text-slate-500 text-[12px]">leçons complétées au total</p>
                     <div class="mt-4 h-px bg-gradient-to-r from-gold-900/40 to-transparent"></div>
                     <p class="text-[11px] text-slate-600 mt-3">
-                        🎯 Engagement des apprenants
+                        Engagement des apprenants
                     </p>
                 </div>
 
                 <!-- ── Carte Cours actifs -->
                 <div class="col-span-3 relative bg-ink-900 border border-gold-900/25 rounded-2xl p-6 card-gold-top animate-fade-up-d2 overflow-hidden">
-                    <div class="absolute top-4 right-5 text-3xl opacity-75">📚</div>
+                    <div class="absolute top-4 right-5 text-3xl opacity-75">
+                        <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 21h-8V6a3 3 0 0 1 3-3h5a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1Zm-10 0H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a3 3 0 0 1 3 3v15Zm0 0h2v2h-2v-2Z"></path>
+                        </svg>
+                    </div>
                     <p class="text-[10px] font-bold tracking-[.14em] uppercase text-slate-500 mb-3">
                         Cours actifs
                     </p>
@@ -346,13 +355,17 @@ $user = $_SESSION['academy_user'];
                     <p class="text-slate-500 text-[12px]">cours publiés sur Academy</p>
                     <div class="mt-4 h-px bg-gradient-to-r from-gold-900/40 to-transparent"></div>
                     <p class="text-[11px] text-slate-600 mt-3">
-                        📖 Contenu disponible
+                        Contenu disponible
                     </p>
                 </div>
 
                 <!-- ── Carte Revenus PDF -->
                 <div class="col-span-3 relative bg-gradient-to-br from-gold-900/30 to-ink-900 border border-gold-700/30 rounded-2xl p-6 card-gold-top animate-fade-up-d3 overflow-hidden">
-                    <div class="absolute top-4 right-5 text-3xl opacity-75  ">💰</div>
+                    <div class="absolute top-4 right-5 text-3xl opacity-75  ">
+                        <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 9h19a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9Zm1-6h15v4H2V4a1 1 0 0 1 1-1Zm12 11v2h3v-2h-3Z"></path>
+                        </svg>
+                    </div>
                     <p class="text-[10px] font-bold tracking-[.14em] uppercase text-gold-800 mb-3">
                         Revenus PDF
                     </p>
@@ -362,7 +375,7 @@ $user = $_SESSION['academy_user'];
                     <p class="text-gold-800 text-[12px] font-semibold">FCFA générés</p>
                     <div class="mt-4 h-px bg-gradient-to-r from-gold-700/30 to-transparent"></div>
                     <p class="text-[11px] text-gold-900 mt-3">
-                        🏆 Via les guides PDF payants
+                        Via les guides PDF payants
                     </p>
                 </div>
 
@@ -382,7 +395,9 @@ $user = $_SESSION['academy_user'];
                     <?php if ($dernierEmail): ?>
                         <div class="flex items-center gap-6">
                             <div class="w-14 h-14 rounded-xl bg-gold-900/30 border border-gold-900/40 flex items-center justify-center text-2xl shrink-0">
-                                📧
+                                <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm9.06 8.683L5.648 6.238 4.353 7.762l7.72 6.555 7.581-6.56-1.308-1.513-6.285 5.439h-.001Z"></path>
+                                </svg>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="font-bold text-slate-100 text-base leading-tight truncate">
@@ -396,7 +411,7 @@ $user = $_SESSION['academy_user'];
                                         <?= number_format($dernierEmail['nb_recus']) ?> destinataires
                                     </span>
                                     <span class="text-[11px] text-slate-500">
-                                        ✉️ <?= $emailsSemaine ?> emails envoyés cette semaine
+                                        <?= $emailsSemaine ?> emails envoyés cette semaine
                                     </span>
                                 </div>
                             </div>
@@ -409,7 +424,6 @@ $user = $_SESSION['academy_user'];
                         </div>
                     <?php else: ?>
                         <div class="flex items-center gap-4 text-slate-600">
-                            <span class="text-2xl">📭</span>
                             <p class="text-[13px]">Aucun email Academy envoyé pour le moment.</p>
                         </div>
                     <?php endif; ?>
@@ -423,22 +437,40 @@ $user = $_SESSION['academy_user'];
                     <div class="grid grid-cols-2 gap-2">
                         <a href="/academy-admin/courses.php?action=add"
                             class="flex flex-col items-center gap-2 bg-white/5 hover:bg-gold-900/20 border border-white/5 hover:border-gold-900/30 rounded-xl p-3 text-center transition-all group">
-                            <span class="text-xl group-hover:scale-110 transition-transform">➕</span>
+                            <span class="text-xl group-hover:scale-110 transition-transform">
+                                <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10Zm-1-11H7v2h4v4h2v-4h4v-2h-4V7h-2v4Z"></path>
+                                </svg>
+                            </span>
                             <span class="text-[11px] font-semibold text-slate-400 group-hover:text-gold-500 leading-tight">Ajouter cours</span>
                         </a>
                         <a href="/academy-admin/lessons.php?action=add"
                             class="flex flex-col items-center gap-2 bg-white/5 hover:bg-gold-900/20 border border-white/5 hover:border-gold-900/30 rounded-xl p-3 text-center transition-all group">
-                            <span class="text-xl group-hover:scale-110 transition-transform">📝</span>
+                            <span class="text-xl group-hover:scale-110 transition-transform">
+                                <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m12.9 6.86 4.242 4.243-9.9 9.899H3v-4.243l9.9-9.9v.001Zm1.414-1.414 2.121-2.122a1 1 0 0 1 1.414 0l2.829 2.829a1 1 0 0 1 0 1.414l-2.122 2.121-4.242-4.242Z"></path>
+                                </svg>
+                            </span>
                             <span class="text-[11px] font-semibold text-slate-400 group-hover:text-gold-500 leading-tight">Ajouter leçon</span>
                         </a>
                         <a href="/academy-admin/pdfs.php?action=add"
                             class="flex flex-col items-center gap-2 bg-white/5 hover:bg-gold-900/20 border border-white/5 hover:border-gold-900/30 rounded-xl p-3 text-center transition-all group">
-                            <span class="text-xl group-hover:scale-110 transition-transform">📄</span>
+                            <span class="text-xl group-hover:scale-110 transition-transform">
+                                <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M5.6 12.8h-.8v-1.6h.8a.8.8 0 0 1 0 1.6Z"></path>
+  <path d="M11.2 16v-4.8h.8a.8.8 0 0 1 .8.8v3.2a.8.8 0 0 1-.8.8h-.8Z"></path>
+  <path fill-rule="evenodd" d="M1.6 2.4A2.4 2.4 0 0 1 4 0h13.131L22.4 5.269V21.6A2.4 2.4 0 0 1 20 24H4a2.4 2.4 0 0 1-2.4-2.4V2.4Zm4 7.2H3.2v8h1.6v-3.2h.8a2.4 2.4 0 1 0 0-4.8Zm6.4 0H9.6v8H12a2.4 2.4 0 0 0 2.4-2.4V12A2.4 2.4 0 0 0 12 9.6Zm4 8v-8h4.8v1.6h-3.2v1.6h1.6v1.6h-1.6v3.2H16Z" clip-rule="evenodd"></path>
+</svg>
+                            </span>
                             <span class="text-[11px] font-semibold text-slate-400 group-hover:text-gold-500 leading-tight">Ajouter PDF</span>
                         </a>
                         <a href="/academy-admin/stats.php"
                             class="flex flex-col items-center gap-2 bg-white/5 hover:bg-gold-900/20 border border-white/5 hover:border-gold-900/30 rounded-xl p-3 text-center transition-all group">
-                            <span class="text-xl group-hover:scale-110 transition-transform">📈</span>
+                            <span class="text-xl group-hover:scale-110 transition-transform">
+                                <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M.05 0h1.5v22.45H24v1.5H.05V0Zm23.76 4.436-8 11.2a.75.75 0 0 1-1.21.014l-4.164-5.552-5.812 8.718-1.248-.832 6.4-9.6A.75.75 0 0 1 11 8.35l4.185 5.58L22.59 3.564l1.22.872Z" clip-rule="evenodd"></path>
+                                </svg>
+                            </span>
                             <span class="text-[11px] font-semibold text-slate-400 group-hover:text-gold-500 leading-tight">Statistiques</span>
                         </a>
                     </div>
@@ -452,7 +484,7 @@ $user = $_SESSION['academy_user'];
                 <!-- ── Top cours -->
                 <div class="col-span-7 bg-ink-900 border border-gold-900/25 rounded-2xl overflow-hidden animate-fade-up">
                     <div class="px-6 py-4 border-b border-gold-900/20 flex items-center justify-between">
-                        <p class="font-bold text-slate-100 text-sm">🏆 Cours les plus suivis</p>
+                        <p class="font-bold text-slate-100 text-sm">Cours les plus suivis</p>
                         <a href="/academy-admin/stats.php"
                             class="text-[11px] text-gold-700 hover:text-gold-500 font-semibold transition-colors">
                             Tout voir →
@@ -497,7 +529,7 @@ $user = $_SESSION['academy_user'];
                 <!-- ── Achats PDF récents -->
                 <div class="col-span-5 bg-ink-900 border border-gold-900/25 rounded-2xl overflow-hidden animate-fade-up-d1">
                     <div class="px-6 py-4 border-b border-gold-900/20 flex items-center justify-between">
-                        <p class="font-bold text-slate-100 text-sm">💰 Achats PDF récents</p>
+                        <p class="font-bold text-slate-100 text-sm">Achats PDF récents</p>
                         <a href="/academy-admin/pdfs.php"
                             class="text-[11px] text-gold-700 hover:text-gold-500 font-semibold transition-colors">
                             Gérer →

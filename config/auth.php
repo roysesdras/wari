@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wari - Accès Privé</title>
+    <title>Wari - Finance | Accès Privé</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="../assets/styles.css?v=60">
+    <link rel="stylesheet" href="../assets/styles.css?v=63">
     <link rel="manifest" href="../manifest.json">
     <meta name="theme-color" content="#0B141A;">
 
@@ -79,7 +79,7 @@
 
         <?php if (isset($_GET['success'])): ?>
             <div class="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-sm font-bold text-center animate-bounce">
-                ✅ Votre accès est activé ! Connectez-vous.
+                Votre accès est activé ! Connectez-vous.
             </div>
         <?php endif; ?>
 
@@ -144,7 +144,7 @@
 
                 <div class="bg-amber-500/5 p-4 rounded-xl border border-amber-500/10">
                     <p class="text-[9px] text-amber-500/80 leading-relaxed uppercase tracking-tighter">
-                        📍 <strong>Où trouver le numéro ?</strong><br>
+                        <strong>Où trouver le numéro ?</strong><br>
                         • Sur votre reçu DigitalDownloads (Ref: 109...)<br>
                         • Dans le SMS Mobile Money reçu après achat.
                     </p>
@@ -276,7 +276,7 @@
         });
     </script>
 
-    <script src="../assets/main.js?v=60"></script>
+    <script src="../assets/main.js?v=63"></script>
 </body>
 
 </html>

@@ -1,25 +1,27 @@
 <?php
-session_start();
-require 'session_config.php';
+// 1. Toujours le monitoring et la config session en premier
+require_once __DIR__ . '/../wari_monitoring.php'; 
+require 'session_config.php'; // Gère le session_start() et les 90 jours
+
+// 2. Pas besoin de session_start() ici si session_config le fait déjà
 require 'db.php';
 require 'no_cache.php';
-require 'session_check.php'; // ← ajout // Ton fichier de connexion PDO
-require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 
-if (!isset($_SESSION['user_id'])) {
-    exit(json_encode(['success' => false, 'message' => 'Non connecté']));
-}
+// 3. Le check de session (qui renverra le 403 propre si déconnecté)
+require 'session_check.php'; 
 
+// À partir d'ici, on est SÛR que l'utilisateur est connecté grâce à session_check
 $userId = $_SESSION['user_id'];
+
+// 4. Récupération des données JSON
 $data = json_decode(file_get_contents('php://input'), true);
 
-if (isset($data['endpoint'])) {
-    // On extrait les clés de l'objet de souscription
+if ($data && isset($data['endpoint'])) {
     $endpoint = $data['endpoint'];
-    $p256dh = $data['keys']['p256dh'];
-    $auth = $data['keys']['auth'];
+    $p256dh   = $data['keys']['p256dh'] ?? '';
+    $auth     = $data['keys']['auth'] ?? '';
 
-    // On vérifie si cet abonnement existe déjà pour éviter les doublons
+    // Vérification des doublons
     $check = $pdo->prepare("SELECT id FROM wari_subscriptions WHERE user_id = ? AND endpoint = ?");
     $check->execute([$userId, $endpoint]);
 
@@ -30,5 +32,6 @@ if (isset($data['endpoint'])) {
 
     echo json_encode(['success' => true]);
 } else {
+    http_response_code(400); // Bad Request
     echo json_encode(['success' => false, 'message' => 'Données invalides']);
 }
