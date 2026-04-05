@@ -40,7 +40,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=63">
+    <link rel="stylesheet" href="./assets/styles.css?v=65">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0B141A;">
@@ -110,16 +110,22 @@ if (!isset($_SESSION['user_id'])) {
         </section>
 
         <div class="grid grid-cols-2 gap-3 mb-4">
-            <div class="glass-card p-4">
-                <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">Banque</p>
-                <p id="bankAmount" class="text-lg font-black text-white">0 F</p>
-                <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Épargne + Capital Projet</p>
+            <!-- BANQUE : Effet Blur pour se concentrer sur l'actif de croissance -->
+            <div class="glass-card p-4 cursor-pointer active:scale-95 transition-all group" 
+                 onclick="const el = this.querySelector('#bankAmount'); el.classList.toggle('blur-[6px]'); el.classList.toggle('opacity-30'); el.classList.toggle('opacity-100');">
+                <div class="flex justify-between items-start mb-1">
+                    <p class="text-[8px] uppercase tracking-widest text-slate-500 font-black">Banque (Réserves)</p>
+                    <span class="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">👁️</span>
+                </div>
+                <p id="bankAmount" class="text-lg font-black text-white blur-[6px] opacity-30 transition-all duration-500 select-none">0 F</p>
+                <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Liberté de Sécurité</p>
             </div>
 
+            <!-- POCHE : Reste en clair pour les dépenses quotidiennes -->
             <div class="glass-card p-4">
-                <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1">Poche</p>
+                <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1 font-black">Poche (Dispo)</p>
                 <p id="cashAmount" class="text-lg font-black text-emerald-400">0 F</p>
-                <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Train de vie + Imprévus</p>
+                <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight text-left">Dispo (Vie + Imprévus)</p>
             </div>
         </div>
 
@@ -166,7 +172,7 @@ if (!isset($_SESSION['user_id'])) {
             <div class="flex items-start justify-between mb-6 relative z-10">
                 <div>
                     <div class="flex items-center gap-2 mb-1">
-                        <h3 class="text-[11px] uppercase tracking-[0.1em] text-emerald-400 font-black">Graine de Richesse</h3>
+                        <h3 class="text-[11px] uppercase tracking-[0.1em] text-emerald-400 font-black">Liberté d'Action</h3>
                     </div>
                     <p class="text-[11px] text-slate-500 font-medium">Plantée à chaque répartition</p>
                 </div>
@@ -174,6 +180,11 @@ if (!isset($_SESSION['user_id'])) {
                     <div class="flex items-baseline justify-end gap-1">
                         <span id="totalProjectSaved" class="text-3xl font-black text-white tracking-tighter drop-shadow-sm">0</span>
                         <!-- <span id="capitalCurrency" class="text-xs font-bold text-emerald-500/80 uppercase">F</span> -->
+                    </div>
+                    <!-- Miniature Patrimoine (Fortune Totale) -->
+                    <div class="flex items-center justify-end gap-1 mt-1 opacity-90 transition-all duration-500">
+                        <span class="text-[8px] uppercase tracking-[0.2em] text-slate-500 font-black">Liberté :</span>
+                        <span id="totalGlobalAmount" class="text-[10px] font-black text-emerald-400">0</span>
                     </div>
                 </div>
             </div>
@@ -567,7 +578,7 @@ if (!isset($_SESSION['user_id'])) {
                     second: "2-digit"
                 });
 
-                el.innerText = `${day} — ${time}`;
+                el.innerText = `${day} | ${time}`;
             }
 
             tick(); // Affichage immédiat
@@ -705,7 +716,7 @@ if (!isset($_SESSION['user_id'])) {
         }
     </script>
 
-    <script src="./assets/main.js?v=63"></script>
+    <script src="./assets/main.js?v=65"></script>
 </body>
 
 </html>

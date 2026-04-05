@@ -218,27 +218,29 @@ function render() {
       typeof currentExpenses !== "undefined" && currentExpenses[c.id]
         ? parseInt(currentExpenses[c.id])
         : 0;
+    
     const isProjet = c.name.toLowerCase().includes("projet");
+    const isEpargne = c.name.toLowerCase().includes("épargne") || c.id === 1;
+    
     const soldeReel = isProjet
       ? Math.max(0, projectCapital)
       : Math.max(0, c.amount - spent);
-    const n = c.name.toLowerCase();
 
     totalAlloue += isProjet ? projectCapital : c.amount;
     totalDepense += spent;
 
-    if (
-      c.id === 1 ||
-      c.id === 3 ||
-      n.includes("épargne") ||
-      n.includes("projet")
-    ) {
+    // LOGIQUE DE RÉPARTITION DANS LES CARTES DU HAUT
+    if (isEpargne) {
+      // 1. BANQUE (Réserves) : Uniquement l'Épargne Pure (Floutée)
       bank += soldeReel;
       bankSpent += spent;
-    } else {
+    } else if (!isProjet) {
+      // 2. POCHE (Dispo) : Tout le reste (Train de vie, Imprévus...) SAUF le Projet
       cash += soldeReel;
       cashSpent += spent;
     }
+    // Note : Le projet n'est ajouté ni à 'bank' ni à 'cash' ici,
+    // car il est géré exclusivement par updateVaultDisplay
   });
 
   const bankEl = document.getElementById("bankAmount");
@@ -353,18 +355,26 @@ function updateVaultDisplay(totalSaved = 0) {
   const currency = document.getElementById("currencySelector")?.value || "F";
 
   if (projectEl) {
-    // 1. CALCUL DE LA PUISSANCE FINANCIÈRE (Somme des deux comptes)
-    // On s'assure que les valeurs sont bien des nombres
-    const totalGlobal = (parseFloat(projectCapital) || 0) + (parseFloat(totalSaved) || 0);
+    // 1. CALCUL DES SOMMES
+    const totalProject = parseFloat(projectCapital) || 0;
+    const totalGlobal = totalProject + (parseFloat(totalSaved) || 0);
 
-    // Animation de couleur lors du changement
+    // Animation de couleur lors du changement (basée sur le Capital Projet)
     const currentDisplayed = parseInt(projectEl.innerText.replace(/[^0-9]/g, "")) || 0;
-    projectEl.innerText = `${totalGlobal.toLocaleString()} ${currency}`;
+    
+    // Affichage principal : SOMME PROJET UNIQUEMENT
+    projectEl.innerText = `${totalProject.toLocaleString()} ${currency}`;
 
-    if (totalGlobal > currentDisplayed) {
+    // Affichage miniature : PATRIMOINE (Somme Totale)
+    const globalEl = document.getElementById("totalGlobalAmount");
+    if (globalEl) {
+        globalEl.innerText = `${totalGlobal.toLocaleString()} ${currency}`;
+    }
+
+    if (totalProject > currentDisplayed) {
       projectEl.classList.add("text-emerald-400", "scale-105");
       setTimeout(() => projectEl.classList.remove("scale-105"), 300);
-    } else if (totalGlobal < currentDisplayed) {
+    } else if (totalProject < currentDisplayed) {
       projectEl.classList.add("text-red-400");
     }
 
