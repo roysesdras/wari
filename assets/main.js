@@ -131,8 +131,11 @@ function render() {
     const montantAjoute = Math.round(
       amountToDistribute * (currentPercent / 100),
     );
+    
+    // Pour le Projet, on ne soustrait plus spent ici car projectCapital est déjà NET
+    // Mais on ajoute le montantAjoute pour que le Coffre réagisse en temps réel
     const totalPrevisionnel = isProjet
-      ? parseFloat(projectCapital) || 0
+      ? (parseFloat(projectCapital) || 0) + spent + montantAjoute
       : currentBalance + montantAjoute;
 
     const remaining = Math.max(0, totalPrevisionnel - spent);
@@ -142,45 +145,48 @@ function render() {
         : 0;
 
     const card = document.createElement("div");
-    card.className = `glass-card p-3 flex flex-col transition-all duration-300`;
+    card.className = `glass-card p-2.5 flex flex-col transition-all duration-300`;
 
     card.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
-            <div class="h-10 w-10 flex items-center justify-center bg-white/5 rounded-xl border border-white/5 shadow-inner">
-              ${cat.icon}
+        <div class="flex items-center justify-between mb-3">
+            <div class="h-8 w-8 flex items-center justify-center bg-white/5 rounded-xl border border-white/5 shadow-inner">
+              ${cat.icon.replace('width="24" height="24"', 'width="18" height="18"')}
             </div>
-            <div class="flex items-center justify-center bg-slate-900/80 py-1 rounded-lg border border-white/5 gap-[2px]">
+            <div class="flex items-center justify-center bg-slate-900/80 px-2 py-0.5 rounded-lg border border-white/5 gap-[2px]">
               <input type="number" value="${currentPercent}" 
                   ${isEditMode ? "" : "disabled"}
                   oninput="updatePercent(${cat.id}, this.value)"
-                  /* w-auto et text-right supprimés pour favoriser le centrage global */
-                  class="w-[22px] bg-transparent text-[11px] font-black outline-none text-right p-0 m-0 ${isEditMode ? "text-amber-400" : "text-slate-400"} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-              
-              <span class="text-[11px] font-bold text-slate-600 p-0 m-0">%</span>
+                  class="w-[20px] bg-transparent text-[10px] font-black outline-none text-right p-0 m-0 ${isEditMode ? "text-amber-400" : "text-slate-400"}">
+              <span class="text-[10px] font-bold text-slate-600">%</span>
           </div>
         </div>
 
-        <h4 class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-1">
-            ${cat.name}
-        </h4>
+        <div class="mb-2">
+            <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-0.5">
+                ${cat.name}
+            </h4>
+            <div class="text-[8px] font-bold text-slate-600 flex items-center gap-1 mb-1">
+                <span class="opacity-70 uppercase tracking-tighter">Cumul/mois:</span>
+                <span class="font-black text-slate-500">${totalPrevisionnel.toLocaleString()} ${currency}</span>
+            </div>
 
-        <div class="mb-4">
-            <div class="flex items-end justify-between">
-                <div class="text-xl font-black text-white leading-none">
-                    ${totalPrevisionnel.toLocaleString()}
-                    <span class="text-[11px] text-slate-600 font-normal uppercase">${currency}</span>
+            <div class="flex items-end justify-between py-0.5">
+                <div class="text-2xl font-black text-white leading-none ${remaining <= 0 ? 'text-red-500 animate-pulse' : ''}">
+                    ${remaining.toLocaleString()}
+                    <span class="text-[10px] text-slate-600 font-normal uppercase">${currency}</span>
                 </div>
                 
-                <div class="text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                ${montantAjoute > 0 ? `
+                <div class="text-[9px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-full border border-emerald-500/20">
                     +${montantAjoute.toLocaleString()}
                 </div>
+                ` : ''}
             </div>
         </div>
 
-        <div class="mt-auto pt-2">
-            <div class="flex justify-between items-center mb-1.5">
-                <span class="text-[9px] text-slate-500 uppercase font-bold">Reste: ${remaining.toLocaleString()}</span>
-                <span class="text-[9px] font-black ${progress > 90 ? "text-red-500" : "text-slate-400"}">${Math.round(progress)}%</span>
+        <div class="mt-auto pt-1">
+            <div class="flex justify-end items-center mb-1">
+                <span class="text-[8px] font-black ${progress > 90 ? "text-red-500" : "text-slate-500"}">${Math.round(progress)}% utilisé</span>
             </div>
             <div class="w-full h-1 bg-slate-950/60 rounded-full overflow-hidden">
                 <div class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-700" 
@@ -268,8 +274,16 @@ function render() {
     return acc;
   }, 0);
 
-  // PUISSANCE RÉELLE = Ce qu'il y a dans la DB + l'épargne des cartes
-  const puissanceFinanciereTotale = (parseFloat(projectCapital) || 0) + totalEpargneCartes;
+  // PUISSANCE RÉELLE = Capital Projet + Soldes restants de TOUTES les catégories (y compris Train de Vie)
+  // Cela représente tout l'argent disponible pour finir le mois.
+  const puissanceFinanciereTotale = results.reduce((acc, c) => {
+      const isProjet = c.name.toLowerCase().includes("projet");
+      const spent = typeof currentExpenses !== "undefined" ? (currentExpenses[c.id] || 0) : 0;
+      const budgetDisponible = isProjet 
+        ? (parseFloat(projectCapital) || 0) 
+        : (c.amount - spent);
+      return acc + Math.max(0, budgetDisponible);
+  }, 0);
 
 
   // ── Jauge de santé ────────────────────────────────────────────────────
@@ -278,9 +292,9 @@ function render() {
   const gaugeAlert = document.getElementById("gaugeAlert");
 
   if (gaugeBar && puissanceFinanciereTotale > 0) {
-    // On calcule l'intégrité du patrimoine face aux dépenses du mois
+    // On calcule l'intégrité du patrimoine face aux dépenses totales
     const pctIntact = Math.round(
-      ((puissanceFinanciereTotale - totalDepense) / puissanceFinanciereTotale) * 100
+      (puissanceFinanciereTotale / (puissanceFinanciereTotale + totalDepense)) * 100
     );
 
     const pctDepense = 100 - pctIntact;
@@ -321,14 +335,11 @@ function render() {
     gaugePercent.innerText = pctIntact + "% intact";
   }
 
-  // APPEL DU COFFRE AVEC LA SOMME CALCULÉE
-  updateVaultDisplay(totalEpargneCartes);
-
-  // ── CALCUL DE L'ÉPARGNE POUR LE COFFRE ───────────────────────────────
-  // On calcule la somme des balances de toutes les catégories "Épargne"
+  // ── CALCUL DES SOMMES POUR LE COFFRE ───────────────────────────────
+  
+  // 1. Épargne simple (cartes)
   const totalEpargneSeule = results.reduce((acc, cat) => {
     const name = cat.name.toLowerCase();
-    // On ne prend que les catégories qui contiennent "épargne" et PAS "projet"
     if (name.includes("épargne") && !name.includes("projet")) {
       const spent = typeof currentExpenses !== "undefined" ? (currentExpenses[cat.id] || 0) : 0;
       return acc + (cat.amount - spent);
@@ -336,8 +347,19 @@ function render() {
     return acc;
   }, 0);
 
-  // On appelle le coffre en lui passant cette valeur
-  updateVaultDisplay(totalEpargneSeule); 
+  // 2. Projet dynamique (Capital + répartition en cours)
+  const totalProjetDynamique = results.reduce((acc, cat) => {
+    if (cat.name.toLowerCase().includes("projet")) {
+      const spent = typeof currentExpenses !== "undefined" ? (currentExpenses[cat.id] || 0) : 0;
+      // On recalcule le montant exact affiché sur la carte Projet
+      const montantAjoute = Math.round(total * (cat.percent / 100));
+      return acc + (parseFloat(projectCapital) || 0) + montantAjoute;
+    }
+    return acc;
+  }, 0);
+
+  // On appelle le coffre en lui passant ces valeurs
+  updateVaultDisplay(totalEpargneSeule, totalProjetDynamique); 
   
   updateStatus(currentTotalPercent);
   if (typeof generateFinancialReport === "function") generateFinancialReport();
@@ -346,7 +368,7 @@ function render() {
 
 // ─── COFFRE ────────────────────────────────────────────────────────────────
 
-function updateVaultDisplay(totalSaved = 0) {
+function updateVaultDisplay(totalSaved = 0, dynamicProject = null) {
   const projectEl = document.getElementById("totalProjectSaved");
   const progressBar = document.getElementById("vaultProgress");
   const goalAmountEl = document.getElementById("vaultGoalAmountDisplay");
@@ -356,7 +378,8 @@ function updateVaultDisplay(totalSaved = 0) {
 
   if (projectEl) {
     // 1. CALCUL DES SOMMES
-    const totalProject = parseFloat(projectCapital) || 0;
+    // Si dynamicProject est fourni, c'est le montant "Miroir" de la carte Projet
+    const totalProject = dynamicProject !== null ? dynamicProject : (parseFloat(projectCapital) || 0);
     const totalGlobal = totalProject + (parseFloat(totalSaved) || 0);
 
     // Animation de couleur lors du changement (basée sur le Capital Projet)
@@ -1073,19 +1096,44 @@ function generateFinancialReport() {
     return;
   }
 
+  // ── CALCUL DU CONTEXTE TEMPOREL ─────────────────────────────────────
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const day = now.getDate();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysLeft = daysInMonth - day + 1; // On compte aujourd'hui
+
+  // On récupère le cash disponible (Poche)
+  const cashAmountEl = document.getElementById("cashAmount");
+  const cashValue = parseInt(cashAmountEl?.innerText.replace(/[^0-9]/g, "")) || 0;
+  const budgetQuotidien = Math.round(cashValue / daysLeft);
+
+  // On récupère les dettes
+  const totalDettes = (typeof dbDebts !== "undefined" ? dbDebts : [])
+    .reduce((acc, d) => acc + (parseInt(d.amount) || 0), 0);
+
   // On prépare les données pour l'IA
   const summary = categories
     .map(
       (c) =>
-        `${c.name}: ${currentExpenses[c.id] || 0} / ${c.name.toLowerCase().includes("projet") ? projectCapital : c.balance || 0} ${currency}`,
+        `${c.name}: ${currentExpenses[c.id] || 0} dépensés / ${c.name.toLowerCase().includes("projet") ? projectCapital : c.balance || 0} prévus`,
     )
     .join(", ");
+
   const statusData = {
     score: finalScore,
     overspent: totalOverspent,
     summary: summary,
     currency: currency,
     has_sacrificed_saving: savingSacrificed,
+    temporal: {
+        current_day: day,
+        days_in_month: daysInMonth,
+        days_left: daysLeft
+    },
+    daily_budget: budgetQuotidien,
+    total_debts: totalDettes
   };
 
   fetchAiCoachAdvice(statusData);

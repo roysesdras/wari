@@ -40,7 +40,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=65">
+    <link rel="stylesheet" href="./assets/styles.css?v=68">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0B141A;">
@@ -253,7 +253,7 @@ if (!isset($_SESSION['user_id'])) {
                 <button onclick="openDebtModal()" class="text-[11px] bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30 font-bold hover:bg-red-500/40 transition-all">
                     + Ajouter
                 </button>
-            </div>
+            </div>  
 
             <div id="debtList" class="space-y-3">
                 <p class="text-slate-500 text-[11px] italic text-center">Aucune dette ou créance en cours.</p>
@@ -324,10 +324,18 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Section Bouttons -->
-        <div class="fixed bottom-4 left-0 right-0 max-w-md mx-auto flex justify-center z-[110]">
-            <!-- BOUTON SAUVEGARDE COURT -->
+        <div class="fixed bottom-4 left-0 right-0 max-w-md mx-auto flex justify-center items-center gap-2 z-[110]">
+    
+            <a href="https://wari.digiroys.com/academy/"target="_blank" 
+            class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-slate-300 active:scale-95 transition-all hover:text-indigo-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                    <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                </svg>
+            </a>
+
             <button onclick="saveBudget()"
-                class="px-6 py-3 bg-slate-900 rounded-full font-bold text-xs uppercase tracking-wider text-slate-300 active:scale-95 transition-all hover:border-blue-500 hover:text-blue-400 flex items-center gap-2">
+                class="px-6 py-3 bg-slate-900 rounded-full font-bold text-xs uppercase tracking-wider text-slate-300 active:scale-95 transition-all hover:text-blue-400 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
@@ -716,7 +724,7 @@ if (!isset($_SESSION['user_id'])) {
         }
     </script>
 
-    <script src="./assets/main.js?v=65"></script>
+    <script src="./assets/main.js?v=68"></script>
 </body>
 
 </html>

@@ -1,7 +1,7 @@
 {
   "name": "Wari Finance",
   "short_name": "Wari",
-  "description": "Gérez votre répartition budgétaire en CFA, EURO, DOLLAR intelligemment.",
+  "description": "Gérez votre répartition budgétaire intelligemment.",
   "start_url": "./index.php",
   "display": "standalone",
   "orientation": "portrait",

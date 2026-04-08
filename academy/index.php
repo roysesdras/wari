@@ -33,7 +33,7 @@ if ($user_id && !empty($coursesWithProgress)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wari Academy — Éducation Financière</title>
+    <title>Wari-Academy | Éducation Financière</title>
 
     <meta name="description" content="Maîtrisez votre destin financier avec Wari Academy. Formations exclusives, outils de gestion premium et coaching pour les bâtisseurs d'empire.">
     <meta name="keywords" content="éducation financière, gestion de budget, investissement, wari academy, rebonly, finance personnelle, coaching business">
@@ -134,8 +134,8 @@ if ($user_id && !empty($coursesWithProgress)) {
 
 <body class="antialiased selection:bg-wari-gold selection:text-black">
 
-    <nav class="sticky top-0 z-50 bg-[#0F0A02] border-b border-wari-gold/20 px-6 h-20 flex items-center justify-between">
-        <a href="https://wari.digiroys.com/accueil/" class="font-heading text-2xl font-black text-wari-gold tracking-tighter">
+    <nav class="sticky top-0 z-50 bg-[#0F0A02] border-b border-wari-gold/20 px-4 h-16 flex items-center justify-between">
+        <a href="https://wari.digiroys.com/academy/" class="font-heading text-2xl font-black text-wari-gold tracking-tighter">
             Wari<span class="text-white/80 font-light">Academy.</span>
         </a>
 
@@ -145,22 +145,22 @@ if ($user_id && !empty($coursesWithProgress)) {
         </div>
 
         <?php if ($user_id): ?>
-            <a href="#" class="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:bg-white/10 transition-all">
-                <span class="text-xs font-bold text-white/80">Profil</span>
+            <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-xl">
+                <!-- <span class="text-xs font-bold text-white/80">Profil</span> -->
                 <div class="w-8 h-8 bg-wari-gold rounded-lg flex items-center justify-center text-black font-bold text-xs"><?= substr($_SESSION['user_email'] ?? 'U', 0, 2) ?></div>
             </a>
         <?php else: ?>
-            <a href="https://wari.digiroys.com/register" class="bg-wari-gold text-black px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-wari-gold/20">
+            <a href="https://wari.digiroys.com/config/auth.php" class="bg-wari-gold text-black px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-wari-gold/20">
                 Rejoindre l'élite
             </a>
         <?php endif; ?>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="max-w-7xl mx-auto px-4 py-6">
 
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 mb-16">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
 
-            <div class="md:col-span-8 bento-card shimmer rounded-[3rem] p-10 md:p-16 flex flex-col justify-end min-h-[420px]">
+            <div class="md:col-span-8 bento-card shimmer rounded-[1.5rem] p-4 md:p-8 flex flex-col justify-end min-h-[220px]">
                 <div class="mb-8">
                     <span class="inline-flex items-center gap-2 bg-wari-gold/10 border border-wari-gold/30 text-wari-gold text-[10px] font-black uppercase tracking-[0.3em] px-5 py-2 rounded-full">
                         <span class="w-2 h-2 bg-wari-gold rounded-full animate-pulse"></span>
@@ -176,54 +176,68 @@ if ($user_id && !empty($coursesWithProgress)) {
             </div>
 
             <div class="md:col-span-4 grid grid-rows-3 gap-5">
-                <div class="bento-card rounded-[2.5rem] p-8 flex items-center justify-between">
+                <div class="bento-card rounded-[1.5rem] p-4 flex items-center justify-between">
                     <div>
                         <p class="text-[10px] font-black text-wari-gold uppercase mb-1">Cours</p>
                         <div class="text-4xl font-heading font-black"><?= $totalCours ?: '24' ?></div>
                     </div>
-                    <span class="text-4xl opacity-100">📚</span>
+                    <span class="text-4xl opacity-100">
+                        <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m18.364 2-4.546 4.09v10L18.364 12V2ZM7 4.727c-1.773 0-3.682.364-5 1.364v13.327a.49.49 0 0 0 .455.455c.09 0 .136-.064.227-.064 1.227-.59 3-.99 4.318-.99 1.773 0 3.682.363 5 1.363 1.227-.773 3.454-1.364 5-1.364 1.5 0 3.046.282 4.318.964.091.045.136.027.227.027a.489.489 0 0 0 .455-.454V6.09c-.546-.41-1.136-.682-1.818-.91v12.273C19.182 17.136 18.09 17 17 17c-1.546 0-3.773.59-5 1.364V6.09c-1.318-1-3.227-1.363-5-1.363Z"></path>
+                        </svg>
+                    </span>
                 </div>
-                <div class="bento-card rounded-[2.5rem] p-8 flex items-center justify-between bg-wari-gold !text-black">
+                <div class="bento-card rounded-[1.5rem] p-4 flex items-center justify-between bg-wari-gold !text-black">
                     <div>
                         <p class="text-[10px] font-black uppercase mb-1 text-wari-gold">Accès</p>
                         <div class="text-4xl font-heading font-black text-white">Libre</div>
                     </div>
-                    <span class="text-4xl opacity-100">🔓</span>
+                    <span class="text-4xl opacity-100">
+                        <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18.328 14.407c1.535-2.173 2.184-4.764 1.828-7.298-.634-4.5-4.81-7.647-9.31-7.012-4.5.635-7.648 4.806-7.015 9.306.355 2.526 1.693 4.836 3.767 6.504 1.262 1.014 2.7 1.692 4.034 1.937l-.392 2.12a.374.374 0 0 0 .422.44l1.416-.198c.745 1.682 1.952 2.835 3.675 3.516l.698.276.552-1.395-.698-.276c-1.235-.488-2.085-1.226-2.672-2.34l1.024-.144a.374.374 0 0 0 .284-.538l-.961-1.93c1.218-.603 2.414-1.649 3.348-2.968Zm-7.539.734c-1.934-.765-3.576-2.47-4.286-4.45l-.253-.707 1.411-.506.254.706c.68 1.896 2.215 3.083 3.426 3.563l.698.275-.552 1.395-.698-.276Z"></path>
+                        </svg>
+                    </span>
                 </div>
-                <div class="bento-card rounded-[2.5rem] p-8 flex items-center justify-between">
+                <div class="bento-card rounded-[1.5rem] p-4 flex items-center justify-between">
                     <div>
                         <p class="text-[10px] font-black text-wari-gold uppercase mb-1">Domaines</p>
                         <div class="text-4xl font-heading font-black"><?= $totalCategories ?: '06' ?></div>
                     </div>
-                    <span class="text-4xl opacity-100">💎</span>
+                    <span class="text-4xl opacity-100">
+                        <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.25 4.5H6.75a.75.75 0 0 1 0-1.5h10.5a.75.75 0 1 1 0 1.5Z"></path>
+                            <path d="M18.75 6.75H5.25a.75.75 0 0 1 0-1.5h13.5a.75.75 0 1 1 0 1.5Z"></path>
+                            <path d="M19.647 21H4.353a2.106 2.106 0 0 1-2.103-2.103V9.603A2.106 2.106 0 0 1 4.353 7.5h15.294a2.106 2.106 0 0 1 2.103 2.103v9.294A2.106 2.106 0 0 1 19.647 21Z"></path>
+                        </svg>
+                    </span>
                 </div>
             </div>
         </div>
 
         <?php if ($user_id): ?>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20">
-                <div class="bg-white/5 border border-white/10 p-6 rounded-[2rem] flex items-center gap-4">
+                <div class="bg-white/5 border border-white/10 p-4 rounded-[1.5rem] flex items-center gap-4">
                     <div class="text-2xl">📖</div>
                     <div>
                         <div class="text-xl font-bold"><?= count($coursesWithProgress) ?></div>
                         <div class="text-[9px] text-white/30 uppercase font-bold tracking-widest">Disponibles</div>
                     </div>
                 </div>
-                <div class="bg-white/5 border border-white/10 p-6 rounded-[2rem] flex items-center gap-4">
+                <div class="bg-white/5 border border-white/10 p-4 rounded-[1.5rem] flex items-center gap-4">
                     <div class="text-2xl text-blue-400">▶️</div>
                     <div>
                         <div class="text-xl font-bold"><?= $coursEnCours ?></div>
                         <div class="text-[9px] text-white/30 uppercase font-bold tracking-widest">En cours</div>
                     </div>
                 </div>
-                <div class="bg-white/5 border border-white/10 p-6 rounded-[2rem] flex items-center gap-4">
+                <div class="bg-white/5 border border-white/10 p-4 rounded-[1.5rem] flex items-center gap-4">
                     <div class="text-2xl text-green-400">🏆</div>
                     <div>
                         <div class="text-xl font-bold"><?= $coursTermines ?></div>
                         <div class="text-[9px] text-white/30 uppercase font-bold tracking-widest">Terminés</div>
                     </div>
                 </div>
-                <div class="bg-wari-gold/10 border border-wari-gold/20 p-6 rounded-[2rem] flex items-center gap-4">
+                <div class="bg-white/5 p-4 border border-white/10 rounded-[1.5rem] flex items-center gap-4">
                     <div class="text-2xl">⚡</div>
                     <div>
                         <div class="text-xl font-bold text-wari-gold">Pro</div>
@@ -240,7 +254,7 @@ if ($user_id && !empty($coursesWithProgress)) {
 
         <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-20">
             <?php foreach ($categories as $cat): ?>
-                <a href="/academy/categorie.php?slug=<?= $cat['slug'] ?>" class="bento-card rounded-3xl p-4 text-center group">
+                <a href="/academy/categorie.php?slug=<?= $cat['slug'] ?>" class="bento-card rounded-2xl p-4 text-center group">
                     <div class="text-3xl mb-3 group-hover:scale-125 transition-transform"><?= $cat['icone'] ?></div>
                     <div class="text-[10px] font-black uppercase text-white/80"><?= $cat['titre'] ?></div>
                     <div class="text-[9px] text-wari-gold/50 mt-1"><span class="text-wari-gold font-bold"><?= $cat['nb_cours'] ?></span> COURS</div>
@@ -255,7 +269,7 @@ if ($user_id && !empty($coursesWithProgress)) {
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <?php foreach ($coursesWithProgress as $course): ?>
-                <a href="/academy/course.php?slug=<?= $course['slug'] ?>" class="bento-card rounded-[2.5rem] overflow-hidden group flex flex-col">
+                <a href="/academy/course.php?slug=<?= $course['slug'] ?>" class="bento-card rounded-[1.5rem] overflow-hidden group flex flex-col">
                     <div class="h-3 bg-wari-gold shadow-[0_0_20px_rgba(201,168,76,0.3)]"></div>
                     <div class="p-6 flex-1">
                         <div class="flex justify-between items-start mb-6">
@@ -294,7 +308,7 @@ if ($user_id && !empty($coursesWithProgress)) {
 
     </div>
 
-    <footer class="mt-32 py-10 border-t border-white/5 bg-black/50 text-center">
+    <footer class="mt-5 py-10 border-t border-white/5 bg-black/50 text-center">
         <div class="font-heading text-xl font-black text-wari-gold mb-4 tracking-tighter">Wari Academy.</div>
         <p class="text-[10px] font-bold text-white/40 uppercase tracking-[0.4em] mb-8 italic">Le savoir est la seule monnaie qui ne se dévalue jamais.</p>
         <div class="text-[9px] text-white/20">&copy; <?= date('Y') ?> WARI FINANCE — TOUS DROITS RÉSERVÉS.</div>

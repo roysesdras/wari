@@ -85,17 +85,28 @@ try {
     case 'get_coach_advice':
         $financialData = $_POST['data'] ?? ''; 
         
-        $prompt = "Analyse ces données financières Wari : $financialData. 
-        Tu dois impérativement retourner un objet JSON avec EXACTEMENT ces clés :
-        - 'message' : Ton conseil Wari habituel (2 phrases max, ton direct, motivant et imagé).
-        - 'prediction' : Une analyse de la fin de mois (ex: 'À ce rythme, ton cash finit le 22').
-        - 'dette_conseil' : Si des dettes existent, dis laquelle rembourser en priorité.
-        - 'academy_reco' : Le titre d'un sujet de cours utile (ex: 'Maîtriser son épargne').
-        - 'alerte_rouge' : Un message de 5 mots max si une catégorie est critique (sinon vide).";
+        $prompt = "Analyse ces données financières Wari et réponds EXCLUSIVEMENT au format JSON.
+        
+        DONNÉES : $financialData. 
+        
+        CONSIGNES POUR TON ANALYSE :
+        1. PRÉDICTION : Calcule la trajectoire en utilisant 'temporal.days_left' et 'daily_budget'. Estime une date de fin de cash (ex: le 25 du mois) ou confirme que tout va bien.
+        2. BUDGET : Rappelle le 'daily_budget' comme une règle d'or pour le reste du mois.
+        3. DETTES : Si 'total_debts' > 0, donne un conseil prioritaire de remboursement.
+        4. ACADEMY : Recommande un cours parmi : 'L\'art de l\'épargne forcée', 'Gérer son fonds de roulement', 'Négocier ses dettes' ou 'Investir en soi'.
+        
+        STRUCTURE JSON À RETOURNER :
+        {
+          \"message\": \"Ton conseil de Grand Frère expert (direct, motivant, max 2 phrases).\",
+          \"prediction\": \"Ta prédiction de date + budget quotidien (ex: 'Fin de cash estimée le 28. Règle d'or : 5 000 F / jour max').\",
+          \"dette_conseil\": \"Conseil dettes (si applicable, sinon vide).\",
+          \"academy_reco\": \"Titre du cours recommandé.\",
+          \"alerte_rouge\": \"Message Choc de 5 mots (si critique, sinon vide).\"
+        }";
 
-        $system = "Tu es le Coach Wari, expert en souveraineté financière en Afrique. 
-        Tu es le 'Grand Frère' qui aide à construire l'avenir brique par brique. 
-        Tu es rigoureux sur la discipline mais toujours encourageant. Appelle l'utilisateur 'Champion·ne'.";
+        $system = "Tu es le Coach Wari, le Grand Frère de la souveraineté financière en Afrique. 
+        Tu es un expert rigoureux sur les chiffres mais profondément motivant. 
+        Ton ton doit être direct, utilisant des images fortes du quotidien. Appelle l'utilisateur 'Champion·ne'.";
 
         echo $ai->generate($prompt, $system);
         break;

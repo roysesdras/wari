@@ -4,32 +4,32 @@
       "content": {
         "parts": [
           {
-            "text": "{\n  \"contenu\": \"\u003ch2\u003eIntroduction : Actifs et Passifs, les Piliers de Votre Wari!\u003c/h2\u003e\\n\u003cp\u003eBienvenue dans cette leçon cruciale de Wari Academy ! Aujourd'hui, nous allons démystifier deux concepts fondamentaux : les actifs et les passifs. Comprendre la différence entre les deux est essentiel pour construire un avenir financier solide et développer votre Wari. Imaginez votre situation financière comme une entreprise : vous devez savoir ce qui fait entrer de l'argent et ce qui en fait sortir.\u003c/p\u003e\\n\\n\u003ch2\u003eQu'est-ce qu'un Actif ?\u003c/h2\u003e\\n\u003cp\u003eUn actif, c'est tout ce qui met de l'argent dans votre poche. Pensez-y comme une poule aux œufs d'or. Il peut s'agir de biens matériels, d'investissements ou même de compétences que vous utilisez pour générer des revenus. Voici quelques exemples concrets :\u003c/p\u003e\\n\u003cul\u003e\\n  \u003cli\u003e\u003cstrong\u003eVotre salaire :\u003c/strong\u003e L'argent que vous recevez en échange de votre travail.\u003c/li\u003e\\n  \u003cli\u003e\u003cstrong\u003eUn logement locatif :\u003c/strong\u003e Si vous possédez un appartement que vous louez, les loyers perçus sont des revenus.\u003c/li\u003e\\n  \u003cli\u003e\u003cstrong\u003eDes actions en bourse :\u003c/strong\u003e Si les actions prennent de la valeur ou versent des dividendes, c'est un actif.\u003c/li\u003e\\n  \u003cli\u003e\u003cstrong\u003eVotre petite boutique :\u003c/strong\u003e Si elle génère des profits après avoir payé toutes les dépenses, c'est un actif.\u003c/li\u003e\\n  \u003cli\u003e\u003cstrong\u003eVos compétences :\u003c/strong\u003e Un talent particulier (ex: coiffure, couture) monétisé est un actif.\u003c/li\u003e\\n\u003c/ul\u003e\\n\\n\u003ch2\u003eQu'est-ce qu'un Passif ?\u003c/h2\u003e\\n\u003cp\u003eUn passif, c'est tout ce qui sort de l'argent de votre poche. C'est une dépense, une dette ou une obligation financière. Voici quelques exemples courants :\u003c/p\u003e\\n\u003cul\u003e\\n  \u003cli\u003e\u003cstrong\u003eUn prêt bancaire :\u003c/strong\u003e Vous devez rembourser le capital et payer des intérêts.\u003c/li\u003e\\n  \u003cli\u003e\u003cstrong\u003eUne carte de crédit :\u003c/strong\u003e Les intérêts sur le solde impayé sont une dépense.\u003c/li\u003e\\n  \u003cli\u003e\u003cstrong\u003eUn logement que vous occupez :\u003c/strong\u003e Vous devez payer le loyer ou les mensualités de l'emprunt, ainsi que les charges (eau, électricité...).\u003c/li\u003e\\n  \u003cli\u003e\u003cstrong\u003eUne voiture :\u003c/strong\u003e Elle engendre des dépenses (carburant, assurance, entretien).\u003c/li\u003e\\n\u003c/ul\u003e\\n\\n\u003cdiv class='bg-slate-800 border-l-4 border-gold-500 p-4 my-4'\u003e\u003cdiv class='text-gold-500 font-bold mb-1'\u003e💡 CONSEIL WARI\u003c/div\u003eNe vous laissez pas tromper par l'apparence ! Une voiture peut sembler un actif, mais si elle ne vous rapporte pas d'argent (par exemple, en faisant du transport rémunéré), c'est un passif. Concentrez-vous sur l'acquisition d'actifs qui génèrent des revenus passifs, même modestes, au début.\u003c/div\u003e\\n\\n\u003ch2\u003eL'Importance du Bilan : Actifs - Passifs = Votre Wari!\u003c/h2\u003e\\n\u003cp\u003eLa différence entre vos actifs et vos passifs constitue votre valeur nette, votre Wari ! Un bilan positif signifie que vous avez plus d'actifs que de passifs, ce qui est un signe de bonne santé financière. Un bilan négatif indique que vous avez plus de dettes que de biens, ce qui peut être préoccupant.\u003c/p\u003e\\n\u003cp\u003e\u003cstrong\u003eExemple concret : Épargner pour un projet\u003c/strong\u003e\u003c/p\u003e\\n\u003cp\u003eFatou souhaite ouvrir un petit restaurant. Elle a besoin de 500 000 FCFA. Pour l'instant, elle a:\u003c/p\u003e\\n\u003cul\u003e\\n  \u003cli\u003eActifs : 100 000 FCFA d'économies\u003c/li\u003e\\n  \u003cli\u003ePassifs : Un petit prêt de 50 000 FCFA pour acheter une moto pour se déplacer.\u003c/li\u003e\\n\u003c/ul\u003e\\n\u003cp\u003eSon Wari (valeur nette) est donc de 100 000 - 50 000 = 50 000 FCFA. Elle doit donc augmenter ses actifs (ex: en épargnant plus, en trouvant un investisseur) ou diminuer ses passifs (ex: en remboursant le prêt) pour atteindre son objectif.\u003c/p\u003e\\n\\n\u003ch2\u003eConclusion : Devenez un Maître de Vos Actifs et Passifs\u003c/h2\u003e\\n\u003cp\u003eComprendre la différence entre les actifs et les passifs est la première étape pour prendre le contrôle de vos finances. Concentrez-vous sur l'acquisition d'actifs qui génèrent des revenus et limitez vos passifs. Suivez régulièrement votre bilan pour évaluer votre progrès et ajuster votre stratégie. Avec de la discipline et de la persévérance, vous pouvez développer votre Wari et atteindre vos objectifs financiers !\u003c/p\u003e\"\n}"
+            "text": "{\n  \"message\": \"Champion·ne, tu as dérapé comme un taxi sans freins ! Remets-toi sur les rails avant de finir à sec.\",\n  \"prediction\": \"Avec 573 F par jour, tu peux tenir tout le mois si tu te ressaisis. Serre la ceinture !\",\n  \"dette_conseil\": \"\",\n  \"academy_reco\": \"L'art de l'épargne forcée\",\n  \"alerte_rouge\": \"Stop ou Encore : Danger !\"\n}"
           }
         ],
         "role": "model"
       },
       "finishReason": "STOP",
-      "avgLogprobs": -0.16961585619172997
+      "avgLogprobs": -0.17481075189052483
     }
   ],
   "usageMetadata": {
-    "promptTokenCount": 246,
-    "candidatesTokenCount": 1086,
-    "totalTokenCount": 1332,
+    "promptTokenCount": 564,
+    "candidatesTokenCount": 117,
+    "totalTokenCount": 681,
     "promptTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 246
+        "tokenCount": 564
       }
     ],
     "candidatesTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 1086
+        "tokenCount": 117
       }
     ]
   },
   "modelVersion": "gemini-2.0-flash",
-  "responseId": "zVzSabyXMb_SxN8PuYzD0QQ"
+  "responseId": "S_7VaayLJeP6vdIPpoCEiAo"
 }
