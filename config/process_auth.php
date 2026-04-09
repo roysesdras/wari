@@ -42,20 +42,7 @@ function isIpBlocked($pdo, $ip)
     return $stmt->fetchColumn() >= 5; // Bloque après 5 échecs en 10 min
 }
 
-/**
- * Enregistre une tentative dans l'audit
- */
-function logAuthAttempt($pdo, $action, $email = null, $userId = null, $details = null)
-{
-    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
 
-    $stmt = $pdo->prepare("
-        INSERT INTO wari_audit (action, user_id, email, ip, user_agent, details) 
-        VALUES (?, ?, ?, ?, ?, ?)
-    ");
-    $stmt->execute([$action, $userId, $email, $ip, substr($userAgent, 0, 255), $details]);
-}
 
 /**
  * Compte les échecs récents pour une IP
@@ -98,6 +85,9 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['wari_remember'])) {
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['login_time'] = time(); // Pour tracker
             $_SESSION['last_activity'] = time(); // Pour prolonger
+
+            // ✅ Log de la visite automatique
+            logAuthAttempt($pdo, 'AUTO_LOGIN', $user['email'], $user['id'], 'Connexion via cookie');
 
             // ✅ Prolonger la session PHP aussi
             setcookie(session_name(), session_id(), time() + (90 * 24 * 3600), '/', '', true, true);

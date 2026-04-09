@@ -10,6 +10,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $user_id = $_SESSION['user_id'] ?? null;
+$email   = $_SESSION['user_email'] ?? 'visiteur';
+
+// ✅ Log de la visite Academy
+logAuthAttempt($pdo, 'ACADEMY_VISIT', $email, $user_id);
 
 $academy         = new Academy($pdo);
 $categories      = $academy->getCategories();

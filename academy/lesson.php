@@ -13,6 +13,9 @@ if (!$user_id) {
     exit;
 }
 
+// ✅ Log de la lecture de leçon
+logAuthAttempt($pdo, 'COURSE_READ', $_SESSION['user_email'], $user_id, "Leçon ID: " . ($_GET['id'] ?? 'none'));
+
 $academy = new Academy($pdo);
 
 // Récupération de la leçon

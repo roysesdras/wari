@@ -4,32 +4,32 @@
       "content": {
         "parts": [
           {
-            "text": "{\n  \"message\": \"Champion·ne, tu as dérapé comme un taxi sans freins ! Remets-toi sur les rails avant de finir à sec.\",\n  \"prediction\": \"Avec 573 F par jour, tu peux tenir tout le mois si tu te ressaisis. Serre la ceinture !\",\n  \"dette_conseil\": \"\",\n  \"academy_reco\": \"L'art de l'épargne forcée\",\n  \"alerte_rouge\": \"Stop ou Encore : Danger !\"\n}"
+            "text": "{\n  \"message\": \"Champion·ne, ton mois est un champ de bataille financier ! Redresse la barre immédiatement pour éviter le chaos.\",\n  \"prediction\": \"Avec 141 F par jour pendant 22 jours, chaque franc compte. Respecte ce budget quotidien, sinon la fin du mois sera difficile.\",\n  \"dette_conseil\": \"Tes dettes de 276500 F sont un boulet. Priorité absolue : rembourse chaque créance pour te libérer !\",\n  \"academy_reco\": \"Négocier ses dettes\",\n  \"alerte_rouge\": \"Dépenses excessives, danger imminent !\"\n}"
           }
         ],
         "role": "model"
       },
       "finishReason": "STOP",
-      "avgLogprobs": -0.17481075189052483
+      "avgLogprobs": -0.23710776028567798
     }
   ],
   "usageMetadata": {
-    "promptTokenCount": 564,
-    "candidatesTokenCount": 117,
-    "totalTokenCount": 681,
+    "promptTokenCount": 558,
+    "candidatesTokenCount": 146,
+    "totalTokenCount": 704,
     "promptTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 564
+        "tokenCount": 558
       }
     ],
     "candidatesTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 117
+        "tokenCount": 146
       }
     ]
   },
   "modelVersion": "gemini-2.0-flash",
-  "responseId": "S_7VaayLJeP6vdIPpoCEiAo"
+  "responseId": "xsrXabXjCJL3kdUPucODgAM"
 }
