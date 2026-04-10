@@ -200,27 +200,29 @@ $logs = $logsStmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
     <nav class="flex-1 px-3 py-4 space-y-0.5">
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-2 pb-1">Principal</p>
-        <a href="/academy-admin/index.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📊</span> Dashboard</a>
+        <a href="/academy-admin/index.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Dashboard</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Contenu</p>
-        <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📚</span> Cours</a>
-        <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📖</span> Leçons</a>
-        <a href="/academy-admin/pdfs.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📄</span> PDF Payants</a>
+        <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Cours</a>
+        <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Leçons</a>
+        <a href="/academy-admin/pdfs.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">PDF Payants</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Données</p>
-        <a href="/academy-admin/stats.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📈</span> Statistiques</a>
-        <a href="/academy-admin/emails.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]"><span>✉️</span> Emails</a>
+        <a href="/academy-admin/stats.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Statistiques</a>
+        <a href="/academy-admin/emails.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]">Emails</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">App</p>
-        <a href="/academy/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>🌐</span> Voir Academy</a>
-        <a href="https://wari.digiroys.com/accueil/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>←</span> Retour Wari</a>
+        <a href="/academy/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Voir Academy</a>
+        <a href="https://wari.digiroys.com/accueil/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Retour Wari</a>
     </nav>
     <div class="px-3 py-4 border-t border-gold-900/20">
         <div class="flex items-center gap-3 px-2 py-2 mb-1">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gold-700 to-gold-500 flex items-center justify-center text-sm shrink-0">👤</div>
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gold-700 to-gold-500 flex items-center justify-center shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
             <div>
                 <p class="text-[13px] font-semibold text-gold-400 leading-none"><?= htmlspecialchars($user) ?></p>
                 <p class="text-[10px] text-slate-600 mt-0.5">Admin Academy</p>
             </div>
         </div>
-        <a href="/academy-admin/logout.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-950/30 text-[12px] transition-all">🚪 Se déconnecter</a>
+        <a href="/academy-admin/logout.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-950/30 text-[12px] transition-all">Se déconnecter</a>
     </div>
 </aside>
 
@@ -246,14 +248,14 @@ $logs = $logsStmt->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- Total envoyés -->
             <div class="col-span-3 card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-5 anim">
-                <div class="text-2xl opacity-15 mb-2">✉️</div>
+                <div class="text-gold-700 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></div>
                 <p class="font-black text-gold-500 text-4xl leading-none"><?= number_format($statsEmail['total_envoyes']) ?></p>
                 <p class="text-slate-600 text-[11px] mt-1">emails envoyés</p>
             </div>
 
             <!-- Échecs -->
             <div class="col-span-2 card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-5 anim" style="animation-delay:.05s">
-                <div class="text-2xl opacity-15 mb-2">❌</div>
+                <div class="text-gold-700 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg></div>
                 <p class="font-black text-red-500 text-4xl leading-none"><?= number_format($statsEmail['total_echecs']) ?></p>
                 <p class="text-slate-600 text-[11px] mt-1">échecs</p>
             </div>
@@ -274,14 +276,14 @@ $logs = $logsStmt->fetchAll(PDO::FETCH_ASSOC);
 
             <!-- Cette semaine -->
             <div class="col-span-2 card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-5 anim" style="animation-delay:.15s">
-                <div class="text-2xl opacity-15 mb-2">📅</div>
+                <div class="text-gold-700 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg></div>
                 <p class="font-black text-gold-500 text-4xl leading-none"><?= number_format($emailsSemaine) ?></p>
                 <p class="text-slate-600 text-[11px] mt-1">cette semaine</p>
             </div>
 
             <!-- Cours couverts -->
             <div class="col-span-2 card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-5 anim" style="animation-delay:.20s">
-                <div class="text-2xl opacity-15 mb-2">📚</div>
+                <div class="text-gold-700 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></div>
                 <p class="font-black text-gold-500 text-4xl leading-none"><?= $statsEmail['total_cours'] ?></p>
                 <p class="text-slate-600 text-[11px] mt-1">cours envoyés</p>
             </div>
@@ -292,7 +294,10 @@ $logs = $logsStmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl overflow-hidden mb-6 anim">
 
             <div class="px-6 py-4 border-b border-gold-900/20">
-                <p class="font-bold text-slate-100 text-sm">📬 Campagnes par cours</p>
+                <p class="font-bold text-slate-100 text-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-700"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    Campagnes par cours
+                </p>
                 <p class="text-[11px] text-slate-600 mt-0.5">Vue agrégée par cours envoyé</p>
             </div>
 
@@ -361,7 +366,7 @@ $logs = $logsStmt->fetchAll(PDO::FETCH_ASSOC);
 
             <?php else: ?>
             <div class="px-6 py-12 text-center text-slate-600">
-                <p class="text-3xl mb-3">📭</p>
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3 opacity-20"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                 <p class="text-sm">Aucun email envoyé pour le moment.</p>
             </div>
             <?php endif; ?>
@@ -372,7 +377,10 @@ $logs = $logsStmt->fetchAll(PDO::FETCH_ASSOC);
 
             <div class="px-6 py-4 border-b border-gold-900/20 flex items-center justify-between flex-wrap gap-3">
                 <div>
-                    <p class="font-bold text-slate-100 text-sm">🗃️ Logs détaillés</p>
+                    <p class="font-bold text-slate-100 text-sm flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-700"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+                        Logs détaillés
+                    </p>
                     <p class="text-[11px] text-slate-600 mt-0.5">
                         <?= number_format($totalLogs) ?> entrées
                         <?= $filterCourse ? '— filtrées' : '' ?>
@@ -391,13 +399,13 @@ $logs = $logsStmt->fetchAll(PDO::FETCH_ASSOC);
                     </select>
                     <select name="statut" class="filter-select" onchange="this.form.submit()">
                         <option value="">— Tous les statuts —</option>
-                        <option value="envoye" <?= $filterStatut === 'envoye' ? 'selected' : '' ?>>✅ Envoyés</option>
-                        <option value="echec"  <?= $filterStatut === 'echec'  ? 'selected' : '' ?>>❌ Échecs</option>
+                        <option value="envoye" <?= $filterStatut === 'envoye' ? 'selected' : '' ?>>Envoyés</option>
+                        <option value="echec"  <?= $filterStatut === 'echec'  ? 'selected' : '' ?>>Erreurs</option>
                     </select>
                     <?php if ($filterCourse || $filterStatut): ?>
                     <a href="/academy-admin/emails.php"
                        class="text-[11px] text-slate-500 hover:text-slate-300 transition-colors px-2">
-                        ✕ Réinitialiser
+                        Réinitialiser
                     </a>
                     <?php endif; ?>
                 </form>
@@ -438,7 +446,7 @@ $logs = $logsStmt->fetchAll(PDO::FETCH_ASSOC);
                             <?= $log['statut'] === 'envoye'
                                 ? 'bg-emerald-950/50 text-emerald-500 border border-emerald-800/30'
                                 : 'bg-red-950/50 text-red-400 border border-red-800/30' ?>">
-                            <?= $log['statut'] === 'envoye' ? '✓ Envoyé' : '✗ Échec' ?>
+                            <?= $log['statut'] === 'envoye' ? 'Envoyé' : 'Échec' ?>
                         </span>
                     </div>
 
@@ -497,7 +505,7 @@ $logs = $logsStmt->fetchAll(PDO::FETCH_ASSOC);
 
             <?php else: ?>
             <div class="px-6 py-12 text-center text-slate-600">
-                <p class="text-3xl mb-3">📭</p>
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3 opacity-20"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                 <p class="text-sm">Aucun log pour ces filtres.</p>
             </div>
             <?php endif; ?>

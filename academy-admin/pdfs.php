@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     (course_id, lesson_id, titre, description, fichier_path, prix, est_gratuit, auteur)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ")->execute([$course_id, $lesson_id, $titre, $description, $fichier_path, $prix, $est_gratuit, $auteur]);
-            $msg    = "✅ PDF <strong>" . htmlspecialchars($titre) . "</strong> ajouté avec succès.";
+            $msg    = "PDF <strong>" . htmlspecialchars($titre) . "</strong> ajouté avec succès.";
             $action = 'list';
         }
     }
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     WHERE id = ?
                 ")->execute([$titre, $description, $prix, $est_gratuit, $est_actif, $auteur, $lesson_id, $id]);
             }
-            $msg    = "✅ PDF mis à jour avec succès.";
+            $msg    = "PDF mis à jour avec succès.";
             $action = 'list';
         } else {
             $error = "Données invalides.";
@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (file_exists($fullPath)) unlink($fullPath);
             }
             $pdo->prepare("DELETE FROM academy_pdfs WHERE id = ?")->execute([$id]);
-            $msg    = "🗑️ PDF supprimé.";
+            $msg    = "PDF supprimé.";
             $action = 'list';
         }
     }
@@ -188,6 +188,7 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
     <title>PDF Payants — Wari Academy Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
@@ -282,27 +283,25 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
     </div>
     <nav class="flex-1 px-3 py-4 space-y-0.5">
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-2 pb-1">Principal</p>
-        <a href="/academy-admin/index.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📊</span> Dashboard</a>
+        <a href="/academy-admin/index.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Dashboard</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Contenu</p>
-        <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📚</span> Cours</a>
-        <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📖</span> Leçons</a>
-        <a href="/academy-admin/pdfs.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]"><span>📄</span> PDF Payants</a>
+        <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Cours</a>
+        <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Leçons</a>
+        <a href="/academy-admin/pdfs.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]">PDF Payants</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Données</p>
-        <a href="/academy-admin/stats.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📈</span> Statistiques</a>
-        <a href="/academy-admin/emails.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>✉️</span> Emails</a>
+        <a href="/academy-admin/stats.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Statistiques</a>
+        <a href="/academy-admin/emails.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Emails</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">App</p>
-        <a href="/academy/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>🌐</span> Voir Academy</a>
-        <a href="https://wari.digiroys.com/accueil/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>←</span> Retour Wari</a>
+        <a href="/academy/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Voir Academy</a>
+        <a href="https://wari.digiroys.com/accueil/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Retour Wari</a>
     </nav>
     <div class="px-3 py-4 border-t border-gold-900/20">
         <div class="flex items-center gap-3 px-2 py-2 mb-1">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gold-700 to-gold-500 flex items-center justify-center text-sm shrink-0">👤</div>
-            <div>
                 <p class="text-[13px] font-semibold text-gold-400 leading-none"><?= htmlspecialchars($user) ?></p>
                 <p class="text-[10px] text-slate-600 mt-0.5">Admin Academy</p>
             </div>
-        </div>
-        <a href="/academy-admin/logout.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-950/30 text-[12px] transition-all">🚪 Se déconnecter</a>
+        </div> 
+        <a href="/academy-admin/logout.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-950/30 text-[12px] transition-all">Se déconnecter</a>
     </div>
 </aside>
 
@@ -334,8 +333,9 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
         </div>
         <?php endif; ?>
         <?php if ($error): ?>
-        <div class="mb-6 bg-red-950/40 border border-red-800/40 text-red-400 rounded-xl px-5 py-3 text-sm anim">
-            ⚠️ <?= htmlspecialchars($error) ?>
+        <div class="mb-6 bg-red-950/40 border border-red-800/40 text-red-400 rounded-xl px-5 py-3 text-sm anim flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <?= htmlspecialchars($error) ?>
         </div>
         <?php endif; ?>
 
@@ -346,7 +346,13 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
         <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-7 mb-8 anim">
 
             <h2 class="font-bold text-slate-100 text-base mb-6 flex items-center gap-2">
-                <?= $action === 'edit' ? '✏️ Modifier le PDF' : '➕ Ajouter un PDF payant' ?>
+                <?php if ($action === 'edit'): ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+                    Modifier le PDF
+                <?php else: ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    Ajouter un PDF payant
+                <?php endif; ?>
             </h2>
 
             <form method="POST" enctype="multipart/form-data">
@@ -429,7 +435,7 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
                             Fichier PDF *
                             <?php if ($action === 'edit' && $pdfEdit['fichier_path']): ?>
                             <span class="text-emerald-600 normal-case tracking-normal font-normal ml-2">
-                                ✓ Fichier actuel : <?= basename($pdfEdit['fichier_path']) ?>
+                                Fichier actuel : <?= basename($pdfEdit['fichier_path']) ?>
                                 — Laisser vide pour conserver
                             </span>
                             <?php endif; ?>
@@ -439,7 +445,7 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
                             <input type="file" id="file-input" name="fichier" accept=".pdf,.xlsx,.xls,.zip"
                                    onchange="showFileName(this)">
                             <div id="upload-placeholder">
-                                <p class="text-3xl mb-2">📁</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2 text-slate-600"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
                                 <p class="text-sm font-semibold text-slate-400">
                                     Clique pour sélectionner un fichier
                                 </p>
@@ -448,7 +454,7 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
                                 </p>
                             </div>
                             <div id="upload-selected" class="hidden">
-                                <p class="text-2xl mb-1">✅</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-1 text-emerald-500"><path d="M20 6 9 17l-5-5"/></svg>
                                 <p class="text-sm font-semibold text-gold-500" id="file-name"></p>
                             </div>
                         </div>
@@ -479,8 +485,14 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
                 <!-- Boutons -->
                 <div class="flex items-center gap-3 pt-4 border-t border-gold-900/20">
                     <button type="submit"
-                            class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all">
-                        <?= $action === 'edit' ? '💾 Enregistrer' : '✅ Ajouter le PDF' ?>
+                            class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all flex items-center gap-2">
+                        <?php if ($action === 'edit'): ?>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
+                            Enregistrer
+                        <?php else: ?>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            Ajouter le PDF
+                        <?php endif; ?>
                     </button>
                     <a href="/academy-admin/pdfs.php"
                        class="text-slate-500 hover:text-slate-300 text-[13px] transition-colors px-4">
@@ -499,14 +511,14 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
         <!-- Stats bento -->
         <div class="grid grid-cols-4 gap-4 mb-6">
             <?php foreach ([
-                ['label' => 'Total PDF',    'val' => $totalPdfs,                                           'icon' => '📄', 'sub' => 'guides disponibles'],
-                ['label' => 'Payants',       'val' => $totalPdfs - $totalGratuits,                          'icon' => '💰', 'sub' => 'guides premium'],
-                ['label' => 'Achats',        'val' => number_format($totalAchats),                          'icon' => '🛒', 'sub' => 'achats effectués'],
-                ['label' => 'Revenus FCFA',  'val' => number_format($totalRevenus, 0, ',', ' ') . ' F',    'icon' => '🏆', 'sub' => 'générés au total'],
+                ['label' => 'Total PDF',    'val' => $totalPdfs,                                           'svg' => '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/>', 'sub' => 'guides disponibles'],
+                ['label' => 'Payants',       'val' => $totalPdfs - $totalGratuits,                          'svg' => '<circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/>', 'sub' => 'guides premium'],
+                ['label' => 'Achats',        'val' => number_format($totalAchats),                          'svg' => '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>', 'sub' => 'achats effectués'],
+                ['label' => 'Revenus FCFA',  'val' => number_format($totalRevenus, 0, ',', ' ') . ' F',    'svg' => '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>', 'sub' => 'générés au total'],
             ] as $i => $s): ?>
             <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-5 anim"
                  style="animation-delay:<?= $i * .05 ?>s">
-                <div class="text-2xl opacity-70 mb-2"><?= $s['icon'] ?></div>
+                <div class="text-gold-700 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><?= $s['svg'] ?></svg></div>
                 <p class="font-black text-gold-500 text-3xl leading-none"><?= $s['val'] ?></p>
                 <p class="text-slate-600 text-[11px] mt-1"><?= $s['label'] ?></p>
                 <p class="text-slate-700 text-[10px]"><?= $s['sub'] ?></p>
@@ -518,7 +530,10 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
         <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl overflow-hidden anim">
 
             <div class="px-6 py-4 border-b border-gold-900/20 flex items-center justify-between">
-                <p class="font-bold text-slate-100 text-sm">📄 Tous les PDF</p>
+                <p class="font-bold text-slate-100 text-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-700"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                    Tous les PDF
+                </p>
                 <a href="/academy-admin/pdfs.php?action=add"
                    class="text-[11px] text-gold-700 hover:text-gold-500 font-semibold transition-colors">
                     + Ajouter →
@@ -546,15 +561,15 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
                     <!-- Titre + auteur -->
                     <div class="col-span-4 min-w-0">
                         <div class="flex items-start gap-2">
-                            <span class="text-xl mt-0.5 shrink-0">📘</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 shrink-0 text-blue-500/70"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                             <div class="min-w-0">
                                 <p class="font-semibold text-slate-100 text-[13px] truncate">
                                     <?= htmlspecialchars($pdf['titre']) ?>
                                 </p>
                                 <p class="text-[11px] text-slate-600 mt-0.5">
-                                    ✍️ <?= htmlspecialchars($pdf['auteur']) ?>
+                                    <?= htmlspecialchars($pdf['auteur']) ?>
                                     <?php if ($pdf['lesson_titre']): ?>
-                                    · <span class="text-gold-900">📖 <?= htmlspecialchars($pdf['lesson_titre']) ?></span>
+                                    &middot; <span class="text-gold-900"><?= htmlspecialchars($pdf['lesson_titre']) ?></span>
                                     <?php endif; ?>
                                 </p>
                             </div>
@@ -601,7 +616,7 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
                             <?= $pdf['est_actif']
                                 ? 'bg-emerald-950/50 text-emerald-500 border border-emerald-800/40'
                                 : 'bg-slate-800/50 text-slate-500 border border-slate-700/40' ?>">
-                            <?= $pdf['est_actif'] ? '✓ Actif' : '✗ Inactif' ?>
+                            <?= $pdf['est_actif'] ? 'Actif' : 'Inactif' ?>
                         </span>
                     </div>
 
@@ -611,22 +626,22 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
                         <a href="<?= htmlspecialchars($pdf['fichier_path']) ?>"
                            target="_blank"
                            title="Télécharger"
-                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-blue-900/30 flex items-center justify-center text-slate-500 hover:text-blue-400 transition-all text-sm">
-                            ⬇️
+                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-blue-900/30 flex items-center justify-center text-slate-500 hover:text-blue-400 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                         </a>
                         <!-- Éditer -->
                         <a href="/academy-admin/pdfs.php?action=edit&id=<?= $pdf['id'] ?>"
                            title="Modifier"
-                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-400 transition-all text-sm">
-                            ✏️
+                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-400 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                         </a>
                         <!-- Supprimer -->
                         <form method="POST" onsubmit="return confirm('Supprimer ce PDF et son fichier ?')">
                             <input type="hidden" name="action" value="delete_pdf">
                             <input type="hidden" name="id" value="<?= $pdf['id'] ?>">
                             <button type="submit" title="Supprimer"
-                                    class="w-7 h-7 rounded-lg bg-white/5 hover:bg-red-950/40 flex items-center justify-center text-slate-600 hover:text-red-400 transition-all text-sm">
-                                🗑️
+                                    class="w-7 h-7 rounded-lg bg-white/5 hover:bg-red-950/40 flex items-center justify-center text-slate-600 hover:text-red-400 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                             </button>
                         </form>
                     </div>
@@ -636,7 +651,7 @@ $totalGratuits = count(array_filter($pdfs, fn($p) => $p['est_gratuit']));
 
             <?php else: ?>
             <div class="px-6 py-16 text-center text-slate-600">
-                <p class="text-4xl mb-4">📄</p>
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-30"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
                 <p class="text-sm">Aucun PDF pour le moment.</p>
                 <a href="/academy-admin/pdfs.php?action=add"
                    class="inline-block mt-4 bg-gold-500 text-ink-900 font-bold text-[12px] px-5 py-2 rounded-full hover:bg-gold-400 transition-all">

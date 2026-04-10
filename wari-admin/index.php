@@ -1377,8 +1377,19 @@ if ($_SESSION['is_admin'] ?? false) {
                 </div>
             </div>
             <div class="main-content">
+                <!-- LIVE MONITOR (Intelligence) -->
+                <div class="section-header" style="margin-top:40px; margin-bottom:14px;">
+                    <div class="section-title">📡 Live Intelligence Monitor</div>
+                    <button class="btn-sm" style="background:var(--surface2);border:none;color:var(--muted);cursor:pointer;" onclick="toggleMonitor()">Réduire / Agrandir</button>
+                </div>
+                <div id="monitorContainer" style="background:var(--surface);border:1px solid var(--border);border-radius:18px;margin-top:12px;margin-bottom:14px;overflow:hidden;transition:all 0.3s ease;">
+                    <div id="monitorContent" style="padding:20px;max-height:400px;overflow-y:auto;font-family:'IBM Plex Mono', monospace;font-size:11px;color:var(--muted);">
+                        <div style="text-align:center;padding:20px;">Initialisation de la surveillance...</div>
+                    </div>
+                </div>
+
                 <!-- STATS -->
-                <div class="section-header" style="margin-bottom:14px;">
+                <div class="section-header" style="margin-top:35px; margin-bottom:14px;">
                     <div class="section-title">📊 Vue Globale & Intelligence</div>
                     <div style="display:flex;gap:10px;align-items:center;">
                         <span id="stat-avg-time-badge" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;">⌛ TM / SESSION : <span id="stat-avg-time" style="color:var(--gold)">—</span> MIN</span>
@@ -1531,17 +1542,6 @@ if ($_SESSION['is_admin'] ?? false) {
                 <div id="licencesContainer" style="display:none; transition: all 0.3s ease;">
                     <div class="licences-grid" id="licencesGrid">
                         <div style="font-size:11px;color:var(--muted);padding:20px;">Chargement...</div>
-                    </div>
-                </div>
-
-                <!-- LIVE MONITOR (Intelligence) -->
-                <div class="section-header" style="margin-top:40px;">
-                    <div class="section-title">📡 Live Intelligence Monitor</div>
-                    <button class="btn-sm" style="background:var(--surface2);border:none;color:var(--muted);cursor:pointer;" onclick="toggleMonitor()">Réduire / Agrandir</button>
-                </div>
-                <div id="monitorContainer" style="background:var(--surface);border:1px solid var(--border);border-radius:18px;margin-top:12px;overflow:hidden;transition:all 0.3s ease;">
-                    <div id="monitorContent" style="padding:20px;max-height:400px;overflow-y:auto;font-family:'IBM Plex Mono', monospace;font-size:11px;color:var(--muted);">
-                        <div style="text-align:center;padding:20px;">Initialisation de la surveillance...</div>
                     </div>
                 </div>
 

@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 VALUES (?, ?, ?, ?, ?, ?)
             ")->execute([$course_id, $titre, $contenu, $type, $video_url ?: null, $ordre]);
 
-            $msg    = "✅ Leçon <strong>" . htmlspecialchars($titre) . "</strong> créée avec succès.";
+            $msg    = "Leçon <strong>" . htmlspecialchars($titre) . "</strong> créée avec succès.";
             $action = 'list';
             $filterCourseId = $course_id;
         } else {
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 SET titre = ?, contenu = ?, type = ?, video_url = ?, ordre = ?, est_actif = ?
                 WHERE id = ?
             ")->execute([$titre, $contenu, $type, $video_url ?: null, $ordre, $est_actif, $id]);
-            $msg    = "✅ Leçon mise à jour avec succès.";
+            $msg    = "Leçon mise à jour avec succès.";
             $action = 'list';
         } else {
             $error = "Données invalides.";
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int)($_POST['id'] ?? 0);
         if ($id) {
             $pdo->prepare("DELETE FROM academy_lessons WHERE id = ?")->execute([$id]);
-            $msg    = "🗑️ Leçon supprimée.";
+            $msg    = "Leçon supprimée.";
             $action = 'list';
         }
     }
@@ -190,6 +190,7 @@ if ($filterCourseId) {
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -343,27 +344,29 @@ if ($filterCourseId) {
         </div>
         <nav class="flex-1 px-3 py-4 space-y-0.5">
             <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-2 pb-1">Principal</p>
-            <a href="/academy-admin/index.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📊</span> Dashboard</a>
+            <a href="/academy-admin/index.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Dashboard</a>
             <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Contenu</p>
-            <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📚</span> Cours</a>
-            <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]"><span>📖</span> Leçons</a>
-            <a href="/academy-admin/pdfs.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📄</span> PDF Payants</a>
+            <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Cours</a>
+            <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]">Leçons</a>
+            <a href="/academy-admin/pdfs.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">PDF Payants</a>
             <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Données</p>
-            <a href="/academy-admin/stats.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📈</span> Statistiques</a>
-            <a href="/academy-admin/emails.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>✉️</span> Emails</a>
+            <a href="/academy-admin/stats.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Statistiques</a>
+            <a href="/academy-admin/emails.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Emails</a>
             <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">App</p>
-            <a href="/academy/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>🌐</span> Voir Academy</a>
-            <a href="https://wari.digiroys.com/accueil/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>←</span> Retour Wari</a>
+            <a href="/academy/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Voir Academy</a>
+            <a href="https://wari.digiroys.com/accueil/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Retour Wari</a>
         </nav>
         <div class="px-3 py-4 border-t border-gold-900/20">
             <div class="flex items-center gap-3 px-2 py-2 mb-1">
-                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gold-700 to-gold-500 flex items-center justify-center text-sm shrink-0">👤</div>
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gold-700 to-gold-500 flex items-center justify-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
                 <div>
                     <p class="text-[13px] font-semibold text-gold-400 leading-none"><?= htmlspecialchars($user) ?></p>
                     <p class="text-[10px] text-slate-600 mt-0.5">Admin Academy</p>
                 </div>
             </div>
-            <a href="/academy-admin/logout.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-950/30 text-[12px] transition-all">🚪 Se déconnecter</a>
+            <a href="/academy-admin/logout.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-950/30 text-[12px] transition-all">Se déconnecter</a>
         </div>
     </aside>
 
@@ -399,8 +402,9 @@ if ($filterCourseId) {
                 </div>
             <?php endif; ?>
             <?php if ($error): ?>
-                <div class="mb-6 bg-red-950/40 border border-red-800/40 text-red-400 rounded-xl px-5 py-3 text-sm anim">
-                    ⚠️ <?= htmlspecialchars($error) ?>
+                <div class="mb-6 bg-red-950/40 border border-red-800/40 text-red-400 rounded-xl px-5 py-3 text-sm anim flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                    <?= htmlspecialchars($error) ?>
                 </div>
             <?php endif; ?>
 
@@ -411,7 +415,13 @@ if ($filterCourseId) {
                 <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-7 mb-8 anim">
 
                     <h2 class="font-bold text-slate-100 text-base mb-6 flex items-center gap-2">
-                        <?= $action === 'edit' ? '✏️ Modifier la leçon' : '➕ Nouvelle leçon' ?>
+                        <?php if ($action === 'edit'): ?>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+                            Modifier la leçon
+                        <?php else: ?>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            Nouvelle leçon
+                        <?php endif; ?>
                     </h2>
 
                     <form method="POST">
@@ -453,7 +463,7 @@ if ($filterCourseId) {
                                 <label class="field-label">Type de leçon</label>
                                 <select name="type" class="field-input" id="type-select"
                                     onchange="toggleVideoUrl(this.value)">
-                                    <?php foreach (['texte' => '📄 Lecture / Texte', 'video' => '🎥 Vidéo', 'quiz' => '🧩 Quiz'] as $val => $lbl): ?>
+                                    <?php foreach (['texte' => 'Lecture / Texte', 'video' => 'Vidéo', 'quiz' => 'Quiz'] as $val => $lbl): ?>
                                         <option value="<?= $val ?>"
                                             <?= ($lessonEdit['type'] ?? 'texte') === $val ? 'selected' : '' ?>>
                                             <?= $lbl ?>
@@ -477,7 +487,7 @@ if ($filterCourseId) {
                                     placeholder="https://www.youtube.com/embed/XXXXXXXXX"
                                     value="<?= htmlspecialchars($lessonEdit['video_url'] ?? '') ?>">
                                 <p class="text-[11px] text-slate-600 mt-1.5">
-                                    💡 Utilise le lien "Intégrer" de YouTube : youtube.com/embed/ID_VIDEO
+                                    Utilise le lien "Intégrer" de YouTube : youtube.com/embed/ID_VIDEO
                                 </p>
                             </div>
 
@@ -502,7 +512,7 @@ if ($filterCourseId) {
                                         '<strong>Gras</strong>' => 'strong',
                                         '<ul><li>Item</li></ul>' => 'liste',
                                         '<blockquote>Citation</blockquote>' => 'citation',
-                                        '<div class="bg-slate-800 border-l-4 border-wari-gold p-4 my-4"><div class="text-wari-gold font-bold mb-1">💡 ASTUCE</div>Texte</div>' => 'encadré',
+                                        '<div class="bg-slate-800 border-l-4 border-wari-gold p-4 my-4"><div class="text-wari-gold font-bold mb-1">ASTUCE</div>Texte</div>' => 'encadré',
                                     ];
 
                                     foreach ($tags as $tagContent => $label):
@@ -519,7 +529,8 @@ if ($filterCourseId) {
                                     <!-- Bouton IA -->
                                     <button type="button" onclick="generateLessonContent()" id="btn-ai-write"
                                         class="text-[10px] font-bold uppercase tracking-widest bg-gold-950/30 border border-gold-500/30 text-gold-500 hover:text-gold-400 hover:border-gold-500 hover:bg-gold-900/40 px-3 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1.5">
-                                        ✨ Rédiger avec l'IA
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+                                        Rédiger avec l'IA
                                     </button>
                                 </div>
                             </div>
@@ -541,8 +552,14 @@ if ($filterCourseId) {
                         <!-- Boutons -->
                         <div class="flex items-center gap-3 pt-4 border-t border-gold-900/20">
                             <button type="submit"
-                                class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all">
-                                <?= $action === 'edit' ? '💾 Enregistrer' : '✅ Créer la leçon' ?>
+                                class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all flex items-center gap-2">
+                                <?php if ($action === 'edit'): ?>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
+                                    Enregistrer
+                                <?php else: ?>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                    Créer la leçon
+                                <?php endif; ?>
                             </button>
                             <a href="/academy-admin/lessons.php<?= $filterCourseId ? '?course_id=' . $filterCourseId : '' ?>"
                                 class="text-slate-500 hover:text-slate-300 text-[13px] transition-colors px-4">
@@ -574,10 +591,10 @@ if ($filterCourseId) {
 
                     <?php if ($filterCourseId && $coursFiltre): ?>
                         <span class="text-[11px] bg-gold-900/20 border border-gold-900/30 text-gold-600 px-3 py-1 rounded-full">
-                            📚 <?= htmlspecialchars($coursFiltre['titre']) ?> — <?= htmlspecialchars($coursFiltre['cat_titre']) ?>
+                            <?= htmlspecialchars($coursFiltre['titre']) ?> — <?= htmlspecialchars($coursFiltre['cat_titre']) ?>
                         </span>
                         <a href="/academy-admin/lessons.php" class="text-[11px] text-slate-600 hover:text-slate-400 transition-colors">
-                            ✕ Effacer le filtre
+                            × Effacer le filtre
                         </a>
                     <?php endif; ?>
                 </div>
@@ -592,15 +609,15 @@ if ($filterCourseId) {
                     ?>
                     <?php foreach (
                         [
-                            ['label' => 'Total leçons',  'val' => $totalLecons,  'icon' => '📖'],
-                            ['label' => 'Actives',        'val' => $totalActives, 'icon' => '✅'],
-                            ['label' => 'Texte',          'val' => $totalTexte,   'icon' => '📄'],
-                            ['label' => 'Vidéo',          'val' => $totalVideo,   'icon' => '🎥'],
+                            ['label' => 'Total leçons',  'val' => $totalLecons,  'svg' => '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'],
+                            ['label' => 'Actives',        'val' => $totalActives, 'svg' => '<path d="M20 6 9 17l-5-5"/>'],
+                            ['label' => 'Texte',          'val' => $totalTexte,   'svg' => '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>'],
+                            ['label' => 'Vidéo',          'val' => $totalVideo,   'svg' => '<path d="m22 8-6 4 6 4V8z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/>'],
                         ] as $i => $s
                     ): ?>
                         <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-5 anim"
                             style="animation-delay:<?= $i * .05 ?>s">
-                            <div class="text-2xl opacity-70 mb-2"><?= $s['icon'] ?></div>
+                            <div class="text-gold-700 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><?= $s['svg'] ?></svg></div>
                             <p class="font-black text-gold-500 text-3xl leading-none"><?= $s['val'] ?></p>
                             <p class="text-slate-600 text-[11px] mt-1"><?= $s['label'] ?></p>
                         </div>
@@ -611,7 +628,10 @@ if ($filterCourseId) {
                 <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl overflow-hidden anim">
 
                     <div class="px-6 py-4 border-b border-gold-900/20 flex items-center justify-between">
-                        <p class="font-bold text-slate-100 text-sm">📖 Leçons</p>
+                        <p class="font-bold text-slate-100 text-sm flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-700"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                            Leçons
+                        </p>
                         <a href="/academy-admin/lessons.php?action=add<?= $filterCourseId ? '&course_id=' . $filterCourseId : '' ?>"
                             class="text-[11px] text-gold-700 hover:text-gold-500 font-semibold transition-colors">
                             + Ajouter →
@@ -681,8 +701,8 @@ if ($filterCourseId) {
 
                                     <!-- Type -->
                                     <div class="col-span-1 text-center">
-                                        <span class="text-base">
-                                            <?= ['texte' => '📄', 'video' => '🎥', 'quiz' => '🧩'][$lesson['type']] ?? '📄' ?>
+                                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-slate-400 font-medium">
+                                            <?= ['texte' => 'Texte', 'video' => 'Vidéo', 'quiz' => 'Quiz'][$lesson['type']] ?? 'Texte' ?>
                                         </span>
                                     </div>
 
@@ -697,7 +717,7 @@ if ($filterCourseId) {
                             <?= $lesson['est_actif']
                                     ? 'bg-emerald-950/50 text-emerald-500 border border-emerald-800/40'
                                     : 'bg-slate-800/50 text-slate-500 border border-slate-700/40' ?>">
-                                            <?= $lesson['est_actif'] ? '✓ Active' : '✗ Inactif' ?>
+                                            <?= $lesson['est_actif'] ? 'Active' : 'Inactif' ?>
                                         </span>
                                     </div>
 
@@ -706,22 +726,22 @@ if ($filterCourseId) {
                                         <!-- Voir sur Academy -->
                                         <a href="/academy/lesson.php?id=<?= $lesson['id'] ?>" target="_blank"
                                             title="Voir"
-                                            class="w-7 h-7 rounded-lg bg-white/5 hover:bg-blue-900/30 flex items-center justify-center text-slate-500 hover:text-blue-400 transition-all text-sm">
-                                            🌐
+                                            class="w-7 h-7 rounded-lg bg-white/5 hover:bg-blue-900/30 flex items-center justify-center text-slate-500 hover:text-blue-400 transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
                                         </a>
                                         <!-- Éditer -->
                                         <a href="/academy-admin/lessons.php?action=edit&id=<?= $lesson['id'] ?>"
                                             title="Modifier"
-                                            class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-400 transition-all text-sm">
-                                            ✏️
+                                            class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-400 transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                                         </a>
                                         <!-- Supprimer -->
                                         <form method="POST" onsubmit="return confirm('Supprimer cette leçon ?')">
                                             <input type="hidden" name="action" value="delete_lesson">
                                             <input type="hidden" name="id" value="<?= $lesson['id'] ?>">
                                             <button type="submit" title="Supprimer"
-                                                class="w-7 h-7 rounded-lg bg-white/5 hover:bg-red-950/40 flex items-center justify-center text-slate-600 hover:text-red-400 transition-all text-sm">
-                                                🗑️
+                                                class="w-7 h-7 rounded-lg bg-white/5 hover:bg-red-950/40 flex items-center justify-center text-slate-600 hover:text-red-400 transition-all">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                                             </button>
                                         </form>
                                     </div>
@@ -731,7 +751,7 @@ if ($filterCourseId) {
 
                     <?php else: ?>
                         <div class="px-6 py-16 text-center text-slate-600">
-                            <p class="text-4xl mb-4">📖</p>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-30"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                             <p class="text-sm">Aucune leçon pour le moment.</p>
                             <a href="/academy-admin/lessons.php?action=add<?= $filterCourseId ? '&course_id=' . $filterCourseId : '' ?>"
                                 class="inline-block mt-4 bg-gold-500 text-ink-900 font-bold text-[12px] px-5 py-2 rounded-full hover:bg-gold-400 transition-all">
@@ -793,7 +813,7 @@ if ($filterCourseId) {
 
             const originalBtnHtml = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '⌛ Rédaction...';
+            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Rédaction...';
             btn.classList.add('animate-pulse');
 
             try {

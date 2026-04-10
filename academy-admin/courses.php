@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     est_gratuit = ?, est_actif = ?
                 WHERE id = ?
             ")->execute([$category_id, $titre, $description, $niveau, $duree, $auteur, $est_gratuit, $est_actif, $id]);
-            $msg = "✅ Cours mis à jour avec succès.";
+            $msg = "Cours mis à jour avec succès.";
             $action = 'list';
         } else {
             $error = "Données invalides.";
@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = (int)($_POST['id'] ?? 0);
         if ($id) {
             $pdo->prepare("DELETE FROM academy_courses WHERE id = ?")->execute([$id]);
-            $msg = "🗑️ Cours supprimé.";
+            $msg = "Cours supprimé.";
             $action = 'list';
         }
     }
@@ -138,6 +138,7 @@ $courses = $pdo->query("
     <title>Cours — Wari Academy Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
@@ -282,7 +283,13 @@ $courses = $pdo->query("
         <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-7 mb-8 anim">
 
             <h2 class="font-bold text-slate-100 text-base mb-6 flex items-center gap-2">
-                <?= $action === 'edit' ? '✏️ Modifier le cours' : '➕ Nouveau cours' ?>
+                <?php if ($action === 'edit'): ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+                    Modifier le cours
+                <?php else: ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    Nouveau cours
+                <?php endif; ?>
             </h2>
 
             <form method="POST">
@@ -299,7 +306,8 @@ $courses = $pdo->query("
                             <label class="field-label mb-0">Titre du cours *</label>
                             <button type="button" onclick="generateDraft()" id="btn-ai-draft"
                                     class="text-[10px] font-bold uppercase tracking-wider text-gold-500 hover:text-gold-400 flex items-center gap-1.5 transition-all opacity-70 hover:opacity-100">
-                                <span class="text-xs">🪄</span> Draft Magique (IA)
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+                                Draft Magique (IA)
                             </button>
                         </div>
                         <input type="text" id="course_title" name="titre" class="field-input"
@@ -380,8 +388,14 @@ $courses = $pdo->query("
                 <!-- Boutons -->
                 <div class="flex items-center gap-3 pt-4 border-t border-gold-900/20">
                     <button type="submit"
-                            class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all">
-                        <?= $action === 'edit' ? '💾 Enregistrer les modifications' : '✅ Créer le cours' ?>
+                            class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all flex items-center gap-2">
+                        <?php if ($action === 'edit'): ?>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
+                            Enregistrer les modifications
+                        <?php else: ?>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            Créer le cours
+                        <?php endif; ?>
                     </button>
                     <a href="/academy-admin/courses.php"
                        class="text-slate-500 hover:text-slate-300 text-[13px] transition-colors px-4">
@@ -406,13 +420,15 @@ $courses = $pdo->query("
             $totalApprenant = array_sum(array_column($courses, 'nb_apprenants'));
             ?>
             <?php foreach ([
-                ['label' => 'Total cours',   'val' => $totalCours,     'icon' => '📚'],
-                ['label' => 'Cours actifs',  'val' => $totalActifs,    'icon' => '✅'],
-                ['label' => 'Total leçons',  'val' => $totalLecons,    'icon' => '📖'],
-                ['label' => 'Apprenants',    'val' => $totalApprenant, 'icon' => '👥'],
+                ['label' => 'Total cours',   'val' => $totalCours,     'svg' => '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>'],
+                ['label' => 'Cours actifs',  'val' => $totalActifs,    'svg' => '<path d="M20 6 9 17l-5-5"/>'],
+                ['label' => 'Total leçons',  'val' => $totalLecons,    'svg' => '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'],
+                ['label' => 'Apprenants',    'val' => $totalApprenant, 'svg' => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
             ] as $i => $s): ?>
             <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-5 anim" style="animation-delay:<?= $i * .05 ?>s">
-                <div class="text-2xl opacity-70 mb-2"><?= $s['icon'] ?></div>
+                <div class="text-gold-700 mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><?= $s['svg'] ?></svg>
+                </div>
                 <p class="font-black text-gold-500 text-3xl leading-none"><?= number_format($s['val']) ?></p>
                 <p class="text-slate-600 text-[11px] mt-1"><?= $s['label'] ?></p>
             </div>
@@ -423,7 +439,10 @@ $courses = $pdo->query("
         <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl overflow-hidden anim">
 
             <div class="px-6 py-4 border-b border-gold-900/20 flex items-center justify-between">
-                <p class="font-bold text-slate-100 text-sm">📚 Tous les cours</p>
+                <p class="font-bold text-slate-100 text-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-700"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                    Tous les cours
+                </p>
                 <a href="/academy-admin/courses.php?action=add"
                    class="text-[11px] text-gold-700 hover:text-gold-500 font-semibold transition-colors">
                     + Ajouter →
@@ -454,8 +473,9 @@ $courses = $pdo->query("
                             <?= htmlspecialchars($course['titre']) ?>
                         </p>
                         <div class="flex items-center gap-2 mt-1">
-                            <span class="text-[10px] text-slate-600">
-                                ⏱ <?= $course['duree_minutes'] ?> min
+                            <span class="text-[10px] text-slate-600 flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                <?= $course['duree_minutes'] ?> min
                             </span>
                             <span class="text-[10px] px-2 py-0.5 rounded-full font-medium
                                 <?= $course['niveau'] === 'debutant' ? 'bg-emerald-950/50 text-emerald-500' :
@@ -464,8 +484,9 @@ $courses = $pdo->query("
                                 <?= ucfirst($course['niveau']) ?>
                             </span>
                             <?php if (!$course['est_gratuit']): ?>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-gold-900/30 text-gold-600 font-medium">
-                                💰 Payant
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-gold-900/30 text-gold-600 font-medium flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
+                                Payant
                             </span>
                             <?php endif; ?>
                         </div>
@@ -473,8 +494,15 @@ $courses = $pdo->query("
 
                     <!-- Catégorie -->
                     <div class="col-span-2">
-                        <span class="text-[11px] font-medium text-slate-400">
-                            <?= $course['cat_icone'] ?> <?= htmlspecialchars($course['cat_titre']) ?>
+                        <span class="text-[11px] font-medium text-slate-400 flex items-center gap-1.5">
+                            <?php
+                            $lucideIcons = ['wallet','landmark','rocket','alert-triangle','trending-up','brain','book','lightbulb','target','award','gem','key','bar-chart','globe','briefcase','shield','zap','leaf'];
+                            if (in_array($course['cat_icone'], $lucideIcons)): ?>
+                                <i data-lucide="<?= $course['cat_icone'] ?>" class="w-3 h-3 shrink-0"></i>
+                            <?php else: ?>
+                                <?= $course['cat_icone'] ?>
+                            <?php endif; ?>
+                            <?= htmlspecialchars($course['cat_titre']) ?>
                         </span>
                     </div>
 
@@ -504,7 +532,7 @@ $courses = $pdo->query("
                                     <?= $course['est_actif']
                                         ? 'bg-emerald-950/50 text-emerald-500 border border-emerald-800/40 hover:bg-red-950/40 hover:text-red-400 hover:border-red-800/40'
                                         : 'bg-slate-800/50 text-slate-500 border border-slate-700/40 hover:bg-emerald-950/40 hover:text-emerald-400' ?>">
-                                <?= $course['est_actif'] ? '✓ Actif' : '✗ Inactif' ?>
+                                <?= $course['est_actif'] ? 'Actif' : 'Inactif' ?>
                             </button>
                         </form>
                     </div>
@@ -514,21 +542,21 @@ $courses = $pdo->query("
                         <!-- Voir leçons -->
                         <a href="/academy-admin/lessons.php?course_id=<?= $course['id'] ?>"
                            title="Gérer les leçons"
-                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-500 transition-all text-sm">
-                            📖
+                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-500 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                         </a>
                         <!-- Voir sur Academy -->
                         <a href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>"
                            target="_blank"
                            title="Voir sur Academy"
-                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-blue-900/30 flex items-center justify-center text-slate-500 hover:text-blue-400 transition-all text-sm">
-                            🌐
+                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-blue-900/30 flex items-center justify-center text-slate-500 hover:text-blue-400 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
                         </a>
                         <!-- Éditer -->
                         <a href="/academy-admin/courses.php?action=edit&id=<?= $course['id'] ?>"
                            title="Modifier"
-                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-400 transition-all text-sm">
-                            ✏️
+                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-400 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                         </a>
                         <!-- Supprimer -->
                         <form method="POST" onsubmit="return confirm('Supprimer ce cours et toutes ses leçons ?')">
@@ -536,8 +564,8 @@ $courses = $pdo->query("
                             <input type="hidden" name="id" value="<?= $course['id'] ?>">
                             <button type="submit"
                                     title="Supprimer"
-                                    class="w-7 h-7 rounded-lg bg-white/5 hover:bg-red-950/40 flex items-center justify-center text-slate-600 hover:text-red-400 transition-all text-sm">
-                                🗑️
+                                    class="w-7 h-7 rounded-lg bg-white/5 hover:bg-red-950/40 flex items-center justify-center text-slate-600 hover:text-red-400 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                             </button>
                         </form>
                     </div>
@@ -547,7 +575,7 @@ $courses = $pdo->query("
 
             <?php else: ?>
             <div class="px-6 py-16 text-center text-slate-600">
-                <p class="text-4xl mb-4">📚</p>
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-30"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                 <p class="text-sm">Aucun cours pour le moment.</p>
                 <a href="/academy-admin/courses.php?action=add"
                    class="inline-block mt-4 bg-gold-500 text-ink-900 font-bold text-[12px] px-5 py-2 rounded-full hover:bg-gold-400 transition-all">
@@ -578,7 +606,7 @@ $courses = $pdo->query("
 
             const originalBtnHtml = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<span class="text-xs">⌛</span> Génération...';
+            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Génération...';
             btn.classList.add('animate-pulse');
 
             try {

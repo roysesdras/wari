@@ -283,8 +283,9 @@ $user = $_SESSION['academy_user'];
                     </span></span>
             </div>
             <div class="flex items-center gap-3">
-                <span class="text-[11px] text-gold-700 bg-gold-900/20 border border-gold-900/30 px-3 py-1 rounded-full font-medium">
-                    ✉️ <?= $emailsSemaine ?> emails cette semaine
+                <span class="text-[11px] text-gold-700 bg-gold-900/20 border border-gold-900/30 px-3 py-1 rounded-full font-medium flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    <?= $emailsSemaine ?> emails cette semaine
                 </span>
                 <a href="/academy-admin/courses.php?action=add"
                     class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[12px] px-4 py-1.5 rounded-full transition-all">
@@ -540,8 +541,8 @@ $user = $_SESSION['academy_user'];
                         <?php if (!empty($achatsRecents)): ?>
                             <?php foreach ($achatsRecents as $achat): ?>
                                 <div class="flex items-center gap-3 px-6 py-3.5 hover:bg-white/[.03] transition-colors">
-                                    <div class="w-7 h-7 rounded-lg bg-emerald-950/50 flex items-center justify-center text-xs shrink-0">
-                                        📘
+                                    <div class="w-7 h-7 rounded-lg bg-emerald-950/50 flex items-center justify-center shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <p class="text-[12px] font-semibold text-slate-200 truncate">
@@ -558,7 +559,7 @@ $user = $_SESSION['academy_user'];
                                             <span class="text-[9px] text-gold-800">FCFA</span>
                                         </p>
                                         <span class="text-[9px] bg-emerald-950/60 text-emerald-500 border border-emerald-900/40 px-1.5 py-0.5 rounded-full font-medium">
-                                            ✓ Payé
+                                            Payé
                                         </span>
                                     </div>
                                 </div>

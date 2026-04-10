@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wari Academy — Connexion Admin</title>
+    <title>Wari Academy | Connexion Admin</title>
 
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
@@ -324,14 +324,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="card-logo">
             <span class="card-logo-title">Wari Academy</span>
             <span class="card-logo-sub">Administration</span>
-            <span class="card-logo-badge">🔐 Accès restreint</span>
+            <span class="card-logo-badge">Accès restreint</span>
         </div>
 
         <h2>Connexion</h2>
         <p>Espace réservé aux administrateurs de Wari Academy.</p>
 
         <?php if ($error): ?>
-            <div class="error-box">⚠️ <?= htmlspecialchars($error) ?></div>
+            <div class="error-box flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> <?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
         <form method="POST">

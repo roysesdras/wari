@@ -14,8 +14,8 @@ $action = $_GET['action'] ?? 'list';
 $msg    = '';
 $error  = '';
 
-// Emojis disponibles pour les icônes
-$emojis = ['💰','🏦','🚀','⚠️','📈','🧠','📚','💡','🎯','🏆','💎','🔑','📊','🌍','💼','🛡️','⚡','🌱'];
+// Icônes disponibles (Lucide)
+$icons = ['wallet','landmark','rocket','alert-triangle','trending-up','brain','book','lightbulb','target','award','gem','key','bar-chart','globe','briefcase','shield','zap','leaf'];
 
 // ════════════════════════════════════════════════════════
 // TRAITEMENT POST
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($postAction === 'add_category') {
         $titre       = trim($_POST['titre'] ?? '');
         $description = trim($_POST['description'] ?? '');
-        $icone       = trim($_POST['icone'] ?? '📚');
+        $icone       = trim($_POST['icone'] ?? 'book');
         $couleur     = trim($_POST['couleur'] ?? '#C9A84C');
         $ordre       = (int)($_POST['ordre'] ?? 0);
 
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 INSERT INTO academy_categories (slug, titre, description, icone, couleur, ordre)
                 VALUES (?, ?, ?, ?, ?, ?)
             ")->execute([$slug, $titre, $description, $icone, $couleur, $ordre]);
-            $msg    = "✅ Catégorie <strong>" . htmlspecialchars($titre) . "</strong> créée.";
+            $msg    = "Catégorie <strong>" . htmlspecialchars($titre) . "</strong> créée avec succès.";
             $action = 'list';
         } else {
             $error  = "Le titre est obligatoire.";
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id          = (int)($_POST['id'] ?? 0);
         $titre       = trim($_POST['titre'] ?? '');
         $description = trim($_POST['description'] ?? '');
-        $icone       = trim($_POST['icone'] ?? '📚');
+        $icone       = trim($_POST['icone'] ?? 'book');
         $couleur     = trim($_POST['couleur'] ?? '#C9A84C');
         $ordre       = (int)($_POST['ordre'] ?? 0);
         $est_actif   = isset($_POST['est_actif']) ? 1 : 0;
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 SET titre = ?, description = ?, icone = ?, couleur = ?, ordre = ?, est_actif = ?
                 WHERE id = ?
             ")->execute([$titre, $description, $icone, $couleur, $ordre, $est_actif, $id]);
-            $msg    = "✅ Catégorie mise à jour.";
+            $msg    = "Catégorie mise à jour avec succès.";
             $action = 'list';
         } else {
             $error = "Le titre est obligatoire.";
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $action = 'list';
             } else {
                 $pdo->prepare("DELETE FROM academy_categories WHERE id = ?")->execute([$id]);
-                $msg    = "🗑️ Catégorie supprimée.";
+                $msg    = "Catégorie supprimée.";
                 $action = 'list';
             }
         }
@@ -165,6 +165,7 @@ $categories = $pdo->query("
     <title>Catégories — Wari Academy Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -268,28 +269,26 @@ $categories = $pdo->query("
     </div>
     <nav class="flex-1 px-3 py-4 space-y-0.5">
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-2 pb-1">Principal</p>
-        <a href="/academy-admin/index.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📊</span> Dashboard</a>
+        <a href="/academy-admin/index.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Dashboard</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Contenu</p>
-        <a href="/academy-admin/categories.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]"><span>🗂</span> Catégories</a>
-        <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📚</span> Cours</a>
-        <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📖</span> Leçons</a>
-        <a href="/academy-admin/pdfs.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📄</span> PDF Payants</a>
+        <a href="/academy-admin/categories.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]">Catégories</a>
+        <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Cours</a>
+        <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Leçons</a>
+        <a href="/academy-admin/pdfs.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">PDF Payants</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Données</p>
-        <a href="/academy-admin/stats.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>📈</span> Statistiques</a>
-        <a href="/academy-admin/emails.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>✉️</span> Emails</a>
+        <a href="/academy-admin/stats.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Statistiques</a>
+        <a href="/academy-admin/emails.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Emails</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">App</p>
-        <a href="/academy/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>🌐</span> Voir Academy</a>
-        <a href="https://wari.digiroys.com/accueil/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"><span>←</span> Retour Wari</a>
+        <a href="/academy/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Voir Academy</a>
+        <a href="https://wari.digiroys.com/accueil/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"> Retour Wari</a>
     </nav>
     <div class="px-3 py-4 border-t border-gold-900/20">
         <div class="flex items-center gap-3 px-2 py-2 mb-1">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gold-700 to-gold-500 flex items-center justify-center text-sm shrink-0">👤</div>
-            <div>
                 <p class="text-[13px] font-semibold text-gold-400 leading-none"><?= htmlspecialchars($user) ?></p>
                 <p class="text-[10px] text-slate-600 mt-0.5">Admin Academy</p>
             </div>
         </div>
-        <a href="/academy-admin/logout.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-950/30 text-[12px] transition-all">🚪 Se déconnecter</a>
+        <a href="/academy-admin/logout.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-red-400 hover:bg-red-950/30 text-[12px] transition-all">Se déconnecter</a>
     </div>
 </aside>
 
@@ -321,8 +320,9 @@ $categories = $pdo->query("
         </div>
         <?php endif; ?>
         <?php if ($error): ?>
-        <div class="mb-6 bg-red-950/40 border border-red-800/40 text-red-400 rounded-xl px-5 py-3 text-sm anim">
-            ⚠️ <?= htmlspecialchars($error) ?>
+        <div class="mb-6 bg-red-950/40 border border-red-800/40 text-red-400 rounded-xl px-5 py-3 text-sm anim flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <?= htmlspecialchars($error) ?>
         </div>
         <?php endif; ?>
 
@@ -333,12 +333,18 @@ $categories = $pdo->query("
         <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-7 mb-8 anim">
 
             <h2 class="font-bold text-slate-100 text-base mb-6 flex items-center gap-2">
-                <?= $action === 'edit' ? '✏️ Modifier la catégorie' : '➕ Nouvelle catégorie' ?>
+                <?php if ($action === 'edit'): ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+                    Modifier la catégorie
+                <?php else: ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    Nouvelle catégorie
+                <?php endif; ?>
             </h2>
 
             <form method="POST" id="cat-form">
                 <input type="hidden" name="action" value="<?= $action === 'edit' ? 'edit_category' : 'add_category' ?>">
-                <input type="hidden" name="icone" id="icone-hidden" value="<?= htmlspecialchars($catEdit['icone'] ?? '📚') ?>">
+                <input type="hidden" name="icone" id="icone-hidden" value="<?= htmlspecialchars($catEdit['icone'] ?? 'book') ?>">
                 <?php if ($action === 'edit'): ?>
                 <input type="hidden" name="id" value="<?= $catEdit['id'] ?>">
                 <?php endif; ?>
@@ -363,20 +369,24 @@ $categories = $pdo->query("
 
                     <!-- Emoji icône -->
                     <div>
-                        <label class="field-label">Icône (emoji)</label>
+                        <label class="field-label">Icône</label>
                         <div class="flex items-center gap-3 mb-2">
                             <div id="emoji-preview"
                                  class="w-12 h-12 rounded-xl bg-gold-900/20 border border-gold-900/30 flex items-center justify-center text-2xl">
-                                <?= $catEdit['icone'] ?? '📚' ?>
+                                 <?php if (!empty($catEdit['icone']) && !in_array($catEdit['icone'], $icons)): ?>
+                                     <?= $catEdit['icone'] ?>
+                                 <?php else: ?>
+                                     <i data-lucide="<?= $catEdit['icone'] ?? 'book' ?>"></i>
+                                 <?php endif; ?>
                             </div>
-                            <span class="text-[12px] text-slate-500">Clique sur un emoji pour le sélectionner</span>
+                            <span class="text-[12px] text-slate-500">Clique sur une icône pour la sélectionner</span>
                         </div>
-                        <div class="emoji-picker">
-                            <?php foreach ($emojis as $emoji): ?>
+                        <div class="emoji-picker text-slate-400">
+                            <?php foreach ($icons as $icon): ?>
                             <button type="button"
-                                    class="emoji-btn <?= ($catEdit['icone'] ?? '📚') === $emoji ? 'selected' : '' ?>"
-                                    onclick="selectEmoji('<?= $emoji ?>')">
-                                <?= $emoji ?>
+                                    class="emoji-btn <?= ($catEdit['icone'] ?? 'book') === $icon ? 'selected text-gold-400' : 'hover:text-gold-200' ?>"
+                                    onclick="selectEmoji('<?= $icon ?>', event)">
+                                <i data-lucide="<?= $icon ?>" class="w-5 h-5"></i>
                             </button>
                             <?php endforeach; ?>
                         </div>
@@ -437,7 +447,13 @@ $categories = $pdo->query("
                         <label class="field-label">Aperçu de la carte</label>
                         <div class="inline-flex flex-col items-center gap-2 bg-white/5 border border-white/8 rounded-xl p-4 w-36 text-center relative overflow-hidden" id="card-preview">
                             <div class="absolute top-0 left-0 right-0 h-0.5 transition-all" id="card-top-bar" style="background:#C9A84C"></div>
-                            <span class="text-2xl" id="preview-icon"><?= $catEdit['icone'] ?? '📚' ?></span>
+                            <span class="text-2xl mt-1 flex justify-center text-slate-300" id="preview-icon">
+                                 <?php if (!empty($catEdit['icone']) && !in_array($catEdit['icone'], $icons)): ?>
+                                     <?= $catEdit['icone'] ?>
+                                 <?php else: ?>
+                                     <i data-lucide="<?= $catEdit['icone'] ?? 'book' ?>"></i>
+                                 <?php endif; ?>
+                            </span>
                             <span class="text-[12px] font-semibold text-slate-200" id="preview-titre">
                                 <?= htmlspecialchars($catEdit['titre'] ?? 'Titre catégorie') ?>
                             </span>
@@ -450,8 +466,14 @@ $categories = $pdo->query("
                 <!-- Boutons -->
                 <div class="flex items-center gap-3 pt-4 border-t border-gold-900/20">
                     <button type="submit"
-                            class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all">
-                        <?= $action === 'edit' ? '💾 Enregistrer' : '✅ Créer la catégorie' ?>
+                            class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all flex items-center gap-2">
+                        <?php if ($action === 'edit'): ?>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
+                            Enregistrer
+                        <?php else: ?>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            Créer la catégorie
+                        <?php endif; ?>
                     </button>
                     <a href="/academy-admin/categories.php"
                        class="text-slate-500 hover:text-slate-300 text-[13px] transition-colors px-4">
@@ -473,7 +495,13 @@ $categories = $pdo->query("
             <div class="relative bg-ink-900 border border-gold-900/20 rounded-xl p-4 text-center overflow-hidden"
                  style="animation-delay:<?= $i * .05 ?>s">
                 <div class="absolute top-0 left-0 right-0 h-0.5" style="background:<?= $cat['couleur'] ?>"></div>
-                <div class="text-2xl mb-2"><?= $cat['icone'] ?></div>
+                <div class="text-2xl mb-2 flex justify-center text-slate-400">
+                    <?php if (!in_array($cat['icone'], $icons)): ?>
+                        <?= $cat['icone'] ?>
+                    <?php else: ?>
+                        <i data-lucide="<?= $cat['icone'] ?>"></i>
+                    <?php endif; ?>
+                </div>
                 <p class="text-[11px] font-semibold text-slate-300 leading-tight mb-1">
                     <?= htmlspecialchars($cat['titre']) ?>
                 </p>
@@ -486,8 +514,8 @@ $categories = $pdo->query("
             <!-- Bouton ajouter -->
             <a href="/academy-admin/categories.php?action=add"
                class="relative bg-ink-900/50 border border-dashed border-gold-900/30 rounded-xl p-4 text-center hover:bg-gold-900/10 hover:border-gold-900/50 transition-all flex flex-col items-center justify-center gap-2">
-                <span class="text-2xl text-gold-900">➕</span>
-                <span class="text-[11px] text-slate-600 hover:text-gold-700">Nouvelle</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gold-900"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                <span class="text-[11px] text-slate-600">Nouvelle</span>
             </a>
         </div>
 
@@ -495,7 +523,10 @@ $categories = $pdo->query("
         <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl overflow-hidden anim">
 
             <div class="px-6 py-4 border-b border-gold-900/20 flex items-center justify-between">
-                <p class="font-bold text-slate-100 text-sm">🗂 Toutes les catégories</p>
+                <p class="font-bold text-slate-100 text-sm flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-700"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+                    Toutes les catégories
+                </p>
                 <a href="/academy-admin/categories.php?action=add"
                    class="text-[11px] text-gold-700 hover:text-gold-500 font-semibold transition-colors">
                     + Ajouter →
@@ -538,8 +569,12 @@ $categories = $pdo->query("
                     <!-- Icône + couleur -->
                     <div class="col-span-1 flex justify-center">
                         <div class="w-9 h-9 rounded-xl flex items-center justify-center text-xl"
-                             style="background: color-mix(in srgb, <?= $cat['couleur'] ?> 15%, transparent); border: 1px solid color-mix(in srgb, <?= $cat['couleur'] ?> 30%, transparent)">
-                            <?= $cat['icone'] ?>
+                             style="background: color-mix(in srgb, <?= $cat['couleur'] ?> 15%, transparent); border: 1px solid color-mix(in srgb, <?= $cat['couleur'] ?> 30%, transparent); color: <?= $cat['couleur'] ?>">
+                            <?php if (!in_array($cat['icone'], $icons)): ?>
+                                <?= $cat['icone'] ?>
+                            <?php else: ?>
+                                <i data-lucide="<?= $cat['icone'] ?>" class="w-4 h-4"></i>
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -580,7 +615,7 @@ $categories = $pdo->query("
                                     <?= $cat['est_actif']
                                         ? 'bg-emerald-950/50 text-emerald-500 border border-emerald-800/40 hover:bg-red-950/40 hover:text-red-400 hover:border-red-800/40'
                                         : 'bg-slate-800/50 text-slate-500 border border-slate-700/40 hover:bg-emerald-950/40 hover:text-emerald-400' ?>">
-                                <?= $cat['est_actif'] ? '✓ Active' : '✗ Inactive' ?>
+                                <?= $cat['est_actif'] ? 'Active' : 'Inactive' ?>
                             </button>
                         </form>
                     </div>
@@ -590,22 +625,22 @@ $categories = $pdo->query("
                         <!-- Voir cours -->
                         <a href="/academy-admin/courses.php?category_id=<?= $cat['id'] ?>"
                            title="Voir les cours"
-                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-500 transition-all text-sm">
-                            📚
+                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-500 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                         </a>
                         <!-- Modifier -->
                         <a href="/academy-admin/categories.php?action=edit&id=<?= $cat['id'] ?>"
                            title="Modifier"
-                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-400 transition-all text-sm">
-                            ✏️
+                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-400 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                         </a>
                         <!-- Supprimer -->
                         <form method="POST" onsubmit="return confirm('Supprimer cette catégorie ?')">
                             <input type="hidden" name="action" value="delete_category">
                             <input type="hidden" name="id" value="<?= $cat['id'] ?>">
                             <button type="submit" title="Supprimer"
-                                    class="w-7 h-7 rounded-lg bg-white/5 hover:bg-red-950/40 flex items-center justify-center text-slate-600 hover:text-red-400 transition-all text-sm">
-                                🗑️
+                                    class="w-7 h-7 rounded-lg bg-white/5 hover:bg-red-950/40 flex items-center justify-center text-slate-600 hover:text-red-400 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                             </button>
                         </form>
                     </div>
@@ -621,13 +656,32 @@ $categories = $pdo->query("
 </div>
 
 <script>
-    // Sélection emoji
-    function selectEmoji(emoji) {
-        document.getElementById('icone-hidden').value   = emoji;
-        document.getElementById('emoji-preview').textContent = emoji;
-        document.getElementById('preview-icon').textContent  = emoji;
-        document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
-        event.target.classList.add('selected');
+    // Initialisation Lucide
+    lucide.createIcons();
+
+    // Sélection emoji / icône
+    function selectEmoji(iconName, e) {
+        document.getElementById('icone-hidden').value = iconName;
+        
+        let preview = document.getElementById('emoji-preview');
+        preview.innerHTML = `<i data-lucide="${iconName}"></i>`;
+        
+        let cardPreview = document.getElementById('preview-icon');
+        cardPreview.innerHTML = `<i data-lucide="${iconName}"></i>`;
+        
+        // Re-render lucide icons in the injected HTML
+        lucide.createIcons();
+
+        document.querySelectorAll('.emoji-btn').forEach(b => {
+             b.classList.remove('selected', 'text-gold-400');
+             b.classList.add('hover:text-gold-200');
+        });
+        
+        let btn = (e && e.currentTarget) ? e.currentTarget : event.currentTarget;
+        if(btn) {
+            btn.classList.add('selected', 'text-gold-400');
+            btn.classList.remove('hover:text-gold-200');
+        }
     }
 
     // Mise à jour couleur

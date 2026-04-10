@@ -79,7 +79,6 @@ if ($user_id && !empty($coursesWithProgress)) {
         }
     </style>
 
-
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -160,27 +159,26 @@ if ($user_id && !empty($coursesWithProgress)) {
         <?php endif; ?>
     </nav>
 
-    <div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="max-w-7xl mx-auto px-4 py-4">
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-8">
 
-            <div class="md:col-span-8 bento-card shimmer rounded-[1.5rem] p-4 md:p-8 flex flex-col justify-end min-h-[220px]">
+            <div class="md:col-span-8 bento-card shimmer rounded-[1rem] p-4 md:p-8 flex flex-col justify-end min-h-[220px]">
                 <div class="mb-8">
                     <span class="inline-flex items-center gap-2 bg-wari-gold/10 border border-wari-gold/30 text-wari-gold text-[10px] font-black uppercase tracking-[0.3em] px-5 py-2 rounded-full">
-                        <span class="w-2 h-2 bg-wari-gold rounded-full animate-pulse"></span>
                         Savoir c'est Pouvoir
                     </span>
                 </div>
-                <h1 class="font-heading text-5xl md:text-7xl font-black text-white leading-[1.1] mb-6">
+                <h1 class="font-heading text-4xl md:text-6xl font-black text-white leading-[1.1] mb-6">
                     L'argent, ça <br><span class="text-wari-gold italic">s'apprend.</span>
                 </h1>
                 <p class="text-white/60 text-sm md:text-lg max-w-lg leading-relaxed">
-                    Des mini-cours stratégiques pour maîtriser tes finances, bâtis sur mesure pour l'entrepreneur africain moderne.
+                    Découvre tout ce que l’école ne t’a pas appris pour dominer tes finances et construire, pas à pas, ta liberté financière.
                 </p>
             </div>
 
-            <div class="md:col-span-4 grid grid-rows-3 gap-5">
-                <div class="bento-card rounded-[1.5rem] p-4 flex items-center justify-between">
+            <div class="md:col-span-4 grid grid-rows-2 gap-5">
+                <div class="bento-card rounded-[1rem] p-4 flex items-center justify-between">
                     <div>
                         <p class="text-[10px] font-black text-wari-gold uppercase mb-1">Cours</p>
                         <div class="text-4xl font-heading font-black"><?= $totalCours ?: '24' ?></div>
@@ -191,18 +189,7 @@ if ($user_id && !empty($coursesWithProgress)) {
                         </svg>
                     </span>
                 </div>
-                <div class="bento-card rounded-[1.5rem] p-4 flex items-center justify-between bg-wari-gold !text-black">
-                    <div>
-                        <p class="text-[10px] font-black uppercase mb-1 text-wari-gold">Accès</p>
-                        <div class="text-4xl font-heading font-black text-white">Libre</div>
-                    </div>
-                    <span class="text-4xl opacity-100">
-                        <svg width="46" height="46" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M18.328 14.407c1.535-2.173 2.184-4.764 1.828-7.298-.634-4.5-4.81-7.647-9.31-7.012-4.5.635-7.648 4.806-7.015 9.306.355 2.526 1.693 4.836 3.767 6.504 1.262 1.014 2.7 1.692 4.034 1.937l-.392 2.12a.374.374 0 0 0 .422.44l1.416-.198c.745 1.682 1.952 2.835 3.675 3.516l.698.276.552-1.395-.698-.276c-1.235-.488-2.085-1.226-2.672-2.34l1.024-.144a.374.374 0 0 0 .284-.538l-.961-1.93c1.218-.603 2.414-1.649 3.348-2.968Zm-7.539.734c-1.934-.765-3.576-2.47-4.286-4.45l-.253-.707 1.411-.506.254.706c.68 1.896 2.215 3.083 3.426 3.563l.698.275-.552 1.395-.698-.276Z"></path>
-                        </svg>
-                    </span>
-                </div>
-                <div class="bento-card rounded-[1.5rem] p-4 flex items-center justify-between">
+                <div class="bento-card rounded-[1rem] p-4 flex items-center justify-between">
                     <div>
                         <p class="text-[10px] font-black text-wari-gold uppercase mb-1">Domaines</p>
                         <div class="text-4xl font-heading font-black"><?= $totalCategories ?: '06' ?></div>
@@ -219,29 +206,22 @@ if ($user_id && !empty($coursesWithProgress)) {
         </div>
 
         <?php if ($user_id): ?>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20">
-                <div class="bg-white/5 border border-white/10 p-4 rounded-[1.5rem] flex items-center gap-4">
-                    <div class="text-2xl">📖</div>
-                    <div>
-                        <div class="text-xl font-bold"><?= count($coursesWithProgress) ?></div>
-                        <div class="text-[9px] text-white/30 uppercase font-bold tracking-widest">Disponibles</div>
-                    </div>
-                </div>
-                <div class="bg-white/5 border border-white/10 p-4 rounded-[1.5rem] flex items-center gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-20">
+                <div class="bg-white/5 border border-white/10 p-4 rounded-[1rem] flex items-center gap-4">
                     <div class="text-2xl text-blue-400">▶️</div>
                     <div>
                         <div class="text-xl font-bold"><?= $coursEnCours ?></div>
                         <div class="text-[9px] text-white/30 uppercase font-bold tracking-widest">En cours</div>
                     </div>
                 </div>
-                <div class="bg-white/5 border border-white/10 p-4 rounded-[1.5rem] flex items-center gap-4">
+                <div class="bg-white/5 border border-white/10 p-4 rounded-[1rem] flex items-center gap-4">
                     <div class="text-2xl text-green-400">🏆</div>
                     <div>
                         <div class="text-xl font-bold"><?= $coursTermines ?></div>
                         <div class="text-[9px] text-white/30 uppercase font-bold tracking-widest">Terminés</div>
                     </div>
                 </div>
-                <div class="bg-white/5 p-4 border border-white/10 rounded-[1.5rem] flex items-center gap-4">
+                <div class="bg-white/5 p-4 border border-white/10 rounded-[1rem] flex items-center gap-4">
                     <div class="text-2xl">⚡</div>
                     <div>
                         <div class="text-xl font-bold text-wari-gold">Pro</div>
@@ -251,29 +231,15 @@ if ($user_id && !empty($coursesWithProgress)) {
             </div>
         <?php endif; ?>
 
-        <div class="flex items-center gap-4 mb-8">
-            <h2 class="font-heading text-2xl font-black uppercase tracking-tight">Thématiques</h2>
-            <div class="flex-1 h-[1px] bg-white/10"></div>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-20">
-            <?php foreach ($categories as $cat): ?>
-                <a href="/academy/categorie.php?slug=<?= $cat['slug'] ?>" class="bento-card rounded-2xl p-4 text-center group">
-                    <div class="text-3xl mb-3 group-hover:scale-125 transition-transform"><?= $cat['icone'] ?></div>
-                    <div class="text-[10px] font-black uppercase text-white/80"><?= $cat['titre'] ?></div>
-                    <div class="text-[9px] text-wari-gold/50 mt-1"><span class="text-wari-gold font-bold"><?= $cat['nb_cours'] ?></span> COURS</div>
-                </a>
-            <?php endforeach; ?>
-        </div>
-
         <div class="flex items-center justify-between mb-10">
             <h2 class="font-heading text-3xl font-black">Tous les cours</h2>
+            <div class="flex-1 h-[1px] bg-white/10"></div>
             <span class="text-xs font-bold text-white/70 uppercase tracking-[0.3em]"><?= $totalCours ?> Modules</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <?php foreach ($coursesWithProgress as $course): ?>
-                <a href="/academy/course.php?slug=<?= $course['slug'] ?>" class="bento-card rounded-[1.5rem] overflow-hidden group flex flex-col">
+                <a href="/academy/course.php?slug=<?= $course['slug'] ?>" class="bento-card rounded-[1rem] overflow-hidden group flex flex-col">
                     <div class="h-3 bg-wari-gold shadow-[0_0_20px_rgba(201,168,76,0.3)]"></div>
                     <div class="p-6 flex-1">
                         <div class="flex justify-between items-start mb-6">

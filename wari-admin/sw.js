@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wari-admin-v2';
+const CACHE_NAME = 'wari-admin-v3';
 const ASSETS = [
   'index.php',
   '../assets/warifinance3d.png'

@@ -63,14 +63,57 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($course['titre']) ?> — Wari Academy</title>
 
+    <title><?= htmlspecialchars($course['titre']) ?> | Wari Academy</title>
+
+    <!-- SEO -->
+    <meta name="description" content="<?= htmlspecialchars($course['description'] ?? 'Découvrez ce cours sur Wari Academy et améliorez votre intelligence financière.') ?>">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Wari Academy">
+
+    <!-- Canonical (IMPORTANT avec slug) -->
+    <link rel="canonical" href="https://wari.digiroys.com/academy/course.php?slug=<?= urlencode($course['slug']) ?>">
+
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png" />
 
+    <!-- Open Graph -->
+    <meta property="og:title" content="<?= htmlspecialchars($course['titre']) ?> | Wari Academy">
+    <meta property="og:description" content="<?= htmlspecialchars($course['description'] ?? '') ?>">
+    <meta property="og:image" content="../assets/default.jpg">
+    <meta property="og:url" content="https://wari.digiroys.com/academy/course.php?slug=<?= urlencode($course['slug']) ?>">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Wari Academy">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?= htmlspecialchars($course['titre']) ?> | Wari Academy">
+    <meta name="twitter:description" content="<?= htmlspecialchars($course['description'] ?? '') ?>">
+    <meta name="twitter:image" content="../assets/default.jpg">
+
+    <!-- Theme -->
+    <meta name="theme-color" content="#0f172a">
+
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- STRUCTURED DATA -->
+    <script type="application/ld+json">
+    {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "<?= htmlspecialchars($course['titre']) ?>",
+    "description": "<?= htmlspecialchars($course['description'] ?? '') ?>",
+    "url": "https://wari.digiroys.com/academy/course.php?slug=<?= urlencode($course['slug']) ?>",
+    "provider": {
+        "@type": "Organization",
+        "name": "Wari Academy",
+        "url": "https://wari.digiroys.com"
+    }
+    }
+    </script>
     <!-- Utilisation de Outfit (Titres) et Plus Jakarta Sans (Corps) comme défini par le standard Tailwind de Wari -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 

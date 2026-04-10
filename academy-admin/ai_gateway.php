@@ -30,15 +30,15 @@ try {
 
         $prompt = "Génère un brouillon complet pour un nouveau cours sur le sujet : '$sujet'. 
         Tu dois impérativement retourner UN SEUL OBJET JSON (pas une liste) avec les clés :
-        - 'titre' (accrocheur et pro)
+        - 'titre' (accrocheur, attirant et pro)
         - 'description' (2-3 phrases impactantes)
         - 'niveau' (debutant, intermediaire ou avance)
         - 'duree_minutes' (estimation)
         - 'lecons' (tableau d'objets avec 'titre' et 'type' [texte ou video])";
 
         $system = "Tu es l'expert pédagogique de Wari Academy. 
-        Tes cours doivent transformer des notions financières complexes en conseils pratiques pour les entrepreneurs et particuliers africains. 
-        Utilise le ton Wari : direct, expert, et ancré dans la réalité locale.";
+        Tes cours doivent transformer, éduquer, briser les préjugés autour de l'argent et inspirer des notions financières complexes en conseils pratiques pour les entrepreneurs et particuliers africains. 
+        Utilise le ton Wari : narratif, direct, expert, et ancré dans la réalité locale africaine.";
 
         echo $ai->generate($prompt, $system);
         break;
@@ -57,9 +57,9 @@ try {
         Retourne un JSON avec une clé 'contenu' contenant du HTML propre.
         Utilise : <h2> pour les sections, <p> pour le texte, <ul><li> pour les listes.
         Ajoute au moins un encadré 'Astuce' ou '💡 Conseil Wari' en utilisant ce code HTML :
-        <div class='bg-slate-800 border-l-4 border-gold-500 p-4 my-4'><div class='text-gold-500 font-bold mb-1'>💡 CONSEIL WARI</div>Le texte du conseil...</div>";
+        <div class='bg-slate-800 border-l-4 border-gold-500 p-4 my-4'><div class='text-gold-500 font-bold mb-1'>💡 CONSEIL</div>Le texte du conseil...</div>";
 
-        $system = "Tu es le rédacteur principal de Wari Academy. Tes leçons sont captivantes et utilisent des scénarios réels (ex: épargner pour un projet, gérer les dépenses du foyer, optimiser les profits d'une petite boutique).";
+        $system = "Tu es le rédacteur principal de Wari Academy. Tes leçons sont captivantes, attirantes et utilisent des scénarios réels (ex: épargner pour un projet, gérer les dépenses du foyer, optimiser les profits d'une petite boutique).";
 
         echo $ai->generate($prompt, $system);
         break;
