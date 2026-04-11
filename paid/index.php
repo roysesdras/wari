@@ -1,6 +1,6 @@
 <?php
 $price = 2500;
-$product_name = "WARI Finance — Licence Pro";
+$product_name = "WARI | Licence Pro";
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -11,9 +11,9 @@ $product_name = "WARI Finance — Licence Pro";
     <title><?= $product_name ?></title>
 
     <!-- Balises SEO de base -->
-    <meta name="description" content="Activez votre Licence Pro Wari Finance. Gérez votre budget, épargnez et maîtrisez vos finances à vie avec l'IA.">
-    <meta name="keywords" content="Wari Finance, gestion budget, épargne, finance personnelle, Afrique, licence pro">
-    <meta name="author" content="Digiroys">
+    <meta name="description" content="Activez votre Licence Pro WARI. Gérez votre budget, épargnez et maîtrisez vos finances à vie avec WARI.">
+    <meta name="keywords" content="Wari, gestion budget, épargne, finance personnelle, Afrique, licence pro">
+    <meta name="author" content="Wari">
 
     <!-- Open Graph / Facebook / WhatsApp (Ce qui s'affiche quand on partage le lien) -->
     <meta property="og:type" content="website">
@@ -260,19 +260,15 @@ $product_name = "WARI Finance — Licence Pro";
                     </li>
                     <li class="feature-item">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
-                        <span>Coach Wari pour <strong>vos projets</strong></span>
+                        <span>Accès à vie à l'appli <strong>Wari-Finance</strong></span>
                     </li>
                     <li class="feature-item">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
-                        <span>Mises à jour gratuites à vie</span>
+                        <span>Accès à vie à <strong>Wari Academy</strong></span>
                     </li>
                     <li class="feature-item">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
-                        <span>Support prioritaire 24h/7j</span>
-                    </li>
-                    <li class="feature-item">
-                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                        <span><strong>Wari Academy</strong> : Cours offerts sur l'épargne et les projets</span>
+                        <span>Accès illimité à <strong>Tout autres services Wari</strong></span>
                     </li>
                 </ul>
 
@@ -289,7 +285,7 @@ $product_name = "WARI Finance — Licence Pro";
                     <div class="price-value">
                         <?= number_format($price, 0, '', '&nbsp;') ?><span class="price-currency">F CFA</span>
                     </div>
-                    <div class="discount-pill">Économisez 2 500 F CFA (50%)</div>
+                    <div class="discount-pill">Un paiement unique, pour toujours</div>
                 </div>
 
                 <form action="fedapay-checkout.php" method="POST">
@@ -307,13 +303,13 @@ $product_name = "WARI Finance — Licence Pro";
 
                 <!-- Moyen 2 : CinetPay (Commenté en attente d'activation business) -->
                 
-                <form action="cinetpay-checkout.php" method="POST">
+                <!-- <form action="cinetpay-checkout.php" method="POST">
                     <input type="hidden" name="customer_email" value="..."> 
                     <button type="submit" class="pay-btn-modern btn-cinetpay">
                         <img src="https://cinetpay.com/img/logo.png" alt="CinetPay" style="height: 20px;">
                         <span>Payer avec CinetPay</span>
                     </button>
-                </form>
+                </form> -->
                
 
                 <div class="trust-strip">

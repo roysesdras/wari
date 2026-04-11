@@ -3,10 +3,22 @@ User-agent: *
 
 # Ne pas indexer les pages privées et sensibles
 Disallow: /config/
+Disallow: /academy-admin/
+Disallow: /vecu/admin/
+Disallow: /logs/
+Disallow: /cron/
+Disallow: /classes/
+Disallow: /scratch/
+Disallow: /tmp/
+Disallow: /wari-admin/
 
 # Autoriser le contenu public
 Allow: /index.php
 Allow: /styles.css
+Allow: /vecu/
+Allow: /academy/
+Allow: /uploads/
+Allow: /paid/
 
 # Lien vers le sitemap
-Sitemap: https://wari.digiroys.com/sitemap.xml
+Sitemap: https://wari.digiroys.com/accueil/sitemap.xml

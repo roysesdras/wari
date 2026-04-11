@@ -46,14 +46,14 @@ if ($user_id && !empty($coursesWithProgress)) {
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://wari.digiroys.com/academy">
-    <meta property="og:title" content="Wari Academy — L'Élite de l'Éducation Financière">
-    <meta property="og:description" content="Prenez le contrôle de votre cash. Rejoignez la communauté des Warieures et transformez votre gestion en empire.">
-    <meta property="og:image" content="https://i.postimg.cc/x80KpBqW/warifinance3d.png">
+    <meta property="og:title" content="Wari Academy | Comprendre l’argent simplement">
+    <meta property="og:description" content="Devenez inarrêtable. Maîtrisez l'art de l'argent avec Wari Academy, la formation qui transforme les rêveurs en bâtisseurs d'empire.">
+    <meta property="og:image" content="../assets/finaleduc.jpg">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Wari Academy — Éducation Financière">
-    <meta name="twitter:description" content="Ne subissez plus vos finances. Apprenez à dominer chaque franc avec les experts en Finance.">
-    <meta name="twitter:image" content="https://i.postimg.cc/x80KpBqW/warifinance3d.png">
+    <meta name="twitter:title" content="Wari Academy | Comprendre l’argent simplement">
+    <meta name="twitter:description" content="Devenez inarrêtable. Maîtrisez l'art de l'argent avec Wari Academy, la formation qui transforme les rêveurs en bâtisseurs d'empire.">
+    <meta name="twitter:image" content="../assets/finaleduc.jpg">
 
     <meta name="theme-color" content="#080b10">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

@@ -16,7 +16,7 @@
     </div>
 
     <!-- Bouton Principal (Lien vers Paiement) -->
-    <a href="https://wari.digiroys.com/paid/landing-vente.php"
+    <a href="https://wari.digiroys.com/paid/"
         target="_blank"
         onclick="trackLicenseBuy()"
         class="flex items-center justify-center w-14 h-14 bg-slate-950 border-2 border-amber-500 rounded-full shadow-lg hover:bg-slate-800 transition-all duration-300 active:scale-95 group">
