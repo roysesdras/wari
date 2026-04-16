@@ -40,7 +40,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=68">
+    <link rel="stylesheet" href="./assets/styles.css?v=69">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0B141A;">
@@ -724,7 +724,7 @@ if (!isset($_SESSION['user_id'])) {
         }
     </script>
 
-    <script src="./assets/main.js?v=68"></script>
+    <script src="./assets/main.js?v=69"></script>
 </body>
 
 </html>

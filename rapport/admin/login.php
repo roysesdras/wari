@@ -5,8 +5,8 @@ session_start();
  * CONFIGURATION SIMPLE ET SECURISEE
  * Change ces valeurs par tes propres identifiants
  */
-$admin_user = "wari_admin"; // Ton nom d'utilisateur
-$admin_pass = "WariImpact2026!"; // Ton mot de passe fort
+$admin_user = "wari"; // Ton nom d'utilisateur
+$admin_pass = "wariImpact2026!"; // Ton mot de passe fort
 
 $error = "";
 
@@ -26,11 +26,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Authentification | Rapport d'Impact</title>
+
+    <link rel="icon" type="image/png" href="https://wari.digiroys.com/assets/warifinance3d.png" />
+    <link rel="apple-touch-icon" href="https://wari.digiroys.com/assets/warifinance3d.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Quicksand', sans-serif; }</style>
 </head>
-<body class="bg-slate-950 text-slate-200 flex items-center justify-center min-h-screen p-6">
+<body class="bg-slate-950 text-slate-200 flex items-center justify-center min-h-screen p-3">
 
     <div class="w-full max-w-sm">
         <div class="text-center mb-10">
@@ -38,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p class="text-slate-500 text-[10px] uppercase tracking-[0.3em] mt-2">Section Stratégique • Wari-Finance</p>
         </div>
 
-        <form method="POST" class="bg-slate-900/50 p-8 rounded-3xl border border-white/5 shadow-2xl backdrop-blur-xl">
+        <form method="POST" class="bg-slate-900/50 p-3 rounded-xl border border-white/5 shadow-2xl backdrop-blur-xl">
             <?php if($error): ?>
                 <div class="bg-red-500/10 border border-red-500/50 p-3 rounded-xl text-red-500 text-[10px] uppercase font-bold mb-6 text-center tracking-widest">
                     <?php echo $error; ?>

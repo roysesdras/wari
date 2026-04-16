@@ -53,11 +53,11 @@ $rapports = $query->fetchAll();
             </div>
             <div class="flex gap-4">
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center min-w-[120px]">
-                    <span class="block text-2xl font-black text-[#D4AF37]"><?php echo number_format($stats['total_p']); ?></span>
+                    <span class="block text-2xl font-black text-[#D4AF37]"><?php echo number_format($stats['total_p'] ?? 0); ?></span>
                     <span class="text-[9px] uppercase font-black text-slate-400">Âmes Touchées</span>
                 </div>
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 text-center min-w-[120px]">
-                    <span class="block text-2xl font-black text-green-600">+<?php echo number_format($stats['total_a']); ?></span>
+                    <span class="block text-2xl font-black text-green-600">+<?php echo number_format($stats['total_a'] ?? 0); ?></span>
                     <span class="text-[9px] uppercase font-black text-slate-400">Abonnés WA</span>
                 </div>
             </div>

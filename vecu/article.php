@@ -66,6 +66,7 @@ if (!empty($article['image_url']) && file_exists($chemin_physique)) {
     <meta property="og:image" content="<?php echo $og_image; ?>">
     <meta property="og:site_name" content="Wari Vécu">
     <meta property="article:published_time" content="<?php echo $article['date_publication']; ?>">
+    <meta property="fb:app_id" content="967910445637901" />
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?php echo $titre_page; ?>">
@@ -102,7 +103,7 @@ if (!empty($article['image_url']) && file_exists($chemin_physique)) {
         .prose p, 
         .prose div {
             margin-top: 0 !important;
-            margin-bottom: 0 !important;
+            margin-bottom: 1.5rem;
             font-size: 1.1rem;
         }
 
@@ -120,7 +121,7 @@ if (!empty($article['image_url']) && file_exists($chemin_physique)) {
         .prose p,
         .prose div {
             margin-top: 0 !important;
-            margin-bottom: 0 !important;
+            margin-bottom: 1.5rem;
             line-height: inherit !important; 
         }
 
@@ -216,14 +217,7 @@ if (!empty($article['image_url']) && file_exists($chemin_physique)) {
             <h3 class="text-xl text-white font-bold mb-2 uppercase tracking-wide">Suivre la progression</h3>
             <p class="text-slate-500 text-sm mb-8 italic">Le journal d'un entrepreneur en quête de souveraineté.</p>
             
-            <form action="subscribe.php" method="POST" class="flex flex-col gap-3">
-                <input type="email" name="email" required placeholder="Ton adresse email" 
-                       class="bg-slate-950 border border-slate-800 p-4 rounded-xl text-sm focus:border-[#D4AF37] outline-none transition-all text-white">
-                <button type="submit" 
-                        class="bg-[#D4AF37] text-slate-950 font-bold px-6 py-4 rounded-xl uppercase text-xs tracking-widest hover:bg-[#bfa032] active:scale-95 transition-all">
-                    S'abonner à la discipline
-                </button>
-            </form>
+            <?php include 'assets/form.php'; ?>
         </div>
     </section>
 

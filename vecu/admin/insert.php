@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-xs font-bold text-[#D4AF37] uppercase mb-2 tracking-widest">Compteur</label>
-                    <input type="text" name="mois_compteur" required placeholder="Mois 01" 
+                    <input type="text" name="mois_compteur" required placeholder="Récit 01" 
                         class="w-full bg-slate-950 border border-slate-800 p-4 rounded-xl outline-none focus:border-[#D4AF37]">
                 </div>
                 <div>

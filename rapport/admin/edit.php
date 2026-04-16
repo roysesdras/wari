@@ -93,6 +93,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_action'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier Rapport | Wari</title>
+
+    <link rel="icon" type="image/png" href="https://wari.digiroys.com/assets/warifinance3d.png" />
+    <link rel="apple-touch-icon" href="https://wari.digiroys.com/assets/warifinance3d.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -154,8 +158,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_action'])) {
                 <label class="block text-[11px] uppercase font-black text-slate-400 mb-2 ml-1">Nature</label>
                 <select name="type_activite" id="type_activite" onchange="toggleOrgField()" class="w-full bg-slate-50 border border-slate-400 rounded-xl p-3 outline-none focus:border-wariGold text-slate-700">
                     <option value="Micro-trottoir" <?= $rapport['type_activite'] == 'Micro-trottoir' ? 'selected' : '' ?>>Micro-trottoir</option>
-                    <option value="Organisation" <?= $rapport['type_activite'] == 'Organisation' ? 'selected' : '' ?>>Organisation</option>
-                    <option value="Formation" <?= $rapport['type_activite'] == 'Formation' ? 'selected' : '' ?>>Formation</option>
+                    <option value="Organisation" <?= $rapport['type_activite'] == 'Organisation' ? 'selected' : '' ?>>Formation / Atelier</option>
+                    <!-- <option value="Formation" <?= $rapport['type_activite'] == 'Formation' ? 'selected' : '' ?>>Formation</option> -->
                     <option value="Autre" <?= $rapport['type_activite'] == 'Autre' ? 'selected' : '' ?>>Autre</option>
                 </select>
             </div>

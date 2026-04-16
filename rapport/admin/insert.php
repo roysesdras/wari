@@ -92,6 +92,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Saisie d'Impact | Wari</title>
+
+    <link rel="icon" type="image/png" href="https://wari.digiroys.com/assets/warifinance3d.png" />
+    <link rel="apple-touch-icon" href="https://wari.digiroys.com/assets/warifinance3d.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -147,8 +151,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label class="block text-[10px] uppercase font-black text-slate-500 mb-2 ml-1">Nature de l'activité</label>
                     <select name="type_activite" id="type_activite" onchange="toggleOrgField()" class="w-full bg-slate-50 border border-slate-400 rounded-xl p-3 outline-none focus:border-wariGold appearance-none text-slate-700">
                         <option value="Micro-trottoir">Micro-trottoir</option>
-                        <option value="Organisation">Organisation (Partenariat)</option>
-                        <option value="Formation">Formation / Atelier</option>
+                        <option value="Organisation">Formation / Atelier</option>
+                        <!-- <option value="Formation">Formation / Atelier</option> -->
                         <option value="Autre">Autre</option>
                     </select>
                 </div>

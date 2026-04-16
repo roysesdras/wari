@@ -11,6 +11,7 @@ Disallow: /classes/
 Disallow: /scratch/
 Disallow: /tmp/
 Disallow: /wari-admin/
+Disallow: /rapport/admin/
 
 # Autoriser le contenu public
 Allow: /index.php
@@ -19,6 +20,7 @@ Allow: /vecu/
 Allow: /academy/
 Allow: /uploads/
 Allow: /paid/
+Allow: /rapport/
 
 # Lien vers le sitemap
 Sitemap: https://wari.digiroys.com/accueil/sitemap.xml

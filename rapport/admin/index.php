@@ -22,6 +22,10 @@ $rapports = $stmt->fetchAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Impact | Wari</title>
+
+    <link rel="icon" type="image/png" href="https://wari.digiroys.com/assets/warifinance3d.png" />
+    <link rel="apple-touch-icon" href="https://wari.digiroys.com/assets/warifinance3d.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700;800&display=swap" rel="stylesheet">
     <script>

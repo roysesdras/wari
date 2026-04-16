@@ -55,7 +55,7 @@ function tempsLecture($texte) {
 </head>
 <body class="text-slate-200 selection-gold">
 
-    <header class="pt-5 pb-13 px-6 fade-in">
+    <header class="pt-5 pb-20 px-6 fade-in">
         <div class="max-w-3xl mx-auto">
             <h1 class="text-6xl md:text-8xl font-black tracking-tighter text-white mb-8">
                 Wari <span class="text-transparent bg-clip-text bg-gradient-to-b from-amber-200 to-amber-600">Vécu</span>
@@ -138,23 +138,17 @@ function tempsLecture($texte) {
         </div>
     </main>
 
-    <footer class="bg-slate-900/30 border-t border-white/5 py-10 px-4 mt-10">
+    <footer class="bg-slate-900/30 border-t border-white/5 py-5 px-4 mt-10">
         <div class="max-w-xl mx-auto text-center">
-            <h3 class="text-3xl font-bold text-white mb-4">Rejoindre la discipline</h3>
-            <p class="text-slate-400 mb-10 text-lg font-light italic font-serif">
-                Une fois par mois. Pas de spam, juste du vécu pour rester motivé.
+            <h3 class="text-3xl font-bold text-white mb-4 italic font-serif">Rejoindre la discipline</h3>
+            <p class="text-slate-400 mb-10 text-lg font-light">
+                Pas de mails que personne ne lit. Reçois le récit mensuel <span class="text-green-500 font-bold">directement sur WhatsApp</span>.
             </p>
             
-            <form action="subscribe.php" method="POST" class="relative max-w-md mx-auto group">
-                <input type="email" name="email" required placeholder="Ton adresse email..." 
-                    class="w-full bg-slate-950 border border-white/10 rounded-2xl py-5 px-6 text-white outline-none focus:border-amber-500/50 transition-all placeholder:text-slate-700">
-                <button type="submit" class="absolute right-2 top-2 bottom-2 bg-amber-500 text-slate-950 font-black px-6 rounded-xl hover:bg-amber-400 transition-colors uppercase text-[10px] tracking-widest active:scale-95">
-                    S'inscrire
-                </button>
-            </form>
+            <?php include 'assets/form.php'; ?>
             
             <p class="mt-8 text-[10px] text-slate-600 uppercase tracking-widest font-bold">
-                Le chemin est long, mais la direction est la bonne.
+                Discipline financière • Souveraineté • Vrai Vécu
             </p>
         </div>
     </footer>
