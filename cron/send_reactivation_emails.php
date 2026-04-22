@@ -18,7 +18,7 @@ if (file_exists($envFile)) {
         $_SERVER[$name] = $value;
     }
 }
-
+   
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../classes/Mailer.php';
 require_once __DIR__ . '/../config/db.php';

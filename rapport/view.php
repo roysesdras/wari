@@ -38,10 +38,18 @@ if (!empty($r['photos_json'])) {
     <meta property="og:type" content="article">
 
     <?php 
-        // $photos = json_decode($r['photos_json'], true);
-        // $og_image = (!empty($photos)) ? "https://wari.digiroys.com/rapport/admin/assets/uploads/" . $photos[0] : "https://wari.digiroys.com/rapport/admin/assets/img/default-share.png";
+        // On vérifie si la donnée existe et n'est pas vide avant de décoder
+        $photos = (!empty($r['photos_json'])) ? json_decode($r['photos_json'], true) : [];
+        
+        // On définit l'image : soit la première du tableau, soit une image par défaut
+        if (!empty($photos) && is_array($photos)) {
+            $og_image = "https://wari.digiroys.com/rapport/admin/assets/uploads/" . $photos[0];
+        } else {
+            $og_image = "https://wari.digiroys.com/rapport/admin/assets/img/default-share.png";
+        }
     ?>
-    <!-- <meta property="og:image" content="<?= $og_image ?>"> -->
+
+    <meta property="og:image" content="<?= htmlspecialchars($og_image) ?>">
 
     <link rel="icon" type="image/png" href="https://wari.digiroys.com/assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="https://wari.digiroys.com/assets/warifinance3d.png">

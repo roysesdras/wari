@@ -21,17 +21,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $uploaded_images = [];
-    $target_dir = __DIR__ . "/../assets/uploads/"; // Chemin sécurisé
+    $target_dir = __DIR__ . "/../assets/uploads/";
 
     if (!empty($_FILES['photos']['name'][0])) {
         if (!is_dir($target_dir)) mkdir($target_dir, 0775, true);
 
         foreach ($_FILES['photos']['tmp_name'] as $key => $tmp_name) {
             if ($key >= 5) break; 
+
             $file_size = $_FILES['photos']['size'][$key];
-            $file_name = time() . "_" . basename($_FILES['photos']['name'][$key]);
+            $original_name = $_FILES['photos']['name'][$key];
+            $file_ext = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
             
-            if ($file_size <= 2 * 1024 * 1024) { 
+            // Sécurité : On vérifie l'extension
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp'];
+            
+            if (in_array($file_ext, $allowed_extensions) && $file_size <= 2 * 1024 * 1024) { 
+                // On génère un nom unique pour éviter d'écraser des fichiers
+                $file_name = bin2hex(random_bytes(8)) . "_" . time() . "." . $file_ext;
+                
                 if (move_uploaded_file($tmp_name, $target_dir . $file_name)) {
                     $uploaded_images[] = $file_name;
                 }
@@ -151,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label class="block text-[10px] uppercase font-black text-slate-500 mb-2 ml-1">Nature de l'activité</label>
                     <select name="type_activite" id="type_activite" onchange="toggleOrgField()" class="w-full bg-slate-50 border border-slate-400 rounded-xl p-3 outline-none focus:border-wariGold appearance-none text-slate-700">
                         <option value="Micro-trottoir">Micro-trottoir</option>
-                        <option value="Organisation">Formation / Atelier</option>
+                        <option value="Organisation">Formation / Atelier / Sensibilisation</option>
                         <!-- <option value="Formation">Formation / Atelier</option> -->
                         <option value="Autre">Autre</option>
                     </select>
@@ -269,9 +277,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="sm:col-span-2 flex flex-col sm:grid sm:grid-cols-2 gap-6 bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <div>
-                    <label class="block text-[10px] uppercase font-black text-slate-500 mb-2">Photos (Max 5)</label>
-                    <input type="file" name="photos[]" multiple accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-wariDark file:text-white file:font-bold hover:file:bg-slate-700 cursor-pointer">
+                    <label class="block text-[10px] uppercase font-black text-slate-500 mb-2">
+                        Photos (Max 5, 2Mo en max par photo)
+                    </label>
+                    <input 
+                        type="file" 
+                        id="photoInput"
+                        name="photos[]" 
+                        multiple 
+                        required
+                        accept="image/*" 
+                        class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-wariDark file:text-white file:font-bold hover:file:bg-slate-700 cursor-pointer"
+                    >
+                    <p id="error-msg" class="text-[10px] text-red-500 mt-1 hidden font-bold">L'une des images dépasse 2 Mo.</p>
                 </div>
+
+                <script>
+                document.getElementById('photoInput').addEventListener('change', function() {
+                    const files = this.files;
+                    const maxSize = 2 * 1024 * 1024; // 2 Mo en octets
+                    const errorMsg = document.getElementById('error-msg');
+                    
+                    for (let i = 0; i < files.length; i++) {
+                        if (files[i].size > maxSize) {
+                            alert("Le fichier " + files[i].name + " est trop lourd (max 2 Mo).");
+                            this.value = ""; // Réinitialise le champ pour forcer un nouveau choix
+                            errorMsg.classList.remove('hidden');
+                            return;
+                        }
+                    }
+                    errorMsg.classList.add('hidden');
+                    
+                    // Limitation à 5 photos
+                    if (files.length > 5) {
+                        alert("Vous ne pouvez pas sélectionner plus de 5 photos.");
+                        this.value = "";
+                    }
+                });
+                </script>
+
                 <div>
                     <label class="block text-[10px] uppercase font-black text-slate-500 mb-2">Lien Dossier Cloud</label>
                     <input type="text" name="dossier_media_path" placeholder="https://drive.google..." class="w-full bg-white border border-slate-400 rounded-xl p-3 outline-none focus:border-wariGold text-slate-700">

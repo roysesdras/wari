@@ -1,35 +1,7 @@
 {
-  "candidates": [
-    {
-      "content": {
-        "parts": [
-          {
-            "text": "[\n  {\n    \"message\": \"Champion·ne, on dirait que tu as mis le pied dans la sauce ! Il est temps de reprendre le contrôle de tes finances comme un chef de village.\",\n    \"prediction\": \"Avec 1 395 F par jour, tu peux tenir jusqu'à la fin du mois. Règle d'or : ne pas dépasser ce budget quotidien !\",\n    \"dette_conseil\": \"\",\n    \"academy_reco\": \"L'art de l'épargne forcée\",\n    \"alerte_rouge\": \"Stop au gaspillage immédiat !\"\n  }\n]"
-          }
-        ],
-        "role": "model"
-      },
-      "finishReason": "STOP",
-      "avgLogprobs": -0.12324868077817171
-    }
-  ],
-  "usageMetadata": {
-    "promptTokenCount": 568,
-    "candidatesTokenCount": 138,
-    "totalTokenCount": 706,
-    "promptTokensDetails": [
-      {
-        "modality": "TEXT",
-        "tokenCount": 568
-      }
-    ],
-    "candidatesTokensDetails": [
-      {
-        "modality": "TEXT",
-        "tokenCount": 138
-      }
-    ]
-  },
-  "modelVersion": "gemini-2.0-flash",
-  "responseId": "NbfgaZDBEaTyxs0Pz5fP0AI"
+  "error": {
+    "code": 429,
+    "message": "Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing.",
+    "status": "RESOURCE_EXHAUSTED"
+  }
 }

@@ -40,7 +40,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=69">
+    <link rel="stylesheet" href="./assets/styles.css?v=70">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0B141A;">
@@ -77,7 +77,7 @@ if (!isset($_SESSION['user_id'])) {
         </header>
 
         <!-- Jauge de Santé Financière -->
-        <section class="glass-card p-5 mb-4 shine-effect">
+        <section class="glass-card p-3 mb-4 shine-effect">
             <div class="flex justify-between items-start mb-4">
                 <div>
                     <h3 class="text-[11px] uppercase tracking-widest text-emerald-400 font-bold mb-1">Santé financière</h3>
@@ -111,7 +111,7 @@ if (!isset($_SESSION['user_id'])) {
 
         <div class="grid grid-cols-2 gap-3 mb-4">
             <!-- BANQUE : Effet Blur pour se concentrer sur l'actif de croissance -->
-            <div class="glass-card p-4 cursor-pointer active:scale-95 transition-all group" 
+            <div class="glass-card p-3 cursor-pointer active:scale-95 transition-all group" 
                  onclick="const el = this.querySelector('#bankAmount'); el.classList.toggle('blur-[6px]'); el.classList.toggle('opacity-30'); el.classList.toggle('opacity-100');">
                 <div class="flex justify-between items-start mb-1">
                     <p class="text-[8px] uppercase tracking-widest text-slate-500 font-black">Banque (Réserves)</p>
@@ -122,7 +122,7 @@ if (!isset($_SESSION['user_id'])) {
             </div>
 
             <!-- POCHE : Reste en clair pour les dépenses quotidiennes -->
-            <div class="glass-card p-4">
+            <div class="glass-card p-3">
                 <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1 font-black">Poche (Dispo)</p>
                 <p id="cashAmount" class="text-lg font-black text-emerald-400">0 F</p>
                 <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight text-left">Dispo (Vie + Imprévus)</p>
@@ -130,7 +130,7 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Section insertion du montant a repartire -->
-        <div class="glass-card gold-border p-4 mb-4 shadow-2xl relative">
+        <div class="glass-card gold-border p-3 mb-4 shadow-2xl relative">
             <div class="flex justify-between items-center mb-3">
                 <label class="block text-[11px] uppercase tracking-[0.2em] text-yellow-500 font-bold">Montant à répartir</label>
                 <select id="currencySelector" onchange="render()" class="bg-slate-800 text-yellow-500 text-xs font-bold rounded px-1 py-1 outline-none">
@@ -160,70 +160,58 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Section Juge barre de % -->
-        <div id="statusIndicator" class="mt-4 flex items-center justify-center space-x-2 p-4 rounded-2xl transition-all duration-500">
+        <div id="statusIndicator" class="mt-4 flex items-center justify-center space-x-2 p-3 rounded-2xl transition-all duration-500">
             <div id="statusIcon"></div>
             <span id="statusText" class="font-bold text-sm uppercase tracking-wider"></span>
         </div>
 
         <!-- Section Versement a la banque (capital investir)-->
-        <div id="projectVault" class="mt-6 glass-card p-4 relative overflow-hidden group border-none shadow-2xl">
+        <div id="projectVault" class="mt-4 glass-card p-3 relative overflow-hidden group border-none shadow-2xl">
             <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/15 transition-all duration-1000"></div>
 
-            <div class="flex items-start justify-between mb-6 relative z-10">
+            <div class="flex items-center justify-between mb-3 relative z-10">
                 <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <h3 class="text-[11px] uppercase tracking-[0.1em] text-emerald-400 font-black">Liberté d'Action</h3>
-                    </div>
-                    <p class="text-[11px] text-slate-500 font-medium">Plantée à chaque répartition</p>
+                    <h3 class="text-[10px] uppercase tracking-[0.1em] text-emerald-400 font-black leading-none">Liberté d'Action</h3>
+                    <p class="text-[9px] text-slate-500 font-medium mt-0.5">Plantée à chaque répartition</p>
                 </div>
                 <div class="text-right">
-                    <div class="flex items-baseline justify-end gap-1">
-                        <span id="totalProjectSaved" class="text-3xl font-black text-white tracking-tighter drop-shadow-sm">0</span>
-                        <!-- <span id="capitalCurrency" class="text-xs font-bold text-emerald-500/80 uppercase">F</span> -->
+                    <div class="flex items-baseline justify-end gap-1 leading-none">
+                        <span id="totalProjectSaved" class="text-2xl font-black text-white tracking-tighter">0</span>
                     </div>
-                    <!-- Miniature Patrimoine (Fortune Totale) -->
-                    <div class="flex items-center justify-end gap-1 mt-1 opacity-90 transition-all duration-500">
-                        <span class="text-[8px] uppercase tracking-[0.2em] text-slate-500 font-black">Liberté :</span>
-                        <span id="totalGlobalAmount" class="text-[10px] font-black text-emerald-400">0</span>
+                    <div class="flex items-center justify-end gap-1 opacity-90">
+                        <span class="text-[7px] uppercase tracking-[0.1em] text-slate-500 font-black">Liberté :</span>
+                        <span id="totalGlobalAmount" class="text-[9px] font-black text-emerald-400">0</span>
                     </div>
                 </div>
             </div>
 
-            <div class="relative mb-6">
-                <div class="flex justify-between items-center mb-1.5 px-0.5">
-                    <!-- <span id="vaultPercentLabel" class="text-[9px] font-black text-emerald-500/80 tracking-widest uppercase">0% Atteint</span> -->
-                    <span id="vaultGoalAmountDisplay" class="text-[9px] font-bold text-emerald-500/80 tracking-widest uppercase">Objectif: --</span>
+            <div class="relative mb-3">
+                <div class="flex justify-between items-center mb-1 px-0.5">
+                    <span id="vaultGoalAmountDisplay" class="text-[8px] font-bold text-emerald-500/80 tracking-widest uppercase">Objectif: --</span>
                 </div>
-                <div class="relative w-full h-2 bg-slate-900/60 rounded-full p-[2px] border border-white/5 shadow-inner">
-                    <div id="vaultProgress" class="h-full bg-gradient-to-r from-emerald-600 via-emerald-400 to-teal-300 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.3)] transition-all duration-1000 ease-out" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 mt-4">
-                <div class="bg-slate-900/40 px-3 py-2 rounded-2xl border border-slate-800/50 flex flex-col justify-center">
-                    <p class="text-[8px] uppercase tracking-widest text-slate-500 font-bold mb-1">Cible</p>
-                    <div class="flex items-center justify-between gap-2">
-                        <p id="vaultGoalLabel" class="text-[11px] text-white font-black truncate">Définir</p>
-                        <div class="flex gap-2">
-                            <button onclick="openGoalModal()" class="text-emerald-500 hover:scale-110 transition-transform text-[11px]">✏️</button>
-                            <button id="deleteGoalBtn" onclick="deleteGoal()" class="text-red-400/70 hover:text-red-500 transition-colors text-[11px] hidden">✕</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-emerald-500/5 px-3 py-2 rounded-2xl border border-emerald-500/10 flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span class="text-[8px] text-emerald-400/80 uppercase tracking-widest font-black leading-tight">Capital<br>Sécurisé</span>
+                <div class="relative w-full h-1.5 bg-slate-900/60 rounded-full p-[1px] border border-white/5 shadow-inner">
+                    <div id="vaultProgress" class="h-full bg-gradient-to-r from-emerald-600 via-emerald-400 to-teal-300 rounded-full transition-all duration-1000" style="width: 0%"></div>
                 </div>
             </div>
 
-            <div class="mt-6 pt-4 border-t border-slate-800/40">
-                <div class="flex justify-between items-center mb-3">
-                    <p class="text-[8px] uppercase tracking-[0.2em] text-slate-500 font-bold flex items-center gap-2">Historique</p>
-                    <button onclick="window.toggleVaultHistory()" id="toggleHistBtn" class="text-[9px] text-slate-400 font-black uppercase tracking-widest">Détails</button>
+            <div class="bg-slate-900/40 px-3 py-1.5 rounded-xl border border-slate-800/50 flex items-center justify-between gap-3">
+                <div class="flex flex-col">
+                    <p class="text-[7px] uppercase tracking-widest text-slate-500 font-bold">Cible</p>
+                    <p id="vaultGoalLabel" class="text-[10px] text-white font-black truncate max-w-[100px]">Définir</p>
                 </div>
-                <div id="vaultHistory" class="space-y-1.5 max-h-12 overflow-hidden transition-all duration-500">
-                    <p class="text-[11px] text-slate-600 italic text-center py-2">Aucun mouvement</p>
+                <div class="flex gap-2">
+                    <button onclick="openGoalModal()" class="text-emerald-500 active:scale-90 transition-transform text-[10px]">✏️</button>
+                    <button id="deleteGoalBtn" onclick="deleteGoal()" class="text-red-400/70 text-[10px] hidden">✕</button>
+                </div>
+            </div>
+
+            <div class="mt-3 pt-2 border-t border-slate-800/40">
+                <div class="flex justify-between items-center mb-1">
+                    <p class="text-[7px] uppercase tracking-[0.2em] text-slate-500 font-bold">Historique</p>
+                    <button onclick="window.toggleVaultHistory()" id="toggleHistBtn" class="text-[8px] text-slate-400 font-black uppercase tracking-widest">Détails</button>
+                </div>
+                <div id="vaultHistory" class="max-h-8 overflow-hidden transition-all duration-500">
+                    <p class="text-[8px] text-slate-600 italic text-center py-1">Aucun mouvement</p>
                 </div>
             </div>
         </div>
@@ -324,15 +312,72 @@ if (!isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Section Bouttons -->
-        <div class="fixed bottom-4 left-0 right-0 max-w-md mx-auto flex justify-center items-center gap-2 z-[110]">
+        <div class="fixed bottom-1 left-0 right-0 max-w-md mx-auto flex justify-center items-center gap-2 z-[110]">
     
-            <a href="https://wari.digiroys.com/academy/"target="_blank" 
-            class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 text-slate-300 active:scale-95 transition-all hover:text-indigo-400 shadow-lg shadow-slate-900/20">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path d="M12 14l9-5-9-5-9 5 9 5z" />
-                    <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                </svg>
-            </a>
+            <div class="relative inline-block">
+                <div id="license-message" 
+                    class="absolute bottom-full left-0 -translate-x-0 mb-3 w-48 p-3 bg-slate-950 border border-amber-500/30 rounded-xl shadow-2xl opacity-0 translate-y-2 transition-all duration-500 ease-out z-50 pointer-events-none">
+                    
+                    <p class="text-[11px] font-medium text-slate-200 leading-tight">
+                       <span class="text-amber-500 font-bold uppercase tracking-wider">Exclusivité</span><br>
+                        Boostez votre éducation financière.
+                    </p>
+                    
+                    <div class="absolute -bottom-1.5 left-0 -translate-x-0 w-3 h-3 bg-slate-950 border-r border-b border-amber-500/30 rotate-45"></div>
+                </div>
+
+                <a href="https://wari.digiroys.com/academy/" target="_blank" onclick="trackLicenseBuy()"
+                class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 text-slate-300 active:scale-95 transition-all hover:text-indigo-400 shadow-lg shadow-slate-900/20">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1.5 9 12 3l10.5 6L12 15 1.5 9Z"></path>
+                        <path d="M5.25 11.25v6L12 21l6.75-3.75v-6"></path>
+                        <path d="M22.5 17.25V9"></path>
+                        <path d="M12 15v6"></path>
+                    </svg>
+                </a>
+            </div>
+
+            <script>
+                window.addEventListener('load', () => {
+                    const msgBulle = document.getElementById('license-message');
+                    const lastDisplay = localStorage.getItem('wari_academy_nudge');
+                    const now = new Date().getTime();
+                    
+                    // Délai de 21 jours (21 jours * 24h * 60m * 60s * 1000ms)
+                    const delay = 21 * 24 * 60 * 60 * 1000;
+
+                    if (!lastDisplay || (now - parseInt(lastDisplay)) > delay) {
+                        setTimeout(() => {
+                            if (msgBulle) {
+                                // Apparition
+                                msgBulle.classList.remove('opacity-0', 'translate-y-2');
+                                msgBulle.classList.add('opacity-100', 'translate-y-0');
+                                
+                                // On enregistre l'affichage
+                                localStorage.setItem('wari_academy_nudge', now.toString());
+
+                                // Disparition après 5 secondes (lecture rapide)
+                                setTimeout(() => closeLicenseMsg(), 5000);
+                            }
+                        }, 4000); 
+                    }
+                });
+
+                function closeLicenseMsg() {
+                    const msgBulle = document.getElementById('license-message');
+                    if (msgBulle) {
+                        msgBulle.classList.replace('opacity-100', 'opacity-0');
+                        msgBulle.classList.add('translate-y-2');
+                    }
+                }
+
+                function trackLicenseBuy() {
+                    closeLicenseMsg();
+                    if (window.DigiStats && typeof window.DigiStats.track === 'function') {
+                        window.DigiStats.track('click_academy_access', { platform: 'web' });
+                    }
+                }
+            </script>
 
             <button onclick="saveBudget()"
                 class="px-6 py-3 bg-slate-900 rounded-full font-bold text-xs uppercase tracking-wider text-slate-300 border border-slate-700 active:scale-95 transition-all hover:text-blue-400 flex items-center gap-2 shadow-lg shadow-slate-900/20">
@@ -341,6 +386,19 @@ if (!isset($_SESSION['user_id'])) {
                 </svg>
                 <span>Mettre a jour</span>
             </button>
+
+            <div class="relative inline-block">
+                <a href="https://wari.digiroys.com/vecu/" target="_blank"
+                class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 text-slate-300 active:scale-95 transition-all hover:text-emerald-400 shadow-lg shadow-slate-900/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path d="m14.728 22.609-2.66-5.379-2.105-2.69a3.414 3.414 0 0 1-.475-1.737V6.75h.735a1.885 1.885 0 0 1 1.886 1.885v8.595"></path>
+                        <path d="M5.996 13.737v-3.493S7.743 6.75 9.49 6.75"></path>
+                        <path d="m17.348 12.863-3.098-2.035"></path>
+                        <path d="m7.994 22.423 2.507-3.673"></path>
+                        <path d="M12.108 5a1.747 1.747 0 1 0 0-3.492 1.747 1.747 0 0 0 0 3.493Z"></path>
+                    </svg>
+                </a>
+            </div>
         </div>
 
         <!-- Bouton Installation PWA -->
@@ -724,7 +782,7 @@ if (!isset($_SESSION['user_id'])) {
         }
     </script>
 
-    <script src="./assets/main.js?v=69"></script>
+    <script src="./assets/main.js?v=70"></script>
 </body>
 
 </html>

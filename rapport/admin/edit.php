@@ -25,22 +25,47 @@ if (!$rapport) {
 // 2. TRAITEMENT DE LA MISE À JOUR
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_action'])) {
     
-    // Gestion des photos
     $uploaded_images = json_decode($rapport['photos_json'], true) ?: [];
-    if (!empty($_FILES['photos']['name'][0])) {
-        $target_dir = __DIR__ . "/../assets/uploads/";
-        if (!is_dir($target_dir)) mkdir($target_dir, 0775, true);
+    $target_dir = __DIR__ . "/../assets/uploads/";
 
+    // --- GESTION DE LA SUPPRESSION ---
+    if (!empty($_POST['delete_photos'])) {
+        $to_delete = explode(',', $_POST['delete_photos']);
+        foreach ($to_delete as $filename) {
+            // 1. On retire du tableau
+            if (($key = array_search($filename, $uploaded_images)) !== false) {
+                unset($uploaded_images[$key]);
+                
+                // 2. On supprime le fichier physique sur le disque
+                if (file_exists($target_dir . $filename)) {
+                    unlink($target_dir . $filename);
+                }
+            }
+        }
+        // Réindexer le tableau pour éviter des clés manquantes dans le JSON
+        $uploaded_images = array_values($uploaded_images);
+    }
+
+    // --- AJOUT DES NOUVELLES PHOTOS ---
+    if (!empty($_FILES['photos']['name'][0])) {
         foreach ($_FILES['photos']['tmp_name'] as $key => $tmp_name) {
             if (count($uploaded_images) >= 5) break; 
-            $file_name = time() . "_" . basename($_FILES['photos']['name'][$key]);
-            if (move_uploaded_file($tmp_name, $target_dir . $file_name)) {
-                $uploaded_images[] = $file_name;
+            
+            $file_size = $_FILES['photos']['size'][$key];
+            $file_ext = strtolower(pathinfo($_FILES['photos']['name'][$key], PATHINFO_EXTENSION));
+            $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+
+            if (in_array($file_ext, $allowed) && $file_size <= 2 * 1024 * 1024) {
+                $file_name = bin2hex(random_bytes(5)) . "_" . time() . "." . $file_ext;
+                if (move_uploaded_file($tmp_name, $target_dir . $file_name)) {
+                    $uploaded_images[] = $file_name;
+                }
             }
         }
     }
+    
     $images_json = json_encode($uploaded_images);
-
+    
     try {
         $sql = "UPDATE wari_rapports_impact SET 
                 date_evenement = ?, lieu = ?, pays = ?, type_activite = ?, nom_organisation = ?, 
@@ -158,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_action'])) {
                 <label class="block text-[11px] uppercase font-black text-slate-400 mb-2 ml-1">Nature</label>
                 <select name="type_activite" id="type_activite" onchange="toggleOrgField()" class="w-full bg-slate-50 border border-slate-400 rounded-xl p-3 outline-none focus:border-wariGold text-slate-700">
                     <option value="Micro-trottoir" <?= $rapport['type_activite'] == 'Micro-trottoir' ? 'selected' : '' ?>>Micro-trottoir</option>
-                    <option value="Organisation" <?= $rapport['type_activite'] == 'Organisation' ? 'selected' : '' ?>>Formation / Atelier</option>
+                    <option value="Organisation" <?= $rapport['type_activite'] == 'Organisation' ? 'selected' : '' ?>>Formation / Atelier / Sensibilisation</option>
                     <!-- <option value="Formation" <?= $rapport['type_activite'] == 'Formation' ? 'selected' : '' ?>>Formation</option> -->
                     <option value="Autre" <?= $rapport['type_activite'] == 'Autre' ? 'selected' : '' ?>>Autre</option>
                 </select>
@@ -211,7 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_action'])) {
 
             <div class="sm:col-span-2">
                 <label class="block text-[10px] uppercase font-black text-red-500 mb-2 ml-1">Points de vigilance / Échecs</label>
-                <textarea name="points_vigilance" rows="2" placeholder="Difficultés rencontrées..." class="w-full bg-red-50/30 border border-red-200 rounded-xl p-3 outline-none focus:border-red-400 text-slate-700 placeholder:text-red-200"><?= htmlspecialchars($rapport['points_vigilance']) ?></textarea>
+                <textarea name="points_vigilance" rows="2" placeholder="Difficultés rencontrées..." class="w-full bg-red-50/30 border border-red-200 rounded-xl p-3 outline-none focus:border-red-400 text-slate-700 placeholder:text-red-200"><?= html_entity_decode($rapport['points_vigilance'], ENT_QUOTES, 'UTF-8') ?></textarea>
             </div>
 
             <div class="sm:col-span-2 bg-slate-800 p-4 rounded-[1rem] shadow-inner text-white">
@@ -250,7 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_action'])) {
                 </div>
             </div>
 
-            <div class="sm:col-span-2 space-y-6 bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <div class="sm:col-span-2 space-y-6 bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-inner">
     
                 <?php 
                 $photos = json_decode($rapport['photos_json'], true) ?: [];
@@ -260,34 +285,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_action'])) {
                     <label class="block text-[10px] uppercase font-black text-slate-400 mb-3 ml-1">Photos actuellement scellées</label>
                     <div class="flex flex-wrap gap-3">
                         <?php foreach ($photos as $img): ?>
-                            <div class="relative group">
-                                <img src="../assets/uploads/<?= $img ?>" class="w-20 h-20 object-cover rounded-xl border-2 border-white shadow-sm transition-transform group-hover:scale-105">
-                                <span class="absolute -top-1 -right-1 bg-emerald-500 w-4 h-4 rounded-full border-2 border-white"></span>
+                            <div class="relative group" id="container-<?= md5($img) ?>">
+                                <img src="../assets/uploads/<?= $img ?>" class="w-20 h-20 object-cover rounded-xl border-2 border-white shadow-md transition-transform group-hover:scale-105">
+                                
+                                <button type="button" 
+                                        onclick="markForDeletion('<?= $img ?>', '<?= md5($img) ?>')" 
+                                        class="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white w-5 h-5 rounded-full border-2 border-white flex items-center justify-center text-[10px] transition-colors shadow-lg">
+                                    ✕
+                                </button>
                             </div>
                         <?php endforeach; ?>
                     </div>
+                    <input type="hidden" name="delete_photos" id="delete_photos_input" value="">
                 </div>
                 <?php endif; ?>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-[10px] uppercase font-black text-slate-400 mb-2">Ajouter des photos (Max 5 total)</label>
-                        <input type="file" name="photos[]" multiple accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-wariDark file:text-white file:font-bold hover:file:bg-slate-700 cursor-pointer">
-                        <p class="text-[9px] text-slate-400 mt-2 italic font-medium">L'ajout de nouvelles photos s'additionne aux anciennes.</p>
+                        <label class="block text-[10px] uppercase font-black text-slate-400 mb-2">Ajouter des photos (Reste <?= 5 - count($photos) ?> places)</label>
+                        <input type="file" name="photos[]" multiple accept="image/*" id="photoInput"
+                            class="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-wariDark file:text-white file:font-bold hover:file:bg-slate-700 cursor-pointer border border-dashed border-slate-300 p-2 rounded-xl bg-white">
+                        <p class="text-[9px] text-slate-400 mt-2 italic">Max 2Mo par photo. Elles s'ajouteront aux anciennes.</p>
                     </div>
+
                     <div>
                         <label class="block text-[10px] uppercase font-black text-slate-400 mb-2">Lien Vidéo / Dossier Cloud</label>
                         <input type="text" name="dossier_media_path" 
-                            value="<?= htmlspecialchars($rapport['dossier_media_path']) ?>" 
+                            value="<?= htmlspecialchars($rapport['dossier_media_path'] ?? '') ?>" 
                             placeholder="https://drive.google.com/..." 
-                            class="w-full bg-white border border-slate-200 rounded-xl p-3 outline-none focus:border-wariGold text-slate-700">
+                            class="w-full bg-white border border-slate-200 rounded-xl p-3 outline-none focus:border-wariGold text-slate-700 text-md">
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="sm:col-span-2 bg-wariDark text-white font-black py-3 rounded-xl uppercase text-[10px] tracking-[0.3em] hover:bg-wariGold transition-all shadow-lg active:scale-95">
-                Mettre à jour le rapport
-            </button>
+            <div class="sm:col-span-2 mt-4">
+                <button type="submit" name="update_action" class="w-full bg-wariDark text-white font-black py-4 rounded-xl uppercase text-[10px] tracking-[0.3em] hover:bg-wariGold transition-all shadow-lg active:scale-95">
+                    Mettre à jour le rapport
+                </button>
+            </div>
+
+            <script>
+            function markForDeletion(filename, id) {
+                if(confirm('Supprimer cette photo définitivement ?')) {
+                    let input = document.getElementById('delete_photos_input');
+                    let currentVal = input.value ? input.value.split(',') : [];
+                    currentVal.push(filename);
+                    input.value = currentVal.join(',');
+                    document.getElementById('container-' + id).style.display = 'none';
+                }
+            }
+
+            // Validation JS pour la taille des fichiers
+            document.getElementById('photoInput').addEventListener('change', function() {
+                const files = this.files;
+                const maxSize = 2 * 1024 * 1024;
+                for (let i = 0; i < files.length; i++) {
+                    if (files[i].size > maxSize) {
+                        alert("Le fichier " + files[i].name + " dépasse 2 Mo.");
+                        this.value = "";
+                        return;
+                    }
+                }
+            });
+            </script>
         </form>
     </div>
 

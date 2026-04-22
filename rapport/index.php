@@ -8,8 +8,8 @@ $stats = $pdo->query("SELECT
     COUNT(id) as total_actions
     FROM wari_rapports_impact")->fetch();
 
-// 2. Récupération de la liste des rapports
-$query = $pdo->query("SELECT * FROM wari_rapports_impact ORDER BY date_evenement DESC");
+// 2. Récupération de la liste des rapports du plus ancien au plus récent
+$query = $pdo->query("SELECT * FROM wari_rapports_impact ORDER BY date_evenement ASC");
 $rapports = $query->fetchAll();
 ?>
 
@@ -75,7 +75,7 @@ $rapports = $query->fetchAll();
 
                     <div class="p-4 flex-grow">
                         <h2 class="text-xl font-extrabold text-slate-900 mb-2 leading-tight group-hover:text-[#D4AF37] transition-colors">
-                            <?php echo $r['titre_rapport']; ?>
+                            <?php echo strip_tags($r['titre_rapport']); ?>
                         </h2>
                         <div class="flex items-center text-slate-500 text-sm mb-4">
                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
