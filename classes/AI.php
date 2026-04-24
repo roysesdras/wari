@@ -1,5 +1,6 @@
 <?php
 // /var/www/wari.digiroys.com/classes/AI.php
+// Moteur IA principal avec fallback automatique Gemini → Groq
 
 class AI
 {
@@ -42,9 +43,45 @@ class AI
     }
 
     /**
-     * Envoie un prompt à Gemini et retourne la réponse brute (JSON de l'API)
+     * Méthode publique principale — Essaie Gemini, puis Groq en fallback
      */
     public function generate($prompt, $systemInstruction = null)
+    {
+        // 1. Essayer Gemini en premier
+        $geminiResult = $this->callGemini($prompt, $systemInstruction);
+
+        if ($geminiResult['success']) {
+            return $geminiResult['data'];
+        }
+
+        // 2. Gemini a échoué → Fallback sur Groq
+        $this->logFallback($geminiResult['error']);
+
+        try {
+            require_once __DIR__ . '/Groq.php';
+            $groq = new Groq();
+            $groqResult = $groq->generate($prompt, $systemInstruction);
+
+            // Vérifier que Groq n'a pas aussi échoué
+            $decoded = json_decode($groqResult, true);
+            if (is_array($decoded) && isset($decoded['error'])) {
+                // Les deux providers ont échoué
+                $this->logFallback("Groq aussi a échoué: " . $decoded['error']);
+                return $geminiResult['data']; // Retourner l'erreur Gemini originale
+            }
+
+            return $groqResult;
+        } catch (Exception $e) {
+            $this->logFallback("Exception Groq: " . $e->getMessage());
+            return $geminiResult['data'];
+        }
+    }
+
+    /**
+     * Appel direct à l'API Gemini
+     * @return array ['success' => bool, 'data' => string, 'error' => string|null]
+     */
+    private function callGemini($prompt, $systemInstruction = null)
     {
         $url = $this->baseUrl . $this->model . ":generateContent?key=" . $this->apiKey;
 
@@ -72,24 +109,62 @@ class AI
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
         $response = curl_exec($ch);
         file_put_contents(__DIR__ . '/../tmp/ai_raw_log.json', $response); // Log pour debug
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $err = curl_error($ch);
         curl_close($ch);
 
+        // Échec cURL (timeout, DNS, etc.)
         if ($err) {
-            return json_encode(["error" => "CURL Error: " . $err]);
+            return [
+                'success' => false,
+                'data' => json_encode(["error" => "CURL Error: " . $err]),
+                'error' => "cURL: $err"
+            ];
+        }
+
+        // Échec HTTP (quota dépassé = 429, erreur serveur = 500, etc.)
+        if ($httpCode !== 200) {
+            $errorData = json_decode($response, true);
+            $errorMsg = $errorData['error']['message'] ?? "HTTP $httpCode";
+            return [
+                'success' => false,
+                'data' => json_encode(["error" => "Gemini Error: " . $errorMsg]),
+                'error' => "HTTP $httpCode: $errorMsg"
+            ];
         }
 
         $data = json_decode($response, true);
         $textResponse = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
 
+        // Réponse vide de Gemini
         if (!$textResponse) {
-            return json_encode(["error" => "L'IA n'a pas renvoyé de contenu.", "raw" => $data]);
+            return [
+                'success' => false,
+                'data' => json_encode(["error" => "L'IA n'a pas renvoyé de contenu.", "raw" => $data]),
+                'error' => "Réponse vide de Gemini"
+            ];
         }
 
-        return $textResponse;
+        return [
+            'success' => true,
+            'data' => $textResponse,
+            'error' => null
+        ];
+    }
+
+    /**
+     * Log les événements de fallback pour le monitoring
+     */
+    private function logFallback($reason)
+    {
+        $logFile = __DIR__ . '/../tmp/ai_fallback_log.txt';
+        $timestamp = date('Y-m-d H:i:s');
+        $entry = "[$timestamp] FALLBACK Gemini → Groq | Raison: $reason\n";
+        file_put_contents($logFile, $entry, FILE_APPEND);
     }
 
     /**

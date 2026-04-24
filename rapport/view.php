@@ -132,7 +132,7 @@ if (!empty($r['photos_json'])) {
 
         <!-- BILAN FINANCIER — après la section <section class="grid grid-cols-2 md:grid-cols-4 ..."> -->
 
-        <section class="bg-slate-900 rounded-xl p-4 mb-12 grid grid-cols-3 gap-4 text-center border-b border-slate-200 pb-8">
+        <!-- <section class="bg-slate-900 rounded-xl p-4 mb-12 grid grid-cols-3 gap-4 text-center border-b border-slate-200 pb-8">
             <div>
                 <span class="block text-[10px] uppercase font-black text-slate-400 mb-2 tracking-widest">Dépenses</span>
                 <span class="block text-2xl font-black text-red-400">
@@ -156,7 +156,7 @@ if (!empty($r['photos_json'])) {
                     <?php echo $balanceSign . number_format($balance, 0, ',', ' '); ?> XOF
                 </span>
             </div>
-        </section>
+        </section> -->
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
             

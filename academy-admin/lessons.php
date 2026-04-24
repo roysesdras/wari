@@ -183,7 +183,7 @@ if ($filterCourseId) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leçons — Wari Academy Admin</title>
+    <title>Leçons : Wari Academy</title>
 
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">

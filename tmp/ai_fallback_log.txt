@@ -1,0 +1,3 @@
+[2026-04-24 17:17:54] FALLBACK Gemini → Groq | Raison: HTTP 429: Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.
+[2026-04-24 17:18:53] FALLBACK Gemini → Groq | Raison: HTTP 429: Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.
+[2026-04-24 17:35:26] FALLBACK Gemini → Groq | Raison: HTTP 429: Resource exhausted. Please try again later. Please refer to https://cloud.google.com/vertex-ai/generative-ai/docs/error-code-429 for more details.
