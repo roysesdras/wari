@@ -686,7 +686,11 @@ fetch("config/save_data.php", {
 .then(() => console.log("✅ Synchro serveur réussie"))
 .catch((err) => {
     console.error("❌ Erreur critique save_data :", err.message);
-    // Optionnel : Alerter l'utilisateur que ses données ne sont que locales
+    if (!navigator.onLine || err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+        if (typeof window.queueOfflineAction === 'function') {
+            window.queueOfflineAction("config/save_data.php", dataToSave);
+        }
+    }
 });
 
 // 2. Ajout de la distribution
@@ -1036,35 +1040,46 @@ window.submitExpense = function () {
 
   if (!amount || amount <= 0) return alert("Montant invalide");
 
+  // --- MISE À JOUR OPTIMISTE ---
+  if (!currentExpenses[catId]) currentExpenses[catId] = 0;
+  currentExpenses[catId] = parseInt(currentExpenses[catId]) + amount;
+
+  const cat = categories.find((c) => c.id == catId);
+  if (cat && cat.name.toLowerCase().includes("projet")) {
+    projectCapital = Math.max(0, projectCapital - amount);
+    addVaultTransaction("out", amount, note);
+    saveBudget(true); // gère sa propre file d'attente
+  }
+
+  closeExpenseModal();
+  amountInput.value = "";
+  if (noteInput) noteInput.value = "";
+  render();
+
+  const bodyData = { amount, category_id: catId, description: note };
+
+  if (!navigator.onLine) {
+    if (typeof window.queueOfflineAction === 'function') {
+        window.queueOfflineAction("config/add_expense.php", bodyData);
+    }
+    return;
+  }
+
   fetch("config/add_expense.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ amount, category_id: catId, description: note }),
+    body: JSON.stringify(bodyData),
   })
-    .then((res) => res.text()) // ← text() d'abord pour voir ce qui arrive
-    .then((raw) => {
-      console.log("Réponse brute :", raw); // ← diagnostic
-      const data = JSON.parse(raw);
-      if (data.success) {
-        if (!currentExpenses[catId]) currentExpenses[catId] = 0;
-        currentExpenses[catId] = parseInt(currentExpenses[catId]) + amount;
-
-        const cat = categories.find((c) => c.id == catId);
-        if (cat && cat.name.toLowerCase().includes("projet")) {
-          projectCapital = Math.max(0, projectCapital - amount);
-          addVaultTransaction("out", amount, note);
-          saveBudget(true);
-        }
-
-        closeExpenseModal();
-        amountInput.value = "";
-        if (noteInput) noteInput.value = "";
-        render();
-      } else {
-        alert("Erreur : " + (data.error || "Échec"));
-      }
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data.success) console.error("Erreur serveur :", data.error);
     })
-    .catch((error) => alert("Erreur réseau : " + error.message));
+    .catch((error) => {
+      console.warn("Erreur réseau dépense, mise en file d'attente.");
+      if (typeof window.queueOfflineAction === 'function') {
+          window.queueOfflineAction("config/add_expense.php", bodyData);
+      }
+    });
 };
 
 window.closeExpenseModal = function () {
@@ -1105,15 +1120,25 @@ window.submitDebt = async () => {
 
   if (!confirm(msg)) return;
 
-  const res = await fetch("config/add_debt.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ person, amount, type }),
-  });
-  const data = await res.json();
-  if (data.success) {
-    window.location.href =
-      window.location.href.split("?")[0] + "?t=" + Date.now();
+  const bodyData = { person, amount, type };
+
+  try {
+      if (!navigator.onLine) throw new Error("Offline");
+      const res = await fetch("config/add_debt.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.href = window.location.href.split("?")[0] + "?t=" + Date.now();
+      }
+  } catch (error) {
+      if (typeof window.queueOfflineAction === 'function') {
+          window.queueOfflineAction("config/add_debt.php", bodyData);
+          alert("Dette enregistrée hors ligne ! Elle sera synchronisée plus tard.");
+          closeDebtModal();
+      }
   }
 };
 
@@ -1156,16 +1181,27 @@ window.submitPartialPay = async () => {
   const confirmMsg = `Tu confirmes avoir ${actionLabel} ${amount} ${currency} ?\nChaque petit pas compte pour ta liberté financière.`;
   if (!confirm(confirmMsg)) return;
 
-  const res = await fetch("config/partial_pay.php", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, amount, type }),
-  });
-  const data = await res.json();
-  if (data.success) {
-    window.location.href = window.location.pathname + "?updated=" + Date.now();
-  } else {
-    alert("Erreur lors de l'enregistrement. Réessaie.");
+  const bodyData = { id, amount, type };
+
+  try {
+      if (!navigator.onLine) throw new Error("Offline");
+      const res = await fetch("config/partial_pay.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bodyData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        window.location.href = window.location.pathname + "?updated=" + Date.now();
+      } else {
+        alert("Erreur lors de l'enregistrement. Réessaie.");
+      }
+  } catch (error) {
+      if (typeof window.queueOfflineAction === 'function') {
+          window.queueOfflineAction("config/partial_pay.php", bodyData);
+          alert("Paiement enregistré hors ligne ! Il sera synchronisé plus tard.");
+          closePayModal();
+      }
   }
 };
 
@@ -1828,3 +1864,74 @@ function closeReleaseNotes() {
     const modal = document.getElementById('release-modal');
     if (modal) modal.remove();
 }
+
+// ─── OFFLINE BACKGROUND SYNC ───────────────────────────────────────────────
+
+const OFFLINE_QUEUE_KEY = 'wari_offline_queue';
+
+function getOfflineQueue() {
+    try {
+        return JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+    } catch {
+        return [];
+    }
+}
+
+function setOfflineQueue(queue) {
+    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+}
+
+window.queueOfflineAction = function(url, body) {
+    const queue = getOfflineQueue();
+    queue.push({ url, body, timestamp: Date.now() });
+    setOfflineQueue(queue);
+    console.log("Action mise en attente hors ligne :", url);
+};
+
+window.processOfflineQueue = async function() {
+    if (!navigator.onLine) return;
+    const queue = getOfflineQueue();
+    if (queue.length === 0) return;
+
+    console.log(`Synchronisation de ${queue.length} actions en attente...`);
+    let remainingQueue = [];
+
+    for (let item of queue) {
+        try {
+            const res = await fetch(item.url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(item.body)
+            });
+            if (!res.ok) throw new Error("HTTP error " + res.status);
+            console.log(`✅ Synchro réussie pour ${item.url}`);
+        } catch (e) {
+            console.warn(`❌ Echec synchro ${item.url}, sera retenté plus tard.`, e);
+            remainingQueue.push(item);
+        }
+    }
+    
+    setOfflineQueue(remainingQueue);
+    if (remainingQueue.length === 0 && queue.length > 0) {
+        console.log("🎉 Synchronisation totale terminée !");
+    }
+};
+
+window.addEventListener('online', () => {
+    const badge = document.getElementById('offlineBadge');
+    if (badge) badge.classList.add('hidden');
+    processOfflineQueue();
+});
+
+window.addEventListener('offline', () => {
+    const badge = document.getElementById('offlineBadge');
+    if (badge) badge.classList.remove('hidden');
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (!navigator.onLine) {
+        const badge = document.getElementById('offlineBadge');
+        if (badge) badge.classList.remove('hidden');
+    }
+    processOfflineQueue();
+});

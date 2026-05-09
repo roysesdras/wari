@@ -71,7 +71,10 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                     WARI - Finance
                 </h1>
                 <p class="text-[8px] font-bold uppercase tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-slate-400 to-slate-600">Discipline | Liberté | Suivis</p>
-                <span id="liveClock" class="text-[9px] font-bold tracking-tight mt-0.5 text-transparent bg-clip-text bg-gradient-to-r from-amber-400/80 to-yellow-600/60"></span>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <span id="liveClock" class="text-[9px] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-400/80 to-yellow-600/60"></span>
+                    <span id="offlineBadge" class="hidden text-[8px] font-black uppercase tracking-widest bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded-sm border border-red-500/30">Hors Ligne ⚡</span>
+                </div>
             </div>
 
             <!-- ✅ BOUTON HISTORIQUE -->

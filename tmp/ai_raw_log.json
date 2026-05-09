@@ -4,33 +4,33 @@
       "content": {
         "parts": [
           {
-            "text": "{\n  \"message\": \"Champion·ne, tu as démarré le mois avec une discipline de fer ! Garde ce cap, chaque franc économisé est une victoire.\",\n  \"prediction\": \"Avec 406 F par jour, tu peux tenir tout le mois sans problème. Règle d'or : ne dépasse jamais 406 F par jour.\",\n  \"dette_conseil\": \"\",\n  \"academy_reco\": \"L'art de l'épargne forcée\",\n  \"alerte_rouge\": \"\"\n}"
+            "text": "{\n  \"message\": \"Champion·ne, ton mois commence bien, mais la route est longue. Transforme chaque jour en une victoire financière !\",\n  \"prediction\": \"Avec un budget quotidien de 0 F, la clé est d'activer tes sources de revenus. Chaque franc compte !\",\n  \"dette_conseil\": \"\",\n  \"academy_reco\": \"Gérer son fonds de roulement\",\n  \"alerte_rouge\": \"Potentiel financier inexploité !\"\n}"
           }
         ],
         "role": "model"
       },
       "finishReason": "STOP",
-      "avgLogprobs": -0.11278661617562791
+      "avgLogprobs": -0.21746722782883687
     }
   ],
   "usageMetadata": {
-    "promptTokenCount": 545,
-    "candidatesTokenCount": 121,
-    "totalTokenCount": 666,
+    "promptTokenCount": 532,
+    "candidatesTokenCount": 107,
+    "totalTokenCount": 639,
     "promptTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 545
+        "tokenCount": 532
       }
     ],
     "candidatesTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 121
+        "tokenCount": 107
       }
     ],
     "serviceTier": "standard"
   },
   "modelVersion": "gemini-2.0-flash",
-  "responseId": "3uX9aa7hFauP28oPzLCssAs"
+  "responseId": "vAn_ada_JYuGvdIPzfnnyQI"
 }
