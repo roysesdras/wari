@@ -57,6 +57,9 @@ function tempsLecture($texte) {
 
     <header class="pt-5 pb-20 px-6 fade-in">
         <div class="max-w-3xl mx-auto">
+            <a href="https://wari.digiroys.com" class="inline-flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest mb-10">
+                ← Dashboard
+            </a>
             <h1 class="text-6xl md:text-8xl font-black tracking-tighter text-white mb-8">
                 Wari <span class="text-transparent bg-clip-text bg-gradient-to-b from-amber-200 to-amber-600">Vécu</span>
             </h1>

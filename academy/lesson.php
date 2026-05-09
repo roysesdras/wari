@@ -265,10 +265,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 </div>
             </div>
 
-            <a href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>" class="shrink-0 flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2 rounded-xl transition-all text-xs font-bold uppercase tracking-widest text-slate-300 hover:text-white">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                <span class="hidden sm:inline">Vue du cours</span>
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="https://wari.digiroys.com" class="shrink-0 flex items-center gap-2 bg-slate-900 border border-slate-700 px-3 py-2 rounded-xl text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                    ← App
+                </a>
+                <a href="/academy/course.php?slug=<?= urlencode($course['slug']) ?>" class="shrink-0 flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-2 rounded-xl transition-all text-[9px] font-bold uppercase tracking-widest text-slate-300 hover:text-white">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Sommaire
+                </a>
+            </div>
         </div>
         <!-- Mobile progress bar (under nav elements) -->
         <div class="md:hidden w-full mt-1 flex flex-col">

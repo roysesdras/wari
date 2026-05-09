@@ -13,8 +13,20 @@ session_start();
 \FedaPay\FedaPay::setApiKey("sk_live_-t3Pw_JoJ8VGBqP8eTZr-ar5"); // Remplace par ta clé secrète
 \FedaPay\FedaPay::setEnvironment('live'); // Passe en 'live' quand tu es prêt
 
-// Récupération de l'email du formulaire
-$customer_email = filter_var($_POST['customer_email'], FILTER_SANITIZE_EMAIL);
+// 1. On vérifie d'abord si la donnée existe avant de la filtrer
+$email_brut = $_POST['customer_email'] ?? null;
+
+// 2. On filtre pour nettoyer l'email
+$customer_email = filter_var($email_brut, FILTER_SANITIZE_EMAIL);
+
+// 3. On ajoute ici la vérification si l'utilisateur est connecté (votre cas)
+// Si oui, on utilise son email de session et on bloque le formulaire.
+if (isset($_SESSION['user_email']) && !empty($_SESSION['user_email'])) {
+    $customer_email = $_SESSION['user_email'];
+    
+    // On informe l'utilisateur que l'email est automatique
+    echo "<script>alert('Email récupéré automatiquement depuis votre compte.');</script>";
+}
 $amount = 2500;
 
 if (!$customer_email) {

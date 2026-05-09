@@ -1,6 +1,10 @@
 <?php
 // 1. Connexion (Vérifie le chemin selon l'emplacement de ton fichier)
 require_once '../config/db.php'; 
+require_once __DIR__ . '/../classes/Vecu.php';
+
+if (session_status() === PHP_SESSION_NONE) session_start();
+$user_id = $_SESSION['user_id'] ?? null;
 
 // 2. Sécurisation du slug
 $slug = filter_input(INPUT_GET, 's', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -19,6 +23,12 @@ try {
     if (!$article) {
         header('Location: index.php');
         exit;
+    }
+
+    // Marquer comme lu si connecté
+    if ($user_id) {
+        $vecu = new Vecu($pdo);
+        $vecu->markAsRead($user_id, $article['id']);
     }
 } catch (PDOException $e) {
     die("Erreur lors de la récupération du récit.");
@@ -151,6 +161,9 @@ if (!empty($article['image_url']) && file_exists($chemin_physique)) {
 <body class="bg-slate-950 text-slate-200 min-h-screen selection:bg-[#D4AF37] selection:text-slate-900">
 
     <main class="max-w-2xl mx-auto py-6 px-3">
+        <a href="https://wari.digiroys.com" class="inline-flex items-center gap-2 text-slate-500 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest mb-10">
+            ← Dashboard
+        </a>
         
         <header class="mb-8 text-left md:text-left">
             <p class="text-xs text-[#D4AF37] font-bold tracking-[0.2em] uppercase mb-3">
@@ -217,7 +230,7 @@ if (!empty($article['image_url']) && file_exists($chemin_physique)) {
             <h3 class="text-xl text-white font-bold mb-2 uppercase tracking-wide">Suivre la progression</h3>
             <p class="text-slate-500 text-sm mb-8 italic">Le journal d'un entrepreneur en quête de souveraineté.</p>
             
-            <?php include 'assets/form.php'; ?>
+            <?php // include 'assets/form.php'; ?>
         </div>
     </section>
 

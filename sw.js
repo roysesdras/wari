@@ -1,9 +1,10 @@
-const cacheName = "wari-v70"; // On passe de v16 à v17
-// Fichiers statiques uniquement — NE PAS mettre en cache les pages d'auth/API
+const cacheName = "wari-v74"; // On passe à v74 pour le support hors ligne
+// Fichiers statiques et page de secours
 const assets = [
   "./manifest.json",
   "./assets/styles.css",
   "./assets/main.js",
+  "./offline.php",
   // Icônes ou autres ressources statiques si nécessaire
 ];
 
@@ -36,60 +37,71 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   const url = new URL(req.url);
 
-  // A. Toujours bypasser le cache pour les requêtes POST (Auth, Formulaires)
+  // A. Bypasser le cache pour les requêtes POST (Auth, Formulaires)
   if (req.method !== "GET") {
     return e.respondWith(fetch(req));
   }
 
-  // B. NE JAMAIS mettre en cache les pages PHP (Index, Auth, API)
-  // On veut que le serveur PHP décide toujours quelle donnée afficher
-  if (
-    url.pathname.endsWith(".php") ||
-    url.pathname.startsWith("/config/") ||
-    url.pathname === "/"
-  ) {
-    return e.respondWith(
-      fetch(req, { cache: "no-store" }).catch(() => {
-        // En cas de panne totale de réseau (offline), on tente de montrer le manifest ou une page d'erreur
-        return caches.match("./manifest.json");
-      }),
-    );
+  // B. Ne pas mettre en cache les actions de session/API sensibles
+  if (url.pathname.startsWith("/config/") || url.pathname.includes('logout.php')) {
+    return e.respondWith(fetch(req));
   }
 
-  // C. Pour les assets statiques (CSS, JS, Images) : Cache d'abord
-  // C. Pour les assets statiques (CSS, JS, Images) : Cache d'abord
+  // C. NETWORK FIRST : Pour les pages PHP et la navigation HTML
+  // On tente le réseau en premier, puis on tombe sur le cache hors ligne
+  if (
+    req.mode === "navigate" ||
+    url.pathname.endsWith(".php") ||
+    url.pathname === "/"
+  ) {
+    e.respondWith(
+      fetch(req)
+        .then((networkRes) => {
+          // Si on est en ligne, on met en cache la page fraîche !
+          return caches.open(cacheName).then((cache) => {
+            if (req.url.startsWith("http")) {
+              cache.put(req, networkRes.clone());
+            }
+            return networkRes;
+          });
+        })
+        .catch(async () => {
+          // Si on est HORS LIGNE, on cherche d'abord la page dans le cache
+          const cachedRes = await caches.match(req);
+          if (cachedRes) {
+            return cachedRes; // Page déjà visitée, on l'affiche !
+          }
+          // Si la page n'est pas dans le cache, on affiche la page offline de secours
+          if (req.mode === "navigate") {
+            return caches.match("./offline.php");
+          }
+        })
+    );
+    return;
+  }
+
+  // D. CACHE FIRST : Pour les assets statiques (CSS, JS, Images)
   e.respondWith(
     caches.match(req).then((cacheRes) => {
       return (
         cacheRes ||
-        fetch(req)
-          .then((networkRes) => {
-            // Optionnel : ne pas mettre en cache si ce n'est pas un succès
-            if (
-              !networkRes ||
-              networkRes.status !== 200 ||
-              networkRes.type !== "basic"
-            ) {
-              return networkRes;
+        fetch(req).then((networkRes) => {
+          if (
+            !networkRes ||
+            networkRes.status !== 200 ||
+            networkRes.type !== "basic"
+          ) {
+            return networkRes;
+          }
+          return caches.open(cacheName).then((cache) => {
+            if (req.url.startsWith("http")) {
+              cache.put(req, networkRes.clone());
             }
-            return caches.open(cacheName).then((cache) => {
-              // --- SÉCURITÉ : On ne met en cache que les requêtes HTTP/HTTPS ---
-              // Cela évite les erreurs "chrome-extension" ou "data:"
-              if (req.url.startsWith("http")) {
-                cache.put(req, networkRes.clone());
-              }
-
-              return networkRes;
-            });
-          })
-          .catch(() => {
-            // ICI : Si c'est une navigation (page), on essaie de renvoyer le cache
-            if (req.mode === "navigate") {
-              return caches.match("./index.php"); // Ou une page offline.html
-            }
-          })
+            return networkRes;
+          });
+        })
       );
-    }),
+    })
   );
 });
 

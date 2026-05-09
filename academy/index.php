@@ -21,14 +21,19 @@ $coursesWithProgress = $user_id ? $academy->getAllCoursesWithProgress($user_id) 
 
 $totalCours      = array_sum(array_column($categories, 'nb_cours'));
 $totalCategories = count($categories);
-$coursEnCours    = 0;
-$coursTermines   = 0;
-
 if ($user_id && !empty($coursesWithProgress)) {
     foreach ($coursesWithProgress as $c) {
         if ($c['progression'] > 0 && $c['progression'] < 100) $coursEnCours++;
         if ($c['progression'] == 100) $coursTermines++;
     }
+
+    // ✅ Trier pour mettre les cours non terminés en premier
+    usort($coursesWithProgress, function($a, $b) {
+        // Un cours terminé (100) va à la fin
+        if ($a['progression'] == 100 && $b['progression'] < 100) return 1;
+        if ($a['progression'] < 100 && $b['progression'] == 100) return -1;
+        return 0; // Garder l'ordre original sinon
+    });
 }
 ?>
 <!DOCTYPE html>
@@ -138,12 +143,12 @@ if ($user_id && !empty($coursesWithProgress)) {
 <body class="antialiased selection:bg-wari-gold selection:text-black">
 
     <nav class="sticky top-0 z-50 bg-[#0F0A02] border-b border-wari-gold/20 px-4 h-16 flex items-center justify-between">
-        <a href="https://wari.digiroys.com/academy/" class="font-heading text-2xl font-black text-wari-gold tracking-tighter">
+        <a href="https://wari.digiroys.com/academy/" class="font-heading text-xl font-black text-wari-gold tracking-tighter">
             Wari<span class="text-white/80 font-light">Academy.</span>
         </a>
 
-        <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
-            <a href="https://wari.digiroys.com" class="text-white/60 hover:text-white px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all">← Dashboard</a>
+        <div class="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
+            <a href="https://wari.digiroys.com" class="text-white/60 hover:text-white px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all">← App</a>
             <a href="/academy/" class="bg-wari-gold text-black px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg shadow-lg">Academy</a>
         </div>
 
@@ -238,9 +243,25 @@ if ($user_id && !empty($coursesWithProgress)) {
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <?php foreach ($coursesWithProgress as $course): ?>
-                <a href="/academy/course.php?slug=<?= $course['slug'] ?>" class="bento-card rounded-[1rem] overflow-hidden group flex flex-col">
-                    <div class="h-3 bg-wari-gold shadow-[0_0_20px_rgba(201,168,76,0.3)]"></div>
+            <?php foreach ($coursesWithProgress as $course): 
+                $isNew = ($course['progression'] == 0);
+                $isInProgress = ($course['progression'] > 0 && $course['progression'] < 100);
+            ?>
+                <a href="/academy/course.php?slug=<?= $course['slug'] ?>" 
+                   class="bento-card rounded-[1rem] overflow-hidden group flex flex-col <?= $isNew ? 'border-amber-500/30' : ($isInProgress ? 'border-blue-500/30' : '') ?>">
+                    
+                    <?php if ($isNew): ?>
+                        <div class="h-3 bg-amber-500 shadow-[0_0_20px_rgba(245,166,35,0.3)] relative">
+                            <span class="absolute right-4 top-4 bg-amber-500 text-black text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-widest animate-pulse">Nouveau</span>
+                        </div>
+                    <?php elseif ($isInProgress): ?>
+                        <div class="h-3 bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.3)] relative">
+                             <span class="absolute right-4 top-4 bg-blue-500 text-white text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-widest">En cours</span>
+                        </div>
+                    <?php else: ?>
+                        <div class="h-3 bg-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.1)]"></div>
+                    <?php endif; ?>
+
                     <div class="p-6 flex-1">
                         <div class="flex justify-between items-start mb-6">
                             <span class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg text-[9px] font-black uppercase text-wari-gold">
@@ -269,7 +290,7 @@ if ($user_id && !empty($coursesWithProgress)) {
                             <span class="text-[10px] font-bold text-white/30 uppercase">📖 <?= $course['nb_lecons'] ?> leçons</span>
                         </div>
                         <span class="text-[10px] font-black uppercase tracking-widest text-wari-gold group-hover:translate-x-2 transition-transform">
-                            <?= ($course['progression'] == 100) ? 'Revoir' : 'Ouvrir →' ?>
+                            <?= ($course['progression'] == 100) ? 'Revoir' : ($isInProgress ? 'Continuer →' : 'Commencer →') ?>
                         </span>
                     </div>
                 </a>

@@ -6,12 +6,19 @@ header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
 require 'config/db.php'; // <--- INDISPENSABLE : Pour que $pdo fonctionne !
-
+require_once __DIR__ . '/classes/Academy.php';
+require_once __DIR__ . '/classes/Vecu.php';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: config/auth.php');
     exit();
 }
+
+$academy = new Academy($pdo);
+$unfinishedCoursesCount = $academy->getUnfinishedCoursesCount($_SESSION['user_id']);
+
+$vecu = new Vecu($pdo);
+$unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
 ?>
 
 <!DOCTYPE html>
@@ -40,7 +47,7 @@ if (!isset($_SESSION['user_id'])) {
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=70">
+    <link rel="stylesheet" href="./assets/styles.css?v=73">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0B141A;">
@@ -77,10 +84,16 @@ if (!isset($_SESSION['user_id'])) {
         </header>
 
         <!-- Jauge de Santé Financière -->
-        <section class="glass-card p-3 mb-4 shine-effect">
+        <section id="gauge-section" class="glass-card p-3 mb-4 shine-effect">
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h3 class="text-[11px] uppercase tracking-widest text-emerald-400 font-bold mb-1">Santé financière</h3>
+                    <div class="flex items-center gap-2 mb-1">
+                        <h3 class="text-[11px] uppercase tracking-widest text-emerald-400 font-bold">Santé financière</h3>
+                        <div id="radarStatusContainer" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-900/50 border border-white/5 cursor-pointer active:scale-95 transition-all" onclick="subscribeUserToPush(true)">
+                            <div id="radarDot" class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+                            <span id="radarText" class="text-[7px] font-black uppercase tracking-widest text-slate-500">Radar OFF</span>
+                        </div>
+                    </div>
                     <div class="flex items-baseline gap-1">
                         <span id="gaugePercent" class="text-2xl font-black text-white">Stable</span>
                         <!-- <span class="text-xs font-bold text-emerald-500">+0.99%</span> -->
@@ -99,9 +112,13 @@ if (!isset($_SESSION['user_id'])) {
                 </div>
             </div>
 
-            <div class="flex items-start gap-2 pt-3 border-t border-white/5">
+            <div id="coach-section" class="flex items-start gap-2 pt-3 border-t border-white/5">
                 <!-- <div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
                     <span class="text-xs">🤵‍♂️</span>
+                </div> -->
+                <!-- Prédiction fin de mois -->
+                <!-- <div id="dailyPrediction" class="mt-3 p-3 bg-slate-800/30 rounded-xl border border-slate-700/50 text-[11px] text-center">
+                    <span class="text-slate-500">Calcul en cours...</span>
                 </div> -->
                 <p id="aiCoachMessage" class="text-[11px] text-slate-300 leading-snug italic">
                     Belle progression ! Ton épargne couvre maintenant 3 mois de besoins.
@@ -109,13 +126,15 @@ if (!isset($_SESSION['user_id'])) {
             </div>
         </section>
 
-        <div class="grid grid-cols-2 gap-3 mb-4">
+        <div id="bankPocketSection" class="grid grid-cols-2 gap-3 mb-4">
             <!-- BANQUE : Effet Blur pour se concentrer sur l'actif de croissance -->
             <div class="glass-card p-3 cursor-pointer active:scale-95 transition-all group" 
                  onclick="const el = this.querySelector('#bankAmount'); el.classList.toggle('blur-[6px]'); el.classList.toggle('opacity-30'); el.classList.toggle('opacity-100');">
                 <div class="flex justify-between items-start mb-1">
                     <p class="text-[8px] uppercase tracking-widest text-slate-500 font-black">Banque (Réserves)</p>
-                    <span class="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">👁️</span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </span>
                 </div>
                 <p id="bankAmount" class="text-lg font-black text-white blur-[6px] opacity-30 transition-all duration-500 select-none">0 F</p>
                 <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight">Liberté de Sécurité</p>
@@ -149,12 +168,21 @@ if (!isset($_SESSION['user_id'])) {
         <!-- Section de contrôle de l'édition -->
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500">Répartition</h3>
-            <button id="lockBtn" onclick="toggleEditMode()"
-                class="flex items-center gap-1 px-2 py-1 rounded-full bg-slate-900 border border-slate-700 transition-all active:scale-95 shadow-lg">
-                <!-- <span>🔒</span> -->
-                <span class="text-[11px] font-black uppercase tracking-[0.1em] text-slate-400">Lecture</span>
-            </button>
+            
+            <div class="flex items-center gap-2">
+                <button id="lockBtn" onclick="toggleEditMode()"
+                    class="flex items-center gap-1 px-3 py-1 rounded-full bg-slate-900 border border-slate-700 transition-all active:scale-95 shadow-lg">
+                    <span class="text-[11px] font-black uppercase tracking-[0.1em] text-slate-400">Lecture</span>
+                </button>
+                
+                <button id="focusModeBtn" onclick="toggleFocusMode()" 
+                    class="flex items-center gap-1 px-3 py-1 rounded-full bg-slate-800 border border-slate-700 transition-all active:scale-95 shadow-lg">
+                    <span id="focusIcon"></span>
+                    <span id="focusText" class="text-slate-400 text-[11px] font-bold uppercase tracking-wider">FOCUS</span>
+                </button>
+            </div>
         </div>
+
         <!-- Conteneur des catégories -->
         <div id="categoryContainer" class="grid grid-cols-2 gap-3 mb-6">
         </div>
@@ -200,7 +228,9 @@ if (!isset($_SESSION['user_id'])) {
                     <p id="vaultGoalLabel" class="text-[10px] text-white font-black truncate max-w-[100px]">Définir</p>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="openGoalModal()" class="text-emerald-500 active:scale-90 transition-transform text-[10px]">✏️</button>
+                    <button onclick="openGoalModal()" class="text-emerald-500 active:scale-90 transition-transform">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
                     <button id="deleteGoalBtn" onclick="deleteGoal()" class="text-red-400/70 text-[10px] hidden">✕</button>
                 </div>
             </div>
@@ -320,20 +350,26 @@ if (!isset($_SESSION['user_id'])) {
                     
                     <p class="text-[11px] font-medium text-slate-200 leading-tight">
                        <span class="text-amber-500 font-bold uppercase tracking-wider">Exclusivité</span><br>
-                        Boostez votre éducation financière.
+                        <?= $unfinishedCoursesCount > 0 ? "Tu as <b>$unfinishedCoursesCount</b> cours en attente !" : "Boostez votre éducation financière." ?>
                     </p>
                     
                     <div class="absolute -bottom-1.5 left-0 -translate-x-0 w-3 h-3 bg-slate-950 border-r border-b border-amber-500/30 rotate-45"></div>
                 </div>
 
-                <a href="https://wari.digiroys.com/academy/" target="_blank" onclick="trackLicenseBuy()"
-                class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 text-slate-300 active:scale-95 transition-all hover:text-indigo-400 shadow-lg shadow-slate-900/20">
+                <a href="https://wari.digiroys.com/academy/" onclick="trackLicenseBuy()"
+                class="relative w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 text-slate-300 active:scale-95 transition-all hover:text-indigo-400 shadow-lg shadow-slate-900/20">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
                         <path d="M1.5 9 12 3l10.5 6L12 15 1.5 9Z"></path>
                         <path d="M5.25 11.25v6L12 21l6.75-3.75v-6"></path>
                         <path d="M22.5 17.25V9"></path>
                         <path d="M12 15v6"></path>
                     </svg>
+
+                    <?php if ($unfinishedCoursesCount > 0): ?>
+                        <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-black text-white ring-2 ring-slate-950 animate-bounce">
+                            <?= $unfinishedCoursesCount ?>
+                        </span>
+                    <?php endif; ?>
                 </a>
             </div>
 
@@ -388,7 +424,7 @@ if (!isset($_SESSION['user_id'])) {
             </button>
 
             <div class="relative inline-block">
-                <a href="https://wari.digiroys.com/vecu/" target="_blank"
+                <a href="https://wari.digiroys.com/vecu/"
                 class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 text-slate-300 active:scale-95 transition-all hover:text-emerald-400 shadow-lg shadow-slate-900/20">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path d="m14.728 22.609-2.66-5.379-2.105-2.69a3.414 3.414 0 0 1-.475-1.737V6.75h.735a1.885 1.885 0 0 1 1.886 1.885v8.595"></path>
@@ -397,6 +433,12 @@ if (!isset($_SESSION['user_id'])) {
                         <path d="m7.994 22.423 2.507-3.673"></path>
                         <path d="M12.108 5a1.747 1.747 0 1 0 0-3.492 1.747 1.747 0 0 0 0 3.493Z"></path>
                     </svg>
+
+                    <?php if ($unreadVecuCount > 0): ?>
+                        <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[9px] font-black text-white ring-2 ring-slate-950 animate-bounce">
+                            <?= $unreadVecuCount ?>
+                        </span>
+                    <?php endif; ?>
                 </a>
             </div>
         </div>
@@ -695,7 +737,7 @@ if (!isset($_SESSION['user_id'])) {
             document.body.insertAdjacentHTML('beforeend', modalHtml);
 
             document.getElementById('activate-push').addEventListener('click', function() {
-                subscribeUserToPush(); // Ton script VAPID existant
+                subscribeUserToPush(true); // Manuel
                 document.getElementById('push-modal').remove();
             });
         }
@@ -707,10 +749,11 @@ if (!isset($_SESSION['user_id'])) {
         }
 
 
-        async function subscribeUserToPush() {
+        async function subscribeUserToPush(isManual = false) {
             // 1. Vérifier si le navigateur supporte les notifications
             if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
                 console.warn('Push non supporté sur ce navigateur.');
+                updateRadarUI('unsupported');
                 return;
             }
 
@@ -737,17 +780,54 @@ if (!isset($_SESSION['user_id'])) {
                 });
 
                 console.log('✅ Radar activé avec succès !');
+                updateRadarUI('active');
 
-            // Dans ta fonction subscribeUserToPush()
             } catch (error) {
                 console.error('❌ Erreur lors de la souscription :', error);
+                updateRadarUI('inactive');
 
-                // On vérifie si c'est un refus de permission
-                if (Notification.permission === 'denied') {
-                    showNotificationHelp(); // On appelle notre nouveau guide
-                } else {
-                    alert("Oups ! Une petite erreur technique. Réessaie dans un instant, Champion.");
+                if (isManual) {
+                    // On vérifie si c'est un refus de permission
+                    if (Notification.permission === 'denied') {
+                        showNotificationHelp(); // On appelle notre nouveau guide
+                    } else {
+                        alert("Oups ! Une petite erreur technique. Réessaie dans un instant, Champion.");
+                    }
                 }
+            }
+        }
+
+        function updateRadarUI(status) {
+            const dot = document.getElementById('radarDot');
+            const text = document.getElementById('radarText');
+            const container = document.getElementById('radarStatusContainer');
+            if (!dot || !text) return;
+
+            if (status === 'active' || Notification.permission === 'granted') {
+                // On vérifie quand même si on a une souscription réelle si possible
+                // Mais pour l'UI, permission granted + call success = actif
+                dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse";
+                text.innerText = "Radar ON";
+                text.className = "text-[7px] font-black uppercase tracking-widest text-emerald-400";
+                container.onclick = null; // Désactiver le clic si déjà actif
+                container.style.cursor = 'default';
+            } else if (status === 'unsupported') {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-red-500/30";
+                text.innerText = "Radar HS";
+                text.className = "text-[7px] font-black uppercase tracking-widest text-slate-600";
+            } else {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-slate-600";
+                text.innerText = "Radar OFF";
+                text.className = "text-[7px] font-black uppercase tracking-widest text-slate-500";
+                container.onclick = () => subscribeUserToPush(true);
+                container.style.cursor = 'pointer';
+            }
+        }
+
+        // Vérification initiale du statut
+        if ('Notification' in window) {
+            if (Notification.permission === 'granted') {
+                setTimeout(() => updateRadarUI('active'), 1000);
             }
         }
 
@@ -768,7 +848,9 @@ if (!isset($_SESSION['user_id'])) {
             const helpHtml = `
                 <div id="help-modal" style="position:fixed; inset:0; background:rgba(8,11,16,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(11px);">
                     <div style="background:#0d1117; border:2px solid #f5a623; border-radius:30px; padding:30px; text-align:center; max-width:450px; box-shadow: 0 0 40px rgba(245,166,35,0.15);">
-                        <div style="font-size:40px; margin-bottom:15px;">⚙️</div>
+                        <div style="margin-bottom:15px; display:flex; justify-content:center;">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </div>
                         <h2 style="color:#fff; font-weight:900; margin-bottom:15px; text-transform:uppercase;">RÉGLAGES DU RADAR</h2>
                         <p style="color:#94a3b8; font-size:13px; line-height:1.6; margin-bottom:25px; text-align:left;">
                             Champion·ne, ton radar est bloqué par ton système. Pour l'activer :<br><br>
@@ -782,7 +864,7 @@ if (!isset($_SESSION['user_id'])) {
         }
     </script>
 
-    <script src="./assets/main.js?v=70"></script>
+    <script src="./assets/main.js?v=73"></script>
 </body>
 
 </html>

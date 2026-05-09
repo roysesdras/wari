@@ -4,7 +4,11 @@ const SVG_ICONS = {
   rocket: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-5c1.62-2.2 5-3 5-3"></path><path d="M12 15v5s3.03-.55 5-2c2.2-1.62 3-5 3-3"></path></svg>`,
   piggy: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z"></path><path d="M2 9v1c0 1.1.9 2 2 2h1"></path><path d="M16 11h0"></path></svg>`,
   alert: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-red-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>`,
-  home: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`
+  home: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`,
+  lock: `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`,
+  lockOpen: `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>`,
+  target: `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>`,
+  money: `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`
 };
 
 let categories = [
@@ -99,20 +103,22 @@ function render() {
     biggestCat.amount += difference;
   }
 
-  // ── Sous-titres des cartes ─────────────────────────────────────────────
-  const catSubtitles = {
-    projet: "Le moteur de ton avenir — versé au coffre en priorité.",
-    épargne: "La sécurité de demain — intouchable.",
-    imprévu: "Ton bouclier contre les chocs de la vie.",
-    "train de vie": "Ce qui reste pour vivre — après avoir protégé l'avenir.",
-  };
+  // ── Sous-titres des cartes (version texte, sans emojis) ─────────────────
+const catSubtitles = {
+  projet: "L'argent que tu investis dans ton futur",
+  epargne: "Ta sécurité financière, à ne pas toucher",
+  imprevu: "Le bouclier pour les coups durs",
+  train: "Ce qui reste pour vivre au quotidien"
+};
 
-  function getCatSubtitle(name) {
-    const key = Object.keys(catSubtitles).find((k) =>
-      name.toLowerCase().includes(k),
-    );
-    return key ? catSubtitles[key] : "";
-  }
+function getCatSubtitle(name) {
+  const lowerName = name.toLowerCase();
+  if (lowerName.includes("projet")) return catSubtitles.projet;
+  if (lowerName.includes("épargne")) return catSubtitles.epargne;
+  if (lowerName.includes("imprévu")) return catSubtitles.imprevu;
+  if (lowerName.includes("train")) return catSubtitles.train;
+  return "";
+}
 
   // ── Affichage des cartes ───────────────────────────────────────────────
   container.innerHTML = "";
@@ -162,9 +168,22 @@ function render() {
         </div>
 
         <div class="mb-2">
-            <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-0.5">
-                ${cat.name}
-            </h4>
+            <div class="flex items-center justify-between mb-0.5">
+                <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                    ${cat.name}
+                </h4>
+                <button class="info-btn w-4 h-4 rounded-full bg-white/5 text-[8px] text-slate-400 flex items-center justify-center leading-none"
+                        data-cat="${cat.name}"
+                        onclick="event.stopPropagation(); showCatInfo('${cat.name}')"
+            style="font-family: monospace; font-weight: bold;">
+                    i
+                </button>
+            </div>
+
+            <span class="text-[7px] text-slate-500 block leading-tight mt-0.5">
+                ${getCatSubtitle(cat.name)}
+            </span>
+
             <div class="text-[8px] font-bold text-slate-600 flex items-center gap-1 mb-1">
                 <span class="opacity-70 uppercase tracking-tighter">Cumul/mois:</span>
                 <span class="font-black text-slate-500">${totalPrevisionnel.toLocaleString()} ${currency}</span>
@@ -360,6 +379,8 @@ function render() {
 
   // On appelle le coffre en lui passant ces valeurs
   updateVaultDisplay(totalEpargneSeule, totalProjetDynamique); 
+    // ─── PREDICTION FIN DE MOIS ─────────────────────────────────────────
+  // updateDailyPrediction();
   
   updateStatus(currentTotalPercent);
   if (typeof generateFinancialReport === "function") generateFinancialReport();
@@ -433,6 +454,58 @@ function updateVaultDisplay(totalSaved = 0, dynamicProject = null) {
     }, 2000);
   }
 }
+
+// ─── PREDICTION FIN DE MOIS ────────────────────────────────────────────────
+
+// function updateDailyPrediction() {
+//   const predictionEl = document.getElementById("dailyPrediction");
+//   if (!predictionEl) return;
+  
+//   const currency = document.getElementById("currencySelector")?.value || "F";
+  
+//   // Récupérer le cash disponible (Train de vie + Imprévu)
+//   const cashAmountEl = document.getElementById("cashAmount");
+//   let cashLeft = 0;
+//   if (cashAmountEl) {
+//     cashLeft = parseInt(cashAmountEl.innerText.replace(/[^0-9]/g, "")) || 0;
+//   }
+  
+//   // Calculer les jours restants dans le mois
+//   const now = new Date();
+//   const year = now.getFullYear();
+//   const month = now.getMonth();
+//   const currentDay = now.getDate();
+//   const daysInMonth = new Date(year, month + 1, 0).getDate();
+//   const daysLeft = daysInMonth - currentDay + 1; // +1 pour inclure aujourd'hui
+  
+//   if (daysLeft <= 0 || cashLeft <= 0) {
+//     predictionEl.innerHTML = `<span class="text-slate-500 text-[10px]">Saisis tes revenus pour voir ta prévision</span>`;
+//     return;
+//   }
+  
+//   const dailyBudget = Math.round(cashLeft / daysLeft);
+  
+//   // Prédiction simple : si l'utilisateur garde ce rythme
+//   const predictedEndBalance = cashLeft - (dailyBudget * daysLeft);
+  
+//   let html = '';
+//   let colorClass = '';
+  
+//   if (predictedEndBalance >= 0) {
+//     colorClass = "text-emerald-400";
+//     html = `📊 Prévision : <strong class="${colorClass}">+${predictedEndBalance.toLocaleString()} ${currency}</strong> en fin de mois<br>
+//             <span class="text-[9px] text-slate-400">Soit ${dailyBudget.toLocaleString()} ${currency}/jour</span>`;
+//   } else {
+//     colorClass = "text-red-400";
+//     const neededCut = Math.ceil(Math.abs(predictedEndBalance) / daysLeft);
+//     html = `⚠️ Alerte : <strong class="${colorClass}">−${Math.abs(predictedEndBalance).toLocaleString()} ${currency}</strong> prévus<br>
+//             <span class="text-[9px] text-amber-400">Réduis de ${neededCut} ${currency}/jour</span>`;
+//   }
+  
+//   predictionEl.innerHTML = html;
+// }
+
+
 // Neutralisé — le versement est automatique dans saveBudget()
 window.addToProjectVault = function () {
   return;
@@ -526,6 +599,36 @@ window.saveBudget = function (silent = false) {
   const totalAAjouter = parseFloat(mainInput.value) || 0;
   const currentCurrency =
     document.getElementById("currencySelector")?.value || "F";
+
+    // ─── SUGGESTION AUTO DES POURCENTAGES (1ère fois uniquement) ───
+  const hasReceivedSuggestion = localStorage.getItem("wari_percent_suggested");
+  
+  if (!hasReceivedSuggestion && totalAAjouter > 0) {
+    let suggested = { projet: 25, epargne: 15, imprevu: 10, train: 50 }; // valeurs par défaut
+    
+    if (totalAAjouter < 1500) {
+      suggested = { projet: 10, epargne: 10, imprevu: 5, train: 75 };
+    } else if (totalAAjouter < 3000) {
+      suggested = { projet: 20, epargne: 15, imprevu: 10, train: 55 };
+    } else {
+      suggested = { projet: 30, epargne: 20, imprevu: 10, train: 40 };
+    }
+    
+    // Appliquer les suggestions
+    categories.forEach(cat => {
+      const name = cat.name.toLowerCase();
+      if (name.includes("projet")) cat.percent = suggested.projet;
+      else if (name.includes("épargne")) cat.percent = suggested.epargne;
+      else if (name.includes("imprévu")) cat.percent = suggested.imprevu;
+      else if (name.includes("train")) cat.percent = suggested.train;
+    });
+    
+    localStorage.setItem("wari_percent_suggested", "true");
+    
+    // Afficher une confirmation visuelle
+    showToastMessage(`Pour ${totalAAjouter} F, j'ai ajusté les pourcentages. Modifie-les si besoin.`, "info");
+  }
+
 
   if (totalAAjouter <= 0 && !silent) {
     alert("Veuillez entrer un montant avant de valider.");
@@ -673,6 +776,34 @@ function loadBudget() {
       data.categories = categories;
       localStorage.setItem("wari_budget_data", JSON.stringify(data));
     }
+
+      // Bannière d'explication au premier chargement (1 fois seulement)
+  const hasSeenOnboarding = localStorage.getItem("wari_onboarding_seen_v2");
+  if (!hasSeenOnboarding && !data) { // data = pas encore de budget sauvegardé
+    setTimeout(() => {
+      const banner = document.createElement("div");
+      banner.id = "wari-onboarding-banner";
+      banner.className = "fixed top-4 left-4 right-4 bg-slate-900/95 border border-blue-500/50 rounded-2xl p-3 z-50 backdrop-blur-md shadow-xl";
+      banner.innerHTML = `
+        <div class="flex justify-between items-start">
+          <div class="text-[11px] text-slate-200 leading-relaxed">
+            <strong class="text-blue-400">4 categories</strong><br/>
+            Projet (avenir) · Epargne (securite) · Imprevu (urgences) · Train de vie (quotidien)
+          </div>
+          <button onclick="this.parentElement.parentElement.remove()" class="text-white/60 text-lg leading-none ml-2">✕</button>
+        </div>
+      `;
+      document.body.appendChild(banner);
+      
+      // Disparait automatiquement après 6 secondes
+      setTimeout(() => {
+        const b = document.getElementById("wari-onboarding-banner");
+        if (b) b.remove();
+      }, 6000);
+      
+      localStorage.setItem("wari_onboarding_seen_v2", "true");
+    }, 1000);
+  }
 
     render();
     console.log("Interface Wari mise à jour.");
@@ -832,7 +963,7 @@ function renderDebts() {
         <span class="text-white font-black text-sm">${parseInt(debt.amount).toLocaleString()} ${currency}</span>
         <button onclick="openPayModal(${debt.id}, '${debt.person_name}', ${debt.amount}, '${debt.type}')"
                 class="w-8 h-8 rounded-full bg-slate-700/50 flex items-center justify-center hover:bg-emerald-600 hover:scale-110 active:scale-95 transition-all shadow-lg">
-          💰
+          ${SVG_ICONS.money}
         </button>
       </div>
     </div>
@@ -1186,12 +1317,12 @@ window.toggleEditMode = function () {
 
   if (isEditMode) {
     // État ÉDITION (Ambre)
-    btn.innerHTML = `<span>🔓</span> <span class="text-amber-500">ÉDITION</span>`;
+    btn.innerHTML = `<span class="flex items-center gap-1">${SVG_ICONS.lockOpen} <span class="text-amber-500">ÉDITION</span></span>`;
     btn.className =
       "flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/10 border border-amber-500/50 transition-all scale-105 shadow-[0_0_15px_rgba(245,158,11,0.2)]";
   } else {
     // État LECTURE (Slate)
-    btn.innerHTML = `<span>🔒</span> <span class="text-slate-400">LECTURE</span>`;
+    btn.innerHTML = `<span class="flex items-center gap-1">${SVG_ICONS.lock} <span class="text-slate-400">LECTURE</span></span>`;
     btn.className =
       "flex items-center gap-1 px-2 py-1 rounded-full bg-slate-800 border border-slate-700 transition-all shadow-lg";
     saveBudget(true);
@@ -1449,7 +1580,7 @@ async function initialiserNotificationsWari() {
       const today = now.toDateString();
       const lastNotify = localStorage.getItem("wari_last_notification");
 
-      if (typeof subscribeUserToPush === "function") subscribeUserToPush();
+      if (typeof subscribeUserToPush === "function") subscribeUserToPush(false); // Silencieux au chargement
 
       setTimeout(() => {
         if (lastNotify !== today && now.getHours() >= 18) {
@@ -1478,54 +1609,6 @@ async function initialiserNotificationsWari() {
 }
 initialiserNotificationsWari();
 
-// ─── WEB PUSH ──────────────────────────────────────────────────────────────
-
-function urlBase64ToUint8Array(base64String) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i)
-    outputArray[i] = rawData.charCodeAt(i);
-  return outputArray;
-}
-
-async function forceNewSubscription() {
-  const permission = await Notification.requestPermission();
-  if (permission !== "granted") {
-    console.error("Notifications refusées.");
-    return;
-  }
-
-  const registration = await navigator.serviceWorker.ready;
-
-  try {
-    const oldSub = await registration.pushManager.getSubscription();
-    if (oldSub) {
-      await oldSub.unsubscribe();
-      console.log("Ancien abonnement nettoyé.");
-    }
-
-    const newSub = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(
-        "BH9WpcuMhkSEOjnwf8KVZfDTv9Ps6nGaQ9RQ77e4D15ywgPmO7wNgTlldejjFjyWCp3PoBYareDXjlFBTdpzm40",
-      ),
-    });
-
-    console.log("Nouvel abonnement créé :", newSub);
-
-    const response = await fetch("config/save_subscription.php", {
-      method: "POST",
-      body: JSON.stringify(newSub),
-      headers: { "Content-Type": "application/json" },
-    });
-    console.log("Réponse serveur PHP :", await response.text());
-  } catch (err) {
-    console.error("Échec abonnement :", err);
-  }
-}
-forceNewSubscription();
 
 // ─── RAPPELS DETTES ────────────────────────────────────────────────────────
 
@@ -1555,6 +1638,127 @@ function checkDebtReminders() {
 }
 
 
+// ─── INFO CATEGORIE (TOAST MOBILE) ────────────────────────────────────────
+
+let activeToast = null;
+
+window.showCatInfo = function(catName) {
+  const descriptions = {
+    "Projet": "Futur : voyage, maison, formation. Ce que tu veux construire.",
+    "Épargne": "Sécurité : argent que tu ne touches pas. Pour les vrais coups durs.",
+    "Imprévu": "Bouclier : réparations, urgences, dépenses soudaines. Ça arrive à tous.",
+    "Train de vie": "Quotidien : nourriture, loyer, transports, loisirs. Ce qui reste après épargne."
+  };
+  
+  const text = descriptions[catName] || "Ajuste le pourcentage en mode édition.";
+  
+  if (activeToast) activeToast.remove();
+  
+  const toast = document.createElement("div");
+  toast.innerText = text;
+  toast.className = "fixed bottom-24 left-4 right-4 bg-slate-900/95 border border-amber-500/30 text-white text-xs p-3 rounded-2xl z-50 backdrop-blur-md shadow-2xl";
+  toast.style.animation = "fadeInUp 0.2s ease";
+  document.body.appendChild(toast);
+  activeToast = toast;
+  
+  setTimeout(() => {
+    if (toast && toast.remove) toast.remove();
+    if (activeToast === toast) activeToast = null;
+  }, 3500);
+};
+
+// Ajout de l'animation CSS si pas déjà présente
+if (!document.querySelector('#wari-toast-style')) {
+  const style = document.createElement('style');
+  style.id = 'wari-toast-style';
+  style.textContent = `
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+
+// ─── TOAST NOTIFICATION ────────────────────────────────────────────────
+
+let activeInfoToast = null;
+
+function showToastMessage(message, type = "info") {
+  if (activeInfoToast) activeInfoToast.remove();
+  
+  const toast = document.createElement("div");
+  toast.innerText = message;
+  
+  const bgColor = type === "info" ? "bg-blue-500/90" : "bg-emerald-500/90";
+  toast.className = `fixed bottom-24 left-4 right-4 ${bgColor} text-white text-xs p-3 rounded-2xl z-50 text-center font-bold shadow-2xl`;
+  toast.style.animation = "fadeInUp 0.2s ease";
+  
+  document.body.appendChild(toast);
+  activeInfoToast = toast;
+  
+  setTimeout(() => {
+    if (toast && toast.remove) toast.remove();
+    if (activeInfoToast === toast) activeInfoToast = null;
+  }, 4000);
+}
+
+
+// ─── MODE FOCUS ───────────────────────────────────────────────────────────
+
+let isFocusMode = false;
+
+window.toggleFocusMode = function() {
+  const icon = document.getElementById("focusIcon");
+  const text = document.getElementById("focusText");
+  const btn = document.getElementById("focusModeBtn");
+  
+  isFocusMode = !isFocusMode;
+  
+  if (isFocusMode) {
+    document.body.classList.add("focus-mode");
+    if (btn) {
+      btn.classList.remove("bg-slate-800", "border-slate-700");
+      btn.classList.add("bg-blue-500/20", "border-blue-500/50");
+    }
+    if (text) text.innerHTML = "FOCUS ON";
+    if (icon) icon.innerHTML = SVG_ICONS.lock;
+    
+    // Sauvegarder l'état
+    localStorage.setItem("wari_focus_mode", "true");
+  } else {
+    document.body.classList.remove("focus-mode");
+    if (btn) {
+      btn.classList.add("bg-slate-800", "border-slate-700");
+      btn.classList.remove("bg-blue-500/20", "border-blue-500/50");
+    }
+    if (text) text.innerHTML = "FOCUS";
+    if (icon) icon.innerHTML = SVG_ICONS.target;
+    
+    // Sauvegarder l'état
+    localStorage.setItem("wari_focus_mode", "false");
+  }
+};
+
+// Restaurer l'état du mode focus au chargement
+function restoreFocusMode() {
+  const saved = localStorage.getItem("wari_focus_mode");
+  if (saved === "true") {
+    isFocusMode = false; // pour inverser
+    toggleFocusMode();
+  } else {
+    const icon = document.getElementById("focusIcon");
+    if (icon) icon.innerHTML = SVG_ICONS.target;
+  }
+}
+
+// Appeler cette fonction au chargement de la page
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", restoreFocusMode);
+} else {
+  restoreFocusMode();
+}
 
 
 // ========================================================================================================================================================================================================================================================================================================
@@ -1579,7 +1783,7 @@ function showReleaseNotesModal() {
             <div style="background:#0d1117; border:1px solid rgba(245,166,35,0.3); border-radius:35px; padding:20px; max-width:450px; width:100%; box-shadow: 0 25px 60px rgba(0,0,0,0.6); position:relative; overflow:hidden;">
                 
                 <!-- Badge Version -->
-                <div style="position:absolute; top:20px; right:20px; background:#f5a623; color:#000; padding:5px 12px; border-radius:11px; font-size:11px; font-weight:900;">V1.5.6</div>
+                <div style="position:absolute; top:20px; right:20px; background:#f5a623; color:#000; padding:5px 12px; border-radius:11px; font-size:11px; font-weight:900;">V1.5.7</div>
 
                 <div style="text-align:center; margin-bottom:25px;">
                     <h2 style="color:#fff; font-weight:900; letter-spacing:-1px; text-transform:uppercase; margin:0;">Quoi de neuf ?</h2>
@@ -1588,7 +1792,24 @@ function showReleaseNotesModal() {
 
                 <div style="max-height:300px; overflow-y:auto; padding-right:11px; margin-bottom:30px; text-align:justify;" class="custom-scrollbar">
                     <p style="color:#94a3b8; font-size:13px; line-height:1.7; margin:0;">
-                        À l'occasion des fêtes de Pâques, période de renouveau et de partage, Wari Finance franchit une nouvelle étape pour transformer la gestion de votre patrimoine en une expérience de sérénité absolue. Cette version 1.5.6 a été conçue pour refléter cette clarté : l'interface évolue vers plus de précision, vous offrant un contrôle total sur chaque flux financier. Le Coach Wari monte en puissance avec une intelligence prédictive capable d'analyser vos habitudes de consommation en temps réel pour anticiper votre solde de fin de mois et vous orienter vers les dettes à solder prioritairement. 
+                      <strong class="text-amber-400">✨ NOUVEAUTÉS VERSION 1.5.7</strong><br/><br/>
+                      
+                      <strong>Explications des catégories</strong><br/>
+                      Un bouton "i" vous explique maintenant chaque poste de budget. Plus de questions, plus de doutes.<br/><br/>
+                      
+                      <strong>Suggestion automatique des pourcentages</strong><br/>
+                      Wari adapte vos répartitions selon vos revenus dès le premier mois.<br/><br/>
+                      
+                      <strong>Mode FOCUS</strong><br/>
+                      Masquez le coach et les dettes d'un clic pour vous concentrer sur l'essentiel : vos 4 piliers.<br/><br/>
+                      
+                      <strong>Sous-titres permanents</strong><br/>
+                      Chaque catégorie affiche désormais sa mission : "L'argent que tu investis dans ton futur"<br/><br/>
+                      
+                      <strong>Bienvenue aux nouveaux</strong><br/>
+                      Un message d'accueil guide les premiers pas sur Wari Finance.<br/><br/>
+                      
+                      <span class="text-slate-500 text-[11px]">Ces améliorations sont le fruit de vos retours. Merci de faire grandir Wari avec nous.</span>
                     </p>
                 </div>
 

@@ -250,6 +250,21 @@ class Academy
         return $courses;
     }
 
+    /**
+     * Compte le nombre de cours que l'utilisateur n'a pas encore terminés (progression < 100%)
+     */
+    public function getUnfinishedCoursesCount($user_id)
+    {
+        $courses = $this->getAllCoursesWithProgress($user_id);
+        $count = 0;
+        foreach ($courses as $c) {
+            if ($c['progression'] < 100) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
     // ============================================================
     // PDF PAYANTS
     // ============================================================

@@ -179,14 +179,19 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
 
     <!-- ── NAVIGATION ──────────────────────────────────────────── -->
     <nav class="bg-slate-950/80 backdrop-blur-md mt-3 mb-2 px-4 h-18 flex items-center justify-between">
-        <a href="/academy/" class="font-heading text-2xl font-black text-wari-gold tracking-tight">
+        <a href="/academy/" class="font-heading text-xl font-black text-wari-gold tracking-tight">
             Wari<span class="font-light text-white">Academy.</span>
         </a>
         
-        <a href="/academy/" class="hidden md:flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-xs font-bold uppercase tracking-widest">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Retour aux cours
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="https://wari.digiroys.com" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest mr-4">
+                ← App
+            </a>
+            <a href="/academy/" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Cours
+            </a>
+        </div>
 
         <a href="#" class="flex items-center gap-3 bg-white/5 hover:bg-white/10">
             <div class="w-8 h-8 bg-wari-gold rounded-lg flex items-center justify-center text-slate-950 font-bold text-xs uppercase"><?= substr($_SESSION['user_email'] ?? 'U', 0, 2) ?></div>

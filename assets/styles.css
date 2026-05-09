@@ -36,3 +36,18 @@ body {
   transform: rotate(45deg);
   pointer-events: none;
 }
+
+/* Mode focus - cacher les éléments */
+.focus-mode #coach-section,
+.focus-mode #debtSection,
+.focus-mode #gauge-section,
+.focus-mode #projectVault,
+.focus-mode #bankPocketSection,
+.focus-mode #statusIndicator {
+  display: none !important;
+}
+
+/* Transition douce */
+.coach-section, .debtSection, .gauge-section {
+  transition: all 0.3s ease;
+}
