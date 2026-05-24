@@ -47,7 +47,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=73">
+    <link rel="stylesheet" href="./assets/styles.css?v=75">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0B141A;">
@@ -77,18 +77,18 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 </div>
             </div>
 
-            <!-- ✅ BOUTON HISTORIQUE -->
-            <button onclick="openHistoryModal()"
-                class="flex items-center justify-center rounded-2xl active:scale-95 transition-all duration-300 group">
-                <svg width="46" height="46" fill="currentColor" class="h-10 w-10 text-slate-500 group-hover:text-amber-400 transition-colors" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" d="M4 12a9 9 0 1 1 9 9c-2.49 0-4.73-1.01-6.36-2.64l1.42-1.42A6.944 6.944 0 0 0 13 19c3.87 0 7-3.13 7-7s-3.13-7-7-7-7 3.13-7 7h3l-4 3.99L1 12h3Zm8 1V8h1.5v4.15l3.52 2.09-.77 1.28L12 13Z" clip-rule="evenodd"></path>
+            <!-- ✅ BOUTON DÉCONNEXION / SORTIR -->
+            <a href="config/logout.php" title="Se déconnecter"
+                class="w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300 group bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 shadow-md">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="text-slate-400 group-hover:text-red-400 transition-colors" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 16L21 12M21 12L17 8M21 12H9M13 16V17C13 18.1046 12.1046 19 11 19H5C3.89543 19 3 18.1046 3 17V7C3 5.89543 3.89543 5 5 5H11C12.1046 5 13 5.89543 13 7V8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-            </button>
+            </a>
         </header>
 
         <!-- Jauge de Santé Financière -->
         <section id="gauge-section" class="glass-card p-3 mb-4 shine-effect">
-            <div class="flex justify-between items-start mb-4">
+            <div class="flex justify-between items-start mb-2">
                 <div>
                     <div class="flex items-center gap-2 mb-1">
                         <h3 class="text-[11px] uppercase tracking-widest text-emerald-400 font-bold">Santé financière</h3>
@@ -98,34 +98,36 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                         </div>
                     </div>
                     <div class="flex items-baseline gap-1">
-                        <span id="gaugePercent" class="text-2xl font-black text-white">Stable</span>
-                        <!-- <span class="text-xs font-bold text-emerald-500">+0.99%</span> -->
+                        <span id="gaugePercent" class="text-lg font-black text-emerald-400">Stable</span>
                     </div>
                 </div>
-                <div class="text-right bg-slate-900/40 px-3 py-2 rounded-2xl border border-white/5">
-                    <span id="disciplineScore" class="text-2xl font-black text-white leading-none">--</span>
-                    <p class="text-[7px] uppercase text-slate-500 font-bold tracking-widest mt-1">Discipline / 10</p>
+                <div class="text-right bg-slate-900/40 px-3 py-1 rounded-2xl border border-white/5">
+                    <span id="disciplineScore" class="text-xl font-black text-white leading-none">--</span>
+                    <p class="text-[7px] uppercase text-slate-500 font-bold tracking-widest mt-0.5">Discipline / 10</p>
                 </div>
             </div>
 
-            <div class="w-full h-2 bg-slate-950/60 rounded-full overflow-hidden border border-white/5 mb-4">
-                <div id="gaugeBar"
-                    class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-700"
-                    style="width: 0%">
-                </div>
+            <!-- Alerte Textuelle Santé -->
+            <div id="gaugeAlert" class="text-[10px] text-center py-1.5 px-2 rounded-lg font-bold mb-3 bg-slate-900/30 border border-white/5 text-slate-400">
+                Calcul en cours...
             </div>
 
-            <div id="coach-section" class="flex items-start gap-2 pt-3 border-t border-white/5">
-                <!-- <div class="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
-                    <span class="text-xs">🤵‍♂️</span>
-                </div> -->
-                <!-- Prédiction fin de mois -->
-                <!-- <div id="dailyPrediction" class="mt-3 p-3 bg-slate-800/30 rounded-xl border border-slate-700/50 text-[11px] text-center">
-                    <span class="text-slate-500">Calcul en cours...</span>
-                </div> -->
-                <p id="aiCoachMessage" class="text-[11px] text-slate-300 leading-snug italic">
-                    Belle progression ! Ton épargne couvre maintenant 3 mois de besoins.
-                </p>
+            <!-- Zone du Graphique Évolution -->
+            <div class="relative w-full h-[140px] bg-slate-950/40 rounded-xl border border-white/5 p-1 flex items-center justify-center mb-2">
+                <div id="chartLoader" class="absolute text-slate-500 text-[10px] italic">Chargement du graphique...</div>
+                <svg id="trendChartSvg" class="w-full h-full opacity-0 transition-opacity duration-500" viewBox="0 0 400 140"></svg>
+            </div>
+            
+            <!-- Légende du Graphique -->
+            <div class="flex justify-center gap-4 select-none">
+                <div class="flex items-center gap-1.5 text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]"></span>
+                    Revenus
+                </div>
+                <div class="flex items-center gap-1.5 text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]"></span>
+                    Dépenses
+                </div>
             </div>
         </section>
 
@@ -344,107 +346,133 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             </div>
         </div>
 
-        <!-- Section Bouttons -->
-        <div class="fixed bottom-1 left-0 right-0 max-w-md mx-auto flex justify-center items-center gap-2 z-[110]">
-    
-            <div class="relative inline-block">
-                <div id="license-message" 
-                    class="absolute bottom-full left-0 -translate-x-0 mb-3 w-48 p-3 bg-slate-950 border border-amber-500/30 rounded-xl shadow-2xl opacity-0 translate-y-2 transition-all duration-500 ease-out z-50 pointer-events-none">
-                    
-                    <p class="text-[11px] font-medium text-slate-200 leading-tight">
-                       <span class="text-amber-500 font-bold uppercase tracking-wider">Exclusivité</span><br>
-                        <?= $unfinishedCoursesCount > 0 ? "Tu as <b>$unfinishedCoursesCount</b> cours en attente !" : "Boostez votre éducation financière." ?>
-                    </p>
-                    
-                    <div class="absolute -bottom-1.5 left-0 -translate-x-0 w-3 h-3 bg-slate-950 border-r border-b border-amber-500/30 rotate-45"></div>
+        <!-- Barre de Navigation Fixe en Bas -->
+        <nav class="fixed bottom-0 left-0 right-0 z-[120] bg-[#0B141A]/95 backdrop-blur-lg shadow-[0_-10px_30px_rgba(0,0,0,0.6)] py-0 px-4 pb-safe">
+            <div class="max-w-md mx-auto flex items-center justify-between relative">
+                
+                <!-- 1. Academy -->
+                <div class="relative flex-1 flex justify-center">
+                    <div id="license-message" 
+                        class="absolute bottom-full mb-3 w-44 p-3 bg-slate-950 border border-amber-500/30 rounded-xl shadow-2xl opacity-0 translate-y-2 transition-all duration-500 ease-out z-50 pointer-events-none text-center">
+                        <p class="text-[10px] font-semibold text-slate-200 leading-tight">
+                           <span class="text-amber-500 font-bold uppercase tracking-wider">Exclusivité</span><br>
+                            <?= $unfinishedCoursesCount > 0 ? "Tu as <b>$unfinishedCoursesCount</b> cours en attente !" : "Boostez votre éducation financière." ?>
+                        </p>
+                        <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-slate-950 border-r border-b border-amber-500/30 rotate-45"></div>
+                    </div>
+
+                    <a href="https://wari.digiroys.com/academy/" onclick="trackLicenseBuy()" title="Academy"
+                        class="w-10 h-10 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-indigo-400 active:scale-95 transition-all">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1.5 9 12 3l10.5 6L12 15 1.5 9Z"></path>
+                            <path d="M5.25 11.25v6L12 21l6.75-3.75v-6"></path>
+                            <path d="M22.5 17.25V9"></path>
+                            <path d="M12 15v6"></path>
+                        </svg>
+                        <span class="text-[8px] font-bold uppercase tracking-widest mt-0.5">Academy</span>
+                        <?php if ($unfinishedCoursesCount > 0): ?>
+                            <span class="absolute top-0 right-4 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[8px] font-black text-white ring-2 ring-slate-950 animate-pulse">
+                                <?= $unfinishedCoursesCount ?>
+                            </span>
+                        <?php endif; ?>
+                    </a>
                 </div>
 
-                <a href="https://wari.digiroys.com/academy/" onclick="trackLicenseBuy()"
-                class="relative w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 text-slate-300 active:scale-95 transition-all hover:text-indigo-400 shadow-lg shadow-slate-900/20">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1.5 9 12 3l10.5 6L12 15 1.5 9Z"></path>
-                        <path d="M5.25 11.25v6L12 21l6.75-3.75v-6"></path>
-                        <path d="M22.5 17.25V9"></path>
-                        <path d="M12 15v6"></path>
-                    </svg>
+                <!-- 2. Mettre à jour (Sync) -->
+                <div class="flex-1 flex justify-center">
+                    <button onclick="saveBudget()" title="Mettre à jour"
+                        class="w-10 h-10 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-emerald-400 active:scale-95 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span class="text-[8px] font-bold uppercase tracking-widest mt-0.5">Sync</span>
+                    </button>
+                </div>
 
-                    <?php if ($unfinishedCoursesCount > 0): ?>
-                        <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-black text-white ring-2 ring-slate-950 animate-bounce">
-                            <?= $unfinishedCoursesCount ?>
-                        </span>
-                    <?php endif; ?>
-                </a>
+                <!-- 3. Bouton Ajout Dépense (+) au centre -->
+                <div class="flex-1 flex justify-center -translate-y-4">
+                    <button onclick="openExpenseModal()" title="Ajouter Dépense"
+                        class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 text-black active:scale-95 hover:scale-105 transition-all flex items-center justify-center font-bold shadow-lg shadow-amber-500/20 border-4 border-[#0B141A]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- 4. Historique -->
+                <div class="flex-1 flex justify-center">
+                    <button onclick="openHistoryModal()" title="Historique"
+                        class="w-10 h-10 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-amber-400 active:scale-95 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-[8px] font-bold uppercase tracking-widest mt-0.5">Historique</span>
+                    </button>
+                </div>
+
+                <!-- 5. Vécu -->
+                <div class="relative flex-1 flex justify-center">
+                    <a href="https://wari.digiroys.com/vecu/" title="Vécu"
+                        class="w-10 h-10 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-cyan-400 active:scale-95 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path d="m14.728 22.609-2.66-5.379-2.105-2.69a3.414 3.414 0 0 1-.475-1.737V6.75h.735a1.885 1.885 0 0 1 1.886 1.885v8.595"></path>
+                            <path d="M5.996 13.737v-3.493S7.743 6.75 9.49 6.75"></path>
+                            <path d="m17.348 12.863-3.098-2.035"></path>
+                            <path d="m7.994 22.423 2.507-3.673"></path>
+                            <path d="M12.108 5a1.747 1.747 0 1 0 0-3.492 1.747 1.747 0 0 0 0 3.493Z"></path>
+                        </svg>
+                        <span class="text-[8px] font-bold uppercase tracking-widest mt-0.5">Vécu</span>
+                        <?php if ($unreadVecuCount > 0): ?>
+                            <span class="absolute top-0 right-4 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[8px] font-black text-white ring-2 ring-slate-950 animate-bounce">
+                                <?= $unreadVecuCount ?>
+                            </span>
+                        <?php endif; ?>
+                    </a>
+                </div>
             </div>
+        </nav>
 
-            <script>
-                window.addEventListener('load', () => {
-                    const msgBulle = document.getElementById('license-message');
-                    const lastDisplay = localStorage.getItem('wari_academy_nudge');
-                    const now = new Date().getTime();
-                    
-                    // Délai de 21 jours (21 jours * 24h * 60m * 60s * 1000ms)
-                    const delay = 21 * 24 * 60 * 60 * 1000;
+        <script>
+            window.addEventListener('load', () => {
+                const msgBulle = document.getElementById('license-message');
+                const lastDisplay = localStorage.getItem('wari_academy_nudge');
+                const now = new Date().getTime();
+                
+                // Délai de 21 jours (21 jours * 24h * 60m * 60s * 1000ms)
+                const delay = 21 * 24 * 60 * 60 * 1000;
 
-                    if (!lastDisplay || (now - parseInt(lastDisplay)) > delay) {
-                        setTimeout(() => {
-                            if (msgBulle) {
-                                // Apparition
-                                msgBulle.classList.remove('opacity-0', 'translate-y-2');
-                                msgBulle.classList.add('opacity-100', 'translate-y-0');
-                                
-                                // On enregistre l'affichage
-                                localStorage.setItem('wari_academy_nudge', now.toString());
+                if (!lastDisplay || (now - parseInt(lastDisplay)) > delay) {
+                    setTimeout(() => {
+                        if (msgBulle) {
+                            // Apparition
+                            msgBulle.classList.remove('opacity-0', 'translate-y-2');
+                            msgBulle.classList.add('opacity-100', 'translate-y-0');
+                            
+                            // On enregistre l'affichage
+                            localStorage.setItem('wari_academy_nudge', now.toString());
 
-                                // Disparition après 5 secondes (lecture rapide)
-                                setTimeout(() => closeLicenseMsg(), 5000);
-                            }
-                        }, 4000); 
-                    }
-                });
-
-                function closeLicenseMsg() {
-                    const msgBulle = document.getElementById('license-message');
-                    if (msgBulle) {
-                        msgBulle.classList.replace('opacity-100', 'opacity-0');
-                        msgBulle.classList.add('translate-y-2');
-                    }
+                            // Disparition après 5 secondes (lecture rapide)
+                            setTimeout(() => closeLicenseMsg(), 5000);
+                        }
+                    }, 4000); 
                 }
+            });
 
-                function trackLicenseBuy() {
-                    closeLicenseMsg();
-                    if (window.DigiStats && typeof window.DigiStats.track === 'function') {
-                        window.DigiStats.track('click_academy_access', { platform: 'web' });
-                    }
+            function closeLicenseMsg() {
+                const msgBulle = document.getElementById('license-message');
+                if (msgBulle) {
+                    msgBulle.classList.replace('opacity-100', 'opacity-0');
+                    msgBulle.classList.add('translate-y-2');
                 }
-            </script>
+            }
 
-            <button onclick="saveBudget()"
-                class="px-6 py-3 bg-slate-900 rounded-full font-bold text-xs uppercase tracking-wider text-slate-300 border border-slate-700 active:scale-95 transition-all hover:text-blue-400 flex items-center gap-2 shadow-lg shadow-slate-900/20">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                <span>Mettre a jour</span>
-            </button>
-
-            <div class="relative inline-block">
-                <a href="https://wari.digiroys.com/vecu/"
-                class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 text-slate-300 active:scale-95 transition-all hover:text-emerald-400 shadow-lg shadow-slate-900/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path d="m14.728 22.609-2.66-5.379-2.105-2.69a3.414 3.414 0 0 1-.475-1.737V6.75h.735a1.885 1.885 0 0 1 1.886 1.885v8.595"></path>
-                        <path d="M5.996 13.737v-3.493S7.743 6.75 9.49 6.75"></path>
-                        <path d="m17.348 12.863-3.098-2.035"></path>
-                        <path d="m7.994 22.423 2.507-3.673"></path>
-                        <path d="M12.108 5a1.747 1.747 0 1 0 0-3.492 1.747 1.747 0 0 0 0 3.493Z"></path>
-                    </svg>
-
-                    <?php if ($unreadVecuCount > 0): ?>
-                        <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 text-[9px] font-black text-white ring-2 ring-slate-950 animate-bounce">
-                            <?= $unreadVecuCount ?>
-                        </span>
-                    <?php endif; ?>
-                </a>
-            </div>
-        </div>
+            function trackLicenseBuy() {
+                closeLicenseMsg();
+                if (window.DigiStats && typeof window.DigiStats.track === 'function') {
+                    window.DigiStats.track('click_academy_access', { platform: 'web' });
+                }
+            }
+        </script>
 
         <!-- Bouton Installation PWA -->
         <div id="installBtn" onclick="triggerInstall()" class="hidden mt-6 group cursor-pointer">
@@ -494,10 +522,10 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
 
     <!-- ✅ MODAL HISTORIQUE -->
     <div id="historyModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm hidden items-center justify-center p-4 z-[130]">
-        <div class="glass-card w-full max-w-sm p-4 border border-slate-700 shadow-2xl">
+        <div class="glass-card w-full max-w-sm p-4 border border-slate-700 shadow-2xl flex flex-col max-h-[85vh]">
 
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-amber-400 font-bold uppercase tracking-widest text-sm">Historique Mensuel</h3>
+            <div class="flex items-center justify-between mb-4 shrink-0">
+                <h3 class="text-amber-400 font-bold uppercase tracking-widest text-xs">Tableau de Bord</h3>
 
                 <select onchange="loadMonthlyHistory(this.value)"
                     class="bg-slate-800 text-slate-300 text-[11px] border border-slate-700 rounded-lg px-2 py-1">
@@ -509,21 +537,28 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 <button onclick="closeHistoryModal()" class="text-slate-500 hover:text-white transition-colors text-lg">✕</button>
             </div>
 
-            <div id="historyContent" class="space-y-3 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                <p class="text-slate-500 text-[11px] italic text-center py-4">Chargement...</p>
+            <div id="historyContent" class="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-1">
+                <p class="text-slate-500 text-[12px] italic text-center py-4">Chargement...</p>
             </div>
         </div>
     </div>
 
-    <!-- Bouton depense -->
-    <button onclick="openExpenseModal()"
-        class="fixed bottom-20 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-900 rounded-full flex items-center justify-center text-white active:scale-95 hover:scale-110 transition-all duration-300 z-50 group">
+    <!-- Bulle de prévisualisation flottante du Coach AI -->
+    <div id="coachBubble" class="fixed bottom-[136px] right-6 z-50 max-w-[210px] bg-slate-950/95 backdrop-blur-md border border-amber-500/30 text-amber-50 px-3 py-2 rounded-2xl rounded-br-none shadow-2xl shadow-black/80 text-[11px] font-semibold leading-relaxed flex items-start gap-2 opacity-0 pointer-events-none transition-all duration-500 translate-y-2 select-none">
+        <span class="flex-1">Salut, je suis ton coach financier. Et si on discutait un peu ?</span>
+        <button onclick="dismissCoachBubble(event)" class="text-slate-400 hover:text-white p-0.5 active:scale-95 transition-colors font-bold text-xs leading-none">✕</button>
+    </div>
 
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 transition-transform group-hover:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+    <!-- Bouton Coach AI (discussion instantanée) -->
+    <button onclick="openCoachChat()"
+        class="fixed bottom-20 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 rounded-full flex items-center justify-center text-slate-950 active:scale-95 hover:scale-110 transition-all duration-300 z-50 group shadow-lg shadow-amber-500/30">
+
+        <!-- Custom coach/AI SVG Icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9h.01M16 9h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
 
-        <div class="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/20 pointer-events-none"></div>
+        <div class="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/25 pointer-events-none"></div>
     </button>
 
     <div id="expenseModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm hidden items-center justify-center p-4 z-[100]">
@@ -867,7 +902,360 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         }
     </script>
 
-    <script src="./assets/main.js?v=73"></script>
+    <!-- Backdrop Flouteur pour le Chat Coach -->
+    <div id="coachChatBackdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[140] hidden opacity-0 transition-opacity duration-300 cursor-pointer" onclick="closeCoachChat()"></div>
+
+    <!-- Tiroir / Drawer Chat Coach AI -->
+    <div id="coachChatModal" class="fixed inset-x-0 bottom-0 z-[150] h-[80vh] md:h-[600px] max-w-md mx-auto bg-slate-950/98 backdrop-blur-xl border border-white/10 rounded-t-[2rem] shadow-2xl flex flex-col translate-y-full transition-transform duration-500 ease-out">
+        <!-- Barre de glissement supérieure tactile -->
+        <div class="w-12 h-1 bg-white/20 rounded-full mx-auto my-3 cursor-pointer" onclick="closeCoachChat()"></div>
+        
+        <!-- En-tête -->
+        <div class="px-5 pb-3 flex justify-between items-center border-b border-white/5">
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center text-slate-950 shadow-md shadow-amber-500/20">
+                        <!-- Coach mini SVG Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9h.01M16 9h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    </div>
+                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-950 rounded-full"></span>
+                </div>
+                <div>
+                    <h3 class="text-sm font-black text-white leading-tight">Coach Wari</h3>
+                    <p class="text-[9px] text-amber-500 font-bold uppercase tracking-widest">Conseiller Financier</p>
+                </div>
+            </div>
+            
+            <button onclick="closeCoachChat()" class="p-2 rounded-xl bg-white/5 text-slate-400 hover:text-white active:scale-95 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Zone des Messages -->
+        <div id="coachChatMessages" class="flex-1 overflow-y-auto px-5 py-4 space-y-3 custom-scrollbar flex flex-col">
+        </div>
+
+        <!-- Puces de Suggestions -->
+        <div class="px-5 py-2 overflow-x-auto whitespace-nowrap scrollbar-none flex gap-2 border-t border-white/5">
+            <button onclick="sendCoachSuggestion('Comment puis-je optimiser mon budget ce mois-ci ?')" class="px-3 py-1.5 rounded-full bg-slate-900 border border-white/5 text-slate-300 text-[10px] font-semibold hover:border-indigo-500/30 hover:text-white active:scale-95 transition-all">
+                💡 Optimiser mon budget
+            </button>
+            <button onclick="sendCoachSuggestion('Fais-moi une analyse complète de ma situation financière actuelle.')" class="px-3 py-1.5 rounded-full bg-slate-900 border border-white/5 text-slate-300 text-[10px] font-semibold hover:border-indigo-500/30 hover:text-white active:scale-95 transition-all">
+                📊 Analyse complète
+            </button>
+            <button onclick="sendCoachSuggestion('Quel est ton meilleur conseil de discipline financière aujourd\'hui ?')" class="px-3 py-1.5 rounded-full bg-slate-900 border border-white/5 text-slate-300 text-[10px] font-semibold hover:border-indigo-500/30 hover:text-white active:scale-95 transition-all">
+                🥋 Conseil discipline
+            </button>
+            <button onclick="sendCoachSuggestion('Comment gérer mes dettes et les rembourser plus vite ?')" class="px-3 py-1.5 rounded-full bg-slate-900 border border-white/5 text-slate-300 text-[10px] font-semibold hover:border-indigo-500/30 hover:text-white active:scale-95 transition-all">
+                💸 Gérer mes dettes
+            </button>
+        </div>
+        
+        <!-- Zone d'écriture -->
+        <div class="px-4 py-3 bg-slate-950 border-t border-white/5 flex gap-2 items-center">
+            <input type="text" id="coachChatInput" placeholder="Pose ta question financière..." 
+                class="bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50 flex-1"
+                onkeypress="handleCoachChatKeypress(event)">
+            
+            <button onclick="submitCoachChat()" id="coachChatSendBtn"
+                class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 text-slate-950 flex items-center justify-center active:scale-95 transition-all hover:scale-105 shadow-md shadow-amber-500/10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Script de gestion du Chat Coach AI -->
+    <script>
+        let coachChatHistory = [];
+
+        // Gestion de l'affichage stratégique de la bulle d'appel à l'action
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const bubble = document.getElementById('coachBubble');
+                const isDismissed = localStorage.getItem('coach_bubble_dismissed') === 'true';
+                const modal = document.getElementById('coachChatModal');
+                const isChatOpen = modal && modal.classList.contains('translate-y-0');
+                
+                if (bubble && !isDismissed && !isChatOpen) {
+                    bubble.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+                    bubble.classList.add('opacity-100', 'translate-y-0');
+                }
+            }, 3000); // S'affiche après 3 secondes
+        });
+
+        window.dismissCoachBubble = function(event) {
+            if (event) event.stopPropagation(); // Évite d'ouvrir le chat
+            const bubble = document.getElementById('coachBubble');
+            if (bubble) {
+                bubble.classList.remove('opacity-100', 'translate-y-0');
+                bubble.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+                localStorage.setItem('coach_bubble_dismissed', 'true');
+            }
+        };
+
+        // Fonction pour ajuster la position du modal et de la zone scrollable quand le clavier mobile s'ouvre
+        function adjustModalForKeyboard() {
+            const modal = document.getElementById('coachChatModal');
+            if (!modal) return;
+            
+            // Si le modal est affiché (classe translate-y-0 présente)
+            if (modal.classList.contains('translate-y-0')) {
+                if (window.visualViewport) {
+                    const vvHeight = window.visualViewport.height;
+                    const keyboardHeight = window.innerHeight - vvHeight;
+                    
+                    if (keyboardHeight > 80) { // Seuil pour détecter un clavier virtuel
+                        // Garder bottom à 0px (le navigateur aligne déjà fixed bottom-0 sur le clavier sur mobile)
+                        modal.style.bottom = '0px';
+                        // Ajuster la hauteur pour tenir précisément dans la zone visible
+                        modal.style.height = `${vvHeight}px`;
+                    } else {
+                        // Clavier fermé
+                        modal.style.bottom = '0px';
+                        modal.style.height = ''; // Revient à 80vh ou h-[600px]
+                    }
+                }
+                
+                // Défilement automatique vers le bas
+                const messagesContainer = document.getElementById('coachChatMessages');
+                if (messagesContainer) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            }
+        }
+
+        // Enregistrement des écouteurs sur le visualViewport
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', adjustModalForKeyboard);
+            window.visualViewport.addEventListener('scroll', adjustModalForKeyboard);
+        }
+
+        window.openCoachChat = function() {
+            const modal = document.getElementById('coachChatModal');
+            const backdrop = document.getElementById('coachChatBackdrop');
+            if (!modal || !backdrop) return;
+
+            // Bloquer le défilement de l'arrière-plan
+            document.body.style.overflow = 'hidden';
+
+            // Masque la bulle si elle est visible
+            const bubble = document.getElementById('coachBubble');
+            if (bubble) {
+                bubble.classList.remove('opacity-100', 'translate-y-0');
+                bubble.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+            }
+
+            backdrop.classList.remove('hidden');
+            setTimeout(() => {
+                backdrop.classList.add('opacity-100');
+            }, 10);
+
+            modal.classList.remove('translate-y-full');
+            modal.classList.add('translate-y-0');
+            
+            // Applique l'ajustement immédiatement au cas où
+            setTimeout(adjustModalForKeyboard, 50);
+
+            setTimeout(() => {
+                document.getElementById('coachChatInput')?.focus();
+            }, 300);
+        };
+
+        window.closeCoachChat = function() {
+            const modal = document.getElementById('coachChatModal');
+            const backdrop = document.getElementById('coachChatBackdrop');
+            if (!modal || !backdrop) return;
+
+            // Rétablir le défilement de l'arrière-plan
+            document.body.style.overflow = '';
+
+            modal.classList.remove('translate-y-0');
+            modal.classList.add('translate-y-full');
+
+            // Réinitialise les styles
+            modal.style.bottom = '0px';
+            modal.style.height = '';
+
+            backdrop.classList.remove('opacity-100');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+            }, 300);
+        };
+
+        window.sendCoachSuggestion = function(text) {
+            const input = document.getElementById('coachChatInput');
+            if (input) {
+                input.value = text;
+                submitCoachChat();
+            }
+        };
+
+        window.handleCoachChatKeypress = function(e) {
+            if (e.key === 'Enter') {
+                submitCoachChat();
+            }
+        };
+
+        window.submitCoachChat = async function() {
+            const input = document.getElementById('coachChatInput');
+            const sendBtn = document.getElementById('coachChatSendBtn');
+            const messagesContainer = document.getElementById('coachChatMessages');
+            
+            if (!input || !messagesContainer || !sendBtn) return;
+            
+            const text = input.value.trim();
+            if (!text) return;
+            
+            input.value = '';
+            input.disabled = true;
+            sendBtn.disabled = true;
+            
+            appendChatMessage(text, 'user');
+            
+            const thinkingId = 'thinking_' + Date.now();
+            appendChatThinking(thinkingId);
+            
+            const financialContext = getFinancialStatusContext();
+            
+            try {
+                const formData = new FormData();
+                formData.append('action', 'coach_chat');
+                formData.append('message', text);
+                formData.append('data', JSON.stringify(financialContext));
+                formData.append('history', JSON.stringify(coachChatHistory));
+                
+                const res = await fetch('academy-admin/ai_gateway.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await res.json();
+                
+                const thinkingEl = document.getElementById(thinkingId);
+                if (thinkingEl) thinkingEl.remove();
+                
+                if (result.response) {
+                    appendChatMessage(result.response, 'coach');
+                    
+                    coachChatHistory.push({ role: 'user', content: text });
+                    coachChatHistory.push({ role: 'model', content: result.response });
+                    if (coachChatHistory.length > 20) {
+                        coachChatHistory.shift();
+                        coachChatHistory.shift();
+                    }
+                } else {
+                    appendChatMessage("Désolé Champion·ne, j'ai rencontré un petit problème réseau. Reste concentré sur tes objectifs !", 'coach');
+                }
+            } catch (err) {
+                console.error("Coach chat error:", err);
+                const thinkingEl = document.getElementById(thinkingId);
+                if (thinkingEl) thinkingEl.remove();
+                appendChatMessage("Aïe, impossible de me connecter pour l'instant. Garde ta discipline budgétaire, c'est le plus important !", 'coach');
+            } finally {
+                input.disabled = false;
+                sendBtn.disabled = false;
+                
+                // Ré-ajuste au cas où
+                setTimeout(adjustModalForKeyboard, 50);
+                input.focus();
+            }
+        };
+
+        function appendChatMessage(text, sender) {
+            const container = document.getElementById('coachChatMessages');
+            if (!container) return;
+            
+            const msgDiv = document.createElement('div');
+            if (sender === 'user') {
+                msgDiv.className = "bg-amber-500 text-black self-end rounded-2xl rounded-tr-none px-3.5 py-2.5 text-xs font-semibold max-w-[85%] ml-auto shadow-sm";
+            } else {
+                msgDiv.className = "bg-slate-900 border border-white/5 text-slate-100 self-start rounded-2xl rounded-tl-none px-4 py-3 text-xs max-w-[85%] mr-auto leading-relaxed shadow-sm";
+            }
+            
+            const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            msgDiv.innerHTML = formattedText.replace(/\n/g, '<br>');
+            
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendChatThinking(id) {
+            const container = document.getElementById('coachChatMessages');
+            if (!container) return;
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.id = id;
+            msgDiv.className = "bg-slate-900 border border-white/5 text-slate-400 self-start rounded-2xl rounded-tl-none px-4 py-3 text-xs max-w-[85%] mr-auto flex items-center gap-1 shadow-sm";
+            msgDiv.innerHTML = `
+                <span class="animate-bounce" style="animation-delay: 0.1s">•</span>
+                <span class="animate-bounce" style="animation-delay: 0.2s">•</span>
+                <span class="animate-bounce" style="animation-delay: 0.3s">•</span>
+            `;
+            
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function getFinancialStatusContext() {
+            const currency = document.getElementById("currencySelector")?.value || "F";
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const day = now.getDate();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysLeft = daysInMonth - day + 1;
+
+            const cashAmountEl = document.getElementById("cashAmount");
+            const cashValue = parseInt(cashAmountEl?.innerText.replace(/[^0-9]/g, "")) || 0;
+            const budgetQuotidien = Math.round(cashValue / daysLeft);
+
+            const totalDettes = (typeof dbDebts !== "undefined" ? dbDebts : [])
+              .reduce((acc, d) => acc + (parseInt(d.amount) || 0), 0);
+
+            const catSummary = categories
+              .map(c => `- ${c.name}: ${currentExpenses[c.id] || 0} ${currency} dépensés sur ${c.name.toLowerCase().includes("projet") ? projectCapital : c.balance || 0} ${currency} prévus`)
+              .join("\n");
+
+            const debtsSummary = (typeof dbDebts !== "undefined" ? dbDebts : [])
+              .map(d => `- ${d.type === 'loan' ? 'Prêt à' : 'Dette envers'} ${d.person_name} : ${parseInt(d.amount).toLocaleString()} ${currency}`)
+              .join("\n") || "Aucune dette active.";
+
+            // Récupération de l'objectif d'épargne projet ciblé par l'utilisateur
+            const goalStr = localStorage.getItem("wari_vault_goal");
+            let goalAmount = 0;
+            let goalLabel = "";
+            if (goalStr) {
+                try {
+                    const goal = JSON.parse(goalStr);
+                    if (goal) {
+                        goalAmount = parseInt(goal.amount) || 0;
+                        goalLabel = goal.label || goal.name || "";
+                    }
+                } catch(e) {}
+            }
+
+            return {
+              cash_restant: cashValue,
+              jours_restants: daysLeft,
+              budget_quotidien_conseille: budgetQuotidien,
+              categories_details: catSummary,
+              dettes_details: debtsSummary,
+              total_dettes: totalDettes,
+              capital_projet: projectCapital,
+              devise: currency,
+              objectif_projet_montant: goalAmount,
+              objectif_projet_label: goalLabel
+            };
+        }
+    </script>
+
+    <script src="./assets/main.js?v=75"></script>
 </body>
 
 </html>

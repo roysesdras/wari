@@ -32,26 +32,45 @@ $moisFr = [
 ];
 
 try {
+    // 0. Récupérer tous les mois uniques ayant eu de l'activité (soit répartition soit dépense)
+    $stmtMonths = $pdo->prepare("
+        SELECT DISTINCT DATE_FORMAT(dt, '%Y-%m') as month_key, DATE_FORMAT(dt, '%m') as month_num, DATE_FORMAT(dt, '%Y') as year
+        FROM (
+            SELECT distributed_at as dt FROM wari_distributions WHERE user_id = ? AND distributed_at >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
+            UNION
+            SELECT date_expense as dt FROM wari_expenses WHERE user_id = ? AND date_expense >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
+        ) as combined
+        ORDER BY month_key DESC
+    ");
+    $stmtMonths->bindValue(1, $userId, PDO::PARAM_INT);
+    $stmtMonths->bindValue(2, $months, PDO::PARAM_INT);
+    $stmtMonths->bindValue(3, $userId, PDO::PARAM_INT);
+    $stmtMonths->bindValue(4, $months, PDO::PARAM_INT);
+    $stmtMonths->execute();
+    $allMonths = $stmtMonths->fetchAll(PDO::FETCH_ASSOC);
+
     // 1. Répartitions agrégées par mois
-    $stmtDistrib = $pdo->prepare("
+    $stmtDistribAgg = $pdo->prepare("
         SELECT 
             DATE_FORMAT(distributed_at, '%Y-%m') as month_key,
-            DATE_FORMAT(distributed_at, '%m')    as month_num,
-            DATE_FORMAT(distributed_at, '%Y')    as year,
             SUM(amount) as total_distributed,
             COUNT(*)    as nb_repartitions
         FROM wari_distributions
         WHERE user_id = ?
         AND distributed_at >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
         GROUP BY month_key
-        ORDER BY month_key DESC
-        LIMIT ?
     ");
-    $stmtDistrib->bindValue(1, $userId, PDO::PARAM_INT);
-    $stmtDistrib->bindValue(2, $months, PDO::PARAM_INT);
-    $stmtDistrib->bindValue(3, $months, PDO::PARAM_INT);
-    $stmtDistrib->execute();
-    $distributions = $stmtDistrib->fetchAll(PDO::FETCH_ASSOC);
+    $stmtDistribAgg->bindValue(1, $userId, PDO::PARAM_INT);
+    $stmtDistribAgg->bindValue(2, $months, PDO::PARAM_INT);
+    $stmtDistribAgg->execute();
+
+    $distribAggByMonth = [];
+    foreach ($stmtDistribAgg->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $distribAggByMonth[$row['month_key']] = [
+            'total_distributed' => (int)$row['total_distributed'],
+            'nb_repartitions'   => (int)$row['nb_repartitions']
+        ];
+    }
 
     // 2. Répartitions individuelles (date + heure + montant)
     $stmtDetails = $pdo->prepare("
@@ -96,25 +115,61 @@ try {
         $expensesByMonth[$exp['month_key']] = (int)$exp['total_spent'];
     }
 
+    // 3b. Dépenses détaillées
+    $stmtExpDetails = $pdo->prepare("
+        SELECT 
+            DATE_FORMAT(date_expense, '%Y-%m') as month_key,
+            DATE_FORMAT(date_expense, '%d/%m/%Y') as date_day_label,
+            DATE_FORMAT(date_expense, '%Hh%i') as time_label,
+            amount,
+            category_id,
+            description
+        FROM wari_expenses
+        WHERE user_id = ?
+        AND date_expense >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
+        ORDER BY date_expense DESC
+    ");
+    $stmtExpDetails->bindValue(1, $userId, PDO::PARAM_INT);
+    $stmtExpDetails->bindValue(2, $months, PDO::PARAM_INT);
+    $stmtExpDetails->execute();
+
+    $expDetailsByMonth = [];
+    foreach ($stmtExpDetails->fetchAll(PDO::FETCH_ASSOC) as $expDet) {
+        $expDetailsByMonth[$expDet['month_key']][] = [
+            'date_day_label' => $expDet['date_day_label'],
+            'time_label' => $expDet['time_label'],
+            'amount' => (int)$expDet['amount'],
+            'category_id' => (int)$expDet['category_id'],
+            'description' => $expDet['description'],
+        ];
+    }
+
     // 4. Fusion
     $history = [];
-    foreach ($distributions as $dist) {
-        $monthKey         = $dist['month_key'];
-        $totalDistributed = (int)$dist['total_distributed'];
+    foreach ($allMonths as $m) {
+        $monthKey = $m['month_key'];
+        $monthNum = $m['month_num'];
+        $year     = $m['year'];
+
+        $distAgg = $distribAggByMonth[$monthKey] ?? ['total_distributed' => 0, 'nb_repartitions' => 0];
+        $totalDistributed = $distAgg['total_distributed'];
+        $nbRepartitions   = $distAgg['nb_repartitions'];
+
         $totalSpent       = $expensesByMonth[$monthKey] ?? 0;
         $totalSaved       = max(0, $totalDistributed - $totalSpent);
 
         // Label en français
-        $label = ($moisFr[$dist['month_num']] ?? '??') . ' ' . $dist['year'];
+        $label = ($moisFr[$monthNum] ?? '??') . ' ' . $year;
 
         $history[] = [
             'month_key'         => $monthKey,
             'label'             => $label,
-            'nb_repartitions'   => (int)$dist['nb_repartitions'],
+            'nb_repartitions'   => $nbRepartitions,
             'total_distributed' => $totalDistributed,
             'total_spent'       => $totalSpent,
             'total_saved'       => $totalSaved,
             'details'           => $detailsByMonth[$monthKey] ?? [],
+            'expenses'          => $expDetailsByMonth[$monthKey] ?? [],
         ];
     }
 

@@ -287,10 +287,29 @@ if (isset($_GET['action'])) {
                     $index++;
                 }
 
+                // Dédoublonnage pour l'affichage (un utilisateur peut avoir plusieurs appareils)
+                $uniqueSuccess = [];
+                foreach ($results['success'] as $s) {
+                    $uniqueSuccess[$s['email']] = $s;
+                }
+                $results['success'] = array_values($uniqueSuccess);
+
+                $uniqueExpired = [];
+                foreach ($results['expired'] as $s) {
+                    $uniqueExpired[$s['email']] = $s;
+                }
+                $results['expired'] = array_values($uniqueExpired);
+
+                $uniqueFailed = [];
+                foreach ($results['failed'] as $s) {
+                    $uniqueFailed[$s['email']] = $s;
+                }
+                $results['failed'] = array_values($uniqueFailed);
+
                 $sent = count($results['success']);
                 $expired = count($results['expired']);
                 $failed = count($results['failed']);
-                $total = count($subs);
+                $total = count($subs); // Total des endpoints (appareils) tentés
 
                 auditLog('PUSH_ALL', [
                     'recipients' => $total,
