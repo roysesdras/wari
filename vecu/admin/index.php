@@ -13,7 +13,7 @@ $articles = $pdo->query("
         FROM wari_push_logs
         WHERE type = 'vecu'
         GROUP BY target_id
-    ) pl ON pl.target_id = a.slug
+    ) pl ON pl.target_id COLLATE utf8mb4_general_ci = a.slug COLLATE utf8mb4_general_ci
     ORDER BY a.date_publication DESC
 ")->fetchAll();
 
