@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wari - Finance | Accès Privé</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="../assets/styles.css?v=88">
+    <link rel="stylesheet" href="../assets/styles.css?v=90">
     <link rel="manifest" href="../manifest.json">
     <meta id="metaThemeColor" name="theme-color" content="#000000">
 
@@ -96,7 +96,7 @@
 
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Quicksand', sans-serif;
         }
 
         .glass {
@@ -335,7 +335,7 @@
         });
     </script>
 
-    <script src="../assets/main.js?v=88"></script>
+    <script src="../assets/main.js?v=90"></script>
 </body>
 
 </html>

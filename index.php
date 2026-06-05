@@ -58,7 +58,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=88">
+    <link rel="stylesheet" href="./assets/styles.css?v=90">
 
     <link rel="manifest" href="manifest.json">
     <meta id="metaThemeColor" name="theme-color" content="#000000">
@@ -1404,7 +1404,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         })();
     </script>
 
-    <script src="./assets/main.js?v=88"></script>
+    <script src="./assets/main.js?v=90"></script>
 </body>
 
 </html>

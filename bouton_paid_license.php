@@ -12,12 +12,13 @@
             Champion•ne, <br>
             active ta <span class="text-amber-500 uppercase text-[10px] tracking-widest">LICENCE Wari Finance</span> ici
         </p>
-        <div class="absolute -bottom-1.5 right-6 w-3 h-3 bg-slate-950 border-r border-b border-amber-500/40 rotate-45"></div>
+        <div class="license-message-arrow absolute -bottom-1.5 right-6 w-3 h-3 bg-slate-950 border-r border-b border-amber-500/40 rotate-45"></div>
     </div>
 
     <!-- Bouton Principal (Lien vers Paiement) -->
     <a href="https://wari.digiroys.com/paid/"
         target="_blank"
+        id="license-floating-btn"
         onclick="trackLicenseBuy()"
         class="flex items-center justify-center w-14 h-14 bg-slate-950 border-2 border-amber-500 rounded-full shadow-lg hover:bg-slate-800 transition-all duration-300 active:scale-95 group">
         

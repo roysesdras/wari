@@ -433,3 +433,69 @@ body.light-mode .border-amber-500\/10 {
 body.light-mode .text-amber-500\/80 {
   color: #b45309 !important;
 }
+
+/* ─── Widget de Licence (bouton_paid_license.php) ────────────────────────── */
+
+/* Hover & Transitions en mode sombre */
+#license-floating-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+#license-floating-btn svg {
+  color: #f59e0b !important;
+  transition: color 0.3s ease, transform 0.3s ease !important;
+}
+#license-floating-btn:hover {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+}
+#license-floating-btn:hover svg {
+  color: #000000 !important;
+  transform: scale(1.1) !important;
+}
+
+/* Version Mode Clair */
+body.light-mode #license-message {
+  background-color: #ffffff !important;
+  border-color: rgba(217, 119, 6, 0.3) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+}
+
+body.light-mode #license-message p {
+  color: #0f172a !important;
+}
+
+body.light-mode #license-message span.text-amber-500 {
+  color: #b45309 !important; /* Couleur orange foncée et très lisible en mode clair */
+}
+
+body.light-mode #license-message .license-message-arrow {
+  background-color: #ffffff !important;
+  border-color: rgba(217, 119, 6, 0.3) !important;
+}
+
+body.light-mode #license-message button {
+  color: #64748b !important;
+}
+body.light-mode #license-message button:hover {
+  color: #ef4444 !important;
+}
+
+body.light-mode #license-floating-btn {
+  background-color: #ffffff !important;
+  border-color: #d97706 !important;
+  box-shadow: 0 10px 25px rgba(217, 119, 6, 0.12) !important;
+}
+
+body.light-mode #license-floating-btn svg {
+  color: #d97706 !important;
+}
+
+/* Hover Mode Clair */
+body.light-mode #license-floating-btn:hover {
+  background-color: #d97706 !important;
+  border-color: #d97706 !important;
+}
+body.light-mode #license-floating-btn:hover svg {
+  color: #ffffff !important;
+  transform: scale(1.1) !important;
+}
