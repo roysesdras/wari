@@ -158,7 +158,7 @@ function render(isSimulation = false) {
             <div class="h-8 w-8 flex items-center justify-center bg-white/5 rounded-xl border border-white/5 shadow-inner">
               ${cat.icon.replace('width="24" height="24"', 'width="18" height="18"')}
             </div>
-            <div class="flex items-center justify-center bg-slate-900/80 px-2 py-0.5 rounded-lg border border-white/5 gap-[2px]">
+            <div class="flex items-center justify-center bg-slate-900/80 px-2 py-0.5 rounded-lg gap-[2px]">
               <input type="number" value="${currentPercent}" 
                   ${isEditMode ? "" : "disabled"}
                   id="percent-input-${cat.id}"

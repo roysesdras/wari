@@ -247,7 +247,7 @@ body.light-mode nav span.bg-emerald-600 {
 /* Pourcentages des Enveloppes (Lecture & Edition) */
 body.light-mode .bg-slate-900\/80 {
   background: #f1f5f9 !important;
-  border-color: rgba(15, 23, 42, 0.08) !important;
+  border: none !important;
 }
 body.light-mode input[id^="percent-input-"] {
   color: #334155 !important;
