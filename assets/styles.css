@@ -410,3 +410,26 @@ body.light-mode #historyContent .text-slate-400 {
 body.light-mode #historyContent .border-white\/5 {
   border-color: rgba(15, 23, 42, 0.06) !important;
 }
+
+/* Page d'authentification (auth.php) en mode clair */
+body.light-mode .glass {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04) !important;
+}
+
+body.light-mode .border-slate-800 {
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+body.light-mode .bg-amber-500\/5 {
+  background-color: rgba(245, 158, 11, 0.08) !important;
+}
+
+body.light-mode .border-amber-500\/10 {
+  border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+body.light-mode .text-amber-500\/80 {
+  color: #b45309 !important;
+}

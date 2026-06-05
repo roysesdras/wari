@@ -48,6 +48,46 @@
             });
         }
 
+        function toggleTheme() {
+            const isLight = document.body.classList.toggle('light-mode');
+            document.documentElement.classList.toggle('light-mode', isLight);
+            localStorage.setItem('wari_theme', isLight ? 'light' : 'dark');
+            const metaThemeColor = document.getElementById('metaThemeColor');
+            if (metaThemeColor) {
+                metaThemeColor.setAttribute('content', isLight ? '#f1f5f9' : '#000000');
+            }
+            updateThemeButton();
+        }
+
+        function updateThemeButton() {
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const metaThemeColor = document.getElementById('metaThemeColor');
+            if (metaThemeColor) {
+                metaThemeColor.setAttribute('content', isLight ? '#f1f5f9' : '#000000');
+            }
+            const themeIcon = document.getElementById('themeIcon');
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            if (themeIcon) {
+                if (isLight) {
+                    // Icône Soleil (pour repasser au mode sombre)
+                    themeIcon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+                    if (themeToggleBtn) {
+                        themeToggleBtn.className = "w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300 bg-slate-200 hover:bg-slate-300 border border-slate-300/50";
+                        themeIcon.className = "text-slate-800";
+                    }
+                } else {
+                    // Icône Lune (pour repasser au mode clair)
+                    themeIcon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+                    if (themeToggleBtn) {
+                        themeToggleBtn.className = "w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/5";
+                        themeIcon.className = "text-slate-400";
+                    }
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateThemeButton);
+
         // Si l'utilisateur est connecté en PHP
         <?php if (isset($_SESSION['user_email'])): ?>
             DigiStats.identify("<?= $_SESSION['user_email'] ?>");
@@ -76,6 +116,14 @@
 </head>
 
 <body class="bg-[#0f172a] text-slate-200 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Bouton de bascule de thème flottant -->
+    <div class="fixed top-4 right-4 z-50">
+        <button id="themeToggleBtn" onclick="toggleTheme()" title="Changer le thème"
+            class="w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/5">
+            <span id="themeIcon" class="text-slate-400"></span>
+        </button>
+    </div>
 
     <div class="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-600/10 rounded-full blur-[120px]"></div>
