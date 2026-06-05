@@ -161,7 +161,10 @@ function render(isSimulation = false) {
             <div class="flex items-center justify-center bg-slate-900/80 px-2 py-0.5 rounded-lg border border-white/5 gap-[2px]">
               <input type="number" value="${currentPercent}" 
                   ${isEditMode ? "" : "disabled"}
-                  oninput="updatePercent(${cat.id}, this.value)"
+                  id="percent-input-${cat.id}"
+                  onfocus="this.select()"
+                  oninput="updatePercentLive(${cat.id}, this.value)"
+                  onchange="updatePercentFinal(${cat.id}, this.value)"
                   class="w-[20px] bg-transparent text-[10px] font-black outline-none text-right p-0 m-0 ${isEditMode ? "text-amber-400" : "text-slate-400"}">
               <span class="text-[10px] font-bold text-slate-600">%</span>
           </div>
@@ -186,7 +189,7 @@ function render(isSimulation = false) {
 
             <div class="text-[8px] font-bold text-slate-600 flex items-center gap-1 mb-1">
                 <span class="opacity-70 uppercase tracking-tighter">Cumul/mois:</span>
-                <span class="font-black text-slate-500">${totalPrevisionnel.toLocaleString()} ${currency}</span>
+                <span id="cumul-val-${cat.id}" class="font-black text-slate-500">${totalPrevisionnel.toLocaleString()} ${currency}</span>
             </div>
 
             <div class="flex items-end justify-between py-0.5">
@@ -218,7 +221,9 @@ function render(isSimulation = false) {
         ? `
             <div class="mt-4 pt-2 border-t border-white/5">
                 <input type="range" min="0" max="100" value="${currentPercent}" 
-                    oninput="updatePercent(${cat.id}, this.value)"
+                    id="range-input-${cat.id}"
+                    oninput="updatePercentLive(${cat.id}, this.value)"
+                    onchange="updatePercentFinal(${cat.id}, this.value)"
                     class="w-full h-1 accent-amber-500 cursor-pointer">
             </div>
         `
@@ -522,22 +527,67 @@ window.resetVault = function () {
 
 // ─── UTILITAIRES ───────────────────────────────────────────────────────────
 
-window.updatePercent = function (id, val) {
+window.updatePercentLive = function (id, val) {
   const cat = categories.find((c) => c.id === id);
   if (cat) {
-    // 1. On sécurise la valeur (0 si vide)
-    cat.percent = parseFloat(val) || 0;
+    const numVal = parseFloat(val) || 0;
+    cat.percent = numVal;
 
-    // 2. ON FORCE LE CALCUL IMMEDIAT du montant pour cette catégorie
-    // On récupère le montant de l'input principal en direct
+    // Aligner les deux inputs (uniquement si ce n'est pas le champ de saisie actif pour ne pas casser la frappe)
+    const numInput = document.getElementById(`percent-input-${id}`);
+    const rangeInput = document.getElementById(`range-input-${id}`);
+    
+    if (numInput && document.activeElement !== numInput && parseFloat(numInput.value) !== numVal) {
+      numInput.value = numVal;
+    }
+    if (rangeInput && document.activeElement !== rangeInput && parseFloat(rangeInput.value) !== numVal) {
+      rangeInput.value = numVal;
+    }
+
+    // Recalculer le montant prévisionnel pour cette catégorie
     const totalInput = document.getElementById("mainAmount");
-    const total = parseFloat(totalInput.value) || 0;
+    const total = parseFloat(totalInput ? totalInput.value : 0) || 0;
+    cat.amount = Math.round((total * numVal) / 100);
 
-    // On met à jour la propriété .amount de la catégorie pour le rendu
+    // Mettre à jour le texte cumul/mois localement dans le DOM
+    const cumulValSpan = document.getElementById(`cumul-val-${id}`);
+    const currency = document.getElementById("currencySelector")?.value || "F";
+    if (cumulValSpan) {
+      cumulValSpan.innerText = cat.amount.toLocaleString() + " " + currency;
+    }
+
+    // Recalculer dynamiquement la Banque et la Poche à la volée sans toucher au DOM de saisie
+    let bank = 0, cash = 0;
+    categories.forEach((c) => {
+      const spent = typeof currentExpenses !== "undefined" && currentExpenses[c.id] ? parseInt(currentExpenses[c.id]) : 0;
+      const isProjet = c.name.toLowerCase().includes("projet");
+      const isEpargne = c.name.toLowerCase().includes("épargne") || c.id === 1;
+      const soldeReel = isProjet ? Math.max(0, projectCapital) : Math.max(0, c.amount - spent);
+
+      if (isEpargne) {
+        bank += soldeReel;
+      } else if (!isProjet) {
+        cash += soldeReel;
+      }
+    });
+
+    const bankEl = document.getElementById("bankAmount");
+    const cashEl = document.getElementById("cashAmount");
+    if (bankEl) bankEl.innerText = bank.toLocaleString() + " " + currency;
+    if (cashEl) cashEl.innerText = cash.toLocaleString() + " " + currency;
+
+    notifyUnsavedChanges();
+  }
+};
+
+window.updatePercentFinal = function (id, val) {
+  const cat = categories.find((c) => c.id === id);
+  if (cat) {
+    cat.percent = parseFloat(val) || 0;
+    const totalInput = document.getElementById("mainAmount");
+    const total = parseFloat(totalInput ? totalInput.value : 0) || 0;
     cat.amount = Math.round((total * cat.percent) / 100);
 
-    // 3. ON RELANCE LE RENDU (pour que les chiffres changent sur la carte)
-    render(true);
     notifyUnsavedChanges();
   }
 };

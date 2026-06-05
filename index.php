@@ -34,7 +34,18 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <meta name="author" content="Digiroys">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Quicksand', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
     <meta property="og:type" content="website">
@@ -47,7 +58,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=75">
+    <link rel="stylesheet" href="./assets/styles.css?v=77">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0B141A;">
@@ -156,7 +167,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 </select>
             </div>
             <div class="flex items-end border-b-2 border-slate-700 pb-2 focus-within:border-emerald-500 transition-colors">
-                <input type="number" id="mainAmount" placeholder="0"
+                <input type="number" id="mainAmount" placeholder="0" onfocus="this.select()"
                     class="bg-transparent text-4xl w-full font-extrabold outline-none text-white">
                 <span id="currentSymbol" class="text-xl font-bold text-slate-500 ml-2">F</span>
             </div>
@@ -543,7 +554,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
 
     <!-- Bouton Coach AI → page dédiée /coach -->
     <a id="coachButton" href="/coach/" target="_blank"
-        class="fixed bottom-20 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 rounded-full flex items-center justify-center text-slate-950 active:scale-95 hover:scale-110 transition-all duration-300 z-50 group shadow-lg shadow-amber-500/30 touch-none">
+        class="fixed bottom-20 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 rounded-full flex items-center justify-center text-slate-950 active:scale-95 hover:scale-110 transition-all duration-300 z-50 group border border-white/10 touch-none">
 
         <!-- Custom coach/AI SVG Icon -->
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -1332,7 +1343,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         })();
     </script>
 
-    <script src="./assets/main.js?v=75"></script>
+    <script src="./assets/main.js?v=77"></script>
 </body>
 
 </html>
