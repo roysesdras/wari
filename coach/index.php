@@ -93,6 +93,21 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
     <title>Wari Coach - Ton mentor financier</title>
     <meta name="description" content="Prends le contrôle de ton budget avec le Coach Wari, disponible 24h/24 pour te conseiller.">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta id="metaThemeColor" name="theme-color" content="#000000">
+
+    <script>
+        // Initialisation immédiate du thème
+        const savedTheme = localStorage.getItem('wari_theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('light-mode');
+                const metaThemeColor = document.getElementById('metaThemeColor');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#f1f5f9');
+            });
+        }
+    </script>
+
     <style>
         /* Variables de couleurs personnalisées Wari */
         :root {
@@ -105,6 +120,35 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
             --color-text-main: #f8fafc;
             --color-text-muted: #64748b; /* Texte secondaire plus sombre et discret */
             --color-success: #10b981;
+
+            --color-bg-chat: #020203;
+            --color-bg-header: #000000;
+            --color-bg-btn: #0a0a0a;
+            --color-bg-btn-hover: rgba(255, 255, 255, 0.1);
+            --color-bg-bubble-coach: #0c0d0e;
+            --color-bg-chip: #0a0a0a;
+            --color-bg-input: #0a0a0a;
+            --color-bg-input-focus: #0d0d0d;
+            --color-scrollbar-thumb: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Mode Clair */
+        body.light-mode {
+            --color-bg-app: #f1f5f9;
+            --color-bg-card: #ffffff;
+            --color-border: rgba(15, 23, 42, 0.08);
+            --color-text-main: #0f172a;
+            --color-text-muted: #475569;
+
+            --color-bg-chat: #ffffff;
+            --color-bg-header: #ffffff;
+            --color-bg-btn: #f1f5f9;
+            --color-bg-btn-hover: rgba(15, 23, 42, 0.05);
+            --color-bg-bubble-coach: #f1f5f9;
+            --color-bg-chip: #f1f5f9;
+            --color-bg-input: #f8fafc;
+            --color-bg-input-focus: #ffffff;
+            --color-scrollbar-thumb: rgba(15, 23, 42, 0.1);
         }
 
         * {
@@ -137,7 +181,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
             height: 100%;
             display: flex;
             flex-direction: column;
-            background: #020203; /* Arrière-plan chat noir absolu */
+            background: var(--color-bg-chat); /* Arrière-plan chat dynamique */
             border-left: 1px solid var(--color-border);
             border-right: 1px solid var(--color-border);
             box-shadow: none; /* Retrait de l'ombre portée */
@@ -158,7 +202,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid var(--color-border);
-            background: #000000; /* Fond noir pur */
+            background: var(--color-bg-header); /* Fond dynamique */
             z-index: 10;
         }
 
@@ -169,7 +213,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
         }
 
         .back-btn {
-            background: #0a0a0a; /* Fond noir uni */
+            background: var(--color-bg-btn); /* Fond dynamique */
             border: 1px solid var(--color-border);
             color: var(--color-text-muted);
             width: 2.25rem;
@@ -184,7 +228,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
         }
 
         .back-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--color-bg-btn-hover);
             color: var(--color-text-main);
             transform: translateX(-2px);
         }
@@ -221,7 +265,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
             width: 0.625rem;
             height: 0.625rem;
             background-color: var(--color-success);
-            border: 2px solid #0f172a;
+            border: 2px solid var(--color-bg-header);
             border-radius: 50%;
             animation: pulse-status 2s infinite;
         }
@@ -258,14 +302,14 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
             flex-direction: column;
             gap: 1rem;
             scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+            scrollbar-color: var(--color-scrollbar-thumb) transparent;
         }
 
         .chat-messages::-webkit-scrollbar {
             width: 4px;
         }
         .chat-messages::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--color-scrollbar-thumb);
             border-radius: 2px;
         }
 
@@ -299,7 +343,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
         }
 
         .message-coach {
-            background: #0c0d0e; /* Fond gris/noir solide */
+            background: var(--color-bg-bubble-coach); /* Fond dynamique */
             border: 1px solid var(--color-border);
             color: var(--color-text-main);
             align-self: flex-start;
@@ -315,7 +359,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
         /* Indicateur d'attente (Thinking) */
         .message-thinking {
             align-self: flex-start;
-            background: #0c0d0e;
+            background: var(--color-bg-bubble-coach); /* Fond dynamique */
             border: 1px solid var(--color-border);
             padding: 0.8rem 1.2rem;
             border-radius: 1.25rem 1.25rem 1.25rem 0;
@@ -353,7 +397,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
             padding: 0.6rem 1rem;
             overflow-x: auto;
             white-space: nowrap;
-            background: #020203; /* Noir absolu */
+            background: var(--color-bg-chat); /* Fond dynamique */
             border-top: 1px solid var(--color-border);
             scrollbar-width: none; /* Firefox */
             max-height: 50px;
@@ -397,7 +441,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
         }
 
         .suggestion-chip {
-            background: #0a0a0a; /* Fond noir uni */
+            background: var(--color-bg-chip); /* Fond dynamique */
             border: 1px solid var(--color-border);
             color: var(--color-text-muted);
             padding: 0.4rem 0.8rem;
@@ -422,7 +466,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
         /* Zone de saisie */
         .input-bar {
             padding: 0.75rem 1rem;
-            background: #000000; /* Fond noir pur */
+            background: var(--color-bg-header); /* Fond dynamique */
             border-top: 1px solid var(--color-border);
             display: flex;
             gap: 0.75rem;
@@ -431,7 +475,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
 
         .chat-input {
             flex: 1;
-            background: #0a0a0a; /* Saisie noire unie */
+            background: var(--color-bg-input); /* Fond dynamique */
             border: 1px solid var(--color-border);
             border-radius: 1rem;
             padding: 0.75rem 1rem;
@@ -444,11 +488,12 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
 
         .chat-input:focus {
             border-color: rgba(var(--color-primary-rgb), 0.5);
-            background: #0d0d0d;
+            background: var(--color-bg-input-focus);
         }
 
         .chat-input::placeholder {
-            color: rgba(255, 255, 255, 0.2);
+            color: var(--color-text-muted);
+            opacity: 0.5;
         }
 
         .send-btn {
@@ -511,7 +556,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
         }
 
         .clear-btn:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--color-bg-btn-hover);
             color: #ef4444; /* Rouge au survol */
         }
 
