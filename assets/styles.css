@@ -1,16 +1,17 @@
 body {
-  font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-family: 'Quicksand', sans-serif !important;
   font-size: 15px; /* Légèrement augmenté car Quicksand est plus compact */
   background: #000000 !important;
   color: #f8fafc;
   min-height: 100vh;
 }
 
+*,
 input,
 button,
 select,
 textarea {
-  font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-family: 'Quicksand', sans-serif !important;
 }
 
 /* Désactivation universelle absolue de toutes les ombres portées (box-shadow) sur tous les éléments */
@@ -21,12 +22,12 @@ textarea {
   -webkit-box-shadow: none !important;
 }
 
-/* Effet de verre AMOLED très sombre */
+/* Effet de verre AMOLED gris anthracite plat et sans bordure */
 .glass-card {
-  background: #05080c !important;
+  background: #080808 !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border: none !important;
   border-radius: 1.25rem;
 }
 

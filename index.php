@@ -58,7 +58,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=77">
+    <link rel="stylesheet" href="./assets/styles.css?v=81">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0B141A;">
@@ -98,7 +98,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         </header>
 
         <!-- Jauge de Santé Financière -->
-        <section id="gauge-section" class="glass-card p-3 mb-4 shine-effect">
+        <section id="gauge-section" class="glass-card p-3 mb-4">
             <div class="flex justify-between items-start mb-2">
                 <div>
                     <div class="flex items-center gap-2 mb-1">
@@ -116,7 +116,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             
 
             <!-- Zone du Graphique Évolution -->
-            <div class="relative w-full h-[140px] bg-slate-950/40 rounded-xl border border-white/5 p-1 flex items-center justify-center mb-2">
+            <div class="relative w-full h-[140px] p-1 flex items-center justify-center mb-2">
                 <div id="chartLoader" class="absolute text-slate-500 text-[10px] italic">Chargement du graphique...</div>
                 <svg id="trendChartSvg" class="w-full h-full opacity-0 transition-opacity duration-500" viewBox="0 0 400 140"></svg>
             </div>
@@ -1343,7 +1343,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         })();
     </script>
 
-    <script src="./assets/main.js?v=77"></script>
+    <script src="./assets/main.js?v=81"></script>
 </body>
 
 </html>
