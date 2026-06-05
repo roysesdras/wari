@@ -67,3 +67,253 @@ textarea {
 .coach-section, .debtSection, .gauge-section {
   transition: all 0.3s ease;
 }
+
+/* ─── MODE CLAIR (LIGHT MODE) ────────────────────────────────────────────── */
+
+/* Fond global et texte principal */
+html.light-mode,
+body.light-mode {
+  background: #f1f5f9 !important; /* Gris-bleu très doux */
+  color: #0f172a !important; /* Slate 900 */
+}
+
+/* Forcer les textes blancs à devenir sombres */
+body.light-mode .text-white,
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3,
+body.light-mode h4,
+body.light-mode p,
+body.light-mode span:not(.text-slate-600):not(.text-slate-500) {
+  color: #0f172a !important;
+}
+
+/* Cartes blanches épurées */
+body.light-mode .glass-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Bordures adaptées au mode clair */
+body.light-mode .border-slate-700,
+body.light-mode .border-slate-700\/50,
+body.light-mode .border-white\/5,
+body.light-mode .border-white\/10 {
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+
+/* Ajustement des textes secondaires pour qu'ils ne soient pas trop clairs */
+body.light-mode .text-slate-400,
+body.light-mode .text-slate-500 {
+  color: #475569 !important; /* Slate 600 */
+}
+body.light-mode .text-slate-600 {
+  color: #334155 !important; /* Slate 700 */
+}
+
+/* Section Montant à répartir */
+body.light-mode .gold-border {
+  border-color: #d97706 !important; /* Amber 600 */
+}
+body.light-mode #mainAmount {
+  background-color: transparent !important;
+  border: none !important;
+  color: #0f172a !important;
+}
+
+/* Zone du graphique et badges */
+body.light-mode #trendChartSvg line {
+  stroke: rgba(15, 23, 42, 0.08) !important;
+}
+body.light-mode #trendChartSvg text {
+  fill: #475569 !important;
+}
+body.light-mode .bg-slate-900\/50,
+body.light-mode .bg-slate-900\/40,
+body.light-mode .bg-slate-900\/30,
+body.light-mode .bg-slate-800\/50 {
+  background: #f8fafc !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Inputs, textareas et selects génériques */
+body.light-mode input,
+body.light-mode textarea {
+  background-color: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+body.light-mode input::placeholder,
+body.light-mode textarea::placeholder {
+  color: #94a3b8 !important;
+}
+body.light-mode select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+body.light-mode select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Inputs de pourcentages et sliders */
+body.light-mode input[type="number"] {
+  color: #0f172a !important;
+}
+body.light-mode input[type="range"] {
+  background: #e2e8f0 !important;
+}
+
+/* Boutons et badges génériques sombres */
+body.light-mode .bg-slate-800,
+body.light-mode .bg-slate-800\/50,
+body.light-mode .bg-slate-900 {
+  background-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+body.light-mode .bg-slate-800:hover,
+body.light-mode .bg-slate-800\/50:hover,
+body.light-mode .bg-slate-900:hover {
+  background-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Boutons secondaires interactifs (Lecture/Édition et Focus) */
+body.light-mode #lockBtn,
+body.light-mode #focusModeBtn {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+body.light-mode #lockBtn span.text-slate-400,
+body.light-mode #focusModeBtn span {
+  color: #475569 !important;
+}
+
+/* Bouton Focus actif */
+body.light-mode #focusModeBtn.bg-blue-500\/20 {
+  background-color: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+body.light-mode #focusModeBtn.bg-blue-500\/20 span {
+  color: #1e40af !important;
+}
+
+/* Bouton Édition actif */
+body.light-mode #lockBtn.bg-amber-500\/10 {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+body.light-mode #lockBtn.bg-amber-500\/10 span.text-amber-500 {
+  color: #b45309 !important;
+}
+
+/* Sélecteur de devise */
+body.light-mode #currencySelector {
+  background: #ffffff !important;
+  color: #d97706 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+/* Barre de Navigation Fixe en Bas */
+body.light-mode nav {
+  background: #ffffff !important;
+  border-top: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+body.light-mode nav a,
+body.light-mode nav button {
+  color: #475569 !important;
+}
+body.light-mode nav a:hover,
+body.light-mode nav button:hover {
+  color: #0f172a !important;
+}
+body.light-mode nav a span,
+body.light-mode nav button span {
+  color: inherit !important;
+}
+body.light-mode nav button[onclick="openExpenseModal()"] {
+  border-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Badges de notifications sur la navigation */
+body.light-mode nav span.bg-red-600,
+body.light-mode nav span.bg-emerald-600 {
+  box-shadow: 0 0 0 2px #ffffff !important;
+}
+
+/* Pourcentages des Enveloppes (Lecture & Edition) */
+body.light-mode .bg-slate-900\/80 {
+  background: #f1f5f9 !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+body.light-mode input[id^="percent-input-"] {
+  color: #334155 !important;
+}
+body.light-mode input[id^="percent-input-"]:focus,
+body.light-mode input[id^="percent-input-"]:not([disabled]) {
+  color: #d97706 !important;
+}
+body.light-mode input[id^="percent-input-"] + span {
+  color: #475569 !important;
+}
+
+/* Boutons info et barres de progression des cartes */
+body.light-mode .info-btn {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+}
+body.light-mode .info-btn:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+body.light-mode .bg-slate-950\/60 {
+  background-color: #e2e8f0 !important;
+}
+
+/* Drawer Chat Coach AI en mode clair */
+body.light-mode #coachChatModal {
+  background-color: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+body.light-mode #coachChatModal h3 {
+  color: #0f172a !important;
+}
+body.light-mode #coachChatModal .w-12.h-1 {
+  background-color: rgba(15, 23, 42, 0.15) !important;
+}
+body.light-mode #coachChatModal .border-b,
+body.light-mode #coachChatModal .border-t {
+  border-color: rgba(15, 23, 42, 0.06) !important;
+}
+body.light-mode #coachChatModal button[onclick="closeCoachChat()"] {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+}
+body.light-mode #coachChatModal button[onclick^="sendCoachSuggestion"] {
+  background-color: #f1f5f9 !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  color: #475569 !important;
+}
+body.light-mode #coachChatModal button[onclick^="sendCoachSuggestion"]:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+body.light-mode #coachChatModal div.bg-slate-950 {
+  background-color: #ffffff !important;
+}
+body.light-mode #coachChatInput {
+  background-color: #f1f5f9 !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}
+body.light-mode #coachChatInput::placeholder {
+  color: #94a3b8 !important;
+}
+body.light-mode #coachChatMessages div.bg-slate-900 {
+  background-color: #f1f5f9 !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}

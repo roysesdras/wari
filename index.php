@@ -58,7 +58,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=81">
+    <link rel="stylesheet" href="./assets/styles.css?v=84">
 
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0B141A;">
@@ -69,6 +69,49 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             // On identifie l'utilisateur pour TOUTES ses actions sur le dashboard
             DigiStats.identify("<?= $_SESSION['user_email'] ?>");
         <?php endif; ?>
+    </script>
+
+    <script>
+        // Initialisation immédiate du thème
+        const savedTheme = localStorage.getItem('wari_theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('light-mode');
+            });
+        }
+
+        function toggleTheme() {
+            const isLight = document.body.classList.toggle('light-mode');
+            document.documentElement.classList.toggle('light-mode', isLight);
+            localStorage.setItem('wari_theme', isLight ? 'light' : 'dark');
+            updateThemeButton();
+        }
+
+        function updateThemeButton() {
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const themeIcon = document.getElementById('themeIcon');
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            if (themeIcon) {
+                if (isLight) {
+                    // Icône Soleil (pour repasser au mode sombre)
+                    themeIcon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+                    if (themeToggleBtn) {
+                        themeToggleBtn.className = "w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300 bg-slate-200 hover:bg-slate-300 border border-slate-300/50";
+                        themeIcon.className = "text-slate-800";
+                    }
+                } else {
+                    // Icône Lune (pour repasser au mode clair)
+                    themeIcon.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+                    if (themeToggleBtn) {
+                        themeToggleBtn.className = "w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/5";
+                        themeIcon.className = "text-slate-400";
+                    }
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateThemeButton);
     </script>
 
 </head>
@@ -88,13 +131,21 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 </div>
             </div>
 
-            <!-- ✅ BOUTON DÉCONNEXION / SORTIR -->
-            <a href="config/logout.php" title="Se déconnecter"
-                class="w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300 group bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 shadow-md">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="text-slate-400 group-hover:text-red-400 transition-colors" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M17 16L21 12M21 12L17 8M21 12H9M13 16V17C13 18.1046 12.1046 19 11 19H5C3.89543 19 3 18.1046 3 17V7C3 5.89543 3.89543 5 5 5H11C12.1046 5 13 5.89543 13 7V8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </a>
+            <div class="flex items-center gap-2">
+                <!-- Bouton de bascule de thème -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" title="Changer le thème"
+                    class="w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/5">
+                    <span id="themeIcon" class="text-slate-400"></span>
+                </button>
+
+                <!-- ✅ BOUTON DÉCONNEXION / SORTIR -->
+                <a href="config/logout.php" title="Se déconnecter"
+                    class="w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300 group bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 shadow-md">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" class="text-slate-400 group-hover:text-red-400 transition-colors" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17 16L21 12M21 12L17 8M21 12H9M13 16V17C13 18.1046 12.1046 19 11 19H5C3.89543 19 3 18.1046 3 17V7C3 5.89543 3.89543 5 5 5H11C12.1046 5 13 5.89543 13 7V8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </div>
         </header>
 
         <!-- Jauge de Santé Financière -->
@@ -1343,7 +1394,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         })();
     </script>
 
-    <script src="./assets/main.js?v=81"></script>
+    <script src="./assets/main.js?v=84"></script>
 </body>
 
 </html>
