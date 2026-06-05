@@ -11,9 +11,9 @@
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="../assets/styles.css?v=87">
+    <link rel="stylesheet" href="../assets/styles.css?v=88">
     <link rel="manifest" href="../manifest.json">
-    <meta name="theme-color" content="#0B141A;">
+    <meta id="metaThemeColor" name="theme-color" content="#000000">
 
     <!-- Balises SEO de base -->
     <meta name="description" content="Gérez votre budget, épargnez et maîtrisez vos finances à vie avec l'IA.">
@@ -37,6 +37,17 @@
     <script src="https://stats.digiroys.com/tracker.js" data-key="key_wari_789"></script>
 
     <script>
+        // Initialisation immédiate du thème
+        const savedTheme = localStorage.getItem('wari_theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.add('light-mode');
+                const metaThemeColor = document.getElementById('metaThemeColor');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#f1f5f9');
+            });
+        }
+
         // Si l'utilisateur est connecté en PHP
         <?php if (isset($_SESSION['user_email'])): ?>
             DigiStats.identify("<?= $_SESSION['user_email'] ?>");
@@ -276,7 +287,7 @@
         });
     </script>
 
-    <script src="../assets/main.js?v=87"></script>
+    <script src="../assets/main.js?v=88"></script>
 </body>
 
 </html>

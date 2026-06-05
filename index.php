@@ -58,10 +58,10 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=87">
+    <link rel="stylesheet" href="./assets/styles.css?v=88">
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0B141A;">
+    <meta id="metaThemeColor" name="theme-color" content="#000000">
 
     <script src="https://stats.digiroys.com/tracker.js" data-key="key_wari_789"></script>
     <script>
@@ -78,6 +78,8 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             document.documentElement.classList.add('light-mode');
             document.addEventListener('DOMContentLoaded', () => {
                 document.body.classList.add('light-mode');
+                const metaThemeColor = document.getElementById('metaThemeColor');
+                if (metaThemeColor) metaThemeColor.setAttribute('content', '#f1f5f9');
             });
         }
 
@@ -85,11 +87,19 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             const isLight = document.body.classList.toggle('light-mode');
             document.documentElement.classList.toggle('light-mode', isLight);
             localStorage.setItem('wari_theme', isLight ? 'light' : 'dark');
+            const metaThemeColor = document.getElementById('metaThemeColor');
+            if (metaThemeColor) {
+                metaThemeColor.setAttribute('content', isLight ? '#f1f5f9' : '#000000');
+            }
             updateThemeButton();
         }
 
         function updateThemeButton() {
             const isLight = document.documentElement.classList.contains('light-mode');
+            const metaThemeColor = document.getElementById('metaThemeColor');
+            if (metaThemeColor) {
+                metaThemeColor.setAttribute('content', isLight ? '#f1f5f9' : '#000000');
+            }
             const themeIcon = document.getElementById('themeIcon');
             const themeToggleBtn = document.getElementById('themeToggleBtn');
             if (themeIcon) {
@@ -1394,7 +1404,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         })();
     </script>
 
-    <script src="./assets/main.js?v=87"></script>
+    <script src="./assets/main.js?v=88"></script>
 </body>
 
 </html>
