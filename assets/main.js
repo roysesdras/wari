@@ -1741,14 +1741,14 @@ function loadMonthlyHistory(months = 6) {
             const microSum = microExpenses.reduce((acc, curr) => acc + curr.amount, 0);
 
             return `
-            <div class="bg-slate-800/40 p-3.5 rounded-2xl border border-slate-700/40 mb-4 shadow-md">
+            <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/40 mb-4 shadow-md">
 
               <!-- En-tête du mois -->
               <div class="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
-                <p class="text-amber-400 font-black text-[12px] uppercase tracking-widest">
+                <p class="text-amber-400 font-black text-base uppercase tracking-wider">
                   ${month.label}
                 </p>
-                <span class="text-[8.5px] font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 px-2.5 py-1 rounded-full border border-white/5">
+                <span class="text-xs font-bold uppercase tracking-wider bg-slate-800/80 text-slate-400 px-2.5 py-1 rounded-full border border-white/5">
                   ${month.nb_repartitions} répartition${month.nb_repartitions > 1 ? "s" : ""}
                 </span>
               </div>
@@ -1756,20 +1756,20 @@ function loadMonthlyHistory(months = 6) {
               <!-- Totaux du mois -->
               <div class="grid grid-cols-3 gap-2 bg-slate-900/50 p-2 rounded-xl border border-white/5 mb-3 text-center">
                 <div>
-                  <p class="text-[8px] text-slate-500 font-bold uppercase tracking-wider">Total réparti</p>
-                  <p class="text-[10px] font-black text-white mt-0.5">
+                  <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total réparti</p>
+                  <p class="text-sm font-black text-white mt-0.5">
                     ${parseInt(month.total_distributed).toLocaleString()} ${currency}
                   </p>
                 </div>
                 <div>
-                  <p class="text-[8px] text-slate-500 font-bold uppercase tracking-wider">Total dépensé</p>
-                  <p class="text-[10px] font-black text-red-400 mt-0.5">
+                  <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total dépensé</p>
+                  <p class="text-sm font-black text-red-400 mt-0.5">
                     −${parseInt(month.total_spent).toLocaleString()} ${currency}
                   </p>
                 </div>
                 <div>
-                  <p class="text-[8px] text-slate-500 font-bold uppercase tracking-wider">Préservé</p>
-                  <p class="text-[10px] font-black text-emerald-400 mt-0.5">
+                  <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Préservé</p>
+                  <p class="text-sm font-black text-emerald-400 mt-0.5">
                     ${parseInt(month.total_saved).toLocaleString()} ${currency}
                   </p>
                 </div>
@@ -1777,10 +1777,10 @@ function loadMonthlyHistory(months = 6) {
 
               <!-- Nudge Micro-dépenses -->
               ${microCount > 0 ? `
-              <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-2.5 mb-3 text-[10px] text-amber-300 leading-normal flex items-start gap-2 select-none">
+              <div class="bg-amber-500/10 border border-amber-500/20 rounded-xl p-2.5 mb-3 text-xs text-amber-300 leading-normal flex items-start gap-2 select-none">
                 <span class="text-xs">⚠️</span>
                 <span>
-                  <b>Micro-dépenses :</b> Tu as fait <b>${microCount}</b> petites dépenses (&lt; 1&nbsp;000&nbsp;${currency}) ce mois-ci, totalisant <b>${microSum.toLocaleString()} ${currency}</b>. C'est là que ton argent s'échappe en silence !
+                  <b>Micro-dépenses :</b> Tu as fait <b>${microCount}</b> petites dépenses ce mois-ci, totalisant <b>${microSum.toLocaleString()} ${currency}</b>. C'est là que ton argent s'échappe en silence !
                 </span>
               </div>
               ` : ''}
@@ -1803,16 +1803,16 @@ function loadMonthlyHistory(months = 6) {
 
                 return `
                 <div class="mb-3">
-                  <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2">💸 Dépenses Détaillées Par Jour</p>
-                  <div class="space-y-3 max-h-[220px] overflow-y-auto custom-scrollbar pr-1">
+                  <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">💸 Dépenses Détaillées Par Jour</p>
+                  <div class="space-y-3 max-h-[350px] overflow-y-auto custom-scrollbar pr-1">
                     ${Object.keys(expensesByDay).map(day => {
                   const dayData = expensesByDay[day];
                   return `
                       <div class="bg-slate-900/60 border border-white/5 rounded-xl p-2">
                         <!-- Entête du Jour avec son total journalier -->
                         <div class="flex justify-between items-center mb-1.5 border-b border-white/5 pb-1 select-none">
-                          <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">📅 Le ${day}</span>
-                          <span class="text-[9.5px] font-black text-red-400">-${dayData.total.toLocaleString()} ${currency}</span>
+                          <span class="text-xs font-black text-slate-400 uppercase tracking-widest">📅 Le ${day}</span>
+                          <span class="text-sm font-black text-red-400">-${dayData.total.toLocaleString()} ${currency}</span>
                         </div>
                         
                         <!-- Liste des dépenses du jour -->
@@ -1834,23 +1834,23 @@ function loadMonthlyHistory(months = 6) {
                     }
 
                     return `
-                            <div class="flex justify-between items-center py-1.5 px-2 bg-slate-950/40 rounded-lg border border-white/5 hover:border-white/10 transition-colors gap-2">
+                            <div class="flex justify-between items-center py-2 px-2.5 bg-slate-950/40 rounded-xl border border-white/5 hover:border-white/10 transition-colors gap-3">
                               <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-1.5">
                                   <span class="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"></span>
-                                  <span class="text-[9.5px] font-bold text-slate-200 truncate block max-w-[130px]" title="${e.description}">
+                                  <span class="text-sm font-bold text-slate-200 truncate block" title="${e.description}">
                                     ${e.description}
                                   </span>
                                 </div>
                                 <div class="flex items-center gap-2 mt-1 select-none">
                                   <!-- Badge Catégorie visuel et coloré -->
-                                  <span class="text-[7.5px] font-black uppercase px-1.5 py-0.5 rounded border ${catColor} tracking-wider font-semibold">
+                                  <span class="text-[10px] font-black uppercase px-1.5 py-0.5 rounded border ${catColor} tracking-wider">
                                     ${catName}
                                   </span>
-                                  <span class="text-[7px] text-slate-500 font-medium">À ${e.time_label}</span>
+                                  <span class="text-[10px] text-slate-500 font-medium">À ${e.time_label}</span>
                                 </div>
                               </div>
-                              <span class="text-[10px] font-black text-red-400 shrink-0">
+                              <span class="text-sm font-black text-red-400 shrink-0">
                                 -${e.amount.toLocaleString()} ${currency}
                               </span>
                             </div>
@@ -1864,7 +1864,7 @@ function loadMonthlyHistory(months = 6) {
                 </div>
                 `;
               })() : `
-              <p class="text-[8.5px] text-slate-500 italic text-center py-2">Aucune dépense enregistrée ce mois.</p>
+              <p class="text-xs text-slate-500 italic text-center py-2">Aucune dépense enregistrée ce mois.</p>
               `}
 
               <!-- Liste des Répartitions (Revenus) -->

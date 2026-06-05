@@ -499,3 +499,28 @@ body.light-mode #license-floating-btn:hover svg {
   color: #ffffff !important;
   transform: scale(1.1) !important;
 }
+
+/* Animation d'apparition par le bas pour les bottom sheets */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Overrides de mode clair pour le modal historique */
+body.light-mode #historyModal {
+  background-color: rgba(241, 245, 249, 0.85) !important;
+}
+body.light-mode #historyModal button[onclick="closeHistoryModal()"] {
+  color: #64748b !important;
+}
+body.light-mode #historyModal button[onclick="closeHistoryModal()"]:hover {
+  color: #0f172a !important;
+}

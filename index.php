@@ -58,7 +58,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=90">
+    <link rel="stylesheet" href="./assets/styles.css?v=91">
 
     <link rel="manifest" href="manifest.json">
     <meta id="metaThemeColor" name="theme-color" content="#000000">
@@ -585,8 +585,8 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     </div>
 
     <!-- ✅ MODAL HISTORIQUE -->
-    <div id="historyModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm hidden items-center justify-center p-4 z-[130]">
-        <div class="glass-card w-full max-w-sm p-4 border border-slate-700 shadow-2xl flex flex-col max-h-[85vh]">
+    <div id="historyModal" onclick="closeHistoryModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-end md:items-center justify-center z-[130]">
+        <div onclick="event.stopPropagation()" class="glass-card w-full max-w-md h-full md:h-[85vh] md:max-h-[750px] p-2 pt-safe md:p-6 border-t border-x md:border border-slate-800 rounded-none md:rounded-[2rem] shadow-2xl flex flex-col animate-slide-up">
 
             <div class="flex items-center justify-between mb-4 shrink-0">
                 <h3 class="text-amber-400 font-bold uppercase tracking-widest text-xs">Tableau de Bord</h3>
