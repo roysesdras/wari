@@ -2,8 +2,20 @@
 require_once 'auth.php';
 require_once __DIR__ . '/../../config/db.php'; // Vérifie bien le chemin vers ta config
 
-// 1. Récupération des articles
-$articles = $pdo->query("SELECT id, titre, mois_compteur FROM wari_articles ORDER BY date_publication DESC")->fetchAll();
+// 1. Récupération des articles avec stats push
+$articles = $pdo->query("
+    SELECT a.id, a.titre, a.mois_compteur, a.slug,
+        COALESCE(pl.push_sent, 0) as push_sent,
+        COALESCE(pl.push_clicks, 0) as push_clicks
+    FROM wari_articles a
+    LEFT JOIN (
+        SELECT target_id, SUM(sent_count) as push_sent, SUM(click_count) as push_clicks
+        FROM wari_push_logs
+        WHERE type = 'vecu'
+        GROUP BY target_id
+    ) pl ON pl.target_id = a.slug
+    ORDER BY a.date_publication DESC
+")->fetchAll();
 
 // 2. Récupération du nombre d'abonnés WhatsApp
 $count_subscribers = $pdo->query("SELECT COUNT(*) FROM wari_subscribers WHERE status = 'actif'")->fetchColumn();
@@ -72,6 +84,11 @@ $count_subscribers = $pdo->query("SELECT COUNT(*) FROM wari_subscribers WHERE st
                     <span class="font-medium text-slate-300 group-hover:text-white transition-colors">
                         <?php echo $a['titre']; ?>
                     </span>
+                    <?php if ($a['push_sent'] > 0): ?>
+                    <span class="text-[9px] px-2 py-0.5 rounded-full bg-slate-950 text-slate-400 font-medium flex items-center gap-1 border border-white/5" title="Notifications Web Push : Envoyées et cliquées">
+                        📣 <?php echo $a['push_sent']; ?> env. / <?php echo $a['push_clicks']; ?> clics
+                    </span>
+                    <?php endif; ?>
                 </div>
                 <div class="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
                     <a href="edit.php?id=<?php echo $a['id']; ?>" class="text-slate-500 hover:text-blue-400 transition-colors">Modifier</a>

@@ -30,21 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $reset_link = "https://wari.digiroys.com/config/reset-password.php?token=" . $token;
 
         try {
-            $mail = new PHPMailer(true);
-            $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com';
-            $mail->SMTPAuth   = true;
-            $mail->Username   = 'financewari1@gmail.com';
-            $mail->Password   = 'ajjg mkex dyjk adyq';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = 587;
-            $mail->CharSet    = 'UTF-8';
-
-            $mail->setFrom('financewari1@gmail.com', 'WARI-Finance');
-            $mail->addAddress($email);
-            $mail->isHTML(true);
-            $mail->Subject = 'Réinitialisation de votre mot de passe WARI';
-            $mail->Body = "
+            require_once __DIR__ . '/../classes/Mailer.php';
+            $mailer = new Mailer();
+            $body = "
                 <div style='font-family: sans-serif; line-height: 1.6;'>
                     <h2>Demande de nouveau mot de passe</h2>
                     <p>Vous avez demandé la réinitialisation de votre mot de passe pour votre compte WARI.</p>
@@ -53,8 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <p>Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.</p>
                 </div>";
 
-            $mail->send();
-            $message = "Un lien de récupération a été envoyé à votre adresse email.";
+            $res = $mailer->send($email, 'Réinitialisation de votre mot de passe WARI', $body, true);
+            if ($res['success']) {
+                $message = "Un lien de récupération a été envoyé à votre adresse email.";
+            } else {
+                throw new Exception($res['message']);
+            }
         } catch (Exception $e) {
             $error = "Erreur lors de l'envoi de l'email.";
         }

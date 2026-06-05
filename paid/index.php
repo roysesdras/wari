@@ -322,7 +322,7 @@ $product_name = "WARI | Licence Pro";
         </div>
 
         <div class="footer">
-            © <?= date('Y') ?> WARI Finance by Digiroys — <a href="mailto:financewari1@gmail.com" style="color: var(--gold); text-decoration: none;">Besoin d'aide ?</a>
+            © <?= date('Y') ?> WARI Finance by Digiroys — <a href="mailto:wari.finance.inter@gmail.com" style="color: var(--gold); text-decoration: none;">Besoin d'aide ?</a>
         </div>
     </div>
 </body>

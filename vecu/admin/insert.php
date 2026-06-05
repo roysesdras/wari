@@ -42,6 +42,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['resume'],
                 $_POST['contenu_html'] // Récupéré depuis l'éditeur Quill
             ]);
+
+            // Notification Web Push à tous les abonnés
+            try {
+                require_once __DIR__ . '/../../classes/Push.php';
+                $pushTitle = "Nouveau vécu disponible ! 📖";
+                $pushBody  = "Découvrez le récit : \"" . $titre . "\" (" . $_POST['mois_compteur'] . ").";
+                $pushUrl   = "https://wari.digiroys.com/vecu/article.php?s=" . urlencode($slug) . "&utm_source=push&utm_campaign=new_vecu";
+                Push::sendToAll($pdo, $pushTitle, $pushBody, $pushUrl, 'vecu', $slug);
+            } catch (Exception $e) {
+                error_log("Erreur envoi push nouveau vecu : " . $e->getMessage());
+            }
+
             header('Location: index.php');
             exit;
         } catch (PDOException $e) {

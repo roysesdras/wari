@@ -12,7 +12,7 @@
 
 define('MONITORING_TELEGRAM_BOT_TOKEN', '8476303658:AAGMQzVtwSj-k4KqzCaNpmUuQ3PMCtzXpzI');  // ← Mettez votre vrai token
 define('MONITORING_TELEGRAM_CHAT_ID', '892276105'); // ← Mettez votre vrai chat ID
-define('MONITORING_ADMIN_EMAIL', 'financewari1@gmail.com');
+define('MONITORING_ADMIN_EMAIL', 'wari.finance.inter@gmail.com');
 
 // Paramètres généraux
 define('MONITORING_ENABLED', true);           // Activer/désactiver le monitoring

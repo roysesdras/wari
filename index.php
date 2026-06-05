@@ -97,20 +97,12 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                             <span id="radarText" class="text-[7px] font-black uppercase tracking-widest text-slate-500">Radar OFF</span>
                         </div>
                     </div>
-                    <div class="flex items-baseline gap-1">
-                        <span id="gaugePercent" class="text-lg font-black text-emerald-400">Stable</span>
-                    </div>
+                    
                 </div>
-                <div class="text-right bg-slate-900/40 px-3 py-1 rounded-2xl border border-white/5">
-                    <span id="disciplineScore" class="text-xl font-black text-white leading-none">--</span>
-                    <p class="text-[7px] uppercase text-slate-500 font-bold tracking-widest mt-0.5">Discipline / 10</p>
-                </div>
+                
             </div>
 
-            <!-- Alerte Textuelle Santé -->
-            <div id="gaugeAlert" class="text-[10px] text-center py-1.5 px-2 rounded-lg font-bold mb-3 bg-slate-900/30 border border-white/5 text-slate-400">
-                Calcul en cours...
-            </div>
+            
 
             <!-- Zone du Graphique Évolution -->
             <div class="relative w-full h-[140px] bg-slate-950/40 rounded-xl border border-white/5 p-1 flex items-center justify-center mb-2">

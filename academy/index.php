@@ -150,18 +150,18 @@ if ($user_id && !empty($coursesWithProgress)) {
         </a>
 
         <div class="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
-            <a href="https://wari.digiroys.com" class="text-white/60 hover:text-white px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all">← App</a>
-            <a href="/academy/" class="bg-wari-gold text-black px-4 py-2 text-xs font-black uppercase tracking-widest rounded-lg shadow-lg">Academy</a>
+            <a href="https://wari.digiroys.com" class="text-white/60 hover:text-white px-2 py-2 text-xs font-bold uppercase tracking-widest transition-all">← App</a>
+            <a href="/academy/" class="bg-wari-gold text-black px-2 py-2 text-xs font-black uppercase tracking-widest rounded-lg shadow-lg">Acdm</a>
         </div>
 
         <?php if ($user_id): ?>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-xl">
+            <a href="#" class="flex items-center gap-3 px-2 py-2 rounded-xl">
                 <!-- <span class="text-xs font-bold text-white/80">Profil</span> -->
                 <div class="w-8 h-8 bg-wari-gold rounded-lg flex items-center justify-center text-black font-bold text-xs"><?= substr($_SESSION['user_email'] ?? 'U', 0, 2) ?></div>
             </a>
         <?php else: ?>
-            <a href="https://wari.digiroys.com/config/auth.php" class="bg-wari-gold text-black px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-wari-gold/20">
-                Rejoindre l'élite
+            <a href="https://wari.digiroys.com/config/auth.php" class="bg-wari-gold text-black px-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-wari-gold/20">
+                Rejoindre
             </a>
         <?php endif; ?>
     </nav>

@@ -43,22 +43,10 @@ if (isset($_SESSION['active_license_key'])) {
         $stmt->execute([$new_license]);
 
         // B. Envoi de l'email unique
-        $mail = new PHPMailer(true);
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'financewari1@gmail.com';
-        $mail->Password   = 'ajjg mkex dyjk adyq';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
-        $mail->CharSet    = 'UTF-8';
+        require_once __DIR__ . '/../classes/Mailer.php';
+        $mailer = new Mailer();
 
-        $mail->setFrom('financewari1@gmail.com', 'WARI-Finance');
-        $mail->addAddress($email);
-        $mail->isHTML(true);
-        $mail->Subject = 'Votre Licence WARI - Finance 🚀';
-        // Contenu de l'email avec instructions détaillées
-        $mail->Body = "
+        $body = "
                 <div style='font-family: sans-serif; line-height: 1.6; color: #333;'>
                     <h2 style='color: #2a2b2f;'>Merci pour votre achat ! 🚀</h2>
                     <p>Félicitations, vous venez de débloquer votre accès à <strong>WARI - Finance</strong>.</p>
@@ -89,7 +77,10 @@ if (isset($_SESSION['active_license_key'])) {
                 </div>
             ";
 
-        $mail->send();
+        $res = $mailer->send($email, 'Votre Licence WARI - Finance 🚀', $body, true);
+        if (!$res['success']) {
+            throw new Exception($res['message']);
+        }
 
         // C. VERROUILLAGE : On enregistre la licence en session
         // Désormais, tant que la session existe, le code ci-dessus ne sera plus jamais exécuté.

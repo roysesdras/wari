@@ -31,6 +31,6 @@ foreach ($pages as $page) {
 $sitemap .= "</urlset>";
 
 // 🔥 IMPORTANT : on met le sitemap dans /accueil/
-file_put_contents('/var/www/wari.digiroys.com/accueil/sitemap.xml', $sitemap);
+file_put_contents(__DIR__ . '/accueil/sitemap.xml', $sitemap);
 
 echo "[" . date('Y-m-d H:i:s') . "] ✅ Sitemap généré dans /accueil/\n";

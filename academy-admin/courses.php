@@ -52,6 +52,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $stmt->execute([$category_id, $slug, $titre, $description, $niveau, $duree, $auteur, $est_gratuit]);
             $msg = "Cours <strong>" . htmlspecialchars($titre) . "</strong> créé avec succès.";
+            
+            // Notification Web Push à tous les abonnés
+            try {
+                require_once __DIR__ . '/../classes/Push.php';
+                $pushTitle = "Nouveau cours disponible ! 📚";
+                $pushBody  = "Découvrez le cours : \"" . $titre . "\" sur Wari Academy.";
+                $pushUrl   = "https://wari.digiroys.com/academy/course.php?slug=" . urlencode($slug) . "&utm_source=push&utm_campaign=new_course";
+                Push::sendToAll($pdo, $pushTitle, $pushBody, $pushUrl, 'course', $slug);
+            } catch (Exception $e) {
+                error_log("Erreur envoi push nouveau cours : " . $e->getMessage());
+            }
+
             $action = 'list';
         } else {
             $error = "Le titre et la catégorie sont obligatoires.";
@@ -120,12 +132,20 @@ $courses = $pdo->query("
         c.titre as cat_titre, c.couleur as cat_couleur, c.icone as cat_icone,
         COUNT(DISTINCT l.id) as nb_lecons,
         COUNT(DISTINCT p.user_id) as nb_apprenants,
-        COUNT(DISTINCT pdf.id) as nb_pdfs
+        COUNT(DISTINCT pdf.id) as nb_pdfs,
+        COALESCE(pl.push_sent, 0) as push_sent,
+        COALESCE(pl.push_clicks, 0) as push_clicks
     FROM academy_courses co
     JOIN academy_categories c ON c.id = co.category_id
     LEFT JOIN academy_lessons l ON l.course_id = co.id
     LEFT JOIN academy_progress p ON p.course_id = co.id
     LEFT JOIN academy_pdfs pdf ON pdf.course_id = co.id
+    LEFT JOIN (
+        SELECT target_id, SUM(sent_count) as push_sent, SUM(click_count) as push_clicks
+        FROM wari_push_logs
+        WHERE type = 'course'
+        GROUP BY target_id
+    ) pl ON pl.target_id = co.slug
     GROUP BY co.id
     ORDER BY co.category_id ASC, co.ordre ASC
 ")->fetchAll(PDO::FETCH_ASSOC);
@@ -487,6 +507,11 @@ $courses = $pdo->query("
                             <span class="text-[10px] px-2 py-0.5 rounded-full bg-gold-900/30 text-gold-600 font-medium flex items-center gap-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
                                 Payant
+                            </span>
+                            <?php endif; ?>
+                            <?php if ($course['push_sent'] > 0): ?>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-medium flex items-center gap-1 border border-white/5" title="Notifications Web Push : Envoyées et cliquées">
+                                📣 <?= $course['push_sent'] ?> env. / <?= $course['push_clicks'] ?> clics
                             </span>
                             <?php endif; ?>
                         </div>

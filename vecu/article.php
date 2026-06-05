@@ -6,6 +6,17 @@ require_once __DIR__ . '/../classes/Vecu.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 $user_id = $_SESSION['user_id'] ?? null;
 
+// Tracking du clic sur notification push
+if (isset($_GET['push_log_id'])) {
+    try {
+        $pushLogId = (int)$_GET['push_log_id'];
+        $stmtClick = $pdo->prepare("UPDATE wari_push_logs SET click_count = click_count + 1 WHERE id = ?");
+        $stmtClick->execute([$pushLogId]);
+    } catch (Exception $e) {
+        error_log("Erreur tracking clic push vecu : " . $e->getMessage());
+    }
+}
+
 // 2. Sécurisation du slug
 $slug = filter_input(INPUT_GET, 's', FILTER_SANITIZE_SPECIAL_CHARS);
 

@@ -7,12 +7,25 @@ require_once __DIR__ . '/../classes/Academy.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once __DIR__ . '/../config/session_check.php';
 
+
+
 $user_id = $_SESSION['user_id'] ?? null;
 
 // Redirection si non connecté
 if (!$user_id) {
     header('Location: https://wari.digiroys.com/config/auth.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit;
+}
+
+// Tracking du clic sur notification push
+if (isset($_GET['push_log_id'])) {
+    try {
+        $pushLogId = (int)$_GET['push_log_id'];
+        $stmtClick = $pdo->prepare("UPDATE wari_push_logs SET click_count = click_count + 1 WHERE id = ?");
+        $stmtClick->execute([$pushLogId]);
+    } catch (Exception $e) {
+        error_log("Erreur tracking clic push : " . $e->getMessage());
+    }
 }
 
 $academy = new Academy($pdo);

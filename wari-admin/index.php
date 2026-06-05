@@ -232,6 +232,21 @@ if (isset($_GET['action'])) {
                     jsonResponse(false, ['msg' => 'Message vide'], 400);
                 }
 
+                // Enregistrement du log de push général
+                $logId = null;
+                try {
+                    $stmtLog = $pdo->prepare("INSERT INTO wari_push_logs (type, target_id, title, sent_count) VALUES ('general', '', ?, 0)");
+                    $stmtLog->execute([mb_substr($message, 0, 80)]);
+                    $logId = $pdo->lastInsertId();
+                } catch (Exception $e) {
+                    error_log("Erreur insertion push log general : " . $e->getMessage());
+                }
+
+                if ($logId) {
+                    $connector = (strpos($url, '?') === false) ? '?' : '&';
+                    $url .= $connector . 'push_log_id=' . $logId;
+                }
+
                 $webPush = new WebPush(VAPID_CONFIG);
 
                 // Récupérer les abonnements avec info utilisateur pour le compteur
@@ -311,6 +326,14 @@ if (isset($_GET['action'])) {
                 $failed = count($results['failed']);
                 $total = count($subs); // Total des endpoints (appareils) tentés
 
+                if ($logId) {
+                    try {
+                        $pdo->prepare("UPDATE wari_push_logs SET sent_count = ? WHERE id = ?")->execute([$sent, $logId]);
+                    } catch (Exception $e) {
+                        error_log("Erreur maj push log general : " . $e->getMessage());
+                    }
+                }
+
                 auditLog('PUSH_ALL', [
                     'recipients' => $total,
                     'sent' => $sent,
@@ -336,6 +359,10 @@ if (isset($_GET['action'])) {
                         'failed' => $failed
                     ]
                 ]);
+
+            case 'get_push_history':
+                $history = $pdo->query("SELECT * FROM wari_push_logs ORDER BY id DESC LIMIT 50")->fetchAll(PDO::FETCH_ASSOC);
+                jsonResponse(true, ['history' => $history]);
 
             case 'export_csv':
                 header('Content-Type: text/csv; charset=utf-8');
@@ -1564,6 +1591,34 @@ if ($_SESSION['is_admin'] ?? false) {
                     </div>
                 </div>
 
+                <!-- HISTORIQUE DES PUSHS -->
+                <div class="section-header" style="margin-top:40px;cursor:pointer;" onclick="togglePushHistory()">
+                    <div class="section-title">📢 Rapports des Pushs <span id="push-history-toggle-icon" style="font-size:12px;opacity:0.5;margin-left:10px;">[ Afficher + ]</span></div>
+                    <div class="section-actions" onclick="event.stopPropagation()">
+                        <button class="btn-action btn-blue" onclick="loadPushHistory()">↻</button>
+                    </div>
+                </div>
+                <div id="pushHistoryContainer" style="display:none; transition: all 0.3s ease;">
+                    <div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;margin-top:12px;overflow-x:auto;">
+                        <table style="width:100%;border-collapse:collapse;font-size:11px;text-align:left;min-width:600px;">
+                            <thead>
+                                <tr style="border-bottom:1px solid var(--border);background:var(--surface2);color:var(--muted);">
+                                    <th style="padding:12px 16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:9px;">Date</th>
+                                    <th style="padding:12px 16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:9px;">Type</th>
+                                    <th style="padding:12px 16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:9px;">Cible</th>
+                                    <th style="padding:12px 16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:9px;">Titre / Message</th>
+                                    <th style="padding:12px 16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:9px;text-align:center;">Envoyés</th>
+                                    <th style="padding:12px 16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:9px;text-align:center;">Ouverts</th>
+                                    <th style="padding:12px 16px;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-size:9px;text-align:center;">Taux</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pushHistoryTableBody">
+                                <tr><td colspan="7" style="padding:20px;text-align:center;color:var(--muted);">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
         <!-- CONFIRM -->
         <div id="confirmModal">
             <div class="confirm-box">
@@ -1798,6 +1853,79 @@ if ($_SESSION['is_admin'] ?? false) {
             icon.innerText = licencesExpanded ? '[ Réduire - ]' : '[ Afficher + ]';
             
             if (licencesExpanded) loadLicences();
+        }
+
+        let pushHistoryExpanded = false;
+        function togglePushHistory() {
+            const container = document.getElementById('pushHistoryContainer');
+            const icon = document.getElementById('push-history-toggle-icon');
+            pushHistoryExpanded = !pushHistoryExpanded;
+            
+            container.style.display = pushHistoryExpanded ? 'block' : 'none';
+            icon.innerText = pushHistoryExpanded ? '[ Réduire - ]' : '[ Afficher + ]';
+            
+            if (pushHistoryExpanded) loadPushHistory();
+        }
+
+        async function loadPushHistory() {
+            const tbody = document.getElementById('pushHistoryTableBody');
+            tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--muted);">Chargement...</td></tr>';
+            
+            try {
+                const res = await fetch(`${BASE}?action=get_push_history&csrf_token=${encodeURIComponent(CSRF_TOKEN)}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    if (data.history.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--muted);">Aucune notification push envoyée pour le moment.</td></tr>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    data.history.forEach(item => {
+                        const date = new Date(item.sent_at).toLocaleDateString('fr-FR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        let typeBadge = '';
+                        if (item.type === 'course') {
+                            typeBadge = '<span style="background:var(--blue-dim);color:var(--blue);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;">Cours</span>';
+                        } else if (item.type === 'vecu') {
+                            typeBadge = '<span style="background:rgba(245,166,35,0.12);color:var(--gold);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;">Vécu</span>';
+                        } else {
+                            typeBadge = '<span style="background:var(--surface2);color:var(--muted);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;">Général</span>';
+                        }
+                        
+                        const rate = item.sent_count > 0 ? Math.round((item.click_count / item.sent_count) * 100) : 0;
+                        
+                        html += `
+                            <tr style="border-bottom:1px solid var(--border);">
+                                <td style="padding:12px 16px;white-space:nowrap;">${date}</td>
+                                <td style="padding:12px 16px;">${typeBadge}</td>
+                                <td style="padding:12px 16px;color:var(--muted);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(item.target_id)}">${escapeHtml(item.target_id || '—')}</td>
+                                <td style="padding:12px 16px;color:var(--text);font-weight:700;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</td>
+                                <td style="padding:12px 16px;text-align:center;font-weight:700;">${item.sent_count}</td>
+                                <td style="padding:12px 16px;text-align:center;font-weight:700;color:var(--green);">${item.click_count}</td>
+                                <td style="padding:12px 16px;text-align:center;font-weight:700;color:var(--gold);">${rate}%</td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--red);">Erreur : ${escapeHtml(data.msg)}</td></tr>`;
+                }
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--red);">Erreur de chargement.</td></tr>';
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
         async function fetchMonitoring() {
