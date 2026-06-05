@@ -541,9 +541,9 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         <button onclick="dismissCoachBubble(event)" class="text-slate-400 hover:text-white p-0.5 active:scale-95 transition-colors font-bold text-xs leading-none">✕</button>
     </div>
 
-    <!-- Bouton Coach AI (discussion instantanée) -->
-    <button onclick="openCoachChat()"
-        class="fixed bottom-20 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 rounded-full flex items-center justify-center text-slate-950 active:scale-95 hover:scale-110 transition-all duration-300 z-50 group shadow-lg shadow-amber-500/30">
+    <!-- Bouton Coach AI → page dédiée /coach -->
+    <a id="coachButton" href="/coach/" target="_blank"
+        class="fixed bottom-20 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 rounded-full flex items-center justify-center text-slate-950 active:scale-95 hover:scale-110 transition-all duration-300 z-50 group shadow-lg shadow-amber-500/30 touch-none">
 
         <!-- Custom coach/AI SVG Icon -->
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -551,7 +551,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         </svg>
 
         <div class="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/25 pointer-events-none"></div>
-    </button>
+    </a>
 
     <div id="expenseModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm hidden items-center justify-center p-4 z-[100]">
         <div class="glass-card w-full max-w-sm p-4 border border-slate-700 shadow-2xl">
@@ -1245,6 +1245,91 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
               objectif_projet_label: goalLabel
             };
         }
+    </script>
+
+    <script>
+        (function() {
+            const btn = document.getElementById('coachButton');
+            if (!btn) return;
+            
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+            let dragDistance = 0;
+            
+            function onDragStart(clientX, clientY) {
+                isDragging = true;
+                startX = clientX;
+                startY = clientY;
+                
+                const rect = btn.getBoundingClientRect();
+                initialLeft = rect.left;
+                initialTop = rect.top;
+                
+                btn.style.bottom = 'auto';
+                btn.style.right = 'auto';
+                btn.style.left = initialLeft + 'px';
+                btn.style.top = initialTop + 'px';
+                
+                dragDistance = 0;
+            }
+            
+            function onDragMove(clientX, clientY) {
+                if (!isDragging) return;
+                const dx = clientX - startX;
+                const dy = clientY - startY;
+                
+                dragDistance += Math.abs(dx) + Math.abs(dy);
+                
+                const newLeft = Math.max(10, Math.min(window.innerWidth - 60, initialLeft + dx));
+                const newTop = Math.max(10, Math.min(window.innerHeight - 60, initialTop + dy));
+                
+                btn.style.left = newLeft + 'px';
+                btn.style.top = newTop + 'px';
+            }
+            
+            function onDragEnd(e) {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                if (dragDistance > 10) {
+                    e.preventDefault();
+                    btn.addEventListener('click', preventClick, { capture: true });
+                    setTimeout(() => {
+                        btn.removeEventListener('click', preventClick, { capture: true });
+                    }, 50);
+                }
+            }
+            
+            function preventClick(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // Touch Events
+            btn.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                onDragStart(touch.clientX, touch.clientY);
+            }, { passive: true });
+            
+            btn.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                onDragMove(touch.clientX, touch.clientY);
+            }, { passive: true });
+            
+            btn.addEventListener('touchend', onDragEnd);
+            
+            // Mouse Events
+            btn.addEventListener('mousedown', (e) => {
+                onDragStart(e.clientX, e.clientY);
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                onDragMove(e.clientX, e.clientY);
+            });
+            
+            document.addEventListener('mouseup', onDragEnd);
+        })();
     </script>
 
     <script src="./assets/main.js?v=75"></script>
