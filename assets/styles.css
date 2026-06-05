@@ -250,10 +250,14 @@ body.light-mode .bg-slate-900\/80 {
   border: none !important;
 }
 body.light-mode input[id^="percent-input-"] {
+  background-color: transparent !important;
+  border: none !important;
   color: #334155 !important;
 }
 body.light-mode input[id^="percent-input-"]:focus,
 body.light-mode input[id^="percent-input-"]:not([disabled]) {
+  background-color: transparent !important;
+  border: none !important;
   color: #d97706 !important;
 }
 body.light-mode input[id^="percent-input-"] + span {

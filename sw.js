@@ -1,4 +1,4 @@
-const cacheName = "wari-v85"; // On passe à v85 pour le support hors ligne
+const cacheName = "wari-v86"; // On passe à v86 pour le support hors ligne
 // Fichiers statiques et page de secours
 const assets = [
   "./manifest.json",
