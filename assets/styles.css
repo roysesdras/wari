@@ -321,3 +321,92 @@ body.light-mode #coachChatMessages div.bg-slate-900 {
   border-color: rgba(15, 23, 42, 0.08) !important;
   color: #0f172a !important;
 }
+
+/* Modals, popups et overlays globaux en mode clair */
+body.light-mode .fixed.inset-0.bg-slate-900\/90 {
+  background-color: rgba(241, 245, 249, 0.85) !important;
+}
+
+/* Bulle de prévisualisation flottante du Coach AI */
+body.light-mode #coachBubble {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06) !important;
+}
+body.light-mode #coachBubble span {
+  color: #0f172a !important;
+}
+body.light-mode #coachBubble button {
+  color: #475569 !important;
+}
+body.light-mode #coachBubble button:hover {
+  color: #0f172a !important;
+}
+
+/* Popups d'alerte et de bienvenue avec styles inline (Radar, Réglages) */
+body.light-mode #push-modal,
+body.light-mode #help-modal {
+  background: rgba(241, 245, 249, 0.85) !important;
+}
+body.light-mode #push-modal > div,
+body.light-mode #help-modal > div {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.06) !important;
+}
+body.light-mode #push-modal h2,
+body.light-mode #help-modal h2 {
+  color: #0f172a !important;
+}
+body.light-mode #push-modal p,
+body.light-mode #help-modal p,
+body.light-mode #help-modal p strong {
+  color: #475569 !important;
+}
+body.light-mode #push-modal button[onclick="closeWariModal()"] {
+  color: #475569 !important;
+}
+body.light-mode #push-modal button[onclick="closeWariModal()"]:hover {
+  color: #0f172a !important;
+}
+
+/* Éléments de l'historique en mode clair */
+body.light-mode #historyModal h3 {
+  color: #d97706 !important;
+}
+body.light-mode #historyModal button {
+  color: #475569 !important;
+}
+body.light-mode #historyModal button:hover {
+  color: #0f172a !important;
+}
+body.light-mode #historyModal select {
+  background-color: #f1f5f9 !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  color: #0f172a !important;
+}
+body.light-mode #historyContent .bg-slate-800\/40 {
+  background-color: #f8fafc !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+body.light-mode #historyContent .bg-slate-800\/80 {
+  background-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+body.light-mode #historyContent .bg-slate-900\/50,
+body.light-mode #historyContent .bg-slate-900\/60,
+body.light-mode #historyContent .bg-slate-900\/30,
+body.light-mode #historyContent .bg-slate-950\/40 {
+  background-color: #f1f5f9 !important;
+  border-color: rgba(15, 23, 42, 0.06) !important;
+}
+body.light-mode #historyContent .text-slate-200 {
+  color: #334155 !important;
+}
+body.light-mode #historyContent .text-slate-400 {
+  color: #475569 !important;
+}
+body.light-mode #historyContent .border-white\/5 {
+  border-color: rgba(15, 23, 42, 0.06) !important;
+}
