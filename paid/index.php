@@ -68,7 +68,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Quicksand:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --gold: #E8A923;
@@ -79,13 +79,31 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             --s2: #131824;
             --text: #EEF0F6;
             --muted: #6B7491;
+            --border: rgba(255, 255, 255, 0.05);
+            --plan-bg: rgba(255, 255, 255, 0.02);
+            --plan-border: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(255, 255, 255, 0.03);
+            --input-border: rgba(255, 255, 255, 0.1);
             --radius: 24px;
+        }
+
+        .light-mode {
+            --bg: #F8FAFC;
+            --s1: #FFFFFF;
+            --s2: #F1F5F9;
+            --text: #0F172A;
+            --muted: #64748B;
+            --border: rgba(15, 23, 42, 0.06);
+            --plan-bg: rgba(15, 23, 42, 0.02);
+            --plan-border: rgba(15, 23, 42, 0.06);
+            --input-bg: rgba(15, 23, 42, 0.02);
+            --input-border: rgba(15, 23, 42, 0.08);
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Quicksand', sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
@@ -94,18 +112,23 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             justify-content: center;
             padding: 2rem 1rem;
             overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         .blob {
             position: fixed;
             width: 800px;
             height: 800px;
-            background: radial-gradient(circle, rgba(232, 169, 35, .08) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(232, 169, 35, .06) 0%, transparent 70%);
             top: -200px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 0;
             pointer-events: none;
+        }
+
+        .light-mode .blob {
+            background: radial-gradient(circle, rgba(232, 169, 35, .03) 0%, transparent 70%);
         }
 
         .wrap { position: relative; z-index: 1; max-width: 1000px; width: 100%; }
@@ -118,10 +141,18 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
         }
 
         @media (max-width: 900px) {
-            .checkout-container { grid-template-columns: 1fr; gap: 2.5rem; text-align: center; }
+            .checkout-container { grid-template-columns: 1fr; gap: 2.5rem; justify-content: center; }
             .feature-list { display: inline-block; text-align: left; }
             .product-info { order: 2; }
             .payment-box { order: 1; }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 1rem 0.5rem; }
+            .checkout-container { grid-template-columns: 1fr; gap: 1rem; max-width: 460px; margin: 0 auto; }
+            .product-info { display: none; }
+            .payment-box { padding: 1.8rem 1.2rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
+            .plans-container { grid-template-columns: 1fr; gap: 10px; }
         }
 
         .badge {
@@ -151,7 +182,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
         }
 
         .product-title span {
-            background: linear-gradient(to right, #fff, var(--gold));
+            background: linear-gradient(to right, var(--text), var(--gold));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -170,12 +201,13 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
 
         .payment-box {
             background: var(--s1);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 2.5rem;
             box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.6);
             position: relative;
             overflow: hidden;
+            transition: background 0.3s, border 0.3s;
         }
 
         .payment-box::before {
@@ -188,7 +220,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
         .order-summary {
             margin-bottom: 1.5rem;
             padding-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--border);
         }
 
         .price-label { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
@@ -212,8 +244,8 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             gap: 12px;
             padding: 16px;
             border-radius: 16px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: var(--plan-bg);
+            border: 1px solid var(--border);
             text-align: left;
             margin-bottom: 1.5rem;
         }
@@ -225,7 +257,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             border-color: rgba(16, 185, 129, 0.2);
             background: rgba(16, 185, 129, 0.05);
         }
-        .status-alert-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .status-alert-icon { font-size: 1.5rem; flex-shrink: 0; display: flex; align-items: center; }
         .status-alert-content { display: flex; flex-direction: column; }
         .status-alert-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; }
         .status-alert-box.expired .status-alert-title { color: #ef4444; }
@@ -236,8 +268,8 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
         /* Plans selector CSS */
         .plans-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
         .plan-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            background: var(--plan-bg);
+            border: 1.5px solid var(--plan-border);
             border-radius: 16px;
             padding: 1.2rem;
             cursor: pointer;
@@ -247,7 +279,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
         }
         .plan-card:hover {
             border-color: rgba(232, 169, 35, 0.4);
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--s2);
             transform: translateY(-2px);
         }
         .plan-card.active {
@@ -261,10 +293,11 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             font-size: 0.65rem;
             text-transform: uppercase;
             font-weight: 700;
-            background: rgba(255, 255, 255, 0.08);
+            background: var(--s2);
             padding: 2px 8px;
             border-radius: 20px;
             color: var(--text);
+            border: 1px solid var(--border);
         }
         .plan-badge.gold-badge {
             background: rgba(232, 169, 35, 0.2);
@@ -277,34 +310,35 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             color: var(--muted);
             margin-bottom: 5px;
         }
-        .plan-card.active .plan-name { color: #fff; }
+        .plan-card.active .plan-name { color: var(--text); }
         .plan-price {
             font-family: 'Plus Jakarta Sans';
             font-size: 1.6rem;
             font-weight: 800;
-            color: #fff;
+            color: var(--text);
             margin-bottom: 5px;
             display: flex;
             align-items: baseline;
         }
-        .plan-card.active .plan-price { color: var(--gold-lt); }
+        .plan-card.active .plan-price { color: var(--gold); }
         .plan-curr { font-size: 0.8rem; font-weight: 500; margin-left: 4px; }
         .plan-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.3; }
 
         .pay-input {
             width: 100%;
             padding: 16px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            background: var(--input-bg);
+            border: 1.5px solid var(--input-border);
             border-radius: 14px;
-            color: #fff;
+            color: var(--text);
+            font-family: 'Quicksand', sans-serif;
             font-size: 1rem;
             margin-bottom: 1rem;
             transition: all 0.3s ease;
             outline: none;
         }
 
-        .pay-input:focus { border-color: var(--gold); background: rgba(255, 255, 255, 0.06); box-shadow: 0 0 20px rgba(232, 169, 35, 0.1); }
+        .pay-input:focus { border-color: var(--gold); background: var(--s1); box-shadow: 0 0 20px rgba(232, 169, 35, 0.1); }
 
         .payment-methods-label {
             font-size: 0.75rem;
@@ -332,6 +366,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             transition: all 0.3s ease;
             margin-bottom: 10px;
             text-decoration: none;
+            font-family: 'Quicksand', sans-serif;
         }
 
         .btn-fedapay {
@@ -357,12 +392,21 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
 </head>
 
 <body>
+    <!-- Script d'initialisation immédiate du thème -->
+    <script>
+        const savedTheme = localStorage.getItem('wari_theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-mode');
+            document.body.classList.add('light-mode');
+        }
+    </script>
+
     <div class="blob"></div>
 
     <div class="wrap">
         <div class="checkout-container">
             
-            <!-- GAUCHE : RECAPITULATIF & VALEUR -->
+            <!-- GAUCHE : RECAPITULATIF & VALEUR (Masqué sur mobile) -->
             <div class="product-info">
                 <?php if ($isRecharge): ?>
                     <span class="badge"><span class="dot"></span> Renouvellement</span>
@@ -392,18 +436,24 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
                 </ul>
 
                 <div style="margin-top: 2rem; color: var(--muted); font-size: 0.9rem; line-height: 1.6;">
-                    <p>🔒 Paiement 100% sécurisé.</p>
-                    <p>⚡ Activation ou prolongation instantanée de votre temps de licence.</p>
+                    <p>Paiement 100% sécurisé.</p>
+                    <p>Activation ou prolongation instantanée de votre temps de licence.</p>
                 </div>
             </div>
 
-            <!-- DROITE : PAIEMENT -->
+            <!-- DROITE : PAIEMENT (Interface principale mobile-snug) -->
             <div class="payment-box">
                 
                 <?php if ($isRecharge): ?>
                     <!-- Statut de l'abonnement actuel -->
                     <div class="status-alert-box <?= $isExpired ? 'expired' : 'active' ?>">
-                        <div class="status-alert-icon"><?= $isExpired ? '⚠️' : '✅' ?></div>
+                        <div class="status-alert-icon">
+                            <?php if ($isExpired): ?>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                            <?php else: ?>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            <?php endif; ?>
+                        </div>
                         <div class="status-alert-content">
                             <div class="status-alert-title"><?= $isExpired ? 'Abonnement Expiré' : 'Abonnement Actif' ?></div>
                             <div class="status-alert-desc">
@@ -432,8 +482,9 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
                     <?php if ($isRecharge): ?>
                         <div class="user-locked-info" style="margin-bottom: 20px; text-align: left;">
                             <label style="display:block; margin-bottom: 6px; font-size: 0.85rem; color: var(--muted); font-weight: 500;">Compte à recharger</label>
-                            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; color: var(--gold-lt);">
-                                📧 <?= htmlspecialchars($userEmail) ?>
+                            <div style="background: var(--plan-bg); border: 1px solid var(--border); padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; color: var(--gold-lt);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                <?= htmlspecialchars($userEmail) ?>
                             </div>
                         </div>
                     <?php else: ?>
@@ -462,15 +513,15 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
                     <span class="payment-methods-label">Moyen de paiement sécurisé</span>
 
                     <button type="submit" class="pay-btn-modern btn-fedapay">
-                        <span>💳</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
                         <span>Payer avec FedaPay</span>
                     </button>
                 </form>
 
                 <div class="trust-strip">
-                    <div class="trust-item-small">🛡️ MTN, Orange, Wave, Moov</div>
-                    <div class="trust-item-small">🚀 Instantané</div>
-                    <div class="trust-item-small">💎 Premium</div>
+                    <div class="trust-item-small">MTN, Orange, Wave, Moov</div>
+                    <div class="trust-item-small">Instantané</div>
+                    <div class="trust-item-small">Premium</div>
                 </div>
             </div>
 
