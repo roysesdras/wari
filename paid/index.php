@@ -152,7 +152,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             .checkout-container { grid-template-columns: 1fr; gap: 1rem; max-width: 460px; margin: 0 auto; }
             .product-info { display: none; }
             .payment-box { padding: 1.8rem 1.2rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
-            .plans-container { grid-template-columns: 1fr; gap: 10px; }
+            .plans-container { grid-template-columns: 1fr 1fr; gap: 12px; }
         }
 
         .badge {
@@ -266,16 +266,20 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
         .status-alert-desc strong { color: var(--text); }
 
         /* Plans selector CSS */
-        .plans-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+        .plans-container { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 1.5rem 0; }
         .plan-card {
             background: var(--plan-bg);
             border: 1.5px solid var(--plan-border);
             border-radius: 16px;
-            padding: 1.2rem;
+            padding: 1.4rem 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
             text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 175px;
         }
         .plan-card:hover {
             border-color: rgba(232, 169, 35, 0.4);
@@ -288,8 +292,8 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             box-shadow: 0 0 15px rgba(232, 169, 35, 0.1);
         }
         .plan-badge {
-            position: absolute;
-            top: 10px; right: 10px;
+            display: inline-block;
+            align-self: flex-start;
             font-size: 0.65rem;
             text-transform: uppercase;
             font-weight: 700;
@@ -298,6 +302,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             border-radius: 20px;
             color: var(--text);
             border: 1px solid var(--border);
+            margin-bottom: 8px;
         }
         .plan-badge.gold-badge {
             background: rgba(232, 169, 35, 0.2);
@@ -313,7 +318,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
         .plan-card.active .plan-name { color: var(--text); }
         .plan-price {
             font-family: 'Plus Jakarta Sans';
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 800;
             color: var(--text);
             margin-bottom: 5px;
