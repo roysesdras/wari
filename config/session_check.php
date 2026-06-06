@@ -49,10 +49,12 @@ if (isset($_SESSION['user_id'])) {
     $stmt->execute([$_SESSION['user_id']]);
     $userLicense = $stmt->fetch();
 
+    $_SESSION['is_premium'] = false;
     if ($userLicense) {
         $userEmail = $userLicense['email'];
         $licence_statut = $userLicense['licence_statut'];
         $date_expiration = $userLicense['date_expiration'];
+        $_SESSION['is_premium'] = ($date_expiration !== null && strtotime($date_expiration) >= time());
 
         // Définir les contournements (bypass) pour éviter les redirections infinies
         $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';

@@ -170,6 +170,9 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 <div>
                     <div class="flex items-center gap-2 mb-1">
                         <h3 class="text-[11px] uppercase tracking-widest text-emerald-400 font-bold">Santé financière</h3>
+                        <?php if (isset($_SESSION['is_premium']) && $_SESSION['is_premium']): ?>
+                            <span class="text-[7.5px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded-full select-none animate-pulse">Wari Premium</span>
+                        <?php endif; ?>
                         <div id="radarStatusContainer" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-900/50 border border-white/5 cursor-pointer active:scale-95 transition-all" onclick="subscribeUserToPush(true)">
                             <div id="radarDot" class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
                             <span id="radarText" class="text-[7px] font-black uppercase tracking-widest text-slate-500">Radar OFF</span>
