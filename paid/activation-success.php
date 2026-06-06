@@ -14,6 +14,7 @@ if (!isset($_SESSION['pending_activation_email'])) {
 }
 
 $email = $_SESSION['pending_activation_email'];
+$duree_jours = isset($_SESSION['pending_duree_jours']) ? intval($_SESSION['pending_duree_jours']) : 30;
 
 /**
  * FONCTION DE GÉNÉRATION
@@ -39,17 +40,18 @@ if (isset($_SESSION['active_license_key'])) {
 
     try {
         // A. Sauvegarde immédiate en base de données
-        $stmt = $pdo->prepare("INSERT INTO wari_licences (commande_id, statut, date_creation) VALUES (?, 'disponible', NOW())");
-        $stmt->execute([$new_license]);
+        $stmt = $pdo->prepare("INSERT INTO wari_licences (commande_id, statut, date_creation, duree_jours) VALUES (?, 'disponible', NOW(), ?)");
+        $stmt->execute([$new_license, $duree_jours]);
 
         // B. Envoi de l'email unique
         require_once __DIR__ . '/../classes/Mailer.php';
         $mailer = new Mailer();
 
+        $duree_label = ($duree_jours === 365) ? "12 mois (accès annuel)" : "30 jours (accès mensuel)";
         $body = "
                 <div style='font-family: sans-serif; line-height: 1.6; color: #333;'>
                     <h2 style='color: #2a2b2f;'>Merci pour votre achat ! 🚀</h2>
-                    <p>Félicitations, vous venez de débloquer votre accès à <strong>WARI - Finance</strong>.</p>
+                    <p>Félicitations, vous venez de débloquer votre accès à <strong>WARI - Finance</strong> pour une durée de <strong>$duree_label</strong>.</p>
                     
                     <p>Voici votre code de licence personnel :</p>
                     <div style='background: #f4f4f4; padding: 15px; font-size: 22px; font-family: monospace; font-weight: bold; border: 2px dashed #f59e0b; display: inline-block; color: #000; letter-spacing: 2px;'>
@@ -428,11 +430,11 @@ if (isset($_SESSION['active_license_key'])) {
         <div class="cell-info">
             <div class="info-card">
                 <div class="info-card-label">Montant payé</div>
-                <div class="info-card-value">2 500 F CFA</div>
+                <div class="info-card-value"><?= ($duree_jours === 365) ? '5 000' : '590' ?> F CFA</div>
             </div>
             <div class="info-card">
-                <div class="info-card-label">Produit</div>
-                <div class="info-card-value">License Wari - Finance</div>
+                <div class="info-card-label">Durée incluse</div>
+                <div class="info-card-value"><?= ($duree_jours === 365) ? '12 mois (365 j)' : '1 mois (30 j)' ?></div>
             </div>
         </div>
 

@@ -1,6 +1,41 @@
 <?php
-$price = 2500;
-$product_name = "WARI | Licence Pro";
+require_once __DIR__ . '/../wari_monitoring.php';  // TOUJOURS EN PREMIER
+require_once __DIR__ . '/../config/session_config.php';
+require_once __DIR__ . '/../config/db.php';
+
+$userId = $_SESSION['user_id'] ?? null;
+$userEmail = $_SESSION['user_email'] ?? null;
+$isRecharge = false;
+$commandeId = null;
+$currentExpiration = null;
+$isExpired = false;
+
+if ($userId) {
+    // Récupérer la licence de l'utilisateur connecté
+    $stmt = $pdo->prepare("
+        SELECT u.commande_id, l.date_expiration, l.statut 
+        FROM wari_users u
+        LEFT JOIN wari_licences l ON l.commande_id = u.commande_id
+        WHERE u.id = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$userId]);
+    $licInfo = $stmt->fetch();
+
+    if ($licInfo) {
+        $isRecharge = true;
+        $commandeId = $licInfo['commande_id'];
+        $currentExpiration = $licInfo['date_expiration'];
+        if ($currentExpiration) {
+            $isExpired = (strtotime($currentExpiration) < time());
+        } else {
+            $isExpired = true; // Jamais configuré = expiré par défaut
+        }
+    }
+}
+
+$price = 590; // Prix de départ (Mensuel)
+$product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -10,26 +45,26 @@ $product_name = "WARI | Licence Pro";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $product_name ?></title>
 
-    <!-- Balises SEO de base -->
-    <meta name="description" content="Activez votre Licence Pro WARI. Gérez votre budget, épargnez et maîtrisez vos finances à vie avec WARI.">
-    <meta name="keywords" content="Wari, gestion budget, épargne, finance personnelle, Afrique, licence pro">
+    <!-- Balises SEO -->
+    <meta name="description" content="Activez ou rechargez votre Licence Pro WARI. Gérez votre budget, épargnez et maîtrisez vos finances avec WARI.">
+    <meta name="keywords" content="Wari, gestion budget, épargne, finance personnelle, Afrique, licence pro, abonnement">
     <meta name="author" content="Wari">
 
-    <!-- Open Graph / Facebook / WhatsApp (Ce qui s'affiche quand on partage le lien) -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://wari.digiroys.com/paid/">
-    <meta property="og:title" content="WARI Finance — Activez votre Licence Pro">
-    <meta property="og:description" content="Prenez le contrôle de votre argent. Accès à vie, Wari Academy incluse.">
-    <meta property="og:image" content="https://wari.digiroys.com/assets/wari_og_1.png"> <!-- METTEZ UNE BELLE IMAGE ICI -->
+    <meta property="og:title" content="WARI Finance — Abonnement & Recharge">
+    <meta property="og:description" content="Prenez le contrôle de votre argent. Rechargez votre temps d'accès MTN MoMo, Orange Money, Wave.">
+    <meta property="og:image" content="https://wari.digiroys.com/assets/wari_og_1.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://wari.digiroys.com/paid/">
-    <meta property="twitter:title" content="WARI Finance — Activez votre Licence Pro">
-    <meta property="twitter:description" content="Gérez vos finances comme un champion. Accès à vie sans abonnement.">
+    <meta property="twitter:title" content="WARI Finance — Abonnement & Recharge">
+    <meta property="twitter:description" content="Gérez vos finances comme un champion. Recharge de temps d'accès ultra simple.">
     <meta property="twitter:image" content="https://wari.digiroys.com/assets/wari_og_1.png">
 
-    <!-- Favicon (L'icône dans l'onglet du navigateur) -->
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,7 +112,7 @@ $product_name = "WARI | Licence Pro";
 
         .checkout-container {
             display: grid;
-            grid-template-columns: 1fr 420px;
+            grid-template-columns: 1fr 440px;
             gap: 4rem;
             align-items: center;
         }
@@ -109,7 +144,7 @@ $product_name = "WARI | Licence Pro";
 
         .product-title {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-size: clamp(2.2rem, 5vw, 3.2rem);
             font-weight: 800;
             line-height: 1.1;
             margin-bottom: 1.5rem;
@@ -131,6 +166,7 @@ $product_name = "WARI | Licence Pro";
             color: var(--muted);
         }
         .feature-item svg { color: var(--gold); flex-shrink: 0; }
+        .feature-item span strong { color: var(--text); }
 
         .payment-box {
             background: var(--s1);
@@ -170,6 +206,91 @@ $product_name = "WARI | Licence Pro";
             margin-top: 10px;
         }
 
+        /* Status card */
+        .status-alert-box {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: left;
+            margin-bottom: 1.5rem;
+        }
+        .status-alert-box.expired {
+            border-color: rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.05);
+        }
+        .status-alert-box.active {
+            border-color: rgba(16, 185, 129, 0.2);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        .status-alert-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .status-alert-content { display: flex; flex-direction: column; }
+        .status-alert-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; }
+        .status-alert-box.expired .status-alert-title { color: #ef4444; }
+        .status-alert-box.active .status-alert-title { color: #10b981; }
+        .status-alert-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+        .status-alert-desc strong { color: var(--text); }
+
+        /* Plans selector CSS */
+        .plans-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1.5rem 0; }
+        .plan-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            text-align: left;
+        }
+        .plan-card:hover {
+            border-color: rgba(232, 169, 35, 0.4);
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-2px);
+        }
+        .plan-card.active {
+            border-color: var(--gold);
+            background: rgba(232, 169, 35, 0.06);
+            box-shadow: 0 0 15px rgba(232, 169, 35, 0.1);
+        }
+        .plan-badge {
+            position: absolute;
+            top: 10px; right: 10px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 8px;
+            border-radius: 20px;
+            color: var(--text);
+        }
+        .plan-badge.gold-badge {
+            background: rgba(232, 169, 35, 0.2);
+            color: var(--gold-lt);
+            border: 1px solid rgba(232, 169, 35, 0.3);
+        }
+        .plan-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 5px;
+        }
+        .plan-card.active .plan-name { color: #fff; }
+        .plan-price {
+            font-family: 'Plus Jakarta Sans';
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: baseline;
+        }
+        .plan-card.active .plan-price { color: var(--gold-lt); }
+        .plan-curr { font-size: 0.8rem; font-weight: 500; margin-left: 4px; }
+        .plan-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.3; }
+
         .pay-input {
             width: 100%;
             padding: 16px;
@@ -193,6 +314,7 @@ $product_name = "WARI | Licence Pro";
             margin-bottom: 12px;
             display: block;
             font-weight: 600;
+            text-align: left;
         }
 
         .pay-btn-modern {
@@ -212,17 +334,9 @@ $product_name = "WARI | Licence Pro";
             text-decoration: none;
         }
 
-        /* FedaPay Style */
         .btn-fedapay {
             background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dk) 100%);
             color: #07090E;
-        }
-
-        /* CinetPay Style */
-        .btn-cinetpay {
-            background: #ffffff;
-            color: #000;
-            border: 1px solid #ddd;
         }
 
         .pay-btn-modern:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(232, 169, 35, 0.2); filter: brightness(1.1); }
@@ -250,70 +364,111 @@ $product_name = "WARI | Licence Pro";
             
             <!-- GAUCHE : RECAPITULATIF & VALEUR -->
             <div class="product-info">
-                <span class="badge"><span class="dot"></span> Offre de lancement</span>
-                <h1 class="product-title">Activez votre<br><span>Licence Pro</span></h1>
+                <?php if ($isRecharge): ?>
+                    <span class="badge"><span class="dot"></span> Renouvellement</span>
+                    <h1 class="product-title">Prolongez votre<br><span>Accès Wari</span></h1>
+                <?php else: ?>
+                    <span class="badge"><span class="dot"></span> Nouveau Compte</span>
+                    <h1 class="product-title">Activez votre<br><span>Licence Wari</span></h1>
+                <?php endif; ?>
                 
                 <ul class="feature-list">
                     <li class="feature-item">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
-                        <span>Accès à vie — <strong>Zéro abonnement</strong></span>
+                        <span>Accès complet à l'application <strong>Wari-Finance</strong></span>
                     </li>
                     <li class="feature-item">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
-                        <span>Accès à vie à l'appli <strong>Wari-Finance</strong></span>
+                        <span>Gestion enveloppes, dettes et coffre-fort</span>
                     </li>
                     <li class="feature-item">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
-                        <span>Accès à vie à <strong>Wari Academy</strong></span>
+                        <span>Accès à <strong>Wari Academy</strong></span>
                     </li>
                     <li class="feature-item">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
-                        <span>Accès illimité à <strong>Tout autres services Wari</strong></span>
+                        <span>Discipline budgétaire augmentée avec le <strong>Coach IA</strong></span>
                     </li>
                 </ul>
 
                 <div style="margin-top: 2rem; color: var(--muted); font-size: 0.9rem; line-height: 1.6;">
                     <p>🔒 Paiement 100% sécurisé.</p>
-                    <p>⚡ Votre code d'activation sera envoyé instantanément par email.</p>
+                    <p>⚡ Activation ou prolongation instantanée de votre temps de licence.</p>
                 </div>
             </div>
 
             <!-- DROITE : PAIEMENT -->
             <div class="payment-box">
+                
+                <?php if ($isRecharge): ?>
+                    <!-- Statut de l'abonnement actuel -->
+                    <div class="status-alert-box <?= $isExpired ? 'expired' : 'active' ?>">
+                        <div class="status-alert-icon"><?= $isExpired ? '⚠️' : '✅' ?></div>
+                        <div class="status-alert-content">
+                            <div class="status-alert-title"><?= $isExpired ? 'Abonnement Expiré' : 'Abonnement Actif' ?></div>
+                            <div class="status-alert-desc">
+                                <?php if ($currentExpiration): ?>
+                                    <?= $isExpired ? 'Votre accès a expiré le' : 'Votre accès est valide jusqu\'au' ?> <strong><?= date('d/m/Y à H:i', strtotime($currentExpiration)) ?></strong>.
+                                <?php else: ?>
+                                    Aucun abonnement actif enregistré sur votre licence.
+                                <?php endif; ?>
+                                <br>Rechargez ci-dessous pour continuer.
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <div class="order-summary">
-                    <div class="price-label">Total unique</div>
-                    <div class="price-value">
+                    <div class="price-label" id="display-price-label">Total Mensuel</div>
+                    <div class="price-value" id="display-price-value">
                         <?= number_format($price, 0, '', '&nbsp;') ?><span class="price-currency">F CFA</span>
                     </div>
-                    <div class="discount-pill">Un paiement unique, pour toujours</div>
+                    <div class="discount-pill" id="discount-pill-id">Accès pendant 30 jours complets</div>
                 </div>
 
                 <form action="fedapay-checkout.php" method="POST">
-                    <label style="display:block; margin-bottom: 8px; font-size: 0.85rem; color: var(--muted); font-weight: 500;">Email de livraison</label>
-                    <input type="email" name="customer_email" class="pay-input" placeholder="votre@email.com" required>
+                    <input type="hidden" name="plan" id="selected-plan-input" value="mensuel">
 
-                    <span class="payment-methods-label">Choisir un moyen de paiement</span>
+                    <?php if ($isRecharge): ?>
+                        <div class="user-locked-info" style="margin-bottom: 20px; text-align: left;">
+                            <label style="display:block; margin-bottom: 6px; font-size: 0.85rem; color: var(--muted); font-weight: 500;">Compte à recharger</label>
+                            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; color: var(--gold-lt);">
+                                📧 <?= htmlspecialchars($userEmail) ?>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <label style="display:block; margin-bottom: 8px; font-size: 0.85rem; color: var(--muted); font-weight: 500;">Email de livraison de la licence</label>
+                        <input type="email" name="customer_email" class="pay-input" placeholder="votre@email.com" required>
+                    <?php endif; ?>
 
-                    <!-- Moyen 1 : FedaPay (Actif) -->
+                    <span class="payment-methods-label">Sélectionner votre formule</span>
+                    
+                    <!-- Sélecteur de forfait -->
+                    <div class="plans-container">
+                        <div class="plan-card active" id="plan-mensuel" onclick="selectPlan('mensuel', 590)">
+                            <div class="plan-badge">Standard</div>
+                            <div class="plan-name">Mensuel</div>
+                            <div class="plan-price">590 <span class="plan-curr">F CFA</span></div>
+                            <div class="plan-desc">Accès 30 jours</div>
+                        </div>
+                        <div class="plan-card" id="plan-annuel" onclick="selectPlan('annuel', 5000)">
+                            <div class="plan-badge gold-badge">Économique</div>
+                            <div class="plan-name">Annuel</div>
+                            <div class="plan-price">5 000 <span class="plan-curr">F CFA</span></div>
+                            <div class="plan-desc">Accès 365 jours<br><strong style="color:var(--gold-lt);">Économisez 30%</strong></div>
+                        </div>
+                    </div>
+
+                    <span class="payment-methods-label">Moyen de paiement sécurisé</span>
+
                     <button type="submit" class="pay-btn-modern btn-fedapay">
                         <span>💳</span>
                         <span>Payer avec FedaPay</span>
                     </button>
                 </form>
 
-                <!-- Moyen 2 : CinetPay (Commenté en attente d'activation business) -->
-                
-                <!-- <form action="cinetpay-checkout.php" method="POST">
-                    <input type="hidden" name="customer_email" value="..."> 
-                    <button type="submit" class="pay-btn-modern btn-cinetpay">
-                        <img src="https://cinetpay.com/img/logo.png" alt="CinetPay" style="height: 20px;">
-                        <span>Payer avec CinetPay</span>
-                    </button>
-                </form> -->
-               
-
                 <div class="trust-strip">
-                    <div class="trust-item-small">🛡️ Sécurisé</div>
+                    <div class="trust-item-small">🛡️ MTN, Orange, Wave, Moov</div>
                     <div class="trust-item-small">🚀 Instantané</div>
                     <div class="trust-item-small">💎 Premium</div>
                 </div>
@@ -325,6 +480,29 @@ $product_name = "WARI | Licence Pro";
             © <?= date('Y') ?> WARI Finance by Digiroys — <a href="mailto:wari.finance.inter@gmail.com" style="color: var(--gold); text-decoration: none;">Besoin d'aide ?</a>
         </div>
     </div>
+
+    <script>
+        function selectPlan(plan, price) {
+            document.getElementById('selected-plan-input').value = plan;
+            
+            // Basculer la classe active
+            document.getElementById('plan-mensuel').classList.toggle('active', plan === 'mensuel');
+            document.getElementById('plan-annuel').classList.toggle('active', plan === 'annuel');
+            
+            // Mettre à jour le prix affiché
+            const formattedPrice = new Intl.NumberFormat('fr-FR').format(price);
+            document.getElementById('display-price-value').innerHTML = `${formattedPrice}<span class="price-currency">F CFA</span>`;
+            
+            // Mettre à jour le libellé
+            if (plan === 'annuel') {
+                document.getElementById('display-price-label').innerText = "Total Annuel (Économique)";
+                document.getElementById('discount-pill-id').innerText = "Accès pendant 365 jours complets";
+            } else {
+                document.getElementById('display-price-label').innerText = "Total Mensuel";
+                document.getElementById('discount-pill-id').innerText = "Accès pendant 30 jours complets";
+            }
+        }
+    </script>
 </body>
 
 </html>

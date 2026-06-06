@@ -1990,15 +1990,23 @@ if ($_SESSION['is_admin'] ?? false) {
                     grid.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:20px;">Aucune licence.</div>';
                     return;
                 }
-                grid.innerHTML = data.licences.map(l => `
-                    <div class="licence-card">
-                        <div>
-                            <div class="licence-code">${l.commande_id}</div>
-                            <div class="licence-email">${l.email || '—'}</div>
+                grid.innerHTML = data.licences.map(l => {
+                    let expText = '—';
+                    if (l.date_expiration) {
+                        const d = new Date(l.date_expiration);
+                        expText = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+                    }
+                    return `
+                        <div class="licence-card">
+                            <div>
+                                <div class="licence-code">${l.commande_id}</div>
+                                <div class="licence-email">${l.email || '—'}</div>
+                                <div class="licence-email" style="font-size: 8.5px; opacity: 0.7; margin-top: 1px;">Exp: ${expText}</div>
+                            </div>
+                            <span class="lic-status lic-${l.statut}">${l.statut}</span>
                         </div>
-                        <span class="lic-status lic-${l.statut}">${l.statut}</span>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (e) {
                 document.getElementById('licencesGrid').innerHTML = '<div style="font-size:11px;color:var(--muted);padding:20px;">Erreur.</div>';
             }

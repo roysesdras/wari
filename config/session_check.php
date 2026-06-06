@@ -37,8 +37,71 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['wari_remember'])) {
     }
 }
 
-// 2. LA SÉCURITÉ CRITIQUE (Ce qu'il manquait)
-// Si après la tentative de cookie, il n'y a TOUJOURS PAS de session :
+// 2. CONTRÔLE D'ACCÈS / SUSPENSION / EXPIRATION D'ABONNEMENT
+if (isset($_SESSION['user_id'])) {
+    $stmt = $pdo->prepare("
+        SELECT u.email, u.commande_id, l.statut as licence_statut, l.date_expiration 
+        FROM wari_users u
+        LEFT JOIN wari_licences l ON l.commande_id = u.commande_id
+        WHERE u.id = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$_SESSION['user_id']]);
+    $userLicense = $stmt->fetch();
+
+    if ($userLicense) {
+        $userEmail = $userLicense['email'];
+        $licence_statut = $userLicense['licence_statut'];
+        $date_expiration = $userLicense['date_expiration'];
+
+        // Définir les contournements (bypass) pour éviter les redirections infinies
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        $isBypass = (
+            strpos($scriptName, '/paid/') !== false ||
+            strpos($scriptName, '/wari-admin/') !== false ||
+            strpos($scriptName, '/config/logout.php') !== false ||
+            strpos($scriptName, '/config/auth.php') !== false ||
+            strpos($scriptName, '/config/process_auth.php') !== false
+        );
+
+        if (!$isBypass) {
+            // Vérification Compte Suspendu
+            if ($licence_statut === 'suspendu') {
+                unset($_SESSION['user_id']);
+                unset($_SESSION['user_email']);
+                session_destroy();
+                setcookie('wari_remember', '', ['expires' => time() - 3600, 'path' => '/', 'secure' => true, 'httponly' => true, 'samesite' => 'Lax']);
+                
+                if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
+                    http_response_code(403);
+                    exit(json_encode(['error' => 'Compte suspendu']));
+                }
+                header('Location: https://wari.digiroys.com/config/auth.php?error=suspended');
+                exit();
+            }
+
+            // Restriction d'expiration de l'abonnement
+            // APPLIQUÉE UNIQUEMENT à info@rebonly.com pour test agile
+            if ($userEmail === 'info@rebonly.com') {
+                $isExpired = (
+                    $date_expiration === null || 
+                    strtotime($date_expiration) < time()
+                );
+
+                if ($isExpired) {
+                    if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
+                        http_response_code(402); // Payment Required
+                        exit(json_encode(['error' => 'Licence expirée', 'expired' => true]));
+                    }
+                    header('Location: https://wari.digiroys.com/paid/index.php');
+                    exit();
+                }
+            }
+        }
+    }
+}
+
+// 3. LA SÉCURITÉ CRITIQUE (Si déconnecté)
 if (!isset($_SESSION['user_id'])) {
     // Si c'est un appel API (JSON)
     if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {

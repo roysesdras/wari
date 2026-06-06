@@ -142,13 +142,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $licence = $stmt->fetch();
 
         if ($licence) {
+            $duree_jours = isset($licence['duree_jours']) ? intval($licence['duree_jours']) : 30;
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             try {
                 $stmt = $pdo->prepare("INSERT INTO wari_users (email, password, commande_id) VALUES (?, ?, ?)");
                 $stmt->execute([$email, $hashedPassword, $commande_id]);
 
-                $stmt = $pdo->prepare("UPDATE wari_licences SET statut = 'utilise' WHERE commande_id = ?");
-                $stmt->execute([$commande_id]);
+                $stmt = $pdo->prepare("UPDATE wari_licences SET statut = 'utilise', date_expiration = DATE_ADD(NOW(), INTERVAL ? DAY) WHERE commande_id = ?");
+                $stmt->execute([$duree_jours, $commande_id]);
 
                 $redirParam = isset($_POST['redirect']) && !empty($_POST['redirect']) ? '&redirect=' . urlencode($_POST['redirect']) : '';
                 header('Location: auth.php?success=1' . $redirParam);

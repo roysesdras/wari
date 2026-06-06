@@ -1,10 +1,11 @@
 <?php
 error_reporting(E_ALL & ~E_DEPRECATED);
 ini_set('display_errors', 0);
+
 // On charge les dépendances installées via Composer
 require_once '../vendor/autoload.php';
 
-// On inclut ta connexion à la base de données
+// On inclut la connexion à la base de données
 require_once '../config/db.php';
 
 session_start();
@@ -13,30 +14,46 @@ session_start();
 \FedaPay\FedaPay::setApiKey("sk_live_-t3Pw_JoJ8VGBqP8eTZr-ar5"); // Remplace par ta clé secrète
 \FedaPay\FedaPay::setEnvironment('live'); // Passe en 'live' quand tu es prêt
 
-// 1. On vérifie d'abord si la donnée existe avant de la filtrer
-$email_brut = $_POST['customer_email'] ?? null;
+// 1. Détection Recharge vs Nouvel Achat
+$user_id = $_SESSION['user_id'] ?? null;
+$commande_id = null;
+$type_paiement = 'achat'; // Par défaut
 
-// 2. On filtre pour nettoyer l'email
-$customer_email = filter_var($email_brut, FILTER_SANITIZE_EMAIL);
-
-// 3. On ajoute ici la vérification si l'utilisateur est connecté (votre cas)
-// Si oui, on utilise son email de session et on bloque le formulaire.
-if (isset($_SESSION['user_email']) && !empty($_SESSION['user_email'])) {
-    $customer_email = $_SESSION['user_email'];
-    
-    // On informe l'utilisateur que l'email est automatique
-    echo "<script>alert('Email récupéré automatiquement depuis votre compte.');</script>";
+if ($user_id) {
+    // Mode Recharge : Récupérer les détails depuis la session
+    $stmt = $pdo->prepare("SELECT email, commande_id FROM wari_users WHERE id = ?");
+    $stmt->execute([$user_id]);
+    $user = $stmt->fetch();
+    if ($user) {
+        $customer_email = $user['email'];
+        $commande_id = $user['commande_id'];
+        $type_paiement = 'recharge';
+    } else {
+        die("Utilisateur de session non valide.");
+    }
+} else {
+    // Mode Achat Licence
+    $email_brut = $_POST['customer_email'] ?? null;
+    $customer_email = filter_var($email_brut, FILTER_SANITIZE_EMAIL);
 }
-$amount = 2500;
 
 if (!$customer_email) {
     die("L'adresse email est requise pour continuer.");
 }
 
+// 2. Choix de la formule
+$plan = $_POST['plan'] ?? 'mensuel';
+$amount = ($plan === 'annuel') ? 5000 : 590;
+$duree_jours = ($plan === 'annuel') ? 365 : 30;
+
+$description = ($type_paiement === 'recharge')
+    ? "Recharge Wari Finance - " . ($plan === 'annuel' ? '12 mois' : '1 mois')
+    : "Achat Licence Wari Finance - " . ($plan === 'annuel' ? '12 mois' : '1 mois');
+
 try {
     // A. Création de la transaction chez FedaPay
     $transaction = \FedaPay\Transaction::create([
-        "description" => "Achat Licence WARI Pro",
+        "description" => $description,
         "amount" => $amount,
         "currency" => ["iso" => "XOF"],
         "callback_url" => "https://wari.digiroys.com/paid/fedapay-callback.php",
@@ -48,14 +65,20 @@ try {
     // B. Récupération de l'URL de paiement
     $token = $transaction->generateToken();
 
-    // C. Enregistrement dans ta table wari_payments
-    // Note : On utilise $pdo car c'est le nom défini dans ton fichier db.php
-    $stmt = $pdo->prepare("INSERT INTO wari_payments (reference_fedapay, email_client, montant, statut) VALUES (?, ?, ?, ?)");
+    // C. Enregistrement dans la table wari_payments avec les nouvelles colonnes
+    $stmt = $pdo->prepare("
+        INSERT INTO wari_payments 
+        (reference_fedapay, email_client, montant, statut, type_paiement, commande_id, duree_jours, date_creation) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+    ");
     $stmt->execute([
         $transaction->id,
         $customer_email,
         $amount,
-        'pending'
+        'pending',
+        $type_paiement,
+        $commande_id,
+        $duree_jours
     ]);
 
     // D. Redirection vers FedaPay

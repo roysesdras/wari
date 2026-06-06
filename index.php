@@ -9,10 +9,7 @@ require 'config/db.php'; // <--- INDISPENSABLE : Pour que $pdo fonctionne !
 require_once __DIR__ . '/classes/Academy.php';
 require_once __DIR__ . '/classes/Vecu.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header('Location: config/auth.php');
-    exit();
-}
+require_once __DIR__ . '/config/session_check.php';
 
 $academy = new Academy($pdo);
 $unfinishedCoursesCount = $academy->getUnfinishedCoursesCount($_SESSION['user_id']);
@@ -1447,7 +1444,15 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         })();
     </script>
 
-    <script src="./assets/main.js?v=95"></script>
+    <script src="./assets/main.js?v=96"></script>
+    <?php if (isset($_SESSION['recharge_success'])): ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                showToastMessage("Abonnement prolongé avec succès ! 🚀", "success");
+            });
+        </script>
+        <?php unset($_SESSION['recharge_success']); ?>
+    <?php endif; ?>
 </body>
 
 </html>
