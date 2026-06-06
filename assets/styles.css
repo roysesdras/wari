@@ -519,8 +519,10 @@ body.light-mode #historyModal {
   background-color: rgba(241, 245, 249, 0.85) !important;
 }
 body.light-mode #historyModal button[onclick="closeHistoryModal()"] {
+  background-color: rgba(15, 23, 42, 0.05) !important;
   color: #64748b !important;
 }
 body.light-mode #historyModal button[onclick="closeHistoryModal()"]:hover {
+  background-color: rgba(15, 23, 42, 0.1) !important;
   color: #0f172a !important;
 }

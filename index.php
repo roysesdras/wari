@@ -58,7 +58,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=91">
+    <link rel="stylesheet" href="./assets/styles.css?v=92">
 
     <link rel="manifest" href="manifest.json">
     <meta id="metaThemeColor" name="theme-color" content="#000000">
@@ -598,7 +598,11 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                     <option value="12">12 mois</option>
                 </select>
 
-                <button onclick="closeHistoryModal()" class="text-slate-500 hover:text-white transition-colors text-lg">✕</button>
+                <button onclick="closeHistoryModal()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-slate-400 hover:text-white active:scale-95 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
 
             <div id="historyContent" class="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-1">
@@ -1404,7 +1408,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         })();
     </script>
 
-    <script src="./assets/main.js?v=90"></script>
+    <script src="./assets/main.js?v=92"></script>
 </body>
 
 </html>
