@@ -8,7 +8,7 @@ require_once '../vendor/autoload.php';
 // On inclut la connexion à la base de données
 require_once '../config/db.php';
 
-session_start();
+require_once '../config/session_config.php';
 
 // Configuration FedaPay
 \FedaPay\FedaPay::setApiKey("sk_live_-t3Pw_JoJ8VGBqP8eTZr-ar5"); // Remplace par ta clé secrète

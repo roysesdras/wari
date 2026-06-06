@@ -207,7 +207,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 1rem;
-            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 10px 10px -5px rgba(0, 0, 0, 0.6);
             position: relative;
             overflow: hidden;
             transition: background 0.3s, border 0.3s;

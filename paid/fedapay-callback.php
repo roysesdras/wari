@@ -6,7 +6,7 @@ ini_set('display_errors', 0);
 require_once '../vendor/autoload.php';
 require_once '../config/db.php';
 
-session_start();
+require_once '../config/session_config.php';
 
 // Configuration FedaPay
 \FedaPay\FedaPay::setApiKey("sk_live_-t3Pw_JoJ8VGBqP8eTZr-ar5");

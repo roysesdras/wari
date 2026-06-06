@@ -5,7 +5,7 @@ use PHPMailer\PHPMailer\Exception;
 
 require '../vendor/autoload.php';
 require '../config/db.php';
-session_start();
+require_once '../config/session_config.php';
 
 // 1. Sécurité de base
 if (!isset($_SESSION['pending_activation_email'])) {
