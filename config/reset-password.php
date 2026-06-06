@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Nouveau mot de passe — WARI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/styles.css?v=93">
+    <link rel="stylesheet" href="../assets/styles.css?v=94">
     <meta id="metaThemeColor" name="theme-color" content="#000000">
 
     <script>

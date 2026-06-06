@@ -106,6 +106,29 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
                 if (metaThemeColor) metaThemeColor.setAttribute('content', '#f1f5f9');
             });
         }
+
+        function toggleTheme() {
+            const isLight = document.body.classList.toggle('light-mode');
+            document.documentElement.classList.toggle('light-mode', isLight);
+            localStorage.setItem('wari_theme', isLight ? 'light' : 'dark');
+            const metaThemeColor = document.getElementById('metaThemeColor');
+            if (metaThemeColor) {
+                metaThemeColor.setAttribute('content', isLight ? '#f1f5f9' : '#000000');
+            }
+            updateThemeButton();
+        }
+
+        function updateThemeButton() {
+            const isLight = document.documentElement.classList.contains('light-mode');
+            const themeIcon = document.getElementById('themeIcon');
+            const sunIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+            const moonIcon = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+            if (themeIcon) {
+                themeIcon.innerHTML = isLight ? sunIcon : moonIcon;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateThemeButton);
     </script>
 
     <style>
@@ -210,6 +233,12 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
             display: flex;
             align-items: center;
             gap: 0.75rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .back-btn {
@@ -563,6 +592,29 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
         .clear-btn:active {
             transform: scale(0.95);
         }
+
+        .theme-toggle-btn {
+            background: transparent;
+            border: none;
+            color: var(--color-text-muted);
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: var(--color-bg-btn-hover);
+            color: var(--color-primary);
+        }
+
+        .theme-toggle-btn:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
@@ -589,12 +641,17 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
                     <p>Conseiller Financier</p>
                 </div>
             </div>
-            <button class="clear-btn" onclick="clearHistory()" title="Effacer l'historique de discussion">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-            </button>
+            <div class="header-right">
+                <button class="theme-toggle-btn" onclick="toggleTheme()" title="Changer le thème">
+                    <span id="themeIcon" style="display: flex; align-items: center; justify-content: center;"></span>
+                </button>
+                <button class="clear-btn" onclick="clearHistory()" title="Effacer l'historique de discussion">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                </button>
+            </div>
         </header>
 
         <!-- Zone des Messages -->
