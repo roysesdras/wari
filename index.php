@@ -58,7 +58,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=94">
+    <link rel="stylesheet" href="./assets/styles.css?v=95">
 
     <link rel="manifest" href="manifest.json">
     <meta id="metaThemeColor" name="theme-color" content="#000000">
@@ -741,9 +741,28 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             $currentMonth = date('Y-m');
 
             if ($lastMonth && $lastMonth !== $currentMonth) {
+                // Récupérer les dépenses du mois qui vient de se terminer ($lastMonth) pour calculer le report
+                $stmtPrevExp = $pdo->prepare("
+                    SELECT category_id, SUM(amount) as total 
+                    FROM wari_expenses 
+                    WHERE user_id = ? 
+                    AND DATE_FORMAT(date_expense, '%Y-%m') = ?
+                    GROUP BY category_id
+                ");
+                $stmtPrevExp->execute([$userId, $lastMonth]);
+                $prevExpenses = [];
+                foreach ($stmtPrevExp->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $prevExpenses[$row['category_id']] = (int)$row['total'];
+                }
+
                 if (isset($budgetData['categories'])) {
                     foreach ($budgetData['categories'] as &$cat) {
-                        $cat['balance'] = 0;
+                        $catId = $cat['id'];
+                        $isProjet = isset($cat['name']) && (strpos(strtolower($cat['name']), 'projet') !== false);
+                        if (!$isProjet) {
+                            $spent = isset($prevExpenses[$catId]) ? $prevExpenses[$catId] : 0;
+                            $cat['balance'] = max(0, (isset($cat['balance']) ? (int)$cat['balance'] : 0) - $spent);
+                        }
                     }
                 }
                 $budgetData['hasDepositedToday'] = false;
@@ -1428,7 +1447,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         })();
     </script>
 
-    <script src="./assets/main.js?v=94"></script>
+    <script src="./assets/main.js?v=95"></script>
 </body>
 
 </html>

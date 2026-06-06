@@ -827,11 +827,18 @@ function loadBudget() {
 
       setTimeout(() => {
         alert(
-          "NOUVEAU MOIS, NOUVEL OBJECTIF !\n\nFélicitations Champion·ne, tes compteurs sont remis à zéro. Le coffre, lui, continue de grandir !",
+          "NOUVEAU MOIS, MÊME RIGUEUR !\n\nChampion·ne, tes soldes restants du mois dernier ont été reportés automatiquement sur ce nouveau mois. C'est reparti !",
         );
       }, 1000);
 
-      categories = categories.map((cat) => ({ ...cat, balance: 0 }));
+      categories = categories.map((cat) => {
+        const isProjet = cat.name.toLowerCase().includes("projet");
+        if (isProjet) return cat;
+
+        const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+        return { ...cat, balance: Math.max(0, (cat.balance || 0) - spent) };
+      });
+
       data.lastSavedMonth = currentMonth;
       data.vaultTransactions = vaultTransactions;
       data.categories = categories;
