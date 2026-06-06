@@ -58,7 +58,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=92">
+    <link rel="stylesheet" href="./assets/styles.css?v=93">
 
     <link rel="manifest" href="manifest.json">
     <meta id="metaThemeColor" name="theme-color" content="#000000">
@@ -618,7 +618,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     </div>
 
     <!-- Bouton Coach AI → page dédiée /coach -->
-    <a id="coachButton" href="/coach/" target="_blank"
+    <a id="coachButton" href="/coach/"
         class="fixed bottom-20 right-6 w-12 h-12 bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 rounded-full flex items-center justify-center text-slate-950 active:scale-95 hover:scale-110 transition-all duration-300 z-50 group border border-white/10 touch-none">
 
         <!-- Custom coach/AI SVG Icon -->
@@ -1408,7 +1408,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         })();
     </script>
 
-    <script src="./assets/main.js?v=92"></script>
+    <script src="./assets/main.js?v=93"></script>
 </body>
 
 </html>

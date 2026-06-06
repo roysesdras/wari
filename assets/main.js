@@ -2260,3 +2260,101 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   processOfflineQueue();
 });
+
+// ─── PWA HISTORY BACK-BUTTON MODAL INTERCEPTOR ─────────────────────────────
+(function () {
+  let openModalsStack = [];
+  let isProgrammaticBack = false;
+
+  function pushModalState(modalId) {
+    if (!openModalsStack.includes(modalId)) {
+      openModalsStack.push(modalId);
+      history.pushState({ wariModal: modalId }, "");
+    }
+  }
+
+  function popModalState(modalId) {
+    const index = openModalsStack.indexOf(modalId);
+    if (index !== -1) {
+      openModalsStack.splice(index, 1);
+      isProgrammaticBack = true;
+      history.back();
+    }
+  }
+
+  function closeModalById(modalId) {
+    if (modalId === "historyModal" && typeof window.closeHistoryModal === "function") {
+      window.closeHistoryModal();
+    } else if (modalId === "coachChatModal" && typeof window.closeCoachChat === "function") {
+      window.closeCoachChat();
+    } else if (modalId === "expenseModal" && typeof window.closeExpenseModal === "function") {
+      window.closeExpenseModal();
+    } else if (modalId === "debtModal" && typeof window.closeDebtModal === "function") {
+      window.closeDebtModal();
+    } else if (modalId === "payModal" && typeof window.closePayModal === "function") {
+      window.closePayModal();
+    } else if (modalId === "goalModal" && typeof window.closeGoalModal === "function") {
+      window.closeGoalModal();
+    } else {
+      const el = document.getElementById(modalId);
+      if (el) {
+        el.classList.add("hidden");
+        el.classList.remove("flex");
+      }
+    }
+  }
+
+  function intercept(object, methodName, beforeOpen, beforeClose) {
+    const original = object[methodName];
+    if (typeof original === "function") {
+      object[methodName] = function (...args) {
+        if (beforeOpen) beforeOpen();
+        const result = original.apply(this, args);
+        if (beforeClose) beforeClose();
+        return result;
+      };
+    }
+  }
+
+  function initInterceptors() {
+    // Nettoyer tout état modal résiduel d'un rafraîchissement précédent
+    if (history.state && history.state.wariModal) {
+      history.replaceState(null, "");
+    }
+
+    intercept(window, "openHistoryModal", () => pushModalState("historyModal"), null);
+    intercept(window, "closeHistoryModal", null, () => popModalState("historyModal"));
+
+    intercept(window, "openCoachChat", () => pushModalState("coachChatModal"), null);
+    intercept(window, "closeCoachChat", null, () => popModalState("coachChatModal"));
+
+    intercept(window, "openExpenseModal", () => pushModalState("expenseModal"), null);
+    intercept(window, "closeExpenseModal", null, () => popModalState("expenseModal"));
+
+    intercept(window, "openDebtModal", () => pushModalState("debtModal"), null);
+    intercept(window, "closeDebtModal", null, () => popModalState("debtModal"));
+
+    intercept(window, "openPayModal", () => pushModalState("payModal"), null);
+    intercept(window, "closePayModal", null, () => popModalState("payModal"));
+
+    intercept(window, "openGoalModal", () => pushModalState("goalModal"), null);
+    intercept(window, "closeGoalModal", null, () => popModalState("goalModal"));
+  }
+
+  if (document.readyState === "complete" || document.readyState === "interactive") {
+    initInterceptors();
+  } else {
+    window.addEventListener("DOMContentLoaded", initInterceptors);
+  }
+
+  window.addEventListener("popstate", (event) => {
+    if (isProgrammaticBack) {
+      isProgrammaticBack = false;
+      return;
+    }
+    if (openModalsStack.length > 0) {
+      const topModalId = openModalsStack.pop();
+      closeModalById(topModalId);
+    }
+  });
+})();
