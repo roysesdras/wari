@@ -47,39 +47,105 @@ if (isset($_SESSION['active_license_key'])) {
         require_once __DIR__ . '/../classes/Mailer.php';
         $mailer = new Mailer();
 
-        $duree_label = ($duree_jours === 365) ? "12 mois (accès annuel)" : "30 jours (accès mensuel)";
+        $transaction_id = isset($_SESSION['payment_ref']) ? $_SESSION['payment_ref'] : 'INCONNU';
+        $ref = strtoupper(substr($transaction_id, 0, 8));
+        $montant = isset($_SESSION['pending_montant']) ? intval($_SESSION['pending_montant']) : (($duree_jours === 365) ? 5000 : 590);
+        $price_formatted = number_format($montant, 0, '', ' ');
+        $duration_label = ($duree_jours === 365) ? "365 jours (Annuel)" : "30 jours (Mensuel)";
+        $date = date('d/m/Y à H:i');
+        $desc = "Nouvel accès Wari Finance Pro (Licence)";
+
         $body = "
-                <div style='font-family: sans-serif; line-height: 1.6; color: #333;'>
-                    <h2 style='color: #2a2b2f;'>Merci pour votre achat ! 🚀</h2>
-                    <p>Félicitations, vous venez de débloquer votre accès à <strong>WARI - Finance</strong> pour une durée de <strong>$duree_label</strong>.</p>
-                    
-                    <p>Voici votre code de licence personnel :</p>
-                    <div style='background: #f4f4f4; padding: 15px; font-size: 22px; font-family: monospace; font-weight: bold; border: 2px dashed #f59e0b; display: inline-block; color: #000; letter-spacing: 2px;'>
-                        $new_license
-                    </div>
-
-                    <hr style='border: 0; border-top: 1px solid #eee; margin: 30px 0;'>
-
-                    <h3 style='color: #2a2b2f;'>Étape suivante pour l'activation :</h3>
-                    <ol style='padding-left: 20px;'>
-                        <li style='margin-bottom: 10px;'><strong>Copiez</strong> le code de licence ci-dessus.</li>
-                        <li style='margin-bottom: 10px;'>Rendez-vous sur la page d'activation : <br>
-                            <a href='https://wari.digiroys.com/config/auth.php' style='color: #007bff; font-weight: bold;'>https://wari.digiroys.com/config/auth.php</a></li>
-                        <li style='margin-bottom: 10px;'>Choisissez l'onglet <strong>\"Activer\"</strong>.</li>
-                        <li style='margin-bottom: 10px;'>Entrez votre <strong>adresse email</strong> et créez votre <strong>mot de passe</strong>.</li>
-                        <li style='margin-bottom: 10px;'>Collez votre licence dans le champ : <strong>N° de Commande (Vérification Licence)</strong>.</li>
-                        <li style='margin-bottom: 10px;'>Cliquez sur <strong>\"Vérifier et Activer\"</strong>.</li>
-                        <li style='margin-bottom: 10px;'>Une fois activé, connectez-vous avec votre mail et le mot de passe que vous venez de créer.</li>
-                        <li style='margin-bottom: 10px;'>Enfin, installez l'application en cliquant sur le bouton <strong>tout en bas</strong> de votre interface.</li>
-                    </ol>
-
-                    <p style='margin-top: 30px; font-size: 13px; color: #666;'>
-                        Besoin d'aide ? Contactez-nous directement en répondant à ce mail.
-                    </p>
+        <div style='background-color: #07090e; color: #eef0f6; font-family: sans-serif; padding: 30px; border-radius: 16px; max-width: 600px; margin: 0 auto; border: 1px solid rgba(255, 255, 255, 0.05);'>
+            <div style='text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 20px;'>
+                <h1 style='color: #e8a923; font-size: 26px; margin: 0; font-family: sans-serif;'>WARI <span style='font-size: 14px; color: #fff; font-weight: normal; letter-spacing: 2px;'>FINANCE</span></h1>
+                <p style='color: #6b7491; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-top: 5px; margin-bottom: 0;'>Discipline & Progrès</p>
+            </div>
+            
+            <div style='margin-bottom: 30px;'>
+                <h2 style='font-size: 18px; color: #fff; margin-top: 0; margin-bottom: 15px;'>Facture & Clé de licence</h2>
+                <table style='width: 100%; border-collapse: collapse; font-size: 13px; color: #6b7491;'>
+                    <tr>
+                        <td style='padding: 4px 0;'>Référence facture :</td>
+                        <td style='padding: 4px 0; text-align: right; color: #fff; font-weight: bold;'>WARI-INV-$ref</td>
+                    </tr>
+                    <tr>
+                        <td style='padding: 4px 0;'>Date de paiement :</td>
+                        <td style='padding: 4px 0; text-align: right; color: #fff;'>$date</td>
+                    </tr>
+                    <tr>
+                        <td style='padding: 4px 0;'>Compte client :</td>
+                        <td style='padding: 4px 0; text-align: right; color: #e8a923; font-weight: bold;'>$email</td>
+                    </tr>
+                    <tr>
+                        <td style='padding: 4px 0;'>Mode de règlement :</td>
+                        <td style='padding: 4px 0; text-align: right; color: #fff;'>FedaPay (Mobile Money / Cartes)</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div style='background-color: #0c0f17; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 20px; margin-bottom: 30px;'>
+                <h3 style='font-size: 13px; text-transform: uppercase; color: #e8a923; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px;'>Détails de la licence</h3>
+                <table style='width: 100%; border-collapse: collapse; font-size: 14px;'>
+                    <thead>
+                        <tr style='border-bottom: 1px solid rgba(255,255,255,0.08); color: #6b7491; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;'>
+                            <th style='text-align: left; padding-bottom: 10px;'>Désignation</th>
+                            <th style='text-align: right; padding-bottom: 10px;'>Durée</th>
+                            <th style='text-align: right; padding-bottom: 10px;'>Prix</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style='padding: 15px 0 10px; color: #fff;'>$desc</td>
+                            <td style='padding: 15px 0 10px; text-align: right; color: #fff;'>$duration_label</td>
+                            <td style='padding: 15px 0 10px; text-align: right; color: #e8a923; font-weight: bold;'>$price_formatted F CFA</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div style='border-top: 1px solid rgba(255,255,255,0.08); margin-top: 15px; padding-top: 15px; text-align: right;'>
+                    <span style='font-size: 12px; color: #6b7491; margin-right: 10px;'>Total payé :</span>
+                    <span style='font-size: 20px; font-weight: bold; color: #e8a923;'>$price_formatted F CFA</span>
                 </div>
-            ";
+            </div>
 
-        $res = $mailer->send($email, 'Votre Licence WARI - Finance 🚀', $body, true);
+            <!-- Clé de licence -->
+            <div style='background-color: rgba(232, 169, 35, 0.05); border: 1px dashed rgba(232, 169, 35, 0.4); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 30px;'>
+                <div style='color: #6b7491; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;'>Votre code de licence personnel</div>
+                <div style='font-family: monospace; font-size: 22px; font-weight: bold; color: #e8a923; letter-spacing: 2px; padding: 10px; background-color: #0c0f17; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); display: inline-block;'>
+                    $new_license
+                </div>
+            </div>
+
+            <!-- Instructions d'activation -->
+            <div style='background-color: #0c0f17; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 20px; margin-bottom: 30px;'>
+                <h3 style='font-size: 13px; text-transform: uppercase; color: #fff; margin-top: 0; margin-bottom: 15px; letter-spacing: 1px;'>Instructions d'activation</h3>
+                <ol style='font-size: 13px; color: #eef0f6; padding-left: 20px; line-height: 1.8; margin: 0;'>
+                    <li style='margin-bottom: 10px;'><strong>Copiez</strong> la clé de licence ci-dessus.</li>
+                    <li style='margin-bottom: 10px;'>Rendez-vous sur la page d'activation : <br>
+                        <a href='https://wari.digiroys.com/config/auth.php' style='color: #e8a923; text-decoration: none; font-weight: bold;'>https://wari.digiroys.com/config/auth.php</a>
+                    </li>
+                    <li style='margin-bottom: 10px;'>Choisissez l'onglet <strong>\"Activer\"</strong>.</li>
+                    <li style='margin-bottom: 10px;'>Entrez votre <strong>adresse email</strong> et créez votre <strong>mot de passe</strong>.</li>
+                    <li style='margin-bottom: 10px;'>Collez votre licence dans le champ : <strong>N° de Commande (Vérification Licence)</strong>.</li>
+                    <li style='margin-bottom: 10px;'>Cliquez sur <strong>\"Vérifier et Activer\"</strong>.</li>
+                    <li style='margin-bottom: 10px;'>Une fois l'activation terminée, connectez-vous avec votre e-mail et le mot de passe créé.</li>
+                    <li style='margin-bottom: 0;'>Installez l'application en cliquant sur le bouton d'installation présent en bas de votre tableau de bord.</li>
+                </ol>
+            </div>
+            
+            <div style='text-align: center; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px; font-size: 11px; color: #6b7491; line-height: 1.5;'>
+                <p>Merci pour votre confiance. Cet e-mail tient lieu de reçu officiel de paiement et de licence.</p>
+                <p>© WARI Finance by Digiroys — <a href='mailto:wari-finance@digiroys.com' style='color: #e8a923; text-decoration: none;'>Besoin d'aide ?</a></p>
+                <p style='margin-top: 10px; color: #525b75; font-size: 10px;'>
+                    Digiroys — RC: RB/COT/19 A 50622 — IFU: 0 2019 1088 5778<br>
+                    Contact : <a href='mailto:wari-finance@digiroys.com' style='color: #e8a923; text-decoration: none;'>wari-finance@digiroys.com</a>
+                </p>
+            </div>
+        </div>
+        ";
+
+        $res = $mailer->send($email, "Facture WARI Finance - Votre Licence [Ref: WARI-INV-$ref]", $body, true);
         if (!$res['success']) {
             throw new Exception($res['message']);
         }

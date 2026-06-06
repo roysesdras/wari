@@ -5,3 +5,4 @@
 /logs/
 /paid/cinetpay-checkout.php
 /paid/cinetpay-notify.php
+/config/sessions_data/
