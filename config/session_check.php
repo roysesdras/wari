@@ -81,8 +81,12 @@ if (isset($_SESSION['user_id'])) {
             }
 
             // Restriction d'expiration de l'abonnement
-            // APPLIQUÉE UNIQUEMENT à info@rebonly.com pour test agile
-            if ($userEmail === 'info@rebonly.com') {
+            // Test Agile : Uniquement info@rebonly.com jusqu'au 31 Décembre 2026 inclus.
+            // Lancement Global automatique : Pour TOUT LE MONDE à partir du 1er Janvier 2027.
+            $transitionDate = strtotime('2027-01-01 00:00:00');
+            $isTransitionActive = (time() >= $transitionDate);
+
+            if ($userEmail === 'info@rebonly.com' || $isTransitionActive) {
                 $isExpired = (
                     $date_expiration === null || 
                     strtotime($date_expiration) < time()
