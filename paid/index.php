@@ -147,10 +147,13 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             .payment-box { order: 1; }
         }
 
+        .mobile-advantages-title { display: none; }
         @media (max-width: 600px) {
             body { padding: 1rem 0.5rem; }
-            .checkout-container { grid-template-columns: 1fr; gap: 1rem; max-width: 460px; margin: 0 auto; }
-            .product-info { display: none; }
+            .checkout-container { grid-template-columns: 1fr; gap: 1.5rem; max-width: 460px; margin: 0 auto; }
+            .product-info { text-align: left; padding: 1rem; }
+            .product-info .badge, .product-info .product-title { display: none; }
+            .mobile-advantages-title { display: block; margin-top: 1rem; }
             .payment-box { padding: 1.8rem 1.2rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
             .plans-container { grid-template-columns: 1fr 1fr; gap: 12px; }
         }
@@ -203,7 +206,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             background: var(--s1);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 2.5rem;
+            padding: 1rem;
             box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.6);
             position: relative;
             overflow: hidden;
@@ -421,6 +424,7 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
                     <h1 class="product-title">Activez votre<br><span>Licence Wari</span></h1>
                 <?php endif; ?>
                 
+                <h3 class="mobile-advantages-title" style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--gold-lt);">Vos avantages Premium inclus :</h3>
                 <ul class="feature-list">
                     <li class="feature-item">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
@@ -432,11 +436,27 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
                     </li>
                     <li class="feature-item">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
-                        <span>Accès à <strong>Wari Academy</strong></span>
+                        <span>Discipline budgétaire augmentée avec le <strong>Coach IA</strong></span>
                     </li>
                     <li class="feature-item">
                         <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
-                        <span>Discipline budgétaire augmentée avec le <strong>Coach IA</strong></span>
+                        <span><strong>Défis d'Épargne Interactifs</strong> (Ludiques et motivants)</span>
+                    </li>
+                    <li class="feature-item">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+                        <span><strong>Multi-portefeuilles</strong> (Séparation distincte Perso / Pro)</span>
+                    </li>
+                    <li class="feature-item">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+                        <span><strong>Bilans PDF Professionnels</strong> (Rapports complets & Analyses)</span>
+                    </li>
+                    <li class="feature-item">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+                        <span><strong>Alertes Prédictives Proactives</strong> (Notifications du Coach IA)</span>
+                    </li>
+                    <li class="feature-item">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+                        <span>Espace <strong>Wari Academy Premium</strong> (Cours & outils Excel)</span>
                     </li>
                 </ul>
 
