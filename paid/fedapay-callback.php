@@ -129,6 +129,12 @@ try {
                         </div>
                         
                         $extension_block
+
+                        <div style='text-align: center; margin-bottom: 30px;'>
+                            <a href='https://wari.digiroys.com/paid/invoice.php?id=$transaction_id' style='display: inline-block; background-color: #e8a923; color: #07090e; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-family: sans-serif; font-size: 14px;'>
+                                Télécharger ma facture en PDF
+                            </a>
+                        </div>
                         
                         <div style='text-align: center; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px; font-size: 11px; color: #6b7491; line-height: 1.5;'>
                             <p>Merci pour votre confiance. Cet e-mail tient lieu de reçu officiel de paiement.</p>
