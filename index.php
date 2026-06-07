@@ -193,9 +193,17 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                             <span id="radarText" class="text-[7px] font-black uppercase tracking-widest text-slate-500">Radar OFF</span>
                         </div>
                     </div>
-                    
                 </div>
                 
+                <!-- Bouton d'exportation PDF (Premium) -->
+                <button onclick="exportFinancialReport()" class="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-900 hover:bg-slate-800 border border-white/5 hover:border-amber-500/30 text-slate-400 hover:text-white text-[9px] font-black uppercase tracking-wider transition-all duration-300 active:scale-95 shadow-md">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Bilan PDF
+                </button>
             </div>
 
             

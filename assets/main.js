@@ -992,6 +992,16 @@ window.switchWallet = function(type) {
   updateGoalDisplay();
 };
 
+window.exportFinancialReport = function() {
+    if (typeof dbIsPremium === 'undefined' || !dbIsPremium) {
+        window.location.href = "https://wari.digiroys.com/paid/index.php";
+        return;
+    }
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const url = `config/export_pdf.php?wallet_type=${currentWallet}&month=${currentMonth}`;
+    window.location.href = url;
+};
+
 // ─── DÉMARRAGE ─────────────────────────────────────────────────────────────
 
 // Exécuter uniquement si nous sommes sur la page principale
@@ -2388,12 +2398,12 @@ if (document.readyState === "loading") {
 
 // --- GESTION DES NOTES DE MISE À JOUR (RELEASE NOTES) ---
 
-const WARI_VERSION = 60; // Ta version actuelle
+const WARI_VERSION = 61; // Ta version actuelle
 
 function checkReleaseNotes() {
   const lastSeenVersion = localStorage.getItem('wari_last_seen_version');
 
-  // Si l'utilisateur n'a jamais vu la v60, on affiche le modal
+  // Si l'utilisateur n'a jamais vu la v61, on affiche le modal
   if (!lastSeenVersion || parseInt(lastSeenVersion) < WARI_VERSION) {
     setTimeout(showReleaseNotesModal, 2000); // Apparaît 2 secondes après le chargement
   }
