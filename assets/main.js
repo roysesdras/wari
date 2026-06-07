@@ -2365,3 +2365,460 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 })();
+
+// ─── DÉFIS D'ÉPARGNE INTERACTIFS ───────────────────────────────────────────
+
+window.renderChallenges = function () {
+  const container = document.getElementById("challengesContent");
+  if (!container) return;
+
+  const countDisplay = document.getElementById("completedChallengesCountDisplay");
+  if (countDisplay) {
+    countDisplay.innerText = typeof dbCompletedChallengesCount !== "undefined"
+      ? `${dbCompletedChallengesCount} réussi${dbCompletedChallengesCount > 1 ? 's' : ''}`
+      : "0 réussi";
+  }
+
+  // Si aucun défi actif
+  if (!window.dbActiveChallenge) {
+    container.innerHTML = `
+      <p class="text-[11px] text-slate-400 leading-normal mb-3">
+        Choisissez un défi pour épargner activement et renforcer votre discipline financière.
+      </p>
+      
+      <div class="space-y-3">
+        <!-- Défi 52 Semaines -->
+        <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80 flex flex-col gap-2">
+          <div class="flex justify-between items-start">
+            <div>
+              <h4 class="text-xs font-bold text-white">Défi 52 Semaines</h4>
+              <p class="text-[9px] text-slate-500 mt-0.5 leading-normal">Épargnez une somme progressive chaque semaine.</p>
+            </div>
+            <span class="text-[9px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">Gamification</span>
+          </div>
+          
+          <div class="flex items-center justify-between gap-3 mt-1">
+            <div class="flex flex-col">
+              <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold">Base hebdomadaire</span>
+              <div class="flex gap-1.5 mt-1" id="baseAmountSelector">
+                <button onclick="selectChallengeBase(100)" class="base-btn px-2 py-1 rounded bg-slate-800 border border-slate-700 text-[9px] font-bold text-slate-400 active:scale-95" data-val="100">100 F</button>
+                <button onclick="selectChallengeBase(500)" class="base-btn px-2 py-1 rounded bg-indigo-500/20 border border-indigo-500/40 text-[9px] font-bold text-indigo-300 active:scale-95" data-val="500">500 F</button>
+                <button onclick="selectChallengeBase(1000)" class="base-btn px-2 py-1 rounded bg-slate-800 border border-slate-700 text-[9px] font-bold text-slate-400 active:scale-95" data-val="1000">1000 F</button>
+              </div>
+            </div>
+            <button onclick="joinSelectedChallenge('52_weeks')" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white rounded-lg text-[10px] font-bold">
+              Rejoindre
+            </button>
+          </div>
+        </div>
+
+        <!-- Défi Fonds d'Urgence -->
+        <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80 flex items-center justify-between gap-3">
+          <div class="flex-1">
+            <h4 class="text-xs font-bold text-white">Fonds d'Urgence</h4>
+            <p class="text-[9px] text-slate-500 mt-0.5 leading-normal">Constituez un matelas de sécurité de 100 000 F CFA.</p>
+          </div>
+          <button onclick="window.joinChallenge('emergency_fund')" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white rounded-lg text-[10px] font-bold">
+            Rejoindre
+          </button>
+        </div>
+
+        <!-- Défi Zéro Futilités -->
+        <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80 flex items-center justify-between gap-3">
+          <div class="flex-1">
+            <h4 class="text-xs font-bold text-white">Zéro Futilités (7 jours)</h4>
+            <p class="text-[9px] text-slate-500 mt-0.5 leading-normal">Passez 7 jours sans aucune dépense non essentielle.</p>
+          </div>
+          <button onclick="window.joinChallenge('no_frivolities')" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white rounded-lg text-[10px] font-bold">
+            Rejoindre
+          </button>
+        </div>
+      </div>
+    `;
+    
+    // Valeur de base choisie par défaut
+    window.selectedBaseAmount = 500;
+    return;
+  }
+
+  // Si un défi est actif
+  const meta = typeof window.dbActiveChallenge.metadata === "string" ? JSON.parse(window.dbActiveChallenge.metadata) : (window.dbActiveChallenge.metadata || {});
+  const current_amount = parseInt(window.dbActiveChallenge.current_amount) || 0;
+  const target_amount = parseInt(window.dbActiveChallenge.target_amount) || 0;
+  const pct = target_amount > 0 ? Math.min(100, Math.round((current_amount / target_amount) * 100)) : 0;
+
+  let headerHtml = `
+    <div class="flex justify-between items-center border-b border-slate-800/40 pb-2 mb-3">
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+        <h4 class="text-xs font-black text-white uppercase tracking-wider">
+          ${window.dbActiveChallenge.challenge_type === '52_weeks' ? 'Défi 52 Semaines' : window.dbActiveChallenge.challenge_type === 'emergency_fund' ? 'Fonds d\'Urgence' : 'Défi Zéro Futilités'}
+        </h4>
+      </div>
+      <button onclick="window.quitChallenge()" class="text-[9px] text-red-400 hover:text-red-300 font-bold uppercase tracking-wider flex items-center gap-0.5 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20 active:scale-95 transition-all">
+        Abandonner
+      </button>
+    </div>
+  `;
+
+  if (window.dbActiveChallenge.challenge_type === '52_weeks') {
+    const checked_weeks = meta.checked_weeks || [];
+    let nextWeek = 1;
+    while (checked_weeks.includes(nextWeek) && nextWeek <= 52) {
+      nextWeek++;
+    }
+    const nextAmount = nextWeek <= 52 ? nextWeek * parseInt(window.dbActiveChallenge.base_amount) : 0;
+
+    // Générer la grille de 52 cercles
+    let circlesHtml = '';
+    for (let w = 1; w <= 52; w++) {
+      const isChecked = checked_weeks.includes(w);
+      const isNext = w === nextWeek;
+      
+      let bgClass = 'bg-slate-800 text-slate-500 border border-slate-700';
+      if (isChecked) {
+        bgClass = 'bg-emerald-500/20 border border-emerald-500 text-emerald-400 font-bold';
+      } else if (isNext) {
+        bgClass = 'bg-amber-500/20 border-2 border-amber-500 text-amber-300 font-bold animate-pulse';
+      }
+
+      circlesHtml += `<div class="h-5 w-5 rounded-full flex items-center justify-center text-[7.5px] ${bgClass}" title="Semaine ${w}">${w}</div>`;
+    }
+
+    let validationHtml = '';
+    if (nextWeek <= 52) {
+      validationHtml = `
+        <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80 flex flex-col gap-2 mt-3">
+          <div class="flex justify-between items-center">
+            <span class="text-[9px] text-slate-400 font-medium">Prochaine étape : Semaine ${nextWeek}</span>
+            <span class="text-xs font-black text-amber-400">${nextAmount.toLocaleString()} F CFA</span>
+          </div>
+          <button onclick="window.submitWeeklyChallenge(${nextWeek}, ${nextAmount})" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg active:scale-[0.98] transition-transform">
+            Valider et Épargner ${nextAmount.toLocaleString()} F
+          </button>
+        </div>
+      `;
+    } else {
+      validationHtml = `
+        <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-center text-emerald-400 text-xs font-bold mt-3">
+          Bravo ! Vous avez terminé ce défi avec succès ! 🎉
+        </div>
+      `;
+    }
+
+    container.innerHTML = `
+      ${headerHtml}
+      
+      <div class="flex justify-between items-baseline mb-1">
+        <span class="text-[9px] text-slate-500">Progression globale</span>
+        <span class="text-xs font-bold text-indigo-400">${current_amount.toLocaleString()} / ${target_amount.toLocaleString()} F (${pct}%)</span>
+      </div>
+      <div class="w-full h-1.5 bg-slate-900/60 rounded-full border border-white/5 mb-3 p-[1px]">
+        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: ${pct}%"></div>
+      </div>
+
+      <p class="text-[7.5px] uppercase tracking-widest text-slate-500 font-bold mb-2">Grille des 52 Semaines</p>
+      <div class="grid grid-cols-10 gap-1.5 py-1 justify-items-center max-h-[110px] overflow-y-auto pr-1">
+        ${circlesHtml}
+      </div>
+
+      ${validationHtml}
+    `;
+
+  } else if (window.dbActiveChallenge.challenge_type === 'emergency_fund') {
+    container.innerHTML = `
+      ${headerHtml}
+
+      <div class="flex justify-between items-baseline mb-1">
+        <span class="text-[9px] text-slate-500">Progression fonds de sécurité</span>
+        <span class="text-xs font-bold text-indigo-400">${current_amount.toLocaleString()} / ${target_amount.toLocaleString()} F (${pct}%)</span>
+      </div>
+      <div class="w-full h-1.5 bg-slate-900/60 rounded-full border border-white/5 mb-4 p-[1px]">
+        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: ${pct}%"></div>
+      </div>
+
+      <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80 flex items-center justify-between gap-3">
+        <div class="flex flex-col flex-1">
+          <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold">Faire un dépôt</span>
+          <input type="number" id="emergencyDepositAmount" placeholder="Montant en F CFA" class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white outline-none mt-1 w-full">
+        </div>
+        <button onclick="window.submitEmergencyDeposit()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white rounded-xl text-xs font-bold self-end">
+          Déposer
+        </button>
+      </div>
+    `;
+
+  } else if (window.dbActiveChallenge.challenge_type === 'no_frivolities') {
+    const isFailed = meta.failed === true;
+    const endDate = new Date(meta.end_date).getTime();
+    const now = new Date().getTime();
+    const remainingTime = endDate - now;
+    
+    if (isFailed) {
+      container.innerHTML = `
+        ${headerHtml}
+        <div class="bg-red-500/10 border border-red-500/30 p-3 rounded-xl text-center flex flex-col gap-2">
+          <span class="text-red-400 font-bold text-xs">Défi Échoué ! 😢</span>
+          <p class="text-[9px] text-slate-400 leading-normal">${meta.fail_reason || "Vous avez effectué une dépense futilité."}</p>
+          <p class="text-[8px] text-slate-500">Date de l'échec : ${meta.fail_date ? new Date(meta.fail_date).toLocaleString() : ''}</p>
+          <button onclick="window.quitChallenge()" class="mt-2 w-full py-2 bg-red-600 hover:bg-red-500 active:scale-95 text-white font-bold text-xs rounded-lg transition-colors">
+            Recommencer le défi
+          </button>
+        </div>
+      `;
+    } else if (remainingTime <= 0) {
+      container.innerHTML = `
+        ${headerHtml}
+        <div class="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-center flex flex-col gap-2">
+          <span class="text-emerald-400 font-bold text-xs">Défi réussi ! 🎉</span>
+          <p class="text-[9px] text-slate-400 leading-normal">Félicitations, vous avez tenu 7 jours sans aucune dépense futilité !</p>
+          <button onclick="window.completeNoFrivolities()" class="mt-2 w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs rounded-lg transition-colors">
+            Valider et Terminer le défi
+          </button>
+        </div>
+      `;
+    } else {
+      // Calculer les jours et heures restants
+      const days = Math.floor(remainingTime / (24 * 3600 * 1000));
+      const hours = Math.floor((remainingTime % (24 * 3600 * 1000)) / (3600 * 1000));
+      const mins = Math.floor((remainingTime % (3600 * 1000)) / (60 * 1000));
+      
+      const totalDuration = 7 * 24 * 3600 * 1000;
+      const elapsed = totalDuration - remainingTime;
+      const elapsedPct = Math.min(100, Math.round((elapsed / totalDuration) * 100));
+
+      container.innerHTML = `
+        ${headerHtml}
+        
+        <div class="flex justify-between items-baseline mb-1">
+          <span class="text-[9px] text-slate-500">Temps écoulé (7 jours cible)</span>
+          <span class="text-xs font-bold text-indigo-400">${elapsedPct}%</span>
+        </div>
+        <div class="w-full h-1.5 bg-slate-900/60 rounded-full border border-white/5 mb-3 p-[1px]">
+          <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" style="width: ${elapsedPct}%"></div>
+        </div>
+
+        <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-800/80 text-center flex flex-col gap-1">
+          <span class="text-[8px] uppercase tracking-widest text-slate-500 font-bold">Temps restant</span>
+          <span class="text-lg font-black text-white tracking-tight">${days}j ${hours}h ${mins}m</span>
+          <p class="text-[8.5px] text-slate-400 mt-1">
+            Statut : <span class="text-emerald-400 font-bold">Actif</span>. La moindre dépense loisir/futilité (ex: Resto, Boisson, Fête) fera échouer ce défi.
+          </p>
+        </div>
+      `;
+    }
+  }
+};
+
+window.selectChallengeBase = function (amount) {
+  window.selectedBaseAmount = amount;
+  document.querySelectorAll("#baseAmountSelector button").forEach(btn => {
+    const val = parseInt(btn.getAttribute("data-val"));
+    if (val === amount) {
+      btn.className = "base-btn px-2 py-1 rounded bg-indigo-500/20 border border-indigo-500/40 text-[9px] font-bold text-indigo-300 active:scale-95";
+    } else {
+      btn.className = "base-btn px-2 py-1 rounded bg-slate-800 border border-slate-700 text-[9px] font-bold text-slate-400 active:scale-95";
+    }
+  });
+};
+
+window.joinSelectedChallenge = function (type) {
+  const base = type === '52_weeks' ? (window.selectedBaseAmount || 500) : 0;
+  window.joinChallenge(type, base);
+};
+
+window.joinChallenge = function (type, baseAmount = 0) {
+  showToastMessage("Démarrage du défi...", "info");
+  fetch("config/join_challenge.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ challenge_type: type, base_amount: baseAmount }),
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Erreur serveur");
+      return res.json();
+    })
+    .then((data) => {
+      if (data.success) {
+        window.dbActiveChallenge = data.challenge;
+        window.renderChallenges();
+        showToastMessage("Défi démarré avec succès !", "success");
+      } else {
+        showToastMessage(data.error || "Impossible de démarrer le défi", "error");
+      }
+    })
+    .catch((err) => {
+      showToastMessage(err.message, "error");
+    });
+};
+
+window.quitChallenge = function () {
+  if (!confirm("Voulez-vous vraiment abandonner le défi d'épargne en cours ? Tout progrès sera perdu.")) {
+    return;
+  }
+  showToastMessage("Abandon du défi...", "info");
+  fetch("config/quit_challenge.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        window.dbActiveChallenge = null;
+        window.renderChallenges();
+        showToastMessage("Défi abandonné.", "info");
+      } else {
+        showToastMessage(data.error || "Erreur", "error");
+      }
+    });
+};
+
+window.submitWeeklyChallenge = function (weekNumber, amount) {
+  // Déterminer la catégorie pour déduire le montant
+  // Par défaut ID=2 (Train de vie)
+  const trainCat = categories.find(c => c.id === 2 || c.name.toLowerCase().includes("train"));
+  if (!trainCat || trainCat.balance < amount) {
+    showToastMessage("Solde insuffisant dans votre budget 'Train de vie' pour valider cette semaine.", "error");
+    return;
+  }
+
+  showToastMessage("Validation de la semaine...", "info");
+  fetch("config/update_challenge.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      challenge_id: window.dbActiveChallenge.id,
+      action: "deposit",
+      week_number: weekNumber,
+      category_id: trainCat.id
+    }),
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Solde insuffisant ou erreur réseau");
+      return res.json();
+    })
+    .then((data) => {
+      if (data.success) {
+        window.dbActiveChallenge = data.challenge;
+        
+        // Mettre à jour les données locales de budget
+        if (data.budget_data) {
+          categories = data.budget_data.categories;
+          projectCapital = data.budget_data.projectCapital;
+          vaultTransactions = data.budget_data.vaultTransactions || [];
+          localStorage.setItem("wari_budget_data", JSON.stringify(data.budget_data));
+        }
+
+        // Rafraîchir les affichages
+        render();
+        window.renderChallenges();
+        
+        showToastMessage(`Semaine ${weekNumber} validée ! +${amount.toLocaleString()} F au coffre.`, "success");
+      } else {
+        showToastMessage(data.error || "Erreur", "error");
+      }
+    })
+    .catch((err) => {
+      showToastMessage(err.message, "error");
+    });
+};
+
+window.submitEmergencyDeposit = function () {
+  const inputEl = document.getElementById("emergencyDepositAmount");
+  const amount = parseInt(inputEl?.value) || 0;
+  if (amount <= 0) {
+    showToastMessage("Veuillez entrer un montant valide.", "error");
+    return;
+  }
+
+  // Déduire de la catégorie Train de vie id=2
+  const trainCat = categories.find(c => c.id === 2 || c.name.toLowerCase().includes("train"));
+  if (!trainCat || trainCat.balance < amount) {
+    showToastMessage("Solde insuffisant dans votre budget 'Train de vie'.", "error");
+    return;
+  }
+
+  showToastMessage("Envoi du dépôt...", "info");
+  fetch("config/update_challenge.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      challenge_id: window.dbActiveChallenge.id,
+      action: "deposit",
+      amount: amount,
+      category_id: trainCat.id
+    }),
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Solde insuffisant ou erreur réseau");
+      return res.json();
+    })
+    .then((data) => {
+      if (data.success) {
+        window.dbActiveChallenge = data.challenge;
+        
+        // Mettre à jour le budget local
+        if (data.budget_data) {
+          categories = data.budget_data.categories;
+          projectCapital = data.budget_data.projectCapital;
+          vaultTransactions = data.budget_data.vaultTransactions || [];
+          localStorage.setItem("wari_budget_data", JSON.stringify(data.budget_data));
+        }
+
+        render();
+        window.renderChallenges();
+        
+        if (inputEl) inputEl.value = "";
+        
+        const isComplete = data.challenge.status === 'completed';
+        showToastMessage(isComplete 
+          ? "Félicitations ! Défi Fonds d'urgence complété ! 🎉" 
+          : `Dépôt de ${amount.toLocaleString()} F effectué.`, 
+          isComplete ? "success" : "info"
+        );
+      } else {
+        showToastMessage(data.error || "Erreur", "error");
+      }
+    })
+    .catch((err) => {
+      showToastMessage(err.message, "error");
+    });
+};
+
+window.completeNoFrivolities = function () {
+  showToastMessage("Validation du défi...", "info");
+  fetch("config/update_challenge.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      challenge_id: window.dbActiveChallenge.id,
+      action: "complete"
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        // Incrémenter le compteur réussi
+        if (typeof dbCompletedChallengesCount !== "undefined") {
+          dbCompletedChallengesCount++;
+        }
+        window.dbActiveChallenge = null;
+        window.renderChallenges();
+        showToastMessage("Défi complété ! Félicitations pour votre discipline ! 🎉", "success");
+      } else {
+        showToastMessage(data.error || "Erreur", "error");
+      }
+    });
+};
+
+// Lancer le rendu des défis au chargement de la page
+document.addEventListener("DOMContentLoaded", () => {
+  window.renderChallenges();
+  
+  // Rafraîchir toutes les 30 secondes les comptes à rebours du défi sans futilités
+  setInterval(() => {
+    if (window.dbActiveChallenge && window.dbActiveChallenge.challenge_type === 'no_frivolities') {
+      window.renderChallenges();
+    }
+  }, 30000);
+});

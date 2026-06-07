@@ -342,6 +342,20 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             };
         </script>
 
+        <!-- Section Défis d'Épargne -->
+        <div id="challengesSection" class="mt-4 glass-card p-3 shadow-2xl relative">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-[11px] uppercase tracking-[0.1em] text-indigo-400 font-bold">Défis d'Épargne</h3>
+                <span id="completedChallengesCountDisplay" class="text-[9px] font-black uppercase tracking-widest bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2.5 py-0.5 rounded-full select-none">
+                    0 réussi
+                </span>
+            </div>
+            <div id="challengesContent" class="space-y-4">
+                <!-- Rendu dynamique par JS -->
+                <p class="text-slate-500 text-[11px] italic text-center">Chargement des défis...</p>
+            </div>
+        </div>
+
         <!-- Dette Section -->
         <div id="debtSection" class="mt-4 glass-card p-3 shadow-2xl relative">
             <div class="flex items-center justify-between mb-4">
@@ -798,10 +812,30 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         $stmtDebts->execute([$userId]);
         $debts = $stmtDebts->fetchAll(PDO::FETCH_ASSOC);
 
+        // 4. Récupérer le défi d'épargne actif
+        $stmtActiveChallenge = $pdo->prepare("
+            SELECT id, user_id, challenge_type, base_amount, target_amount, current_amount, status, metadata 
+            FROM wari_savings_challenges 
+            WHERE user_id = ? AND status = 'active'
+        ");
+        $stmtActiveChallenge->execute([$userId]);
+        $activeChallenge = $stmtActiveChallenge->fetch(PDO::FETCH_ASSOC);
+
+        // Récupérer le nombre de défis complétés
+        $stmtCompletedCount = $pdo->prepare("
+            SELECT COUNT(*) 
+            FROM wari_savings_challenges 
+            WHERE user_id = ? AND status = 'completed'
+        ");
+        $stmtCompletedCount->execute([$userId]);
+        $completedCount = $stmtCompletedCount->fetchColumn();
+
         // Envoi au JS
         echo "const dbData = " . $budgetRaw . ";\n";
         echo "let currentExpenses = " . json_encode($expenses) . ";\n";
         echo "const dbDebts = " . json_encode($debts) . ";\n";
+        echo "let dbActiveChallenge = " . ($activeChallenge ? json_encode($activeChallenge) : 'null') . ";\n";
+        echo "let dbCompletedChallengesCount = " . intval($completedCount) . ";\n";
         ?>
     </script>
 
