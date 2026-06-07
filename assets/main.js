@@ -2386,12 +2386,12 @@ if (document.readyState === "loading") {
 
 // --- GESTION DES NOTES DE MISE À JOUR (RELEASE NOTES) ---
 
-const WARI_VERSION = 56; // Ta version actuelle
+const WARI_VERSION = 57; // Ta version actuelle
 
 function checkReleaseNotes() {
   const lastSeenVersion = localStorage.getItem('wari_last_seen_version');
 
-  // Si l'utilisateur n'a jamais vu la v55, on affiche le modal
+  // Si l'utilisateur n'a jamais vu la v57, on affiche le modal
   if (!lastSeenVersion || parseInt(lastSeenVersion) < WARI_VERSION) {
     setTimeout(showReleaseNotesModal, 2000); // Apparaît 2 secondes après le chargement
   }
@@ -2403,27 +2403,30 @@ function showReleaseNotesModal() {
             <div style="background:#0d1117; border:1px solid rgba(245,166,35,0.3); border-radius:35px; padding:20px; max-width:450px; width:100%; box-shadow: 0 25px 60px rgba(0,0,0,0.6); position:relative; overflow:hidden;">
                 
                 <!-- Badge Version -->
-                <div style="position:absolute; top:20px; right:20px; background:#f5a623; color:#000; padding:5px 12px; border-radius:11px; font-size:11px; font-weight:900;">V1.6.0</div>
+                <div style="position:absolute; top:20px; right:20px; background:#f5a623; color:#000; padding:5px 12px; border-radius:11px; font-size:11px; font-weight:900;">V1.7.0</div>
 
                 <div style="text-align:center; margin-bottom:25px;">
                     <h2 style="color:#fff; font-weight:900; letter-spacing:-1px; text-transform:uppercase; margin:0;">Quoi de neuf ?</h2>
-                    <p style="color:#f5a623; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-top:5px;">Wari Finance évolue pour toi</p>
+                    <p style="color:#f5a623; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-top:5px;">Wari Premium & Flexibilité</p>
                 </div>
 
                 <div style="max-height:300px; overflow-y:auto; padding-right:11px; margin-bottom:30px; text-align:justify;" class="custom-scrollbar">
                     <p style="color:#94a3b8; font-size:13px; line-height:1.7; margin:0;">
-                      <strong class="text-amber-400">✨ NOUVEAUTÉS VERSION 1.6.0</strong><br/><br/>
+                      <strong class="text-amber-400">✨ NOUVEAUTÉS VERSION 1.7.0 (PREMIUM)</strong><br/><br/>
                       
-                      <strong>Mode Hors Ligne ⚡</strong><br/>
-                      L'application fonctionne maintenant même sans internet ! Vos dépenses et modifications sont sauvegardées localement et synchronisées dès que vous retrouvez du réseau.<br/><br/>
+                      <strong>Multi-portefeuilles (Perso / Pro) 📂</strong><br/>
+                      Séparez de façon hermétique vos finances personnelles de vos activités professionnelles ou side hustle (commerce, service, vente) d'un seul clic.<br/><br/>
                       
-                      <strong>Rapidité Instantanée</strong><br/>
-                      L'ajout de vos dépenses s'affiche immédiatement sur votre solde. Fini les temps d'attente frustrants !<br/><br/>
+                      <strong>Défis d'Épargne Interactifs 🏆</strong><br/>
+                      Renforcez votre discipline en lançant des défis : Défi 52 semaines, Fonds d'urgence (100 000 F CFA) ou Défi 7 jours sans futilités avec échec automatisé.<br/><br/>
                       
-                      <strong>PWA Optimisée</strong><br/>
-                      Installez Wari sur votre écran d'accueil pour profiter d'une expérience ultra-fluide, comme une vraie application mobile.<br/><br/>
+                      <strong>Gestionnaire de Catégories Libre 🛠️</strong><br/>
+                      Ajoutez ou supprimez vos catégories librement en Mode Édition. Les pourcentages se rééquilibrent automatiquement à un total strict de 100%.<br/><br/>
                       
-                      <span class="text-slate-500 text-[11px]">Ces améliorations majeures sont le fruit de vos retours. Merci de faire grandir Wari avec nous.</span>
+                      <strong>Descriptions de Catégories Adaptatives 🧠</strong><br/>
+                      Cliquez sur l'icône "i" pour obtenir des définitions complètes et claires pour chaque catégorie, avec des couleurs adaptées en temps réel aux modes sombre et clair.<br/><br/>
+                      
+                      <span class="text-slate-500 text-[11px]">Ces nouveautés sont exclusives à la formule Wari Premium. Merci de grandir avec Wari.</span>
                     </p>
                 </div>
 
