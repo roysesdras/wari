@@ -20,11 +20,16 @@ if ($amount <= 0) {
 }
 
 try {
+    $walletType = $data['wallet_type'] ?? 'perso';
+    if (!in_array($walletType, ['perso', 'pro'])) {
+        $walletType = 'perso';
+    }
+
     $stmt = $pdo->prepare("
-        INSERT INTO wari_distributions (user_id, amount) 
-        VALUES (?, ?)
+        INSERT INTO wari_distributions (user_id, amount, wallet_type) 
+        VALUES (?, ?, ?)
     ");
-    $stmt->execute([$_SESSION['user_id'], $amount]);
+    $stmt->execute([$_SESSION['user_id'], $amount, $walletType]);
 
     echo json_encode(['success' => true]);
 } catch (Exception $e) {

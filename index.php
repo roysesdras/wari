@@ -164,6 +164,21 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             </div>
         </header>
 
+        <!-- Sélecteur de Portefeuille : Perso / Pro -->
+        <div class="flex justify-center mb-4">
+            <div class="bg-slate-900/80 p-0.5 rounded-2xl border border-white/5 flex gap-1 shadow-inner select-none">
+                <button id="wallet-btn-perso" onclick="switchWallet('perso')" class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 bg-gradient-to-r from-yellow-400 to-yellow-600 text-slate-950 shadow-md">
+                    Personnel
+                </button>
+                <button id="wallet-btn-pro" onclick="switchWallet('pro')" class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 text-slate-400 hover:text-white flex items-center gap-1.5">
+                    Professionnel
+                    <?php if (!isset($_SESSION['is_premium']) || !$_SESSION['is_premium']): ?>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <?php endif; ?>
+                </button>
+            </div>
+        </div>
+
         <!-- Jauge de Santé Financière -->
         <section id="gauge-section" class="glass-card p-3 mb-4">
             <div class="flex justify-between items-start mb-2">
@@ -342,6 +357,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             };
         </script>
 
+        <?php if (isset($_SESSION['is_premium']) && $_SESSION['is_premium']): ?>
         <!-- Section Défis d'Épargne -->
         <div id="challengesSection" class="mt-4 glass-card p-3 shadow-2xl relative">
             <div class="flex items-center justify-between mb-4">
@@ -355,6 +371,25 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 <p class="text-slate-500 text-[11px] italic text-center">Chargement des défis...</p>
             </div>
         </div>
+        <?php else: ?>
+        <!-- Version Lock Premium pour les défis -->
+        <div class="mt-4 glass-card p-3 shadow-2xl relative overflow-hidden border border-indigo-500/20">
+            <div class="absolute -right-10 -top-10 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-[11px] uppercase tracking-[0.1em] text-slate-400 font-bold">Défis d'Épargne</h3>
+                <span class="text-[7.5px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded-full">PREMIUM</span>
+            </div>
+            <div class="text-center py-4 relative z-10">
+                <svg class="mx-auto text-slate-500 mb-2" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <p class="text-white font-bold text-xs mb-1">Défis d'Épargne Interactifs</p>
+                <p class="text-slate-400 text-[9px] max-w-[220px] mx-auto mb-3">Activez Wari Premium pour relever des défis ludiques d'épargne et booster votre discipline financière.</p>
+                <a href="https://wari.digiroys.com/paid/index.php" class="inline-block text-[9px] bg-amber-500 text-slate-950 px-4 py-1.5 rounded-xl font-black uppercase tracking-wider hover:bg-amber-400 transition-all">S'abonner maintenant</a>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <!-- Dette Section -->
         <div id="debtSection" class="mt-4 glass-card p-3 shadow-2xl relative">
@@ -742,11 +777,27 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         <?php
         $userId = $_SESSION['user_id'];
 
-        // 1. Récupérer le budget
-        $stmt = $pdo->prepare("SELECT budget_data, last_budget_at FROM wari_users WHERE id = ?");
+        // 1. Récupérer le budget personnel et professionnel
+        $stmt = $pdo->prepare("SELECT budget_data, budget_data_pro, last_budget_at FROM wari_users WHERE id = ?");
         $stmt->execute([$userId]);
         $userData = $stmt->fetch();
         $budgetRaw = (!empty($userData['budget_data'])) ? $userData['budget_data'] : 'null';
+        $budgetRawPro = (!empty($userData['budget_data_pro'])) ? $userData['budget_data_pro'] : 'null';
+
+        $defaultProBudget = json_encode([
+            "currency" => "F",
+            "categories" => [
+                ["id" => 101, "icon" => '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>', "name" => "Stock & Matériel", "amount" => 0, "balance" => 0, "percent" => 40],
+                ["id" => 102, "icon" => '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-400"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>', "name" => "Bénéfice Réinvesti", "amount" => 0, "balance" => 0, "percent" => 30],
+                ["id" => 103, "icon" => '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-amber-400"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>', "name" => "Frais de Fonctionnement", "amount" => 0, "balance" => 0, "percent" => 20],
+                ["id" => 104, "icon" => '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="text-red-400"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>', "name" => "Marketing & Publicité", "amount" => 0, "balance" => 0, "percent" => 10]
+            ],
+            "projectCapital" => 0,
+            "vaultTransactions" => []
+        ]);
+        if ($budgetRawPro === 'null') {
+            $budgetRawPro = $defaultProBudget;
+        }
 
         // AJOUTER CE BLOC APRÈS $budgetRaw = ...
         if ($budgetRaw !== 'null') {
@@ -759,7 +810,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 $stmtPrevExp = $pdo->prepare("
                     SELECT category_id, SUM(amount) as total 
                     FROM wari_expenses 
-                    WHERE user_id = ? 
+                    WHERE user_id = ? AND wallet_type = 'perso'
                     AND DATE_FORMAT(date_expense, '%Y-%m') = ?
                     GROUP BY category_id
                 ");
@@ -789,18 +840,68 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             }
         }
 
-        // 2. RÉCUPÉRER LES DÉPENSES DU MOIS ACTUEL (MARS 2026)
-        // Cette requête est beaucoup plus fiable car elle ne dépend pas de 'last_budget_at'
-        $stmtExp = $pdo->prepare("
+        // Rollover pour le budget pro
+        if ($budgetRawPro !== 'null') {
+            $budgetDataPro = json_decode($budgetRawPro, true);
+            $lastMonthPro = isset($budgetDataPro['lastSavedMonth']) ? $budgetDataPro['lastSavedMonth'] : null;
+            $currentMonth = date('Y-m');
+
+            if ($lastMonthPro && $lastMonthPro !== $currentMonth) {
+                $stmtPrevExpPro = $pdo->prepare("
+                    SELECT category_id, SUM(amount) as total 
+                    FROM wari_expenses 
+                    WHERE user_id = ? AND wallet_type = 'pro'
+                    AND DATE_FORMAT(date_expense, '%Y-%m') = ?
+                    GROUP BY category_id
+                ");
+                $stmtPrevExpPro->execute([$userId, $lastMonthPro]);
+                $prevExpensesPro = [];
+                foreach ($stmtPrevExpPro->fetchAll(PDO::FETCH_ASSOC) as $row) {
+                    $prevExpensesPro[$row['category_id']] = (int)$row['total'];
+                }
+
+                if (isset($budgetDataPro['categories'])) {
+                    foreach ($budgetDataPro['categories'] as &$cat) {
+                        $catId = $cat['id'];
+                        $isProjet = isset($cat['name']) && (strpos(strtolower($cat['name']), 'projet') !== false);
+                        if (!$isProjet) {
+                            $spent = isset($prevExpensesPro[$catId]) ? $prevExpensesPro[$catId] : 0;
+                            $cat['balance'] = max(0, (isset($cat['balance']) ? (int)$cat['balance'] : 0) - $spent);
+                        }
+                    }
+                }
+                $budgetDataPro['hasDepositedToday'] = false;
+                $budgetDataPro['lastSavedMonth'] = $currentMonth;
+
+                $newBudgetRawPro = json_encode($budgetDataPro);
+                $stmtUpdatePro = $pdo->prepare("UPDATE wari_users SET budget_data_pro = ? WHERE id = ?");
+                $stmtUpdatePro->execute([$newBudgetRawPro, $userId]);
+                $budgetRawPro = $newBudgetRawPro;
+            }
+        }
+
+        // 2. RÉCUPÉRER LES DÉPENSES DU MOIS ACTUEL (MARS 2026) POUR CHAQUE WALLET
+        $stmtExpPerso = $pdo->prepare("
             SELECT category_id, SUM(amount) as total 
             FROM wari_expenses 
-            WHERE user_id = ? 
+            WHERE user_id = ? AND wallet_type = 'perso'
             AND MONTH(date_expense) = MONTH(CURRENT_DATE()) 
             AND YEAR(date_expense) = YEAR(CURRENT_DATE())
             GROUP BY category_id
         ");
-        $stmtExp->execute([$userId]);
-        $expenses = $stmtExp->fetchAll(PDO::FETCH_KEY_PAIR);
+        $stmtExpPerso->execute([$userId]);
+        $expensesPerso = $stmtExpPerso->fetchAll(PDO::FETCH_KEY_PAIR);
+
+        $stmtExpPro = $pdo->prepare("
+            SELECT category_id, SUM(amount) as total 
+            FROM wari_expenses 
+            WHERE user_id = ? AND wallet_type = 'pro'
+            AND MONTH(date_expense) = MONTH(CURRENT_DATE()) 
+            AND YEAR(date_expense) = YEAR(CURRENT_DATE())
+            GROUP BY category_id
+        ");
+        $stmtExpPro->execute([$userId]);
+        $expensesPro = $stmtExpPro->fetchAll(PDO::FETCH_KEY_PAIR);
 
         // 3. Récupérer les dettes
         $stmtDebts = $pdo->prepare("
@@ -831,11 +932,16 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         $completedCount = $stmtCompletedCount->fetchColumn();
 
         // Envoi au JS
-        echo "const dbData = " . $budgetRaw . ";\n";
-        echo "let currentExpenses = " . json_encode($expenses) . ";\n";
+        echo "const dbDataPerso = " . $budgetRaw . ";\n";
+        echo "const dbDataPro = " . $budgetRawPro . ";\n";
+        echo "let dbData = dbDataPerso;\n";
+        echo "const currentExpensesPerso = " . json_encode($expensesPerso) . ";\n";
+        echo "const currentExpensesPro = " . json_encode($expensesPro) . ";\n";
+        echo "let currentExpenses = currentExpensesPerso;\n";
         echo "const dbDebts = " . json_encode($debts) . ";\n";
         echo "let dbActiveChallenge = " . ($activeChallenge ? json_encode($activeChallenge) : 'null') . ";\n";
         echo "let dbCompletedChallengesCount = " . intval($completedCount) . ";\n";
+        echo "const dbIsPremium = " . ((isset($_SESSION['is_premium']) && $_SESSION['is_premium']) ? 'true' : 'false') . ";\n";
         ?>
     </script>
 

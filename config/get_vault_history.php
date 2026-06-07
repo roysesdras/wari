@@ -15,11 +15,15 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 try {
+    $walletType = $_GET['wallet_type'] ?? 'perso';
+    if (!in_array($walletType, ['perso', 'pro'])) {
+        $walletType = 'perso';
+    }
     $stmt = $pdo->prepare("SELECT type, amount, label, DATE_FORMAT(created_at, '%d %b') as date 
                            FROM wari_vault_history 
-                           WHERE user_id = ? 
+                           WHERE user_id = ? AND wallet_type = ?
                            ORDER BY created_at DESC LIMIT 20");
-    $stmt->execute([$_SESSION['user_id']]);
+    $stmt->execute([$_SESSION['user_id'], $walletType]);
     $history = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode(['success' => true, 'history' => $history]);

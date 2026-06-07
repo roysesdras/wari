@@ -22,6 +22,7 @@ let projectCapital = 0;
 let isEditMode = false;
 let isInitialLoad = true;
 let vaultTransactions = [];
+let currentWallet = "perso";
 
 const mainInput = document.getElementById("mainAmount");
 const container = document.getElementById("categoryContainer");
@@ -429,7 +430,8 @@ function updateVaultDisplay(totalSaved = 0, dynamicProject = null) {
     }
 
     // 2. RÉCUPÉRATION DE L'OBJECTIF (Goal)
-    const savedGoal = JSON.parse(localStorage.getItem("wari_vault_goal") || "null");
+    const storageKey = currentWallet === 'perso' ? "wari_vault_goal" : "wari_vault_goal_pro";
+    const savedGoal = JSON.parse(localStorage.getItem(storageKey) || "null");
 
     if (savedGoal) {
       const goalValue = parseFloat(savedGoal.amount) || 1000000;
@@ -715,9 +717,11 @@ window.saveBudget = function (silent = false) {
     currency: currentCurrency,
     vaultTransactions: vaultTransactions,
     lastSavedMonth: new Date().toISOString().slice(0, 7),
+    wallet_type: currentWallet
   };
 
-  localStorage.setItem("wari_budget_data", JSON.stringify(dataToSave));
+  const storageKey = currentWallet === 'perso' ? "wari_budget_data" : "wari_budget_data_pro";
+  localStorage.setItem(storageKey, JSON.stringify(dataToSave));
   console.log("Données sauvegardées dans le LocalStorage");
 
   mainInput.value = "";
@@ -752,7 +756,7 @@ window.saveBudget = function (silent = false) {
     fetch("config/add_distribution.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: totalAAjouter }),
+      body: JSON.stringify({ amount: totalAAjouter, wallet_type: currentWallet }),
     })
       .then(response => {
         if (!response.ok) throw new Error(`Status: ${response.status}`);
@@ -779,11 +783,12 @@ function loadBudget() {
 
   let data = null;
 
-  if (typeof dbData !== "undefined" && dbData !== null) {
+  if (typeof dbData !== "undefined" && dbData !== null && isInitialLoad) {
     data = typeof dbData === "string" ? JSON.parse(dbData) : dbData;
     console.log("Chargement depuis MySQL...");
   } else {
-    const saved = localStorage.getItem("wari_budget_data");
+    const storageKey = currentWallet === 'perso' ? "wari_budget_data" : "wari_budget_data_pro";
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
       data = JSON.parse(saved);
       console.log("Chargement depuis LocalStorage...");
@@ -880,6 +885,97 @@ function loadBudget() {
   }
 }
 
+// ─── SWITCH WALLET (PERSO / PRO) ───────────────────────────────────────────
+
+window.switchWallet = function(type) {
+  if (type === 'pro' && (typeof dbIsPremium === 'undefined' || !dbIsPremium)) {
+      alert("La fonctionnalité Multi-portefeuilles (Professionnel) est réservée aux abonnés Wari Premium.\n\nActivez votre abonnement pour séparer distinctement vos finances professionnelles.");
+      return;
+  }
+
+  if (currentWallet === type) return;
+
+  // 1. Sauvegarder localement les données du portefeuille courant avant de switch
+  const currentDataToSave = {
+    categories: categories,
+    projectCapital: projectCapital,
+    currency: document.getElementById("currencySelector")?.value || "F",
+    vaultTransactions: vaultTransactions,
+    lastSavedMonth: new Date().toISOString().slice(0, 7)
+  };
+  if (currentWallet === 'perso') {
+    localStorage.setItem("wari_budget_data", JSON.stringify(currentDataToSave));
+  } else {
+    localStorage.setItem("wari_budget_data_pro", JSON.stringify(currentDataToSave));
+  }
+
+  currentWallet = type;
+
+  // 2. Mettre à jour l'état visuel des boutons de switch
+  const btnPerso = document.getElementById("wallet-btn-perso");
+  const btnPro = document.getElementById("wallet-btn-pro");
+
+  if (type === 'perso') {
+      if (btnPerso) {
+          btnPerso.className = "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 bg-gradient-to-r from-yellow-400 to-yellow-600 text-slate-950 shadow-md";
+      }
+      if (btnPro) {
+          btnPro.className = "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 text-slate-400 hover:text-white flex items-center gap-1.5";
+      }
+      // Afficher défis
+      const challengesSec = document.getElementById("challengesSection");
+      if (challengesSec) challengesSec.classList.remove("hidden");
+  } else {
+      if (btnPerso) {
+          btnPerso.className = "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 text-slate-400 hover:text-white";
+      }
+      if (btnPro) {
+          btnPro.className = "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 bg-gradient-to-r from-yellow-400 to-yellow-600 text-slate-950 shadow-md flex items-center gap-1.5";
+      }
+      // Cacher défis
+      const challengesSec = document.getElementById("challengesSection");
+      if (challengesSec) challengesSec.classList.add("hidden");
+  }
+
+  // 3. Charger les données du nouveau portefeuille
+  const savedDataRaw = localStorage.getItem(type === 'perso' ? "wari_budget_data" : "wari_budget_data_pro");
+  let data = null;
+  if (savedDataRaw) {
+      data = JSON.parse(savedDataRaw);
+  } else {
+      data = type === 'perso' ? dbDataPerso : dbDataPro;
+  }
+
+  if (data) {
+      if (data.categories) {
+          categories = data.categories.map(cat => {
+              if (cat.icon === "🚀") cat.icon = SVG_ICONS.rocket;
+              if (cat.icon === "💰") cat.icon = SVG_ICONS.piggy;
+              if (cat.icon === "🆘") cat.icon = SVG_ICONS.alert;
+              if (cat.icon === "🏠") cat.icon = SVG_ICONS.home;
+              return cat;
+          });
+      }
+      projectCapital = data.projectCapital || 0;
+      vaultTransactions = data.vaultTransactions || [];
+      if (data.currency) {
+          const selector = document.getElementById("currencySelector");
+          if (selector) selector.value = data.currency;
+      }
+  }
+
+  // 4. Mettre à jour les dépenses du portefeuille actif
+  currentExpenses = type === 'perso' ? currentExpensesPerso : currentExpensesPro;
+
+  // 5. Charger l'historique du coffre et le graphique d'évolution du portefeuille actif
+  loadVaultHistory();
+  loadTrendChart();
+
+  // 6. Rafraîchir l'affichage
+  render();
+  updateGoalDisplay();
+};
+
 // ─── DÉMARRAGE ─────────────────────────────────────────────────────────────
 
 // Exécuter uniquement si nous sommes sur la page principale
@@ -898,7 +994,7 @@ setTimeout(() => {
 // ─── HISTORIQUE COFFRE ─────────────────────────────────────────────────────
 
 function loadVaultHistory() {
-  fetch("config/get_vault_history.php")
+  fetch("config/get_vault_history.php?wallet_type=" + currentWallet)
     .then((res) => {
       const contentType = res.headers.get("content-type");
 
@@ -963,7 +1059,7 @@ window.addVaultTransaction = function (type, amount, label) {
   fetch("config/add_vault_transaction.php", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type, amount, label }),
+    body: JSON.stringify({ type, amount, label, wallet_type: currentWallet }),
   })
     .then((res) => res.json())
     .then((data) => {
@@ -1121,7 +1217,7 @@ window.submitExpense = function () {
   if (noteInput) noteInput.value = "";
   render();
 
-  const bodyData = { amount, category_id: catId, description: note };
+  const bodyData = { amount, category_id: catId, description: note, wallet_type: currentWallet };
 
   if (!navigator.onLine) {
     if (typeof window.queueOfflineAction === 'function') {
@@ -1461,8 +1557,9 @@ window.toggleEditMode = function () {
 // ─── OBJECTIFS COFFRE ──────────────────────────────────────────────────────
 
 window.openGoalModal = function () {
+  const storageKey = currentWallet === 'perso' ? "wari_vault_goal" : "wari_vault_goal_pro";
   const existing = JSON.parse(
-    localStorage.getItem("wari_vault_goal") || "null",
+    localStorage.getItem(storageKey) || "null",
   );
   if (existing) {
     document.getElementById("goalLabel").value = existing.label;
@@ -1482,14 +1579,16 @@ window.saveGoal = function () {
   const label = document.getElementById("goalLabel").value.trim();
   const amount = parseInt(document.getElementById("goalAmount").value);
   if (!label || !amount) return alert("Remplis les deux champs.");
-  localStorage.setItem("wari_vault_goal", JSON.stringify({ label, amount }));
+  const storageKey = currentWallet === 'perso' ? "wari_vault_goal" : "wari_vault_goal_pro";
+  localStorage.setItem(storageKey, JSON.stringify({ label, amount }));
   updateGoalDisplay();
   closeGoalModal();
 };
 
 function updateGoalDisplay() {
   const currency = document.getElementById("currencySelector")?.value || "F";
-  const goal = JSON.parse(localStorage.getItem("wari_vault_goal") || "null");
+  const storageKey = currentWallet === 'perso' ? "wari_vault_goal" : "wari_vault_goal_pro";
+  const goal = JSON.parse(localStorage.getItem(storageKey) || "null");
 
   // Correction des IDs pour correspondre à ton HTML
   const labelEl = document.getElementById("vaultGoalLabel");
@@ -1532,7 +1631,8 @@ window.deleteGoal = function () {
   if (!confirm("Supprimer cet objectif ?")) return;
 
   // 1. On supprime du stockage
-  localStorage.removeItem("wari_vault_goal");
+  const storageKey = currentWallet === 'perso' ? "wari_vault_goal" : "wari_vault_goal_pro";
+  localStorage.removeItem(storageKey);
 
   // 2. On récupère les éléments avec les bons IDs
   const labelEl = document.getElementById("vaultGoalLabel");
@@ -1578,7 +1678,7 @@ window.closeHistoryModal = function () {
 // ─── GRAPHIQUE D'ÉVOLUTION ──────────────────────────────────────────────────
 
 function loadTrendChart() {
-  fetch("config/get_history.php?months=6")
+  fetch("config/get_history.php?months=6&wallet_type=" + currentWallet)
     .then((res) => {
       if (!res.ok) throw new Error("Status: " + res.status);
       return res.json();

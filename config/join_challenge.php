@@ -12,6 +12,12 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+if (!isset($_SESSION['is_premium']) || !$_SESSION['is_premium']) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Cette fonctionnalité requiert un abonnement Wari Premium']);
+    exit();
+}
+
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
 

@@ -15,6 +15,11 @@ $userId = $_SESSION['user_id'];
 $months = isset($_GET['months']) ? (int)$_GET['months'] : 6;
 if (!in_array($months, [3, 6, 12])) $months = 6;
 
+$walletType = $_GET['wallet_type'] ?? 'perso';
+if (!in_array($walletType, ['perso', 'pro'])) {
+    $walletType = 'perso';
+}
+
 // ✅ Traduction manuelle des mois en français
 $moisFr = [
     '01' => 'Janvier',
@@ -36,16 +41,18 @@ try {
     $stmtMonths = $pdo->prepare("
         SELECT DISTINCT DATE_FORMAT(dt, '%Y-%m') as month_key, DATE_FORMAT(dt, '%m') as month_num, DATE_FORMAT(dt, '%Y') as year
         FROM (
-            SELECT distributed_at as dt FROM wari_distributions WHERE user_id = ? AND distributed_at >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
+            SELECT distributed_at as dt FROM wari_distributions WHERE user_id = ? AND wallet_type = ? AND distributed_at >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
             UNION
-            SELECT date_expense as dt FROM wari_expenses WHERE user_id = ? AND date_expense >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
+            SELECT date_expense as dt FROM wari_expenses WHERE user_id = ? AND wallet_type = ? AND date_expense >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
         ) as combined
         ORDER BY month_key DESC
     ");
     $stmtMonths->bindValue(1, $userId, PDO::PARAM_INT);
-    $stmtMonths->bindValue(2, $months, PDO::PARAM_INT);
-    $stmtMonths->bindValue(3, $userId, PDO::PARAM_INT);
-    $stmtMonths->bindValue(4, $months, PDO::PARAM_INT);
+    $stmtMonths->bindValue(2, $walletType, PDO::PARAM_STR);
+    $stmtMonths->bindValue(3, $months, PDO::PARAM_INT);
+    $stmtMonths->bindValue(4, $userId, PDO::PARAM_INT);
+    $stmtMonths->bindValue(5, $walletType, PDO::PARAM_STR);
+    $stmtMonths->bindValue(6, $months, PDO::PARAM_INT);
     $stmtMonths->execute();
     $allMonths = $stmtMonths->fetchAll(PDO::FETCH_ASSOC);
 
@@ -56,12 +63,13 @@ try {
             SUM(amount) as total_distributed,
             COUNT(*)    as nb_repartitions
         FROM wari_distributions
-        WHERE user_id = ?
+        WHERE user_id = ? AND wallet_type = ?
         AND distributed_at >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
         GROUP BY month_key
     ");
     $stmtDistribAgg->bindValue(1, $userId, PDO::PARAM_INT);
-    $stmtDistribAgg->bindValue(2, $months, PDO::PARAM_INT);
+    $stmtDistribAgg->bindValue(2, $walletType, PDO::PARAM_STR);
+    $stmtDistribAgg->bindValue(3, $months, PDO::PARAM_INT);
     $stmtDistribAgg->execute();
 
     $distribAggByMonth = [];
@@ -79,12 +87,13 @@ try {
             DATE_FORMAT(distributed_at, '%d/%m à %H:%M')    as datetime_label,
             amount
         FROM wari_distributions
-        WHERE user_id = ?
+        WHERE user_id = ? AND wallet_type = ?
         AND distributed_at >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
         ORDER BY distributed_at DESC
     ");
     $stmtDetails->bindValue(1, $userId, PDO::PARAM_INT);
-    $stmtDetails->bindValue(2, $months, PDO::PARAM_INT);
+    $stmtDetails->bindValue(2, $walletType, PDO::PARAM_STR);
+    $stmtDetails->bindValue(3, $months, PDO::PARAM_INT);
     $stmtDetails->execute();
 
     // Grouper les détails par mois
@@ -102,12 +111,13 @@ try {
             DATE_FORMAT(date_expense, '%Y-%m') as month_key,
             SUM(amount) as total_spent
         FROM wari_expenses
-        WHERE user_id = ?
+        WHERE user_id = ? AND wallet_type = ?
         AND date_expense >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
         GROUP BY month_key
     ");
     $stmtExp->bindValue(1, $userId, PDO::PARAM_INT);
-    $stmtExp->bindValue(2, $months, PDO::PARAM_INT);
+    $stmtExp->bindValue(2, $walletType, PDO::PARAM_STR);
+    $stmtExp->bindValue(3, $months, PDO::PARAM_INT);
     $stmtExp->execute();
 
     $expensesByMonth = [];
@@ -125,12 +135,13 @@ try {
             category_id,
             description
         FROM wari_expenses
-        WHERE user_id = ?
+        WHERE user_id = ? AND wallet_type = ?
         AND date_expense >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
         ORDER BY date_expense DESC
     ");
     $stmtExpDetails->bindValue(1, $userId, PDO::PARAM_INT);
-    $stmtExpDetails->bindValue(2, $months, PDO::PARAM_INT);
+    $stmtExpDetails->bindValue(2, $walletType, PDO::PARAM_STR);
+    $stmtExpDetails->bindValue(3, $months, PDO::PARAM_INT);
     $stmtExpDetails->execute();
 
     $expDetailsByMonth = [];

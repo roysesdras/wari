@@ -19,14 +19,25 @@ if ($data) {
         // ✅ On ajoute le mois ET on réencode pour que ce soit bien sauvegardé
         $data['lastSavedMonth'] = date('Y-m');
         $jsonToSave = json_encode($data); // ✅ La vraie donnée à sauvegarder
-
-        $stmt = $pdo->prepare("
-            UPDATE wari_users 
-            SET budget_data = ?, 
-                project_capital = ?, 
-                last_budget_at = NOW() 
-            WHERE id = ?
-        ");
+        
+        $walletType = $data['wallet_type'] ?? 'perso';
+        if ($walletType === 'pro') {
+            $stmt = $pdo->prepare("
+                UPDATE wari_users 
+                SET budget_data_pro = ?, 
+                    project_capital_pro = ?, 
+                    last_budget_at = NOW() 
+                WHERE id = ?
+            ");
+        } else {
+            $stmt = $pdo->prepare("
+                UPDATE wari_users 
+                SET budget_data = ?, 
+                    project_capital = ?, 
+                    last_budget_at = NOW() 
+                WHERE id = ?
+            ");
+        }
 
         $stmt->execute([
             $jsonToSave,                   // ✅ Avec lastSavedMonth inclus
