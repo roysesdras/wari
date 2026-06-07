@@ -152,9 +152,14 @@ function render(isSimulation = false) {
         : 0;
 
     const card = document.createElement("div");
-    card.className = `glass-card p-2.5 flex flex-col transition-all duration-300`;
+    card.className = `glass-card p-2.5 flex flex-col transition-all duration-300 relative`;
 
     card.innerHTML = `
+        ${isEditMode ? `
+        <button onclick="event.stopPropagation(); deleteCategory(${cat.id})" class="absolute top-2 right-2 text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/25 border border-red-500/20 rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-black active:scale-90 transition-transform select-none shadow-sm z-10" title="Supprimer la catégorie">
+            ✕
+        </button>
+        ` : ''}
         <div class="flex items-center justify-between mb-3">
             <div class="h-8 w-8 flex items-center justify-center bg-white/5 rounded-xl border border-white/5 shadow-inner">
               ${cat.icon.replace('width="24" height="24"', 'width="18" height="18"')}
@@ -234,6 +239,17 @@ function render(isSimulation = false) {
 
     container.appendChild(card);
   }); // ← FIN results.forEach
+
+  if (isEditMode) {
+    const addCard = document.createElement("div");
+    addCard.className = `glass-card p-2.5 flex flex-col items-center justify-center border-dashed border border-slate-700/60 hover:border-amber-500/50 cursor-pointer transition-all duration-300 min-h-[140px]`;
+    addCard.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-slate-500 mb-1.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider">Ajouter</span>
+    `;
+    addCard.onclick = () => openAddCategoryModal();
+    container.appendChild(addCard);
+  }
 
   // ── Calcul Banque / Cash ───────────────────────────────────────────────
   let bank = 0,
@@ -2014,6 +2030,177 @@ function requestNotificationPermission() {
 }
 requestNotificationPermission();
 
+window.showCatInfo = function (catName) {
+  const descriptions = {
+    // Catégories Personnelles
+    "Projet": "Projet : Argent investi dans votre avenir (investissement, immobilier, formation, projets à long terme).",
+    "Épargne": "Épargne : Votre réserve de sécurité à ne pas toucher (épargne de précaution pour les coups durs).",
+    "Imprévu": "Imprévu : Votre bouclier financier pour faire face aux dépenses urgentes et soudaines de la vie.",
+    "Train de vie": "Train de vie : Votre enveloppe quotidienne (alimentation, factures, transport, loyer, loisirs).",
+    
+    // Catégories Professionnelles
+    "Stock & Matériel": "Stock & Matériel : Achats de marchandises, équipements de production, matières premières nécessaires au fonctionnement.",
+    "Bénéfice Réinvesti": "Bénéfice Réinvesti : Portion des revenus réinjectée pour agrandir l'activité commerciale et accélérer la croissance.",
+    "Frais de Fonctionnement": "Frais de Fonctionnement : Dépenses récurrentes indispensables (loyer commercial, électricité, abonnements, outils).",
+    "Marketing & Publicité": "Marketing & Publicité : Investissement pour attirer de nouveaux clients (campagnes, flyers, visuels, promotions)."
+  };
+
+  const text = descriptions[catName] || "Catégorie personnalisée : Ajustez son pourcentage en mode édition.";
+
+  if (activeToast) activeToast.remove();
+
+  const toast = document.createElement("div");
+  toast.innerText = text;
+  
+  // Adaptation dynamique du style selon le mode clair/sombre
+  const isLight = document.documentElement.classList.contains('light-mode');
+  if (isLight) {
+    toast.className = "fixed bottom-24 left-4 right-4 bg-white/95 border border-slate-200 text-slate-800 text-xs p-3.5 rounded-2xl z-50 backdrop-blur-md shadow-2xl transition-all duration-300";
+    toast.style.boxShadow = "0 10px 30px -5px rgba(0, 0, 0, 0.15)";
+  } else {
+    toast.className = "fixed bottom-24 left-4 right-4 bg-slate-900/95 border border-amber-500/30 text-white text-xs p-3.5 rounded-2xl z-50 backdrop-blur-md shadow-2xl transition-all duration-300";
+    toast.style.boxShadow = "0 10px 30px -5px rgba(0, 0, 0, 0.5)";
+  }
+  
+  toast.style.animation = "fadeInUp 0.2s ease";
+  document.body.appendChild(toast);
+  activeToast = toast;
+
+  setTimeout(() => {
+    if (toast && toast.remove) toast.remove();
+    if (activeToast === toast) activeToast = null;
+  }, 3500);
+};
+
+// ─── GESTIONNAIRE DE CATÉGORIES (AJOUTER & SUPPRIMER) ───────────────────────
+
+window.deleteCategory = function(catId) {
+  if (categories.length <= 1) {
+    alert("Vous devez conserver au moins une catégorie dans votre budget.");
+    return;
+  }
+  const catToDelete = categories.find(c => c.id === catId);
+  if (!catToDelete) return;
+  if (!confirm(`Voulez-vous vraiment supprimer la catégorie "${catToDelete.name}" ? Il faudra redistribuer ses % restants.`)) return;
+
+  const deletedPercent = catToDelete.percent;
+  categories = categories.filter(c => c.id !== catId);
+
+  // Redistribuer les pourcentages supprimés sur la première catégorie restante
+  if (categories.length > 0) {
+    categories[0].percent += deletedPercent;
+  }
+
+  render();
+  saveBudget(true);
+  showToastMessage(`Catégorie "${catToDelete.name}" supprimée.`, "success");
+};
+
+window.openAddCategoryModal = function() {
+  const existing = document.getElementById("addCategoryModal");
+  if (existing) existing.remove();
+
+  // Icônes prédéfinies
+  const iconOptions = [
+    { key: 'rocket', name: 'Fusée (Projet)' },
+    { key: 'piggy', name: 'Tirelire (Épargne)' },
+    { key: 'alert', name: 'Bouclier (Imprévu)' },
+    { key: 'home', name: 'Maison (Vie)' },
+    { key: 'money', name: 'Argent / Dollar' }
+  ];
+
+  let selectOptionsHtml = iconOptions.map(opt => `<option value="${opt.key}">${opt.name}</option>`).join('');
+
+  const modalHtml = `
+    <div id="addCategoryModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm flex items-center justify-center p-4 z-[200]">
+      <div class="glass-card p-5 w-full max-w-sm border border-white/10 shadow-2xl relative">
+        <h3 class="text-amber-500 font-black mb-4 uppercase tracking-widest text-xs">Nouvelle Catégorie</h3>
+        
+        <div class="space-y-4 text-left">
+          <div>
+            <label class="block text-[8px] uppercase tracking-wider text-slate-500 font-bold mb-1">Nom de la catégorie</label>
+            <input type="text" id="newCatName" placeholder="Ex: Livraison, Stock, Loisirs..." class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-500 transition-colors">
+          </div>
+          
+          <div>
+            <label class="block text-[8px] uppercase tracking-wider text-slate-500 font-bold mb-1">Icône visuelle</label>
+            <select id="newCatIcon" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-500 transition-colors">
+              ${selectOptionsHtml}
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-[8px] uppercase tracking-wider text-slate-500 font-bold mb-1">Pourcentage du budget (%)</label>
+            <input type="number" id="newCatPercent" value="10" min="1" max="100" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-amber-500 transition-colors">
+          </div>
+        </div>
+        
+        <div class="flex gap-2 mt-6">
+          <button onclick="closeAddCategoryModal()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-750 text-slate-400 rounded-xl font-bold text-xs transition-colors">Annuler</button>
+          <button onclick="submitNewCategory()" class="flex-1 py-2.5 bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-slate-950 rounded-xl font-black uppercase tracking-wider shadow-md transition-all">Créer</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+};
+
+window.closeAddCategoryModal = function() {
+  const modal = document.getElementById("addCategoryModal");
+  if (modal) modal.remove();
+};
+
+window.submitNewCategory = function() {
+  const name = document.getElementById("newCatName").value.trim();
+  const iconKey = document.getElementById("newCatIcon").value;
+  const percent = parseInt(document.getElementById("newCatPercent").value) || 0;
+
+  if (!name) {
+    alert("Veuillez entrer un nom de catégorie.");
+    return;
+  }
+
+  if (percent <= 0 || percent > 100) {
+    alert("Veuillez entrer un pourcentage valide entre 1% et 100%.");
+    return;
+  }
+
+  const iconSvg = SVG_ICONS[iconKey] || SVG_ICONS.money;
+  const newId = Date.now(); // ID unique
+
+  // Ajouter la catégorie
+  categories.push({
+    id: newId,
+    name: name,
+    percent: percent,
+    icon: iconSvg,
+    balance: 0
+  });
+
+  // Ajuster les pourcentages des autres catégories pour faire de la place
+  let totalPercent = categories.reduce((sum, c) => sum + c.percent, 0);
+  if (totalPercent > 100) {
+    const over = totalPercent - 100;
+    const candidates = categories.filter(c => c.id !== newId);
+    if (candidates.length > 0) {
+      const sumOthers = candidates.reduce((sum, c) => sum + c.percent, 0);
+      candidates.forEach(c => {
+        c.percent = Math.max(0, Math.round(c.percent - (over * c.percent / sumOthers)));
+      });
+    }
+    totalPercent = categories.reduce((sum, c) => sum + c.percent, 0);
+    if (totalPercent !== 100 && categories.length > 0) {
+      categories[0].percent += (100 - totalPercent);
+    }
+  }
+
+  render();
+  saveBudget(true);
+  closeAddCategoryModal();
+  showToastMessage(`Catégorie "${name}" créée avec succès !`, "success");
+};
+
 function showWariNotification(title, message, score) {
   if (Notification.permission !== "granted") {
     console.warn("Les notifications ne sont pas autorisées.");
@@ -2111,47 +2298,7 @@ function checkDebtReminders() {
 }
 
 
-// ─── INFO CATEGORIE (TOAST MOBILE) ────────────────────────────────────────
 
-let activeToast = null;
-
-window.showCatInfo = function (catName) {
-  const descriptions = {
-    "Projet": "Futur : voyage, maison, formation. Ce que tu veux construire.",
-    "Épargne": "Sécurité : argent que tu ne touches pas. Pour les vrais coups durs.",
-    "Imprévu": "Bouclier : réparations, urgences, dépenses soudaines. Ça arrive à tous.",
-    "Train de vie": "Quotidien : nourriture, loyer, transports, loisirs. Ce qui reste après épargne."
-  };
-
-  const text = descriptions[catName] || "Ajuste le pourcentage en mode édition.";
-
-  if (activeToast) activeToast.remove();
-
-  const toast = document.createElement("div");
-  toast.innerText = text;
-  toast.className = "fixed bottom-24 left-4 right-4 bg-slate-900/95 border border-amber-500/30 text-white text-xs p-3 rounded-2xl z-50 backdrop-blur-md shadow-2xl";
-  toast.style.animation = "fadeInUp 0.2s ease";
-  document.body.appendChild(toast);
-  activeToast = toast;
-
-  setTimeout(() => {
-    if (toast && toast.remove) toast.remove();
-    if (activeToast === toast) activeToast = null;
-  }, 3500);
-};
-
-// Ajout de l'animation CSS si pas déjà présente
-if (!document.querySelector('#wari-toast-style')) {
-  const style = document.createElement('style');
-  style.id = 'wari-toast-style';
-  style.textContent = `
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  `;
-  document.head.appendChild(style);
-}
 
 
 // ─── TOAST NOTIFICATION ────────────────────────────────────────────────
