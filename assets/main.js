@@ -2388,47 +2388,62 @@ if (document.readyState === "loading") {
 
 // --- GESTION DES NOTES DE MISE À JOUR (RELEASE NOTES) ---
 
-const WARI_VERSION = 58; // Ta version actuelle
+const WARI_VERSION = 59; // Ta version actuelle
 
 function checkReleaseNotes() {
   const lastSeenVersion = localStorage.getItem('wari_last_seen_version');
 
-  // Si l'utilisateur n'a jamais vu la v58, on affiche le modal
+  // Si l'utilisateur n'a jamais vu la v59, on affiche le modal
   if (!lastSeenVersion || parseInt(lastSeenVersion) < WARI_VERSION) {
     setTimeout(showReleaseNotesModal, 2000); // Apparaît 2 secondes après le chargement
   }
 }
 
 function showReleaseNotesModal() {
+  const isLight = document.documentElement.classList.contains('light-mode') || document.body.classList.contains('light-mode');
+  
+  // Configurations dynamiques de style
+  const overlayBg = isLight ? 'rgba(241, 245, 249, 0.95)' : 'rgba(8, 11, 16, 0.98)';
+  const cardBg = isLight ? '#ffffff' : '#0d1117';
+  const cardBorder = isLight ? 'rgba(245, 166, 35, 0.5)' : 'rgba(245, 166, 35, 0.3)';
+  const titleColor = isLight ? '#0f172a' : '#ffffff';
+  const subTitleColor = isLight ? '#b45309' : '#f5a623';
+  const textColor = isLight ? '#334155' : '#94a3b8';
+  const highlightColor = isLight ? '#b45309' : '#fbbf24';
+  const strongColor = isLight ? '#0f172a' : '#ffffff';
+  const badgeColor = '#f5a623';
+  const badgeTextColor = '#000000';
+  const shadow = isLight ? '0 25px 60px rgba(15, 23, 42, 0.15)' : '0 25px 60px rgba(0, 0, 0, 0.6)';
+
   const modalHtml = `
-        <div id="release-modal" style="position:fixed; inset:0; background:rgba(8,11,16,0.98); z-index:10001; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(15px);">
-            <div style="background:#0d1117; border:1px solid rgba(245,166,35,0.3); border-radius:35px; padding:20px; max-width:450px; width:100%; box-shadow: 0 25px 60px rgba(0,0,0,0.6); position:relative; overflow:hidden;">
+        <div id="release-modal" style="position:fixed; inset:0; background:${overlayBg}; z-index:10001; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(15px);">
+            <div style="background:${cardBg}; border:1px solid ${cardBorder}; border-radius:35px; padding:25px 20px; max-width:450px; width:100%; box-shadow: ${shadow}; position:relative; overflow:hidden;">
                 
                 <!-- Badge Version -->
-                <div style="position:absolute; top:20px; right:20px; background:#f5a623; color:#000; padding:5px 12px; border-radius:11px; font-size:11px; font-weight:900;">V1.7.0</div>
+                <div style="position:absolute; top:20px; right:20px; background:${badgeColor}; color:${badgeTextColor}; padding:5px 12px; border-radius:11px; font-size:11px; font-weight:900;">V1.7.0</div>
 
                 <div style="text-align:center; margin-bottom:25px;">
-                    <h2 style="color:#fff; font-weight:900; letter-spacing:-1px; text-transform:uppercase; margin:0;">Quoi de neuf ?</h2>
-                    <p style="color:#f5a623; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-top:5px;">Wari Premium & Flexibilité</p>
+                    <h2 style="color:${titleColor}; font-weight:900; letter-spacing:-1px; text-transform:uppercase; margin:0;">Quoi de neuf ?</h2>
+                    <p style="color:${subTitleColor}; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:2px; margin-top:5px;">Wari Premium & Flexibilité</p>
                 </div>
 
                 <div style="max-height:300px; overflow-y:auto; padding-right:11px; margin-bottom:30px; text-align:justify;" class="custom-scrollbar">
-                    <p style="color:#94a3b8; font-size:13px; line-height:1.7; margin:0;">
-                      <strong class="text-amber-400">✨ NOUVEAUTÉS VERSION 1.7.0 (PREMIUM)</strong><br/><br/>
+                    <p style="color:${textColor}; font-size:13px; line-height:1.7; margin:0;">
+                      <strong style="color:${highlightColor};">✨ NOUVEAUTÉS VERSION 1.7.0 (PREMIUM)</strong><br/><br/>
                       
-                      <strong>Multi-portefeuilles (Perso / Pro) 📂</strong><br/>
+                      <strong style="color:${strongColor};">Multi-portefeuilles (Perso / Pro) 📂</strong><br/>
                       Séparez de façon hermétique vos finances personnelles de vos activités professionnelles ou side hustle (commerce, service, vente) d'un seul clic.<br/><br/>
                       
-                      <strong>Défis d'Épargne Interactifs 🏆</strong><br/>
+                      <strong style="color:${strongColor};">Défis d'Épargne Interactifs 🏆</strong><br/>
                       Renforcez votre discipline en lançant des défis : Défi 52 semaines, Fonds d'urgence (100 000 F CFA) ou Défi 7 jours sans futilités avec échec automatisé.<br/><br/>
                       
-                      <strong>Gestionnaire de Catégories Libre 🛠️</strong><br/>
+                      <strong style="color:${strongColor};">Gestionnaire de Catégories Libre 🛠️</strong><br/>
                       Ajoutez ou supprimez vos catégories librement en Mode Édition. Les pourcentages se rééquilibrent automatiquement à un total strict de 100%.<br/><br/>
                       
-                      <strong>Descriptions de Catégories Adaptatives 🧠</strong><br/>
+                      <strong style="color:${strongColor};">Descriptions de Catégories Adaptatives 🧠</strong><br/>
                       Cliquez sur l'icône "i" pour obtenir des définitions complètes et claires pour chaque catégorie, avec des couleurs adaptées en temps réel aux modes sombre et clair.<br/><br/>
                       
-                      <span class="text-slate-500 text-[11px]">Ces nouveautés sont exclusives à la formule Wari Premium. Merci de grandir avec Wari.</span>
+                      <span style="color:${isLight ? '#64748b' : '#475569'}; font-size:11px;">Ces nouveautés sont exclusives à la formule Wari Premium. Merci de grandir avec Wari.</span>
                     </p>
                 </div>
 
