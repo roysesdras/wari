@@ -2030,6 +2030,8 @@ function requestNotificationPermission() {
 }
 requestNotificationPermission();
 
+let activeToast = null;
+
 window.showCatInfo = function (catName) {
   const descriptions = {
     // Catégories Personnelles
@@ -2386,12 +2388,12 @@ if (document.readyState === "loading") {
 
 // --- GESTION DES NOTES DE MISE À JOUR (RELEASE NOTES) ---
 
-const WARI_VERSION = 57; // Ta version actuelle
+const WARI_VERSION = 58; // Ta version actuelle
 
 function checkReleaseNotes() {
   const lastSeenVersion = localStorage.getItem('wari_last_seen_version');
 
-  // Si l'utilisateur n'a jamais vu la v57, on affiche le modal
+  // Si l'utilisateur n'a jamais vu la v58, on affiche le modal
   if (!lastSeenVersion || parseInt(lastSeenVersion) < WARI_VERSION) {
     setTimeout(showReleaseNotesModal, 2000); // Apparaît 2 secondes après le chargement
   }
