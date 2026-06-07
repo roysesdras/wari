@@ -905,7 +905,7 @@ function loadBudget() {
 
 window.switchWallet = function(type) {
   if (type === 'pro' && (typeof dbIsPremium === 'undefined' || !dbIsPremium)) {
-      alert("La fonctionnalité Multi-portefeuilles (Professionnel) est réservée aux abonnés Wari Premium.\n\nActivez votre abonnement pour séparer distinctement vos finances professionnelles.");
+      window.location.href = "https://wari.digiroys.com/paid/index.php";
       return;
   }
 
@@ -2388,12 +2388,12 @@ if (document.readyState === "loading") {
 
 // --- GESTION DES NOTES DE MISE À JOUR (RELEASE NOTES) ---
 
-const WARI_VERSION = 59; // Ta version actuelle
+const WARI_VERSION = 60; // Ta version actuelle
 
 function checkReleaseNotes() {
   const lastSeenVersion = localStorage.getItem('wari_last_seen_version');
 
-  // Si l'utilisateur n'a jamais vu la v59, on affiche le modal
+  // Si l'utilisateur n'a jamais vu la v60, on affiche le modal
   if (!lastSeenVersion || parseInt(lastSeenVersion) < WARI_VERSION) {
     setTimeout(showReleaseNotesModal, 2000); // Apparaît 2 secondes après le chargement
   }
@@ -2429,18 +2429,18 @@ function showReleaseNotesModal() {
 
                 <div style="max-height:300px; overflow-y:auto; padding-right:11px; margin-bottom:30px; text-align:justify;" class="custom-scrollbar">
                     <p style="color:${textColor}; font-size:13px; line-height:1.7; margin:0;">
-                      <strong style="color:${highlightColor};">✨ NOUVEAUTÉS VERSION 1.7.0 (PREMIUM)</strong><br/><br/>
+                      <strong style="color:${highlightColor};">NOUVEAUTÉS VERSION 1.7.0 (PREMIUM)</strong><br/><br/>
                       
-                      <strong style="color:${strongColor};">Multi-portefeuilles (Perso / Pro) 📂</strong><br/>
+                      <strong style="color:${strongColor};">Multi-portefeuilles (Perso / Pro)</strong><br/>
                       Séparez de façon hermétique vos finances personnelles de vos activités professionnelles ou side hustle (commerce, service, vente) d'un seul clic.<br/><br/>
                       
-                      <strong style="color:${strongColor};">Défis d'Épargne Interactifs 🏆</strong><br/>
+                      <strong style="color:${strongColor};">Défis d'Épargne Interactifs</strong><br/>
                       Renforcez votre discipline en lançant des défis : Défi 52 semaines, Fonds d'urgence (100 000 F CFA) ou Défi 7 jours sans futilités avec échec automatisé.<br/><br/>
                       
-                      <strong style="color:${strongColor};">Gestionnaire de Catégories Libre 🛠️</strong><br/>
+                      <strong style="color:${strongColor};">Gestionnaire de Catégories Libre</strong><br/>
                       Ajoutez ou supprimez vos catégories librement en Mode Édition. Les pourcentages se rééquilibrent automatiquement à un total strict de 100%.<br/><br/>
                       
-                      <strong style="color:${strongColor};">Descriptions de Catégories Adaptatives 🧠</strong><br/>
+                      <strong style="color:${strongColor};">Descriptions de Catégories Adaptatives</strong><br/>
                       Cliquez sur l'icône "i" pour obtenir des définitions complètes et claires pour chaque catégorie, avec des couleurs adaptées en temps réel aux modes sombre et clair.<br/><br/>
                       
                       <span style="color:${isLight ? '#64748b' : '#475569'}; font-size:11px;">Ces nouveautés sont exclusives à la formule Wari Premium. Merci de grandir avec Wari.</span>
