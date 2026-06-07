@@ -10,7 +10,7 @@ require_once 'session_config.php';
 require_once 'db.php';
 require_once 'session_check.php';
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/AI.php';
+require_once __DIR__ . '/../classes/AI.php';
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
