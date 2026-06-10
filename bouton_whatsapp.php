@@ -1,3 +1,29 @@
+<style>
+    /* Mode Clair - Overrides */
+    .light-mode #whatsapp-message {
+        background-color: #ffffff !important;
+        border-color: rgba(245, 166, 35, 0.4) !important; /* amber-500 */
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+    }
+    .light-mode #whatsapp-message p {
+        color: #0f172a !important; /* slate-900 */
+    }
+    .light-mode #whatsapp-message span {
+        color: #d97706 !important; /* amber-600 pour contraste */
+    }
+    .light-mode #whatsapp-arrow {
+        background-color: #ffffff !important;
+        border-color: rgba(245, 166, 35, 0.4) !important;
+    }
+    .light-mode #whatsapp-btn {
+        background-color: #ffffff !important;
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1) !important;
+    }
+    .light-mode #whatsapp-btn:hover {
+        background-color: #f8fafc !important;
+    }
+</style>
+
 <div class="fixed bottom-20 right-6 z-50 flex flex-col items-end font-sans">
 
     <div id="whatsapp-message" class="mb-3 translate-y-2 opacity-0 transition-all duration-500 ease-out bg-slate-950 border border-amber-500/40 shadow-2xl rounded-2xl p-4 pr-8 max-w-[200px] relative">
@@ -11,10 +37,10 @@
             Champion•ne, <br>
             demande ton<span class="text-amber-500 uppercase text-[10px] tracking-widest"> PASS d'activation</span> gratuit ici
         </p>
-        <div class="absolute -bottom-1.5 right-6 w-3 h-3 bg-slate-950 border-r border-b border-amber-500/40 rotate-45"></div>
+        <div id="whatsapp-arrow" class="absolute -bottom-1.5 right-6 w-3 h-3 bg-slate-950 border-r border-b border-amber-500/40 rotate-45"></div>
     </div>
 
-    <a href="https://wa.me/22961418976?text=Salut%20je%20souhaite%20recevoir%20mon%20PASS%20d%27activation%20gratuit%20pour%20Wari."
+    <a id="whatsapp-btn" href="https://wa.me/22961418976?text=Salut%20je%20souhaite%20recevoir%20mon%20PASS%20d%27activation%20gratuit%20pour%20Wari."
         target="_blank"
         class="flex items-center justify-center w-14 h-14 bg-slate-950 border-2 border-amber-500 rounded-full shadow-lg hover:bg-slate-700 transition-all duration-300 active:scale-95 group">
 
