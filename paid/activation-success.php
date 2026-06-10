@@ -8,13 +8,43 @@ require '../config/db.php';
 require_once '../config/session_config.php';
 
 // 1. Sécurité de base
-if (!isset($_SESSION['pending_activation_email'])) {
+$transaction_id = isset($_GET['id']) ? $_GET['id'] : ($_SESSION['payment_ref'] ?? null);
+
+if (!$transaction_id) {
     header("Location: index.php");
     exit();
 }
 
-$email = $_SESSION['pending_activation_email'];
-$duree_jours = isset($_SESSION['pending_duree_jours']) ? intval($_SESSION['pending_duree_jours']) : 30;
+// Récupération immédiate du paiement
+$stmtPayment = $pdo->prepare("SELECT * FROM wari_payments WHERE reference_fedapay = ? OR id = ?");
+$stmtPayment->execute([$transaction_id, $transaction_id]);
+$payment = $stmtPayment->fetch();
+
+// Si le paiement est en attente, on tente de le mettre à jour en direct via FedaPay (Auto-healing)
+if ($payment && $payment['statut'] === 'pending') {
+    try {
+        \FedaPay\FedaPay::setApiKey("sk_live_-t3Pw_JoJ8VGBqP8eTZr-ar5");
+        \FedaPay\FedaPay::setEnvironment('live');
+
+        $transaction = \FedaPay\Transaction::retrieve($payment['reference_fedapay']);
+        if ($transaction && $transaction->status === 'approved') {
+            $stmtUpdate = $pdo->prepare("UPDATE wari_payments SET statut = 'approved' WHERE id = ?");
+            $stmtUpdate->execute([$payment['id']]);
+            $payment['statut'] = 'approved';
+        }
+    } catch (Exception $e) {
+        // Silencieux
+    }
+}
+
+if (!$payment || $payment['statut'] !== 'approved') {
+    header("Location: index.php");
+    exit();
+}
+
+$email = $payment['email_client'];
+$duree_jours = intval($payment['duree_jours']);
+$montant = intval($payment['montant']);
 
 /**
  * FONCTION DE GÉNÉRATION
@@ -30,26 +60,33 @@ function generateWariLicense()
     return $res;
 }
 
-// 2. LE VERROU : On vérifie si une licence a déjà été créée pour cette session
-if (isset($_SESSION['active_license_key'])) {
-    // Si oui, on récupère simplement celle qui existe déjà
-    $new_license = $_SESSION['active_license_key'];
+// 2. LE VERROU : On vérifie si une licence a déjà été créée pour ce paiement
+$new_license = null;
+if (!empty($payment['commande_id'])) {
+    $new_license = $payment['commande_id'];
+    $_SESSION['active_license_key'] = $new_license;
 } else {
     // Si non, c'est le TOUT PREMIER chargement après paiement
     $new_license = generateWariLicense();
 
     try {
-        // A. Sauvegarde immédiate en base de données
+        $pdo->beginTransaction();
+
+        // A. Sauvegarde immédiate en base de données dans wari_licences
         $stmt = $pdo->prepare("INSERT INTO wari_licences (commande_id, statut, date_creation, duree_jours) VALUES (?, 'disponible', NOW(), ?)");
         $stmt->execute([$new_license, $duree_jours]);
 
-        // B. Envoi de l'email unique
+        // B. Liaison du paiement à cette licence (commande_id)
+        $stmtUpdatePayment = $pdo->prepare("UPDATE wari_payments SET commande_id = ? WHERE id = ?");
+        $stmtUpdatePayment->execute([$new_license, $payment['id']]);
+
+        $pdo->commit();
+
+        // C. Envoi de l'email unique
         require_once __DIR__ . '/../classes/Mailer.php';
         $mailer = new Mailer();
 
-        $transaction_id = isset($_SESSION['payment_ref']) ? $_SESSION['payment_ref'] : 'INCONNU';
         $ref = strtoupper(substr($transaction_id, 0, 8));
-        $montant = isset($_SESSION['pending_montant']) ? intval($_SESSION['pending_montant']) : (($duree_jours === 365) ? 5000 : 590);
         $price_formatted = number_format($montant, 0, '', ' ');
         $duration_label = ($duree_jours === 365) ? "365 jours (Annuel)" : "30 jours (Mensuel)";
         $date = date('d/m/Y à H:i');
@@ -156,11 +193,12 @@ if (isset($_SESSION['active_license_key'])) {
             throw new Exception($res['message']);
         }
 
-        // C. VERROUILLAGE : On enregistre la licence en session
-        // Désormais, tant que la session existe, le code ci-dessus ne sera plus jamais exécuté.
+        // D. VERROUILLAGE : On enregistre la licence en session
         $_SESSION['active_license_key'] = $new_license;
     } catch (Exception $e) {
-        // En cas d'erreur DB ou Email, on ne verrouille pas pour permettre une rétentative
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
         die("Une erreur technique est survenue. Veuillez rafraîchir la page.");
     }
 }

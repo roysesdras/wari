@@ -12,12 +12,45 @@ if (!$transaction_id) {
     die("ID de facture manquant.");
 }
 
-// Récupération du paiement
-$stmt = $pdo->prepare("SELECT * FROM wari_payments WHERE reference_fedapay = ? AND statut = 'approved'");
-$stmt->execute([$transaction_id]);
+// Récupération du paiement par FedaPay reference, ID primaire ou clé de licence
+$stmt = $pdo->prepare("SELECT * FROM wari_payments WHERE reference_fedapay = ? OR id = ? OR commande_id = ?");
+$stmt->execute([$transaction_id, $transaction_id, $transaction_id]);
 $payment = $stmt->fetch();
 
-if (!$payment) {
+// Si le paiement est en attente, on tente de le mettre à jour en direct via FedaPay (Auto-healing)
+if ($payment && $payment['statut'] === 'pending') {
+    try {
+        require_once '../vendor/autoload.php';
+        \FedaPay\FedaPay::setApiKey("sk_live_-t3Pw_JoJ8VGBqP8eTZr-ar5");
+        \FedaPay\FedaPay::setEnvironment('live');
+
+        $transaction = \FedaPay\Transaction::retrieve($payment['reference_fedapay']);
+        if ($transaction && $transaction->status === 'approved') {
+            // Mise à jour de wari_payments
+            $stmtUpdate = $pdo->prepare("UPDATE wari_payments SET statut = 'approved' WHERE id = ?");
+            $stmtUpdate->execute([$payment['id']]);
+
+            // Si recharge, prolonger la licence
+            if ($payment['type_paiement'] === 'recharge') {
+                $duree = intval($payment['duree_jours']);
+                $commande_id = $payment['commande_id'];
+                $stmtLic = $pdo->prepare("
+                    UPDATE wari_licences 
+                    SET date_expiration = DATE_ADD(GREATEST(COALESCE(date_expiration, NOW()), NOW()), INTERVAL ? DAY)
+                    WHERE commande_id = ?
+                ");
+                $stmtLic->execute([$duree, $commande_id]);
+            }
+            
+            // Recharger le statut localement
+            $payment['statut'] = 'approved';
+        }
+    } catch (Exception $e) {
+        // Silencieux
+    }
+}
+
+if (!$payment || $payment['statut'] !== 'approved') {
     die("Facture non trouvée ou non approuvée.");
 }
 

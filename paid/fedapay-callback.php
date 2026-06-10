@@ -165,8 +165,8 @@ try {
                 $_SESSION['pending_duree_jours'] = $payment['duree_jours']; // Pour activation-success.php
                 $_SESSION['pending_montant'] = $payment['montant'];
 
-                // Direction : La génération de la licence
-                header("Location: activation-success.php");
+                // Direction : La génération de la licence avec l'identifiant en paramètre
+                header("Location: activation-success.php?id=" . urlencode($transaction_id));
                 exit();
             }
         } else {
