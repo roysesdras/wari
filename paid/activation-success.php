@@ -3,9 +3,9 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require '../vendor/autoload.php';
-require '../config/db.php';
-require_once '../config/session_config.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/session_config.php';
 
 // 1. Sécurité de base
 $transaction_id = isset($_GET['id']) ? $_GET['id'] : ($_SESSION['payment_ref'] ?? null);

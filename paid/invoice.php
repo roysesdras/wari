@@ -3,8 +3,8 @@
 error_reporting(E_ALL & ~E_DEPRECATED);
 ini_set('display_errors', 0);
 
-require_once '../config/db.php';
-require_once '../config/session_config.php';
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/session_config.php';
 
 $transaction_id = isset($_GET['id']) ? $_GET['id'] : null;
 
