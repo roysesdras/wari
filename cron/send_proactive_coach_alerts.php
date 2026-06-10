@@ -51,7 +51,8 @@ $premiumUsers = $pdo->query("
     SELECT DISTINCT u.id, u.email, u.budget_data, u.budget_data_pro
     FROM wari_users u
     JOIN wari_subscriptions s ON s.user_id = u.id
-    WHERE u.is_premium = 1
+    LEFT JOIN wari_licences l ON l.commande_id = u.commande_id
+    WHERE l.date_expiration IS NOT NULL AND l.date_expiration >= NOW()
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 if (empty($premiumUsers)) {
@@ -214,7 +215,7 @@ Exemples attendus :
 - Alerte Train de vie : vous dépensez trop vite. Réduisez la cadence pour finir le mois serein.
 - Bravo pour votre discipline ! Votre budget Projet est bien tenu ce mois-ci, gardez le cap.
 
-Renvoie uniquement le texte brut du message sans JSON, sans guillemets, et sans fioritures.";
+Renvoie obligatoirement un objet JSON avec une seule clé 'notification' contenant ton message.";
 
         $fallbackMessage = "Coach Wari : Votre budget $walletLabel nécessite votre attention. Consultez votre dashboard.";
         if ($triggerType === 'discipline') {
@@ -222,11 +223,35 @@ Renvoie uniquement le texte brut du message sans JSON, sans guillemets, et sans 
         }
 
         try {
-            $aiResponse = $ai->generate($prompt, "Tu es le Coach Wari. Tu parles directement, sans fioritures et tu formules des messages de notification de 15 mots maximum.");
-            $aiResponse = trim($aiResponse, " \t\n\r\0\x0B\"'");
+            $aiResponse = $ai->generate($prompt, "Tu es le Coach Wari. Tu parles directement, sans fioritures et tu formules des messages de notification de 15 mots maximum. Réponds obligatoirement au format JSON.");
+            $aiResponse = trim($aiResponse);
             
-            // Validation de base de la réponse
-            $pushBody = (!empty($aiResponse) && strlen($aiResponse) > 10 && strlen($aiResponse) < 200) ? $aiResponse : $fallbackMessage;
+            $pushBody = '';
+            $decoded = json_decode($aiResponse, true);
+            if (is_array($decoded)) {
+                if (isset($decoded['notification'])) {
+                    $pushBody = trim($decoded['notification']);
+                } elseif (isset($decoded['message'])) {
+                    $pushBody = trim($decoded['message']);
+                } elseif (isset($decoded['text'])) {
+                    $pushBody = trim($decoded['text']);
+                } else {
+                    foreach ($decoded as $val) {
+                        if (is_string($val)) {
+                            $pushBody = trim($val);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (empty($pushBody)) {
+                $pushBody = trim($aiResponse, " \t\n\r\0\x0B\"'");
+            }
+            
+            if (empty($pushBody) || strlen($pushBody) < 5 || strlen($pushBody) > 200) {
+                $pushBody = $fallbackMessage;
+            }
         } catch (Exception $e) {
             $pushBody = $fallbackMessage;
         }

@@ -264,8 +264,8 @@
         </p>
     </div>
 
-    <!-- Bouton Message WhatsApp -->
-    <?php include '../bouton_paid_license.php';
+    <!-- Bouton Message WhatsApp ou Paid license../bouton_paid_license.php-->
+    <?php include '../bouton_whatsapp.php';
     ?>
 
     <script>
