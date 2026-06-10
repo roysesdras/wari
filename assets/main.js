@@ -2254,25 +2254,6 @@ async function initialiserNotificationsWari() {
 
       if (typeof subscribeUserToPush === "function") subscribeUserToPush(false); // Silencieux au chargement
 
-      setTimeout(() => {
-        if (lastNotify !== today && now.getHours() >= 18) {
-          navigator.serviceWorker.ready.then((reg) => {
-            const messages = [
-              "La fréquence des petites dépenses incontrôlées finit toujours par te diriger vers la ruine. Notes-les!",
-              "Quand les revenus augmentent, les dépenses augmentent aussi. Sois vigilant!. Reste discipliné!",
-              "Champion.ne, l'argent que tu ne contrôles pas, finit toujours par te diriger!",
-            ];
-            reg.showNotification("Wari - Coach", {
-              body: messages[Math.floor(Math.random() * messages.length)],
-              icon: "https://i.postimg.cc/x80KpBqW/warifinance3d.png",
-              vibrate: [200, 100, 200],
-              badge: "https://i.postimg.cc/x80KpBqW/warifinance3d.png",
-            });
-            localStorage.setItem("wari_last_notification", today);
-          });
-        }
-      }, 10000);
-
       checkDebtReminders();
     }
   } catch (error) {

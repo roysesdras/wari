@@ -17,6 +17,8 @@ $stmt = $pdo->prepare("SELECT * FROM wari_payments WHERE reference_fedapay = ? O
 $stmt->execute([$transaction_id, $transaction_id, $transaction_id]);
 $payment = $stmt->fetch();
 
+
+
 // Si le paiement est en attente, on tente de le mettre à jour en direct via FedaPay (Auto-healing)
 if ($payment && $payment['statut'] === 'pending') {
     try {
