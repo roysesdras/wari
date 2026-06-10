@@ -2,10 +2,8 @@
 // /var/www/html/academy/pdf_download.php
 
 if (session_status() === PHP_SESSION_NONE) session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: https://wari.digiroys.com/login?redirect=' . urlencode($_SERVER['REQUEST_URI']));
-    exit;
-}
+require_once __DIR__ . '/../config/session_check.php';
+$user_id = $_SESSION['user_id'];
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../classes/Academy.php';
@@ -23,6 +21,7 @@ if (!$pdf_id) {
 // Récupération du PDF
 $stmt = $pdo->prepare("
     SELECT p.*, co.titre AS course_titre, co.slug AS course_slug,
+           co.est_gratuit AS course_est_gratuit, co.niveau AS course_niveau,
            c.titre AS cat_titre, c.icone AS cat_icone
     FROM academy_pdfs p
     JOIN academy_courses co ON co.id = p.course_id
@@ -37,8 +36,9 @@ if (!$pdf) {
     exit;
 }
 
-// Vérification accès : gratuit OU acheté
-$hasAccess = $pdf['est_gratuit'] || $academy->hasUserBoughtPdf($user_id, $pdf_id);
+// Vérification accès : premium OU (gratuit ET cours non premium) OU acheté
+$isCourseLocked = !($_SESSION['is_premium'] ?? false) && ($pdf['course_est_gratuit'] == 0 || $pdf['course_niveau'] === 'avance');
+$hasAccess = ($_SESSION['is_premium'] ?? false) || (!$isCourseLocked && $pdf['est_gratuit']) || $academy->hasUserBoughtPdf($user_id, $pdf_id);
 
 if (!$hasAccess) {
     header('Location: /academy/pdf_achat.php?id=' . $pdf_id);

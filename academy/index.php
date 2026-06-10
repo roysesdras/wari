@@ -3,6 +3,7 @@
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../classes/Academy.php';
+require_once __DIR__ . '/../config/session_check.php';
 
 // session_start uniquement si pas déjà active
 if (session_status() === PHP_SESSION_NONE) {
@@ -248,11 +249,16 @@ if ($user_id && !empty($coursesWithProgress)) {
             <?php foreach ($coursesWithProgress as $course): 
                 $isNew = ($course['progression'] == 0);
                 $isInProgress = ($course['progression'] > 0 && $course['progression'] < 100);
+                $isLocked = !($_SESSION['is_premium'] ?? false) && ($course['est_gratuit'] == 0 || $course['niveau'] === 'avance');
             ?>
                 <a href="/academy/course.php?slug=<?= $course['slug'] ?>" 
                    class="bento-card rounded-[1rem] overflow-hidden group flex flex-col <?= $isNew ? 'border-amber-500/30' : ($isInProgress ? 'border-blue-500/30' : '') ?>">
                     
-                    <?php if ($isNew): ?>
+                    <?php if ($isLocked): ?>
+                        <div class="h-3 bg-gradient-to-r from-amber-500 to-orange-600 shadow-[0_0_20px_rgba(245,166,35,0.2)] relative">
+                             <span class="absolute right-4 top-4 bg-gradient-to-r from-amber-500 to-orange-600 text-black text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-widest">Premium</span>
+                        </div>
+                    <?php elseif ($isNew): ?>
                         <div class="h-3 bg-amber-500 shadow-[0_0_20px_rgba(245,166,35,0.3)] relative">
                             <span class="absolute right-4 top-4 bg-amber-500 text-black text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-widest animate-pulse">Nouveau</span>
                         </div>
@@ -266,15 +272,21 @@ if ($user_id && !empty($coursesWithProgress)) {
 
                     <div class="p-6 flex-1">
                         <div class="flex justify-between items-start mb-6">
-                            <span class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg text-[9px] font-black uppercase text-wari-gold">
-                                <?= $course['category_icone'] ?> <?= $course['category_titre'] ?>
-                            </span>
+                            <?php if ($isLocked): ?>
+                                <span class="bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-lg text-[9px] font-black uppercase text-amber-500">
+                                    🔒 Premium
+                                </span>
+                            <?php else: ?>
+                                <span class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg text-[9px] font-black uppercase text-wari-gold">
+                                    <?= $course['category_icone'] ?> <?= $course['category_titre'] ?>
+                                </span>
+                            <?php endif; ?>
                             <span class="text-[9px] font-bold text-white/20 uppercase tracking-widest italic"><?= $course['niveau'] ?></span>
                         </div>
                         <h3 class="font-heading text-xl font-black text-white mb-4 group-hover:text-wari-gold transition-colors leading-tight"><?= $course['titre'] ?></h3>
                         <p class="text-white/40 text-sm line-clamp-2 leading-relaxed mb-8"><?= $course['description'] ?></p>
 
-                        <?php if ($course['progression'] > 0): ?>
+                        <?php if (!$isLocked && $course['progression'] > 0): ?>
                             <div class="space-y-3">
                                 <div class="flex justify-between text-[9px] font-black uppercase text-wari-gold/70">
                                     <span>Progression</span>
@@ -292,7 +304,11 @@ if ($user_id && !empty($coursesWithProgress)) {
                             <span class="text-[10px] font-bold text-white/30 uppercase">📖 <?= $course['nb_lecons'] ?> leçons</span>
                         </div>
                         <span class="text-[10px] font-black uppercase tracking-widest text-wari-gold group-hover:translate-x-2 transition-transform">
-                            <?= ($course['progression'] == 100) ? 'Revoir' : ($isInProgress ? 'Continuer →' : 'Commencer →') ?>
+                            <?php if ($isLocked): ?>
+                                🔒 Débloquer →
+                            <?php else: ?>
+                                <?= ($course['progression'] == 100) ? 'Revoir' : ($isInProgress ? 'Continuer →' : 'Commencer →') ?>
+                            <?php endif; ?>
                         </span>
                     </div>
                 </a>

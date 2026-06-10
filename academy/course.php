@@ -43,32 +43,45 @@ if (!$course) {
     exit;
 }
 
+$isLocked = !($_SESSION['is_premium'] ?? false) && ($course['est_gratuit'] == 0 || $course['niveau'] === 'avance');
+
 $lessons  = $academy->getLessonsByCourse($course['id']);
 $pdfs     = $academy->getPdfsByCourse($course['id']);
-$progress = $academy->getCourseProgress($user_id, $course['id']);
 
-// Statut de chaque leçon pour cet utilisateur
-foreach ($lessons as &$lesson) {
-    $lesson['complete'] = $academy->isLessonComplete($user_id, $lesson['id']);
-}
-unset($lesson);
-
-// Première leçon non complétée = leçon à reprendre
-$nextLesson = null;
-foreach ($lessons as $l) {
-    if (!$l['complete']) {
-        $nextLesson = $l;
-        break;
+if ($isLocked) {
+    $progress = 0;
+    foreach ($lessons as &$lesson) {
+        $lesson['complete'] = false;
     }
-}
-// Si tout est terminé, pointer sur la première leçon
-if (!$nextLesson && !empty($lessons)) {
-    $nextLesson = $lessons[0];
-}
+    unset($lesson);
+    $nextLesson = null;
+    $totalLecons = count($lessons);
+    $doneLecons = 0;
+    $coursTermine = false;
+} else {
+    $progress = $academy->getCourseProgress($user_id, $course['id']);
+    // Statut de chaque leçon pour cet utilisateur
+    foreach ($lessons as &$lesson) {
+        $lesson['complete'] = $academy->isLessonComplete($user_id, $lesson['id']);
+    }
+    unset($lesson);
 
-$totalLecons   = count($lessons);
-$doneLecons    = count(array_filter($lessons, fn($l) => $l['complete']));
-$coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
+    // Première leçon non complétée = leçon à reprendre
+    $nextLesson = null;
+    foreach ($lessons as $l) {
+        if (!$l['complete']) {
+            $nextLesson = $l;
+            break;
+        }
+    }
+    // Si tout est terminé, pointer sur la première leçon
+    if (!$nextLesson && !empty($lessons)) {
+        $nextLesson = $lessons[0];
+    }
+    $totalLecons   = count($lessons);
+    $doneLecons    = count(array_filter($lessons, fn($l) => $l['complete']));
+    $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr" class="scroll-smooth">
@@ -279,7 +292,12 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
                         <?= $doneLecons ?> / <?= $totalLecons ?> terminées
                     </div>
 
-                    <?php if ($nextLesson): ?>
+                    <?php if ($isLocked): ?>
+                        <a href="https://wari.digiroys.com/paid/index.php" 
+                           class="group flex items-center justify-center gap-2 w-full py-4 px-6 rounded-2xl font-black text-xs uppercase tracking-widest transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 shadow-amber-500/20">
+                            🔒 Débloquer ce cours
+                        </a>
+                    <?php elseif ($nextLesson): ?>
                         <a href="/academy/lesson.php?id=<?= $nextLesson['id'] ?>" 
                            class="group flex items-center justify-center gap-2 w-full py-4 px-6 rounded-2xl font-black text-xs uppercase tracking-widest transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg <?= $coursTermine ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20' : 'bg-wari-gold text-slate-950 hover:bg-wari-goldLight shadow-wari-gold/20' ?>">
                             <?php if ($coursTermine): ?>
@@ -302,7 +320,17 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
             
             <!-- LISTE DES LEÇONS -->
             <div class="lg:col-span-8 space-y-6">
-                <div class="bento-card rounded-[1rem] overflow-hidden">
+                <div class="bento-card rounded-[1rem] overflow-hidden relative">
+                    <?php if ($isLocked): ?>
+                        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-md z-30 flex flex-col items-center justify-center p-6 text-center">
+                            <div class="w-16 h-16 bg-wari-gold/10 text-wari-gold rounded-full flex items-center justify-center text-3xl mb-4 border border-wari-gold/20 animate-pulse">🔒</div>
+                            <h3 class="font-heading text-2xl font-black text-white mb-2">Contenu Premium</h3>
+                            <p class="text-slate-400 text-sm max-w-md mb-6">Ce module de formation et ses outils de calculs exclusifs sont réservés aux membres Premium.</p>
+                            <a href="https://wari.digiroys.com/paid/index.php" class="bg-gradient-to-r from-amber-500 to-orange-600 text-black font-black text-xs uppercase tracking-widest px-8 py-4 rounded-xl shadow-lg shadow-amber-500/20 active:scale-95 transition-all">
+                                Débloquer l'accès
+                            </a>
+                        </div>
+                    <?php endif; ?>
                     <div class="p-6 md:p-8 border-b border-white/5 flex items-center justify-between bg-slate-900/40">
                         <h2 class="font-heading text-2xl md:text-3xl font-black text-white flex items-center gap-3">
                             Programme
@@ -319,7 +347,7 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
                                 $isComplete = $lesson['complete'];
                                 $isCurrent  = $nextLesson && $lesson['id'] === $nextLesson['id'] && !$coursTermine;
                                 ?>
-                                <a href="/academy/lesson.php?id=<?= $lesson['id'] ?>" 
+                                <a href="<?= $isLocked ? 'https://wari.digiroys.com/paid/index.php' : '/academy/lesson.php?id=' . $lesson['id'] ?>" 
                                    class="group p-5 md:p-6 flex items-center gap-5 hover:bg-slate-800/50 transition-colors <?= $isCurrent ? 'bg-slate-800/30 border-l-4 border-cat-color' : 'border-l-4 border-transparent' ?>">
                                     
                                     <!-- Lesson Number or Check -->
@@ -427,7 +455,12 @@ $coursTermine  = $totalLecons > 0 && $doneLecons === $totalLecons;
                                             <?php endif; ?>
 
                                             <div class="flex items-center justify-between mt-auto">
-                                                <?php if ($pdf['est_gratuit'] || $acheté): ?>
+                                                <?php if ($isLocked): ?>
+                                                    <span class="text-[9px] font-black uppercase tracking-widest text-amber-500 px-3 py-1 bg-amber-500/10 rounded-lg">Premium</span>
+                                                    <a href="https://wari.digiroys.com/paid/index.php" class="text-[10px] font-black uppercase tracking-widest text-slate-900 bg-wari-gold hover:bg-wari-goldLight px-4 py-2 rounded-xl transition-colors">
+                                                        Débloquer
+                                                    </a>
+                                                <?php elseif ($pdf['est_gratuit'] || $acheté): ?>
                                                     <span class="text-[9px] font-black uppercase tracking-widest text-emerald-400 px-3 py-1 bg-emerald-500/10 rounded-lg">Gratuit</span>
                                                     <a href="/academy/pdf_download.php?id=<?= $pdf['id'] ?>" class="text-[10px] font-black uppercase tracking-widest text-white bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl transition-colors">
                                                         Télécharger

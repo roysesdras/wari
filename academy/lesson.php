@@ -4,14 +4,9 @@
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../classes/Academy.php';
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
+require_once __DIR__ . '/../config/session_check.php';
 $user_id = $_SESSION['user_id'] ?? null;
-
-// Redirection si non connecté
-if (!$user_id) {
-    header('Location: https://wari.digiroys.com/login?redirect=' . urlencode($_SERVER['REQUEST_URI']));
-    exit;
-}
 
 // ✅ Log de la lecture de leçon
 logAuthAttempt($pdo, 'COURSE_READ', $_SESSION['user_email'], $user_id, "Leçon ID: " . ($_GET['id'] ?? 'none'));
@@ -32,6 +27,17 @@ if (!$lesson) {
 }
 
 $course   = $academy->getCourseById($lesson['course_id']);
+if (!$course) {
+    header('Location: /academy/');
+    exit;
+}
+
+// Vérification de sécurité premium
+$isLocked = !($_SESSION['is_premium'] ?? false) && ($course['est_gratuit'] == 0 || $course['niveau'] === 'avance');
+if ($isLocked) {
+    header('Location: /academy/course.php?slug=' . urlencode($course['slug']) . '&error=premium');
+    exit;
+}
 $lessons  = $academy->getLessonsByCourse($lesson['course_id']);
 $prevLesson = $academy->getPrevLesson($lesson['course_id'], $lesson['ordre']);
 $nextLesson = $academy->getNextLesson($lesson['course_id'], $lesson['ordre']);

@@ -2,10 +2,8 @@
 // /var/www/html/academy/pdf_achat.php
 
 if (session_status() === PHP_SESSION_NONE) session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: https://wari.digiroys.com/login?redirect=' . urlencode($_SERVER['REQUEST_URI']));
-    exit;
-}
+require_once __DIR__ . '/../config/session_check.php';
+$user_id = $_SESSION['user_id'];
 
 // Chargement du .env
 $envFile = '/var/www/html/wari-admin/.env';
@@ -51,6 +49,12 @@ if (!$pdf) {
 
 // Déjà acheté ? → rediriger vers download
 if ($academy->hasUserBoughtPdf($user_id, $pdf_id)) {
+    header('Location: /academy/pdf_download.php?id=' . $pdf_id);
+    exit;
+}
+
+// Utilisateur premium ? → téléchargement direct
+if ($_SESSION['is_premium'] ?? false) {
     header('Location: /academy/pdf_download.php?id=' . $pdf_id);
     exit;
 }
