@@ -236,12 +236,24 @@ if (!empty($article['image_url']) && file_exists($chemin_physique)) {
         </footer>
     </main>
 
-    <section class="bg-slate-900/30 border-t border-[#D4AF37]/10 py-8 px-6 mt-5">
-        <div class="max-w-md mx-auto text-center">
-            <h3 class="text-xl text-white font-bold mb-2 uppercase tracking-wide">Suivre la progression</h3>
-            <p class="text-slate-500 text-sm mb-8 italic">Le journal d'un entrepreneur en quête de souveraineté.</p>
+    <section class="bg-gradient-to-b from-slate-900 to-slate-950 border-t border-[#D4AF37]/20 py-12 px-2 mt-2">
+        <div class="max-w-2xl mx-auto normal">
+            <h3 class="text-2xl md:text-3xl text-white font-black mb-4 uppercase tracking-wide">
+                Fini de lire. <span class="text-[#D4AF37]">À toi de jouer.</span>
+            </h3>
+            <p class="text-slate-400 text-base md:text-lg mb-8 leading-relaxed">
+                Lire mon histoire ne changera pas ton compte bancaire. Appliquer la discipline stricte des 4 enveloppes, <span class="text-white font-bold">oui</span>.<br>
+                Wari-Finance est l'outil exact que j'utilise pour dompter mon argent chaque mois.
+            </p>
             
-            <?php // include 'assets/form.php'; ?>
+            <a href="https://wari.digiroys.com/config/auth.php?utm_source=vecu_article&utm_medium=cta_bottom" 
+               class="inline-block bg-[#D4AF37] text-slate-950 font-black px-2 py-2 rounded-xl uppercase tracking-widest hover:bg-white hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                Démarrer ma gestion sur Wari
+            </a>
+            
+            <p class="mt-6 text-xs text-slate-500 font-medium uppercase tracking-widest">
+                Méthode 100% Gratuite • Sans carte bancaire
+            </p>
         </div>
     </section>
 

@@ -71,6 +71,7 @@ if ($user_id && !empty($coursesWithProgress)) {
     <link rel="canonical" href="https://wari.digiroys.com/academy" />
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <style>
@@ -249,7 +250,8 @@ if ($user_id && !empty($coursesWithProgress)) {
             <?php foreach ($coursesWithProgress as $course): 
                 $isNew = ($course['progression'] == 0);
                 $isInProgress = ($course['progression'] > 0 && $course['progression'] < 100);
-                $isLocked = !($_SESSION['is_premium'] ?? false) && ($course['est_gratuit'] == 0 || $course['niveau'] === 'avance');
+                $isPremiumCourse = ($course['est_gratuit'] == 0 || $course['niveau'] === 'avance');
+                $isLocked = !($_SESSION['is_premium'] ?? false) && $isPremiumCourse;
             ?>
                 <a href="/academy/course.php?slug=<?= $course['slug'] ?>" 
                    class="bento-card rounded-[1rem] overflow-hidden group flex flex-col <?= $isNew ? 'border-amber-500/30' : ($isInProgress ? 'border-blue-500/30' : '') ?>">
@@ -272,13 +274,20 @@ if ($user_id && !empty($coursesWithProgress)) {
 
                     <div class="p-6 flex-1">
                         <div class="flex justify-between items-start mb-6">
-                            <?php if ($isLocked): ?>
-                                <span class="bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-lg text-[9px] font-black uppercase text-amber-500">
+                            <?php if ($isPremiumCourse): ?>
+                                <span class="bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-lg text-[9px] font-black uppercase text-amber-500 flex items-center gap-1.5">
                                     🔒 Premium
                                 </span>
                             <?php else: ?>
-                                <span class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg text-[9px] font-black uppercase text-wari-gold">
-                                    <?= $course['category_icone'] ?> <?= $course['category_titre'] ?>
+                                <span class="bg-white/5 border border-white/10 px-3 py-1 rounded-lg text-[9px] font-black uppercase text-wari-gold flex items-center gap-1.5">
+                                    <?php
+                                    $lucideIcons = ['wallet','landmark','rocket','alert-triangle','trending-up','brain','book','lightbulb','target','award','gem','key','bar-chart','globe','briefcase','shield','zap','leaf'];
+                                    if (in_array($course['category_icone'], $lucideIcons)): ?>
+                                        <i data-lucide="<?= htmlspecialchars($course['category_icone']) ?>" class="w-3 h-3 shrink-0"></i>
+                                    <?php else: ?>
+                                        <?= htmlspecialchars($course['category_icone']) ?>
+                                    <?php endif; ?>
+                                    <span><?= htmlspecialchars($course['category_titre']) ?></span>
                                 </span>
                             <?php endif; ?>
                             <span class="text-[9px] font-bold text-white/20 uppercase tracking-widest italic"><?= $course['niveau'] ?></span>
@@ -323,6 +332,9 @@ if ($user_id && !empty($coursesWithProgress)) {
         <div class="text-[9px] text-white/20">&copy; <?= date('Y') ?> WARI FINANCE — TOUS DROITS RÉSERVÉS.</div>
     </footer>
 
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 
 </html>

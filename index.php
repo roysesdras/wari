@@ -55,7 +55,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=95">
+    <link rel="stylesheet" href="./assets/styles.css?v=102">
 
     <link rel="manifest" href="manifest.json">
     <meta id="metaThemeColor" name="theme-color" content="#000000">
@@ -148,6 +148,12 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             </div>
 
             <div class="flex items-center gap-2">
+                <!-- Bouton Guide -->
+                <a href="guide/index.php" title="Guide d'utilisation"
+                    class="w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300 bg-white/5 hover:bg-amber-500/10 border border-white/5 hover:border-amber-500/30">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                </a>
+
                 <!-- Bouton de bascule de thème -->
                 <button id="themeToggleBtn" onclick="toggleTheme()" title="Changer le thème"
                     class="w-10 h-10 rounded-2xl flex items-center justify-center active:scale-95 transition-all duration-300 bg-white/5 hover:bg-white/10 border border-white/5">
@@ -232,7 +238,10 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             <div class="glass-card p-3 cursor-pointer active:scale-95 transition-all group" 
                  onclick="const el = this.querySelector('#bankAmount'); el.classList.toggle('blur-[6px]'); el.classList.toggle('opacity-30'); el.classList.toggle('opacity-100');">
                 <div class="flex justify-between items-start mb-1">
-                    <p class="text-[8px] uppercase tracking-widest text-slate-500 font-black">Banque (Réserves)</p>
+                    <div class="flex items-center gap-1.5">
+                        <p class="text-[8px] uppercase tracking-widest text-slate-500 font-black">Banque (Réserves)</p>
+                        <button onclick="event.stopPropagation(); openHelpModal('coffre-fort')" class="w-3.5 h-3.5 rounded-full border border-slate-600 text-slate-500 flex items-center justify-center text-[7px] font-bold hover:bg-slate-800 hover:text-white transition-colors" title="C'est quoi ?">?</button>
+                    </div>
                     <span class="opacity-0 group-hover:opacity-100 transition-opacity">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                     </span>
@@ -243,7 +252,10 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
 
             <!-- POCHE : Reste en clair pour les dépenses quotidiennes -->
             <div class="glass-card p-3">
-                <p class="text-[8px] uppercase tracking-widest text-slate-500 mb-1 font-black">Poche (Dispo)</p>
+                <div class="flex items-center gap-1.5 mb-1">
+                    <p class="text-[8px] uppercase tracking-widest text-slate-500 font-black">Poche (Dispo)</p>
+                    <button onclick="openHelpModal('train-de-vie')" class="w-3.5 h-3.5 rounded-full border border-slate-600 text-slate-500 flex items-center justify-center text-[7px] font-bold hover:bg-slate-800 hover:text-white transition-colors" title="C'est quoi ?">?</button>
+                </div>
                 <p id="cashAmount" class="text-lg font-black text-emerald-400">0 F</p>
                 <p class="text-[7px] text-slate-600 mt-1 uppercase tracking-wider leading-tight text-left">Dispo (Vie + Imprévus)</p>
             </div>
@@ -402,7 +414,10 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         <!-- Dette Section -->
         <div id="debtSection" class="mt-4 glass-card p-3 shadow-2xl relative">
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-[11px] uppercase tracking-[0.1em] text-red-400 font-bold">Carnet de Dettes</h3>
+                <div class="flex items-center gap-1.5">
+                    <h3 class="text-[11px] uppercase tracking-[0.1em] text-red-400 font-bold">Carnet de Dettes</h3>
+                    <button onclick="openHelpModal('dette')" class="w-4 h-4 rounded-full border border-red-500/50 text-red-400 flex items-center justify-center text-[9px] font-bold hover:bg-red-500/20 transition-colors" title="C'est quoi ?">?</button>
+                </div>
                 <button onclick="openDebtModal()" class="text-[11px] bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30 font-bold hover:bg-red-500/40 transition-all">
                     + Ajouter
                 </button>
@@ -1595,7 +1610,99 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         })();
     </script>
 
-    <script src="./assets/main.js?v=96"></script>
+    <!-- MODAL AIDE CONTEXTUELLE -->
+    <div id="helpModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm hidden items-center justify-center p-4 z-[140]" onclick="closeHelpModal()">
+        <div class="glass-card w-full max-w-sm p-5 border border-slate-700 shadow-2xl relative" onclick="event.stopPropagation()">
+            <button onclick="closeHelpModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
+            <div id="helpIcon" class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center mb-3 text-amber-500"></div>
+            <h3 id="helpTitle" class="text-white font-bold text-lg mb-2">Titre</h3>
+            <p id="helpDesc" class="text-slate-400 text-sm mb-5 leading-relaxed">Description courte.</p>
+            <a href="guide/index.php" class="block w-full py-2.5 bg-amber-500 text-slate-950 text-center rounded-xl font-bold text-sm hover:bg-amber-400 transition-colors">
+                Lire le guide complet
+            </a>
+        </div>
+    </div>
+
+    <!-- MODAL ONBOARDING (BIENVENUE) -->
+    <div id="onboardingModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md hidden items-center justify-center p-4 z-[150]">
+        <div class="glass-card w-full max-w-md p-6 border border-amber-500/20 shadow-2xl relative text-center">
+            <div class="w-16 h-16 mx-auto bg-gradient-to-br from-amber-400 to-yellow-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-amber-500/20">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-2 font-serif">Bienvenue sur Wari</h2>
+            <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                Plus qu'une application, Wari est une méthode pour reprendre le contrôle de tes finances. Apprends à maîtriser ton <strong class="text-emerald-400">Coffre-fort</strong> et ton <strong class="text-amber-500">Train de vie</strong>.
+            </p>
+            <div class="flex flex-col gap-3">
+                <a href="guide/index.php" class="block w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-600 text-black rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all">
+                    Découvrir comment ça marche (Guide)
+                </a>
+                <button onclick="closeOnboarding()" class="block w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm hover:bg-slate-700 active:scale-95 transition-all">
+                    J'ai compris, fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./assets/main.js?v=102"></script>
+    <script>
+        // Logique Onboarding
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('wari_onboarding_seen')) {
+                const onboardingModal = document.getElementById('onboardingModal');
+                if (onboardingModal) {
+                    onboardingModal.classList.remove('hidden');
+                    onboardingModal.classList.add('flex');
+                }
+            }
+        });
+
+        function closeOnboarding() {
+            localStorage.setItem('wari_onboarding_seen', 'true');
+            const onboardingModal = document.getElementById('onboardingModal');
+            if (onboardingModal) {
+                onboardingModal.classList.add('hidden');
+                onboardingModal.classList.remove('flex');
+            }
+        }
+
+        // Logique Aide Contextuelle (Tooltips)
+        const helpData = {
+            'coffre-fort': {
+                title: 'Banque (Coffre-Fort)',
+                icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
+                desc: 'Ton épargne intouchable. L\'argent qui entre ici ne peut pas être dépensé directement. C\'est ce qui te garantit la sécurité et tes investissements futurs.'
+            },
+            'train-de-vie': {
+                title: 'Poche (Train de vie)',
+                icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0-2 2c0 1.1.9 2 2 2h4v-4h-4z"></path></svg>',
+                desc: 'C\'est l\'argent que tu as le droit de dépenser au quotidien. L\'objectif est que ce solde atteigne rigoureusement 0 avant ton prochain revenu.'
+            },
+            'dette': {
+                title: 'Le carnet de dettes',
+                icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>',
+                desc: 'Renseigner vos prêts et vos emprunts, tout ce que vous prêtez et tout ce qu\'on vous prête, votre budget n\'en sera que plus sain. '
+            }
+        };
+
+        function openHelpModal(type) {
+            const data = helpData[type];
+            if (!data) return;
+            document.getElementById('helpTitle').innerText = data.title;
+            document.getElementById('helpDesc').innerText = data.desc;
+            document.getElementById('helpIcon').innerHTML = data.icon;
+            
+            const modal = document.getElementById('helpModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeHelpModal() {
+            const modal = document.getElementById('helpModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    </script>
     <?php if (isset($_SESSION['recharge_success'])): ?>
         <script>
             document.addEventListener('DOMContentLoaded', () => {

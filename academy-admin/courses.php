@@ -145,7 +145,7 @@ $courses = $pdo->query("
         FROM wari_push_logs
         WHERE type = 'course'
         GROUP BY target_id
-    ) pl ON pl.target_id = co.slug
+    ) pl ON pl.target_id COLLATE utf8mb4_unicode_ci = co.slug COLLATE utf8mb4_unicode_ci
     GROUP BY co.id
     ORDER BY co.category_id ASC, co.ordre ASC
 ")->fetchAll(PDO::FETCH_ASSOC);
@@ -275,6 +275,9 @@ $courses = $pdo->query("
         </div>
         <div class="flex items-center gap-3">
             <span class="text-[11px] text-slate-500"><?= count($courses) ?> cours au total</span>
+            <button onclick="openIdeatorModal()" class="bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 border border-indigo-500/30 font-bold text-[12px] px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5">
+                💡 Idées IA
+            </button>
             <a href="/academy-admin/courses.php?action=add"
                class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[12px] px-4 py-1.5 rounded-full transition-all">
                 + Nouveau cours
@@ -324,15 +327,22 @@ $courses = $pdo->query("
                     <div class="col-span-2">
                         <div class="flex items-center justify-between mb-1.5">
                             <label class="field-label mb-0">Titre du cours *</label>
-                            <button type="button" onclick="generateDraft()" id="btn-ai-draft"
-                                    class="text-[10px] font-bold uppercase tracking-wider text-gold-500 hover:text-gold-400 flex items-center gap-1.5 transition-all opacity-70 hover:opacity-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
-                                Draft Magique (IA)
-                            </button>
+                            <div class="flex items-center gap-3">
+                                <button type="button" onclick="generateDraft()" id="btn-ai-draft"
+                                        class="text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-all">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
+                                    Draft
+                                </button>
+                                <button type="button" onclick="generateAllAuto()" id="btn-ai-all"
+                                        class="text-[10px] font-bold uppercase tracking-wider bg-gold-900/40 text-gold-500 hover:bg-gold-500 hover:text-ink-900 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all border border-gold-500/50">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                    Générer TOUT (Auto)
+                                </button>
+                            </div>
                         </div>
                         <input type="text" id="course_title" name="titre" class="field-input"
                                placeholder="ex: Gérer son budget au quotidien"
-                               value="<?= htmlspecialchars($courseEdit['titre'] ?? '') ?>"
+                               value="<?= htmlspecialchars($courseEdit['titre'] ?? $_GET['title'] ?? '') ?>"
                                required>
                     </div>
 
@@ -344,7 +354,10 @@ $courses = $pdo->query("
                             <?php foreach ($categories as $cat): ?>
                             <option value="<?= $cat['id'] ?>"
                                 <?= ($courseEdit['category_id'] ?? '') == $cat['id'] ? 'selected' : '' ?>>
-                                <?= $cat['icone'] . ' ' . htmlspecialchars($cat['titre']) ?>
+                                <?php if (!in_array($cat['icone'], ['wallet','landmark','rocket','alert-triangle','trending-up','brain','book','lightbulb','target','award','gem','key','bar-chart','globe','briefcase','shield','zap','leaf'])): ?>
+                                    <?= $cat['icone'] ?> 
+                                <?php endif; ?>
+                                <?= htmlspecialchars($cat['titre']) ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
@@ -564,6 +577,12 @@ $courses = $pdo->query("
 
                     <!-- Actions -->
                     <div class="col-span-2 flex items-center justify-end gap-2">
+                        <!-- Push -->
+                        <button type="button" onclick="sendPushNotification(<?= $course['id'] ?>)"
+                           title="Envoyer Notification Push"
+                           class="w-7 h-7 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/30 flex items-center justify-center text-indigo-400 hover:text-indigo-300 transition-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"/></svg>
+                        </button>
                         <!-- Voir leçons -->
                         <a href="/academy-admin/lessons.php?course_id=<?= $course['id'] ?>"
                            title="Gérer les leçons"
@@ -615,7 +634,219 @@ $courses = $pdo->query("
     </div>
 </div>
 
+<!-- Modal Générateur Auto -->
+<div id="auto-generator-modal" class="fixed inset-0 bg-ink-900/90 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-ink-800 border border-gold-900/50 rounded-2xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-ink-900">
+            <div id="ag-progress-bar" class="h-full bg-gold-500 w-0 transition-all duration-500 ease-out"></div>
+        </div>
+        <div class="text-center mb-6 shrink-0">
+            <div class="w-16 h-16 rounded-full bg-gold-900/30 border-2 border-gold-500/30 flex items-center justify-center mx-auto mb-4 relative">
+                <svg id="ag-spinner" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500 animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                <svg id="ag-success" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 hidden"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2" id="ag-title">Génération Magique</h3>
+            <p class="text-sm text-slate-400" id="ag-status">Préparation du moteur IA...</p>
+        </div>
+        <div class="space-y-3 overflow-y-auto flex-1 pr-2" id="ag-steps" style="min-height: 150px;">
+            <!-- Étapes insérées ici par JS -->
+        </div>
+        <div class="mt-8 text-center hidden shrink-0" id="ag-btn-container">
+            <a href="/academy-admin/courses.php" class="inline-block bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-sm px-6 py-2.5 rounded-full transition-all shadow-[0_0_20px_rgba(201,168,76,0.3)]">
+                Voir mon nouveau cours !
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ideator IA -->
+<div id="ideator-modal" class="fixed inset-0 bg-ink-900/90 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-ink-800 border border-indigo-500/30 rounded-2xl p-8 max-w-lg w-full shadow-[0_0_40px_rgba(99,102,241,0.15)] relative flex flex-col max-h-[90vh]">
+        
+        <div class="flex justify-between items-start mb-6">
+            <div>
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                    <span class="text-indigo-400">💡</span> Idées de cours
+                </h3>
+                <p class="text-[13px] text-slate-400 mt-1">L'IA génère des titres percutants (sans doublons).</p>
+            </div>
+            <button onclick="closeIdeatorModal()" class="text-slate-500 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+        </div>
+
+        <!-- Formulaire de thème -->
+        <div id="ideator-form" class="mb-4">
+            <label class="block text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-2">Sur quel thème ? (optionnel)</label>
+            <div class="flex gap-2">
+                <input type="text" id="ideator-theme" placeholder="ex: sortir des dettes, l'immobilier, budget..." class="flex-1 bg-ink-900 border border-indigo-500/30 rounded-xl px-4 py-2 text-sm text-slate-200 outline-none focus:border-indigo-500/60 transition-colors">
+                <button onclick="fetchCourseIdeas()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2 rounded-xl transition-colors">Générer</button>
+            </div>
+        </div>
+
+        <!-- Zone de chargement -->
+        <div id="ideator-loading" class="hidden py-12 flex flex-col items-center justify-center text-center">
+            <svg class="w-10 h-10 text-indigo-500 animate-spin mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            <p class="text-indigo-300 font-medium">Réflexion en cours...</p>
+            <p class="text-[11px] text-slate-500 mt-2">Recherche de concepts forts et inédits</p>
+        </div>
+
+        <!-- Liste des idées -->
+        <div id="ideator-results" class="hidden flex-1 overflow-y-auto space-y-3 pr-2">
+            <!-- Injecté via JS -->
+        </div>
+
+        <div id="ideator-actions" class="mt-6 pt-4 border-t border-indigo-900/30 text-right hidden">
+            <button onclick="fetchCourseIdeas()" class="text-[12px] text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1.5 ml-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21v-5h5"/></svg>
+                Regénérer d'autres idées
+            </button>
+        </div>
+    </div>
+</div>
+
     <script>
+        async function generateAllAuto() {
+            const titleInput = document.getElementById('course_title');
+            const categoryInput = document.querySelector('select[name="category_id"]');
+            
+            if (!titleInput.value.trim() || !categoryInput.value) {
+                alert("Veuillez d'abord saisir un titre ET choisir une catégorie.");
+                return;
+            }
+
+            const modal = document.getElementById('auto-generator-modal');
+            const statusTxt = document.getElementById('ag-status');
+            const stepsDiv = document.getElementById('ag-steps');
+            const progressBar = document.getElementById('ag-progress-bar');
+            
+            // Afficher le modal
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 50);
+            
+            stepsDiv.innerHTML = '';
+            
+            const addStep = (text) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-3 text-sm text-slate-300 bg-white/5 p-3 rounded-lg border border-white/5 anim';
+                div.innerHTML = `<svg class="w-4 h-4 text-gold-500 shrink-0 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> <span>${text}</span>`;
+                stepsDiv.appendChild(div);
+                stepsDiv.scrollTop = stepsDiv.scrollHeight;
+                return div;
+            };
+
+            const completeStep = (div) => {
+                const svg = div.querySelector('svg');
+                svg.classList.remove('animate-spin', 'text-gold-500');
+                svg.classList.add('text-emerald-500');
+                svg.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+                div.classList.add('border-emerald-500/30', 'bg-emerald-500/5');
+            };
+
+            try {
+                // ETAPE 1: Brouillon
+                statusTxt.innerText = "Création du plan du cours...";
+                progressBar.style.width = '10%';
+                let step1 = addStep("Analyse du sujet et structuration...");
+                
+                let fd1 = new FormData();
+                fd1.append('action', 'draft_course');
+                fd1.append('sujet', titleInput.value);
+                
+                let res1 = await fetch('ai_gateway.php', { method: 'POST', body: fd1 });
+                let draft = await res1.json();
+                if (Array.isArray(draft)) draft = draft[0];
+                
+                if (draft.error) throw new Error(draft.error);
+                completeStep(step1);
+
+                // ETAPE 2: Sauvegarde Cours
+                statusTxt.innerText = "Sauvegarde de la coquille vide...";
+                progressBar.style.width = '20%';
+                let step2 = addStep("Création de l'architecture en base de données...");
+                
+                let fd2 = new FormData();
+                fd2.append('action', 'save_draft_course');
+                fd2.append('titre', draft.titre || titleInput.value);
+                fd2.append('description', draft.description || '');
+                fd2.append('niveau', draft.niveau || 'debutant');
+                fd2.append('duree_minutes', draft.duree_minutes || 10);
+                fd2.append('category_id', categoryInput.value);
+
+                let res2 = await fetch('ai_gateway.php', { method: 'POST', body: fd2 });
+                let saveCourse = await res2.json();
+                
+                if (!saveCourse.success) throw new Error(saveCourse.error || "Erreur sauvegarde cours");
+                let courseId = saveCourse.course_id;
+                completeStep(step2);
+
+                // ETAPE 3: Boucle des leçons
+                let lecons = draft.lecons || [];
+                if (!Array.isArray(lecons) || lecons.length === 0) throw new Error("L'IA n'a généré aucune leçon.");
+                
+                for (let i = 0; i < lecons.length; i++) {
+                    let pct = 20 + (((i+0.5) / lecons.length) * 80);
+                    progressBar.style.width = pct + '%';
+                    statusTxt.innerText = `Rédaction de la leçon ${i+1}/${lecons.length}...`;
+                    
+                    let lessonStep = addStep(`Rédaction IA : ${lecons[i].titre}`);
+                    
+                    // Générer le HTML
+                    let fd3 = new FormData();
+                    fd3.append('action', 'write_lesson');
+                    fd3.append('titre_lecon', lecons[i].titre);
+                    fd3.append('cours_context', `${draft.titre} - ${draft.description}`);
+                    
+                    let res3 = await fetch('ai_gateway.php', { method: 'POST', body: fd3 });
+                    let lessonContent = await res3.json();
+                    
+                    if (lessonContent.error) throw new Error(`Erreur leçon ${i+1}: ${lessonContent.error}`);
+                    
+                    // Sauvegarder leçon
+                    let fd4 = new FormData();
+                    fd4.append('action', 'save_draft_lesson');
+                    fd4.append('course_id', courseId);
+                    fd4.append('titre', lecons[i].titre);
+                    fd4.append('contenu', lessonContent.contenu);
+                    fd4.append('type', lecons[i].type === 'video' ? 'video' : 'texte');
+                    fd4.append('ordre', i + 1);
+                    
+                    let res4 = await fetch('ai_gateway.php', { method: 'POST', body: fd4 });
+                    let saveLesson = await res4.json();
+                    
+                    if (!saveLesson.success) throw new Error("Erreur sauvegarde leçon en BDD");
+                    
+                    completeStep(lessonStep);
+                }
+                
+                // FINALISATION
+                progressBar.style.width = '100%';
+                statusTxt.innerText = "Génération terminée avec succès !";
+                statusTxt.classList.replace('text-slate-400', 'text-emerald-400');
+                document.getElementById('ag-spinner').classList.add('hidden');
+                document.getElementById('ag-success').classList.remove('hidden');
+                
+                // L'envoi de la notification Push a été retiré ici pour laisser l'utilisateur vérifier le cours avant de publier.
+                document.getElementById('ag-btn-container').innerHTML = `
+                    <a href="/academy-admin/lessons.php?course_id=${courseId}" class="inline-block bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-sm px-6 py-2.5 rounded-full transition-all shadow-[0_0_20px_rgba(201,168,76,0.3)]">
+                        Voir les leçons générées
+                    </a>
+                `;
+                document.getElementById('ag-btn-container').classList.remove('hidden');
+
+            } catch (err) {
+                console.error(err);
+                statusTxt.innerText = "Erreur fatale : " + err.message;
+                statusTxt.classList.replace('text-slate-400', 'text-red-400');
+                document.getElementById('ag-spinner').classList.add('hidden');
+                
+                // Afficher le bouton pour fermer la modale
+                let btnCont = document.getElementById('ag-btn-container');
+                btnCont.classList.remove('hidden');
+                btnCont.innerHTML = `<button onclick="document.getElementById('auto-generator-modal').classList.add('hidden')" class="bg-red-500/20 text-red-500 font-bold px-6 py-2.5 rounded-full hover:bg-red-500/30">Fermer</button>`;
+            }
+        }
+
         async function generateDraft() {
             const titleInput = document.getElementById('course_title');
             const descInput  = document.querySelector('textarea[name="description"]');
@@ -669,6 +900,113 @@ $courses = $pdo->query("
                 btn.disabled = false;
                 btn.innerHTML = originalBtnHtml;
                 btn.classList.remove('animate-pulse');
+            }
+        }
+
+        // --- IDEATOR IA ---
+        function openIdeatorModal() {
+            const modal = document.getElementById('ideator-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 50);
+            
+            document.getElementById('ideator-form').classList.remove('hidden');
+            document.getElementById('ideator-loading').classList.add('hidden');
+            document.getElementById('ideator-results').classList.add('hidden');
+            document.getElementById('ideator-actions').classList.add('hidden');
+            document.getElementById('ideator-theme').value = '';
+            document.getElementById('ideator-theme').focus();
+        }
+
+        function closeIdeatorModal() {
+            const modal = document.getElementById('ideator-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        async function fetchCourseIdeas() {
+            let theme = document.getElementById('ideator-theme').value.trim();
+            
+            document.getElementById('ideator-form').classList.add('hidden');
+            document.getElementById('ideator-loading').classList.remove('hidden');
+            document.getElementById('ideator-results').classList.add('hidden');
+            document.getElementById('ideator-actions').classList.add('hidden');
+            document.getElementById('ideator-results').innerHTML = '';
+            
+            // Reset loading state
+            document.getElementById('ideator-loading').innerHTML = `
+                <svg class="w-10 h-10 text-indigo-500 animate-spin mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                <p class="text-indigo-300 font-medium">Réflexion en cours...</p>
+                <p class="text-[11px] text-slate-500 mt-2">Recherche de concepts forts et inédits${theme ? ` sur "${theme}"` : ''}</p>
+            `;
+
+            try {
+                let fd = new FormData();
+                fd.append('action', 'generate_course_ideas');
+                if (theme) fd.append('theme', theme);
+                
+                let res = await fetch('ai_gateway.php', { method: 'POST', body: fd });
+                let data = await res.json();
+                
+                if (data.error) throw new Error(data.error);
+                
+                let idees = data.idees || [];
+                if (!Array.isArray(idees) || idees.length === 0) {
+                    if (Array.isArray(data)) idees = data;
+                    else throw new Error("Format JSON invalide");
+                }
+
+                idees.forEach(titre => {
+                    let safeTitle = titre.replace(/"/g, '&quot;').replace(/'/g, "\\'");
+                    document.getElementById('ideator-results').innerHTML += `
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-xl hover:bg-white/10 transition-colors flex justify-between items-center gap-4 anim">
+                            <p class="text-[13px] font-semibold text-slate-200 flex-1 leading-snug">${titre}</p>
+                            <button onclick="useIdea('${safeTitle}')" class="bg-indigo-500 hover:bg-indigo-400 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+                                Utiliser
+                            </button>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('ideator-loading').classList.add('hidden');
+                document.getElementById('ideator-results').classList.remove('hidden');
+                document.getElementById('ideator-actions').classList.remove('hidden');
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('ideator-loading').innerHTML = `
+                    <p class="text-red-400 font-bold mb-4">Erreur : ${err.message}</p>
+                    <button onclick="fetchCourseIdeas()" class="bg-indigo-500 hover:bg-indigo-400 px-5 py-2 rounded-lg text-white text-xs font-bold transition-colors">Réessayer</button>
+                `;
+            }
+        }
+
+        function useIdea(title) {
+            closeIdeatorModal();
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('action') === 'add') {
+                document.getElementById('course_title').value = title;
+            } else {
+                window.location.href = '/academy-admin/courses.php?action=add&title=' + encodeURIComponent(title);
+            }
+        }
+
+        async function sendPushNotification(courseId) {
+            if(!confirm("⚠️ Veux-tu vraiment envoyer une notification Push à TOUS les utilisateurs pour annoncer ce cours ?\nAssure-toi de l'avoir relu avant !")) return;
+            
+            try {
+                let fd = new FormData();
+                fd.append('action', 'notify_course_published');
+                fd.append('course_id', courseId);
+                
+                let res = await fetch('ai_gateway.php', { method: 'POST', body: fd });
+                let data = await res.json();
+                
+                if (data.error) throw new Error(data.error);
+                
+                alert("✅ Notification Push envoyée avec succès à tous les utilisateurs !");
+                window.location.reload();
+            } catch (err) {
+                alert("❌ Erreur lors de l'envoi : " + err.message);
             }
         }
     </script>

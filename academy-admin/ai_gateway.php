@@ -29,6 +29,7 @@ try {
         }
 
         $prompt = "Génère un brouillon complet pour un nouveau cours sur le sujet : '$sujet'. 
+        Génère EXACTEMENT entre 3 et 5 leçons au maximum. Les leçons doivent s'enchaîner de manière logique, comme une histoire continue. Chaque leçon doit préparer la suivante.
         Tu dois impérativement retourner UN SEUL OBJET JSON (pas une liste) avec les clés :
         - 'titre' (accrocheur, attirant et pro)
         - 'description' (2-3 phrases impactantes)
@@ -36,9 +37,7 @@ try {
         - 'duree_minutes' (estimation)
         - 'lecons' (tableau d'objets avec 'titre' et 'type' [texte ou video])";
 
-        $system = "Tu es l'expert pédagogique de Wari Academy. 
-        Tes cours doivent transformer, éduquer, briser les préjugés autour de l'argent et inspirer des notions financières complexes en conseils pratiques pour les entrepreneurs et particuliers africains. 
-        Utilise le ton Wari : narratif, direct, expert, et ancré dans la réalité locale africaine.";
+        $system = "Tu es l'expert pédagogique de Wari Academy. Tes cours sont des coups de poing de réalité financière. Fini la théorie, place à l'action. NE FAIS PAS DES COURS TROP LONGS, 3 à 5 leçons suffisent amplement.";
 
         echo $ai->generate($prompt, $system);
         break;
@@ -52,14 +51,16 @@ try {
             break;
         }
 
-        $prompt = "Rédige le contenu complet de la leçon intitulée : '$titreLecon'. 
+        $prompt = "Rédige le contenu de la leçon : '$titreLecon'. 
         Contexte du cours : $coursContext.
+        Le contenu DOIT ÊTRE COURT ET CONCIS (maximum 200 à 300 mots). Ne fais pas de longues théories. Utilise des exemples crus du quotidien africain.
+        À la fin de la leçon, inclus OBLIGATOIREMENT une 'MISSION D'AUJOURD'HUI' : une petite action financière réelle et rapide.
         Retourne un JSON avec une clé 'contenu' contenant du HTML propre.
         Utilise : <h2> pour les sections, <p> pour le texte, <ul><li> pour les listes.
-        Ajoute au moins un encadré 'Astuce' ou '💡 Conseil Wari' en utilisant ce code HTML :
-        <div class='bg-slate-800 border-l-4 border-gold-500 p-4 my-4'><div class='text-gold-500 font-bold mb-1'>💡 CONSEIL</div>Le texte du conseil...</div>";
+        Ajoute au moins un encadré 'Mission' ou '💡 Action Immédiate' en utilisant ce code HTML :
+        <div class='bg-slate-800 border-l-4 border-gold-500 p-4 my-4'><div class='text-gold-500 font-bold mb-1'>💡 ACTION IMMÉDIATE</div>Le texte de l'action...</div>";
 
-        $system = "Tu es le rédacteur principal de Wari Academy. Tes leçons sont captivantes, attirantes et utilisent des scénarios réels (ex: épargner pour un projet, gérer les dépenses du foyer, optimiser les profits d'une petite boutique).";
+        $system = "Tu es le rédacteur principal de Wari Academy. Ton ton est direct, sans filtre, et hyper-pratique. Tu ne fais pas de longs discours. Tu vas droit au but pour aider l'utilisateur à sortir de la pauvreté.";
 
         echo $ai->generate($prompt, $system);
         break;
@@ -176,6 +177,102 @@ try {
 
         $system = "Tu es le Coach Wari, un mentor de confiance dévoué à 100% et expert en discipline financière en Afrique. Tu parles directement avec franchise, respect, maturité, bienveillance et rigueur budgétaire.";
 
+        echo $ai->generate($prompt, $system);
+        break;
+
+    case 'save_draft_course':
+        require_once __DIR__ . '/../config/db.php';
+        $titre = trim($_POST['titre'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+        $niveau = $_POST['niveau'] ?? 'debutant';
+        $duree_minutes = (int)($_POST['duree_minutes'] ?? 10);
+        $category_id = (int)($_POST['category_id'] ?? 0);
+        
+        if (!$titre || !$category_id) {
+            echo json_encode(['error' => 'Titre ou catégorie manquant pour la sauvegarde.']);
+            break;
+        }
+        
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', iconv('UTF-8', 'ASCII//TRANSLIT', $titre)), '-')) . '-' . time();
+        
+        $stmt = $pdo->prepare("
+            INSERT INTO academy_courses (category_id, slug, titre, description, niveau, duree_minutes, auteur, est_gratuit, est_actif)
+            VALUES (?, ?, ?, ?, ?, ?, 'Wari Finance', 1, 1)
+        ");
+        $stmt->execute([$category_id, $slug, $titre, $description, $niveau, $duree_minutes]);
+        
+        echo json_encode(['success' => true, 'course_id' => $pdo->lastInsertId()]);
+        break;
+
+    case 'save_draft_lesson':
+        require_once __DIR__ . '/../config/db.php';
+        $course_id = (int)($_POST['course_id'] ?? 0);
+        $titre = trim($_POST['titre'] ?? '');
+        $contenu = trim($_POST['contenu'] ?? '');
+        $type = $_POST['type'] ?? 'texte';
+        $ordre = (int)($_POST['ordre'] ?? 0);
+        
+        if (!$course_id || !$titre || !$contenu) {
+            echo json_encode(['error' => 'Données manquantes pour la sauvegarde de la leçon.']);
+            break;
+        }
+        
+        $pdo->prepare("
+            INSERT INTO academy_lessons (course_id, titre, contenu, type, ordre, est_actif)
+            VALUES (?, ?, ?, ?, ?, 1)
+        ")->execute([$course_id, $titre, $contenu, $type, $ordre]);
+        
+        echo json_encode(['success' => true, 'lesson_id' => $pdo->lastInsertId()]);
+        break;
+
+    case 'notify_course_published':
+        require_once __DIR__ . '/../config/db.php';
+        $course_id = (int)($_POST['course_id'] ?? 0);
+        
+        if ($course_id) {
+            $stmt = $pdo->prepare("SELECT slug, titre FROM academy_courses WHERE id = ?");
+            $stmt->execute([$course_id]);
+            $course = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($course) {
+                try {
+                    require_once __DIR__ . '/../classes/Push.php';
+                    $pushTitle = "Nouveau cours disponible ! 📚";
+                    $pushBody  = "Découvrez le cours : \"" . $course['titre'] . "\" sur Wari Academy.";
+                    $pushUrl   = "https://wari.digiroys.com/academy/course.php?slug=" . urlencode($course['slug']) . "&utm_source=push&utm_campaign=new_course";
+                    Push::sendToAll($pdo, $pushTitle, $pushBody, $pushUrl, 'course', $course['slug']);
+                    echo json_encode(['success' => true]);
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+                }
+            } else {
+                echo json_encode(['error' => 'Cours non trouvé']);
+            }
+        } else {
+            echo json_encode(['error' => 'ID manquant']);
+        }
+        break;
+
+    case 'generate_course_ideas':
+        require_once __DIR__ . '/../config/db.php';
+        
+        $theme = trim($_POST['theme'] ?? '');
+        $themeContext = $theme ? "Contexte obligatoire : Le cours doit porter spécifiquement sur le thème suivant : '$theme'." : "Thème : Général (éducation financière, épargne, gestion, mentalité, investissement...).";
+
+        $stmt = $pdo->query("SELECT titre FROM academy_courses");
+        $existing = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $existingStr = empty($existing) ? "Aucun" : implode("', '", $existing);
+
+        $system = "Tu es un concepteur de formations en éducation financière. Ton audience : des jeunes qui veulent sortir de la pauvreté.
+$themeContext
+RÈGLES :
+1. Titres ultra-directs, percutants (hook).
+2. PAS de 'gros français' compliqué.
+3. Formats: 'Comment...', 'Le secret...', '[Sujet] : action...', etc.
+4. NE DOIT PAS être un de ces titres existants : '$existingStr'.
+Retourne STRICTEMENT un objet JSON valide (sans markdown) : { \"idees\": [\"Titre 1\", \"Titre 2\", \"Titre 3\", \"Titre 4\", \"Titre 5\"] }";
+
+        $prompt = "Génère 5 idées de titres de cours percutants.";
         echo $ai->generate($prompt, $system);
         break;
 

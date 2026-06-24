@@ -71,7 +71,7 @@ class Academy
     public function getCourseBySlug($slug)
     {
         $stmt = $this->pdo->prepare("
-            SELECT co.*, c.titre as category_titre, c.slug as category_slug
+            SELECT co.*, c.titre as category_titre, c.slug as category_slug, c.icone as category_icone, c.couleur as category_couleur
             FROM academy_courses co
             JOIN academy_categories c ON c.id = co.category_id
             WHERE co.slug = ? AND co.est_actif = 1
@@ -86,7 +86,7 @@ class Academy
     public function getCourseById($course_id)
     {
         $stmt = $this->pdo->prepare("
-            SELECT co.*, c.titre as category_titre
+            SELECT co.*, c.titre as category_titre, c.slug as category_slug, c.icone as category_icone, c.couleur as category_couleur
             FROM academy_courses co
             JOIN academy_categories c ON c.id = co.category_id
             WHERE co.id = ? AND co.est_actif = 1

@@ -145,7 +145,7 @@ function render(isSimulation = false) {
       ? (parseFloat(projectCapital) || 0) + spent + montantAjoute
       : currentBalance + montantAjoute;
 
-    const remaining = Math.max(0, totalPrevisionnel - spent);
+    const remaining = totalPrevisionnel - spent;
     const progress =
       totalPrevisionnel > 0
         ? Math.min(100, (spent / totalPrevisionnel) * 100)
@@ -270,7 +270,7 @@ function render(isSimulation = false) {
 
     const soldeReel = isProjet
       ? Math.max(0, projectCapital)
-      : Math.max(0, c.amount - spent);
+      : (c.amount - spent);
 
     totalAlloue += isProjet ? projectCapital : c.amount;
     totalDepense += spent;
@@ -580,7 +580,7 @@ window.updatePercentLive = function (id, val) {
       const spent = typeof currentExpenses !== "undefined" && currentExpenses[c.id] ? parseInt(currentExpenses[c.id]) : 0;
       const isProjet = c.name.toLowerCase().includes("projet");
       const isEpargne = c.name.toLowerCase().includes("épargne") || c.id === 1;
-      const soldeReel = isProjet ? Math.max(0, projectCapital) : Math.max(0, c.amount - spent);
+      const soldeReel = isProjet ? Math.max(0, projectCapital) : (c.amount - spent);
 
       if (isEpargne) {
         bank += soldeReel;
@@ -857,7 +857,7 @@ function loadBudget() {
         if (isProjet) return cat;
 
         const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
-        return { ...cat, balance: Math.max(0, (cat.balance || 0) - spent) };
+        return { ...cat, balance: (cat.balance || 0) - spent };
       });
 
       data.lastSavedMonth = currentMonth;

@@ -145,6 +145,7 @@ if ($isLocked) {
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -245,10 +246,26 @@ if ($isLocked) {
                         <strong class="text-wari-goldLight truncate max-w-[200px] sm:max-w-none block"><?= htmlspecialchars($course['titre']) ?></strong>
                     </div>
 
-                    <!-- Category Badge -->
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 border border-cat-color bg-slate-900/50 cat-color shadow-[0_0_15px_rgba(0,0,0,0.2)]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-cat-color"></span>
-                        <?= htmlspecialchars($course['category_titre']) ?>
+                    <!-- Badges -->
+                    <div class="flex flex-wrap items-center gap-3 mb-6">
+                        <!-- Category Badge -->
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border border-cat-color bg-slate-900/50 cat-color shadow-[0_0_15px_rgba(0,0,0,0.2)]">
+                            <?php
+                            $lucideIcons = ['wallet','landmark','rocket','alert-triangle','trending-up','brain','book','lightbulb','target','award','gem','key','bar-chart','globe','briefcase','shield','zap','leaf'];
+                            if (in_array($course['category_icone'], $lucideIcons)): ?>
+                                <i data-lucide="<?= htmlspecialchars($course['category_icone']) ?>" class="w-4 h-4 shrink-0"></i>
+                            <?php else: ?>
+                                <span><?= htmlspecialchars($course['category_icone'] ?? '') ?></span>
+                            <?php endif; ?>
+                            <span><?= htmlspecialchars($course['category_titre']) ?></span>
+                        </div>
+
+                        <!-- Premium Badge if applicable -->
+                        <?php if ($course['est_gratuit'] == 0 || $course['niveau'] === 'avance'): ?>
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border border-amber-500/30 bg-amber-500/10 text-amber-500 shadow-[0_0_10px_rgba(245,166,35,0.1)]">
+                                🔒 Premium
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Title & Description -->
@@ -507,5 +524,8 @@ if ($isLocked) {
         <div class="text-[9px] font-bold text-white/30 uppercase tracking-[0.3em]">&copy; <?= date('Y') ?> WARI FINANCE — TOUS DROITS RÉSERVÉS.</div>
     </footer>
 
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

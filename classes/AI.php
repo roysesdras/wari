@@ -13,7 +13,7 @@ class AI
         // Chargement du .env si non chargé
         $this->loadEnv();
         $this->apiKey = $_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '';
-        $this->model  = $_ENV['GEMINI_MODEL'] ?? getenv('GEMINI_MODEL') ?: 'gemini-2.0-flash';
+        $this->model  = $_ENV['GEMINI_MODEL'] ?? getenv('GEMINI_MODEL') ?: 'gemini-2.5-flash';
     }
 
     private function loadEnv()

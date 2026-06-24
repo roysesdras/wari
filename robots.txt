@@ -18,9 +18,10 @@ Allow: /index.php
 Allow: /styles.css
 Allow: /vecu/
 Allow: /academy/
+Allow: /guide/
 Allow: /uploads/
 Allow: /paid/
 Allow: /rapport/
 
 # Lien vers le sitemap
-Sitemap: https://wari.digiroys.com/accueil/sitemap.xml
+Sitemap: https://wari.digiroys.com/sitemap.xml

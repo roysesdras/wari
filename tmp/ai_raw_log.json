@@ -1,7 +1,31 @@
 {
-  "error": {
-    "code": 404,
-    "message": "This model models/gemini-2.0-flash is no longer available. Please update your code to use a newer model for the latest features and improvements.",
-    "status": "NOT_FOUND"
-  }
+  "candidates": [
+    {
+      "content": {
+        "parts": [
+          {
+            "text": "{\n  \"forces\": \"Le fait de suivre tes dépenses, même sans revenu, montre une volonté de prendre le contrôle. C'est une base sur laquelle construire.\",\n  \"faiblesses\": \"L'absence de revenus est ton plus grand défi ce mois-ci, entraînant un solde négatif et aucune allocation pour l'épargne ou les projets. Tes dépenses, bien que concentrées sur le train de vie, creusent un trou sans apport.\",\n  \"conseil_action\": \"Concentres-toi urgemment sur la génération de revenus, même modestes, pour couvrir tes besoins essentiels. Simultanément, réduis drastiquement ton train de vie pour stopper l'hémorragie et éviter de t'endetter davantage.\"\n}"
+          }
+        ],
+        "role": "model"
+      },
+      "finishReason": "STOP",
+      "index": 0
+    }
+  ],
+  "usageMetadata": {
+    "promptTokenCount": 461,
+    "candidatesTokenCount": 161,
+    "totalTokenCount": 1687,
+    "promptTokensDetails": [
+      {
+        "modality": "TEXT",
+        "tokenCount": 461
+      }
+    ],
+    "thoughtsTokenCount": 1065,
+    "serviceTier": "standard"
+  },
+  "modelVersion": "gemini-2.5-flash",
+  "responseId": "-8A6apWSJc7HvdIPj7ex2Q4"
 }

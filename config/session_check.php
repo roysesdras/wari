@@ -50,11 +50,22 @@ if (isset($_SESSION['user_id'])) {
     $userLicense = $stmt->fetch();
 
     $_SESSION['is_premium'] = false;
+    $has_paid = false;
+    
     if ($userLicense) {
         $userEmail = $userLicense['email'];
         $licence_statut = $userLicense['licence_statut'];
         $date_expiration = $userLicense['date_expiration'];
-        $_SESSION['is_premium'] = ($date_expiration !== null && strtotime($date_expiration) >= time());
+        
+        // SECURITE RENFORCEE : L'utilisateur a-t-il vraiment payé via FedaPay ?
+        $stmtPay = $pdo->prepare("SELECT id FROM wari_payments WHERE (email_client = ? OR commande_id = ?) AND statut = 'approved' LIMIT 1");
+        $stmtPay->execute([$userEmail, $userLicense['commande_id']]);
+        if ($stmtPay->fetch()) {
+            $has_paid = true;
+        }
+
+        // Est premium si la licence est valide ET qu'il a payé
+        $_SESSION['is_premium'] = ($date_expiration !== null && strtotime($date_expiration) >= time() && $has_paid);
 
         // Définir les contournements (bypass) pour éviter les redirections infinies
         $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
@@ -91,7 +102,8 @@ if (isset($_SESSION['user_id'])) {
             if ($userEmail === 'info@rebonly.com' || $isTransitionActive) {
                 $isExpired = (
                     $date_expiration === null || 
-                    strtotime($date_expiration) < time()
+                    strtotime($date_expiration) < time() ||
+                    !$has_paid
                 );
 
                 if ($isExpired) {
