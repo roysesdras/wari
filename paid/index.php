@@ -207,17 +207,9 @@ $product_name = $isRecharge ? "WARI | Recharge d'Accès" : "WARI | Licence Pro";
             border: 1px solid var(--border);
             border-radius: var(--radius);
             padding: 1rem;
-            box-shadow: 0 10px 10px -5px rgba(0, 0, 0, 0.6);
             position: relative;
             overflow: hidden;
             transition: background 0.3s, border 0.3s;
-        }
-
-        .payment-box::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--gold), transparent);
         }
 
         .order-summary {

@@ -58,7 +58,7 @@ try {
         Retourne un JSON avec une clé 'contenu' contenant du HTML propre.
         Utilise : <h2> pour les sections, <p> pour le texte, <ul><li> pour les listes.
         Ajoute au moins un encadré 'Mission' ou '💡 Action Immédiate' en utilisant ce code HTML :
-        <div class='bg-slate-800 border-l-4 border-gold-500 p-4 my-4'><div class='text-gold-500 font-bold mb-1'>💡 ACTION IMMÉDIATE</div>Le texte de l'action...</div>";
+        <div class='bg-slate-800 border-l-4 border-gold-500 p-4 my-4'><div class='text-emerald-500 font-bold mb-1'>💡 ACTION IMMÉDIATE</div>Le texte de l'action...</div>";
 
         $system = "Tu es le rédacteur principal de Wari Academy. Ton ton est direct, sans filtre, et hyper-pratique. Tu ne fais pas de longs discours. Tu vas droit au but pour aider l'utilisateur à sortir de la pauvreté.";
 

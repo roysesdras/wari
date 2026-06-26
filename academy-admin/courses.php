@@ -147,7 +147,7 @@ $courses = $pdo->query("
         GROUP BY target_id
     ) pl ON pl.target_id COLLATE utf8mb4_unicode_ci = co.slug COLLATE utf8mb4_unicode_ci
     GROUP BY co.id
-    ORDER BY co.category_id ASC, co.ordre ASC
+    ORDER BY co.id DESC
 ")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -167,18 +167,7 @@ $courses = $pdo->query("
             theme: {
                 extend: {
                     fontFamily: { sans: ['Poppins', 'sans-serif'] },
-                    colors: {
-                        gold: {
-                            50:'#FFFBEB', 100:'#FEF3C7', 200:'#FDE68A',
-                            300:'#FCD34D', 400:'#F0D080', 500:'#C9A84C',
-                            600:'#B8950A', 700:'#8B6914', 800:'#6B4F10', 900:'#3D2B0F',
-                        },
-                        ink: {
-                            50:'#F5F0E8', 100:'#E8DFC8', 200:'#D4C09A',
-                            300:'#B89A60', 400:'#8B6914', 500:'#5A3E10',
-                            600:'#2A1A04', 700:'#1A0F02', 800:'#100A01', 900:'#0A0601',
-                        }
-                    }
+                    colors: {}
                 }
             }
         }
@@ -186,25 +175,25 @@ $courses = $pdo->query("
     <style>
         body { font-family: 'Poppins', sans-serif; }
         ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #100A01; }
-        ::-webkit-scrollbar-thumb { background: #3D2B0F; border-radius: 999px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 999px; }
         .bg-pattern {
             background-image: repeating-linear-gradient(45deg,
                 transparent, transparent 40px,
-                rgba(201,168,76,.015) 40px, rgba(201,168,76,.015) 41px);
+                rgba(16,185,129,.015) 40px, rgba(16,185,129,.015) 41px);
         }
-        .card-gold-top { position: relative; }
-        .card-gold-top::before {
+        .card-green-top { position: relative; }
+        .card-green-top::before {
             content: '';
             position: absolute; top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, #C9A84C, transparent);
+            display: none;
             border-radius: 999px;
         }
         /* Input styles */
         .field-input {
             width: 100%;
             background: rgba(255,255,255,.05);
-            border: 1px solid rgba(201,168,76,.15);
+            border: 1px solid rgba(16,185,129,.15);
             border-radius: 10px;
             padding: 10px 14px;
             font-family: 'Poppins', sans-serif;
@@ -213,9 +202,9 @@ $courses = $pdo->query("
             outline: none;
             transition: border-color .2s;
         }
-        .field-input:focus { border-color: rgba(201,168,76,.5); background: rgba(201,168,76,.04); }
+        .field-input:focus { border-color: rgba(16,185,129,.5); background: rgba(16,185,129,.04); }
         .field-input::placeholder { color: rgba(255,255,255,.2); }
-        select.field-input option { background: #100A01; color: #e2e8f0; }
+        select.field-input option { background: #0f172a; color: #e2e8f0; }
         textarea.field-input { resize: vertical; min-height: 90px; }
         .field-label {
             display: block; font-size: 10px; font-weight: 700;
@@ -230,19 +219,19 @@ $courses = $pdo->query("
         .anim { animation: fadeUp .35s ease both; }
     </style>
 </head>
-<body class="bg-ink-800 bg-pattern text-slate-200 min-h-screen flex">
+<body class="bg-slate-900 bg-pattern text-slate-200 min-h-screen flex">
 
 <!-- ════ SIDEBAR ════════════════════════════════════════════ -->
-<aside class="w-56 bg-ink-900 border-r border-gold-900/30 min-h-screen fixed left-0 top-0 bottom-0 flex flex-col z-50">
-    <div class="px-5 py-6 border-b border-gold-900/20">
-        <span class="block font-black text-gold-500 text-lg tracking-wide leading-none">Wari Academy</span>
+<aside class="w-56 bg-slate-950 border-r border-slate-800 min-h-screen fixed left-0 top-0 bottom-0 flex flex-col z-50">
+    <div class="px-5 py-6 border-b border-slate-800">
+        <span class="block font-black text-emerald-500 text-lg tracking-wide leading-none">Wari Academy</span>
         <span class="block text-[10px] text-slate-600 tracking-[.15em] uppercase mt-1">Administration</span>
     </div>
     <nav class="flex-1 px-3 py-4 space-y-0.5">
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-2 pb-1">Principal</p>
         <a href="/academy-admin/index.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Dashboard</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Contenu</p>
-        <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]">Cours</a>
+        <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-emerald-500 bg-emerald-500/10 font-semibold text-[13px]">Cours</a>
         <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Leçons</a>
         <a href="/academy-admin/pdfs.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">PDF Payants</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Données</p>
@@ -252,10 +241,10 @@ $courses = $pdo->query("
         <a href="/academy/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Voir Academy</a>
         <a href="https://wari.digiroys.com/accueil/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Retour Wari</a>
     </nav>
-    <div class="px-3 py-4 border-t border-gold-900/20">
+    <div class="px-3 py-4 border-t border-slate-800">
         <div class="flex items-center gap-3 px-2 py-2 mb-1">
             <div>
-                <p class="text-[13px] font-semibold text-gold-400 leading-none"><?= htmlspecialchars($user) ?></p>
+                <p class="text-[13px] font-semibold text-emerald-400 leading-none"><?= htmlspecialchars($user) ?></p>
                 <p class="text-[10px] text-slate-600 mt-0.5">Admin Academy</p>
             </div>
         </div>
@@ -267,9 +256,9 @@ $courses = $pdo->query("
 <div class="ml-56 flex-1 flex flex-col min-h-screen">
 
     <!-- Topbar -->
-    <div class="bg-ink-900/80 backdrop-blur border-b border-gold-900/20 px-8 h-14 flex items-center justify-between sticky top-0 z-40">
+    <div class="bg-slate-950/80 backdrop-blur border-b border-slate-800 px-8 h-14 flex items-center justify-between sticky top-0 z-40">
         <div class="flex items-center gap-3">
-            <a href="/academy-admin/index.php" class="text-slate-600 hover:text-gold-500 text-xs transition-colors">Dashboard</a>
+            <a href="/academy-admin/index.php" class="text-slate-600 hover:text-emerald-500 text-xs transition-colors">Dashboard</a>
             <span class="text-slate-700">/</span>
             <span class="font-bold text-slate-100 text-sm">Cours</span>
         </div>
@@ -279,7 +268,7 @@ $courses = $pdo->query("
                 💡 Idées IA
             </button>
             <a href="/academy-admin/courses.php?action=add"
-               class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[12px] px-4 py-1.5 rounded-full transition-all">
+               class="bg-emerald-500 hover:bg-emerald-400 text-ink-900 font-bold text-[12px] px-4 py-1.5 rounded-full transition-all">
                 + Nouveau cours
             </a>
         </div>
@@ -303,14 +292,14 @@ $courses = $pdo->query("
              FORMULAIRE AJOUT / ÉDITION
         ════════════════════════════════════════════════ -->
         <?php if ($action === 'add' || $action === 'edit'): ?>
-        <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-7 mb-8 anim">
+        <div class="card-green-top bg-slate-950 border border-slate-800 rounded-2xl p-7 mb-8 anim">
 
             <h2 class="font-bold text-slate-100 text-base mb-6 flex items-center gap-2">
                 <?php if ($action === 'edit'): ?>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                     Modifier le cours
                 <?php else: ?>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                     Nouveau cours
                 <?php endif; ?>
             </h2>
@@ -334,7 +323,7 @@ $courses = $pdo->query("
                                     Draft
                                 </button>
                                 <button type="button" onclick="generateAllAuto()" id="btn-ai-all"
-                                        class="text-[10px] font-bold uppercase tracking-wider bg-gold-900/40 text-gold-500 hover:bg-gold-500 hover:text-ink-900 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all border border-gold-500/50">
+                                        class="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500 hover:text-ink-900 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all border border-gold-500/50">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                                     Générer TOUT (Auto)
                                 </button>
@@ -419,9 +408,9 @@ $courses = $pdo->query("
                 </div>
 
                 <!-- Boutons -->
-                <div class="flex items-center gap-3 pt-4 border-t border-gold-900/20">
+                <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
                     <button type="submit"
-                            class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all flex items-center gap-2">
+                            class="bg-emerald-500 hover:bg-emerald-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all flex items-center gap-2">
                         <?php if ($action === 'edit'): ?>
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
                             Enregistrer les modifications
@@ -458,27 +447,30 @@ $courses = $pdo->query("
                 ['label' => 'Total leçons',  'val' => $totalLecons,    'svg' => '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'],
                 ['label' => 'Apprenants',    'val' => $totalApprenant, 'svg' => '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>'],
             ] as $i => $s): ?>
-            <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-5 anim" style="animation-delay:<?= $i * .05 ?>s">
-                <div class="text-gold-700 mb-2">
+            <div class="card-green-top bg-slate-950 border border-slate-800 rounded-2xl p-5 anim" style="animation-delay:<?= $i * .05 ?>s">
+                <div class="text-emerald-700 mb-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><?= $s['svg'] ?></svg>
                 </div>
-                <p class="font-black text-gold-500 text-3xl leading-none"><?= number_format($s['val']) ?></p>
+                <p class="font-black text-emerald-500 text-3xl leading-none"><?= number_format($s['val']) ?></p>
                 <p class="text-slate-600 text-[11px] mt-1"><?= $s['label'] ?></p>
             </div>
             <?php endforeach; ?>
         </div>
 
         <!-- Tableau des cours -->
-        <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl overflow-hidden anim">
+        <div class="card-green-top bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden anim">
 
-            <div class="px-6 py-4 border-b border-gold-900/20 flex items-center justify-between">
-                <p class="font-bold text-slate-100 text-sm flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-700"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                    Tous les cours
-                </p>
+            <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <p class="font-bold text-slate-100 text-sm flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-700"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                        Tous les cours
+                    </p>
+                    <input type="text" id="courseSearch" placeholder="Rechercher un cours..." class="field-input w-64 h-8 text-xs bg-slate-900 border border-slate-700" onkeyup="filterCourses()">
+                </div>
                 <a href="/academy-admin/courses.php?action=add"
-                   class="text-[11px] text-gold-700 hover:text-gold-500 font-semibold transition-colors">
-                    + Ajouter →
+                   class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-colors">
+                    + Ajouter
                 </a>
             </div>
 
@@ -495,14 +487,14 @@ $courses = $pdo->query("
                 <div class="col-span-2 text-[10px] font-bold uppercase tracking-[.1em] text-slate-600 text-right">Actions</div>
             </div>
 
-            <div class="divide-y divide-gold-900/10">
+            <div class="divide-y divide-slate-800" id="courseList">
                 <?php foreach ($courses as $i => $course): ?>
-                <div class="grid grid-cols-12 gap-3 px-6 py-4 hover:bg-white/[.025] transition-colors items-center"
+                <div class="course-row grid grid-cols-12 gap-3 px-6 py-4 hover:bg-white/[.025] transition-colors items-center"
                      style="animation: fadeUp .3s ease <?= $i * .04 ?>s both">
 
                     <!-- Titre + niveau -->
                     <div class="col-span-4 min-w-0">
-                        <p class="font-semibold text-slate-100 text-[13px] truncate">
+                        <p class="course-title font-semibold text-slate-100 text-[13px] truncate">
                             <?= htmlspecialchars($course['titre']) ?>
                         </p>
                         <div class="flex items-center gap-2 mt-1">
@@ -517,7 +509,7 @@ $courses = $pdo->query("
                                 <?= ucfirst($course['niveau']) ?>
                             </span>
                             <?php if (!$course['est_gratuit']): ?>
-                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-gold-900/30 text-gold-600 font-medium flex items-center gap-1">
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 font-medium flex items-center gap-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
                                 Payant
                             </span>
@@ -546,7 +538,7 @@ $courses = $pdo->query("
 
                     <!-- Leçons -->
                     <div class="col-span-1 text-center">
-                        <span class="font-bold text-gold-500 text-sm"><?= $course['nb_lecons'] ?></span>
+                        <span class="font-bold text-emerald-500 text-sm"><?= $course['nb_lecons'] ?></span>
                     </div>
 
                     <!-- Apprenants -->
@@ -586,7 +578,7 @@ $courses = $pdo->query("
                         <!-- Voir leçons -->
                         <a href="/academy-admin/lessons.php?course_id=<?= $course['id'] ?>"
                            title="Gérer les leçons"
-                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-500 transition-all">
+                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-emerald-500/20 flex items-center justify-center text-slate-500 hover:text-emerald-500 transition-all">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                         </a>
                         <!-- Voir sur Academy -->
@@ -599,7 +591,7 @@ $courses = $pdo->query("
                         <!-- Éditer -->
                         <a href="/academy-admin/courses.php?action=edit&id=<?= $course['id'] ?>"
                            title="Modifier"
-                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-400 transition-all">
+                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-emerald-500/20 flex items-center justify-center text-slate-500 hover:text-emerald-400 transition-all">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                         </a>
                         <!-- Supprimer -->
@@ -622,7 +614,7 @@ $courses = $pdo->query("
                 <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-30"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                 <p class="text-sm">Aucun cours pour le moment.</p>
                 <a href="/academy-admin/courses.php?action=add"
-                   class="inline-block mt-4 bg-gold-500 text-ink-900 font-bold text-[12px] px-5 py-2 rounded-full hover:bg-gold-400 transition-all">
+                   class="inline-block mt-4 bg-emerald-500 text-ink-900 font-bold text-[12px] px-5 py-2 rounded-full hover:bg-emerald-400 transition-all">
                     Créer le premier cours →
                 </a>
             </div>
@@ -635,14 +627,14 @@ $courses = $pdo->query("
 </div>
 
 <!-- Modal Générateur Auto -->
-<div id="auto-generator-modal" class="fixed inset-0 bg-ink-900/90 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-ink-800 border border-gold-900/50 rounded-2xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-ink-900">
-            <div id="ag-progress-bar" class="h-full bg-gold-500 w-0 transition-all duration-500 ease-out"></div>
+<div id="auto-generator-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-slate-900 border border-gold-900/50 rounded-2xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-slate-950">
+            <div id="ag-progress-bar" class="h-full bg-emerald-500 w-0 transition-all duration-500 ease-out"></div>
         </div>
         <div class="text-center mb-6 shrink-0">
-            <div class="w-16 h-16 rounded-full bg-gold-900/30 border-2 border-gold-500/30 flex items-center justify-center mx-auto mb-4 relative">
-                <svg id="ag-spinner" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500 animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            <div class="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-gold-500/30 flex items-center justify-center mx-auto mb-4 relative">
+                <svg id="ag-spinner" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
                 <svg id="ag-success" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 hidden"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
             <h3 class="text-xl font-bold text-white mb-2" id="ag-title">Génération Magique</h3>
@@ -652,7 +644,7 @@ $courses = $pdo->query("
             <!-- Étapes insérées ici par JS -->
         </div>
         <div class="mt-8 text-center hidden shrink-0" id="ag-btn-container">
-            <a href="/academy-admin/courses.php" class="inline-block bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-sm px-6 py-2.5 rounded-full transition-all shadow-[0_0_20px_rgba(201,168,76,0.3)]">
+            <a href="/academy-admin/courses.php" class="inline-block bg-emerald-500 hover:bg-emerald-400 text-ink-900 font-bold text-sm px-6 py-2.5 rounded-full transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)]">
                 Voir mon nouveau cours !
             </a>
         </div>
@@ -660,8 +652,8 @@ $courses = $pdo->query("
 </div>
 
 <!-- Modal Ideator IA -->
-<div id="ideator-modal" class="fixed inset-0 bg-ink-900/90 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-ink-800 border border-indigo-500/30 rounded-2xl p-8 max-w-lg w-full shadow-[0_0_40px_rgba(99,102,241,0.15)] relative flex flex-col max-h-[90vh]">
+<div id="ideator-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-slate-900 border border-indigo-500/30 rounded-2xl p-8 max-w-lg w-full shadow-[0_0_40px_rgba(99,102,241,0.15)] relative flex flex-col max-h-[90vh]">
         
         <div class="flex justify-between items-start mb-6">
             <div>
@@ -679,7 +671,7 @@ $courses = $pdo->query("
         <div id="ideator-form" class="mb-4">
             <label class="block text-[12px] font-bold text-slate-400 uppercase tracking-widest mb-2">Sur quel thème ? (optionnel)</label>
             <div class="flex gap-2">
-                <input type="text" id="ideator-theme" placeholder="ex: sortir des dettes, l'immobilier, budget..." class="flex-1 bg-ink-900 border border-indigo-500/30 rounded-xl px-4 py-2 text-sm text-slate-200 outline-none focus:border-indigo-500/60 transition-colors">
+                <input type="text" id="ideator-theme" placeholder="ex: sortir des dettes, l'immobilier, budget..." class="flex-1 bg-slate-950 border border-indigo-500/30 rounded-xl px-4 py-2 text-sm text-slate-200 outline-none focus:border-indigo-500/60 transition-colors">
                 <button onclick="fetchCourseIdeas()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2 rounded-xl transition-colors">Générer</button>
             </div>
         </div>
@@ -729,7 +721,7 @@ $courses = $pdo->query("
             const addStep = (text) => {
                 const div = document.createElement('div');
                 div.className = 'flex items-center gap-3 text-sm text-slate-300 bg-white/5 p-3 rounded-lg border border-white/5 anim';
-                div.innerHTML = `<svg class="w-4 h-4 text-gold-500 shrink-0 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> <span>${text}</span>`;
+                div.innerHTML = `<svg class="w-4 h-4 text-emerald-500 shrink-0 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> <span>${text}</span>`;
                 stepsDiv.appendChild(div);
                 stepsDiv.scrollTop = stepsDiv.scrollHeight;
                 return div;
@@ -737,7 +729,7 @@ $courses = $pdo->query("
 
             const completeStep = (div) => {
                 const svg = div.querySelector('svg');
-                svg.classList.remove('animate-spin', 'text-gold-500');
+                svg.classList.remove('animate-spin', 'text-emerald-500');
                 svg.classList.add('text-emerald-500');
                 svg.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
                 div.classList.add('border-emerald-500/30', 'bg-emerald-500/5');
@@ -828,7 +820,7 @@ $courses = $pdo->query("
                 
                 // L'envoi de la notification Push a été retiré ici pour laisser l'utilisateur vérifier le cours avant de publier.
                 document.getElementById('ag-btn-container').innerHTML = `
-                    <a href="/academy-admin/lessons.php?course_id=${courseId}" class="inline-block bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-sm px-6 py-2.5 rounded-full transition-all shadow-[0_0_20px_rgba(201,168,76,0.3)]">
+                    <a href="/academy-admin/lessons.php?course_id=${courseId}" class="inline-block bg-emerald-500 hover:bg-emerald-400 text-ink-900 font-bold text-sm px-6 py-2.5 rounded-full transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)]">
                         Voir les leçons générées
                     </a>
                 `;
@@ -1008,6 +1000,20 @@ $courses = $pdo->query("
             } catch (err) {
                 alert("❌ Erreur lors de l'envoi : " + err.message);
             }
+        }
+
+        function filterCourses() {
+            const input = document.getElementById('courseSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#courseList .course-row');
+            
+            rows.forEach(row => {
+                const title = row.querySelector('.course-title').innerText.toLowerCase();
+                if (title.includes(input)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         }
     </script>
 </body>

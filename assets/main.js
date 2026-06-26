@@ -1983,9 +1983,18 @@ function loadMonthlyHistory(months = 6) {
                                   <span class="text-[10px] text-slate-500 font-medium">À ${e.time_label}</span>
                                 </div>
                               </div>
-                              <span class="text-sm font-black text-red-400 shrink-0">
-                                -${e.amount.toLocaleString()} ${currency}
-                              </span>
+                              <div class="flex items-center gap-3 shrink-0">
+                                <span class="text-sm font-black text-red-400">
+                                  -${e.amount.toLocaleString()} ${currency}
+                                </span>
+                                ${e.cancellable ? `
+                                <button onclick="deleteExpense(${e.id})" class="text-red-500 hover:text-red-400 p-1 bg-red-500/10 rounded-lg border border-red-500/20 active:scale-95 transition-all" title="Annuler cette dépense (délai de 24h)">
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
+                                ` : ''}
+                              </div>
                             </div>
                             `;
                   }).join('')}
@@ -2031,6 +2040,30 @@ function loadMonthlyHistory(months = 6) {
       document.getElementById("historyContent").innerHTML =
         `<p class="text-red-400 text-[11px] italic text-center py-4">Erreur de chargement.</p>`;
     });
+}
+
+async function deleteExpense(id) {
+    if (!confirm("Es-tu sûr de vouloir annuler cette dépense ? Cette action supprimera la dépense et restaurera le solde associé.")) {
+        return;
+    }
+
+    try {
+        const res = await fetch("config/delete_expense.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ expense_id: id })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || "Erreur lors de l'annulation de la dépense.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Erreur réseau ou serveur.");
+    }
 }
 
 // ─── NOTIFICATIONS ─────────────────────────────────────────────────────────

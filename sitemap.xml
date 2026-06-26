@@ -22,4 +22,18 @@
     <priority>0.8</priority>
   </url>
 
+  <url>
+    <loc>https://wari.digiroys.com/academy/</loc>
+    <lastmod>2026-06-24T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://wari.digiroys.com/vecu/</loc>
+    <lastmod>2026-06-24T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>

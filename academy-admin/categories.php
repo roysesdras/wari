@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $titre       = trim($_POST['titre'] ?? '');
         $description = trim($_POST['description'] ?? '');
         $icone       = trim($_POST['icone'] ?? 'book');
-        $couleur     = trim($_POST['couleur'] ?? '#C9A84C');
+        $couleur     = trim($_POST['couleur'] ?? '#10b981');
         $ordre       = (int)($_POST['ordre'] ?? 0);
 
         // Génération du slug
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $titre       = trim($_POST['titre'] ?? '');
         $description = trim($_POST['description'] ?? '');
         $icone       = trim($_POST['icone'] ?? 'book');
-        $couleur     = trim($_POST['couleur'] ?? '#C9A84C');
+        $couleur     = trim($_POST['couleur'] ?? '#10b981');
         $ordre       = (int)($_POST['ordre'] ?? 0);
         $est_actif   = isset($_POST['est_actif']) ? 1 : 0;
 
@@ -171,18 +171,7 @@ $categories = $pdo->query("
             theme: {
                 extend: {
                     fontFamily: { sans: ['Poppins', 'sans-serif'] },
-                    colors: {
-                        gold: {
-                            50:'#FFFBEB',100:'#FEF3C7',200:'#FDE68A',
-                            300:'#FCD34D',400:'#F0D080',500:'#C9A84C',
-                            600:'#B8950A',700:'#8B6914',800:'#6B4F10',900:'#3D2B0F',
-                        },
-                        ink: {
-                            50:'#F5F0E8',100:'#E8DFC8',200:'#D4C09A',
-                            300:'#B89A60',400:'#8B6914',500:'#5A3E10',
-                            600:'#2A1A04',700:'#1A0F02',800:'#100A01',900:'#0A0601',
-                        }
-                    }
+                    colors: {}
                 }
             }
         }
@@ -190,24 +179,24 @@ $categories = $pdo->query("
     <style>
         body { font-family: 'Poppins', sans-serif; }
         ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #100A01; }
-        ::-webkit-scrollbar-thumb { background: #3D2B0F; border-radius: 999px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 999px; }
         .bg-pattern {
             background-image: repeating-linear-gradient(45deg,
                 transparent, transparent 40px,
-                rgba(201,168,76,.015) 40px, rgba(201,168,76,.015) 41px);
+                rgba(16,185,129,.015) 40px, rgba(16,185,129,.015) 41px);
         }
-        .card-gold-top { position: relative; }
-        .card-gold-top::before {
+        .card-green-top { position: relative; }
+        .card-green-top::before {
             content: '';
             position: absolute; top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, #C9A84C, transparent);
+            display: none;
             border-radius: 999px;
         }
         .field-input {
             width: 100%;
             background: rgba(255,255,255,.05);
-            border: 1px solid rgba(201,168,76,.15);
+            border: 1px solid rgba(16,185,129,.15);
             border-radius: 10px;
             padding: 10px 14px;
             font-family: 'Poppins', sans-serif;
@@ -216,7 +205,7 @@ $categories = $pdo->query("
             outline: none;
             transition: border-color .2s;
         }
-        .field-input:focus { border-color: rgba(201,168,76,.5); background: rgba(201,168,76,.04); }
+        .field-input:focus { border-color: rgba(16,185,129,.5); background: rgba(16,185,129,.04); }
         .field-input::placeholder { color: rgba(255,255,255,.2); }
         textarea.field-input { resize: vertical; min-height: 80px; }
         .field-label {
@@ -236,8 +225,8 @@ $categories = $pdo->query("
             transition: all .2s;
         }
         .emoji-btn:hover, .emoji-btn.selected {
-            background: rgba(201,168,76,.15);
-            border-color: rgba(201,168,76,.4);
+            background: rgba(16,185,129,.15);
+            border-color: rgba(16,185,129,.4);
         }
 
         /* Aperçu couleur */
@@ -259,19 +248,19 @@ $categories = $pdo->query("
         .anim { animation: fadeUp .35s ease both; }
     </style>
 </head>
-<body class="bg-ink-800 bg-pattern text-slate-200 min-h-screen flex">
+<body class="bg-slate-900 bg-pattern text-slate-200 min-h-screen flex">
 
 <!-- ════ SIDEBAR ════════════════════════════════════════════ -->
-<aside class="w-56 bg-ink-900 border-r border-gold-900/30 min-h-screen fixed left-0 top-0 bottom-0 flex flex-col z-50">
-    <div class="px-5 py-6 border-b border-gold-900/20">
-        <span class="block font-black text-gold-500 text-lg tracking-wide leading-none">Wari Academy</span>
+<aside class="w-56 bg-slate-950 border-r border-slate-800 min-h-screen fixed left-0 top-0 bottom-0 flex flex-col z-50">
+    <div class="px-5 py-6 border-b border-slate-800">
+        <span class="block font-black text-emerald-500 text-lg tracking-wide leading-none">Wari Academy</span>
         <span class="block text-[10px] text-slate-600 tracking-[.15em] uppercase mt-1">Administration</span>
     </div>
     <nav class="flex-1 px-3 py-4 space-y-0.5">
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-2 pb-1">Principal</p>
         <a href="/academy-admin/index.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Dashboard</a>
         <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Contenu</p>
-        <a href="/academy-admin/categories.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]">Catégories</a>
+        <a href="/academy-admin/categories.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-emerald-500 bg-emerald-500/10 font-semibold text-[13px]">Catégories</a>
         <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Cours</a>
         <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Leçons</a>
         <a href="/academy-admin/pdfs.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">PDF Payants</a>
@@ -282,9 +271,9 @@ $categories = $pdo->query("
         <a href="/academy/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Voir Academy</a>
         <a href="https://wari.digiroys.com/accueil/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all"> Retour Wari</a>
     </nav>
-    <div class="px-3 py-4 border-t border-gold-900/20">
+    <div class="px-3 py-4 border-t border-slate-800">
         <div class="flex items-center gap-3 px-2 py-2 mb-1">
-                <p class="text-[13px] font-semibold text-gold-400 leading-none"><?= htmlspecialchars($user) ?></p>
+                <p class="text-[13px] font-semibold text-emerald-400 leading-none"><?= htmlspecialchars($user) ?></p>
                 <p class="text-[10px] text-slate-600 mt-0.5">Admin Academy</p>
             </div>
         </div>
@@ -296,16 +285,16 @@ $categories = $pdo->query("
 <div class="ml-56 flex-1 flex flex-col min-h-screen">
 
     <!-- Topbar -->
-    <div class="bg-ink-900/80 backdrop-blur border-b border-gold-900/20 px-8 h-14 flex items-center justify-between sticky top-0 z-40">
+    <div class="bg-slate-950/80 backdrop-blur border-b border-slate-800 px-8 h-14 flex items-center justify-between sticky top-0 z-40">
         <div class="flex items-center gap-3">
-            <a href="/academy-admin/index.php" class="text-slate-600 hover:text-gold-500 text-xs transition-colors">Dashboard</a>
+            <a href="/academy-admin/index.php" class="text-slate-600 hover:text-emerald-500 text-xs transition-colors">Dashboard</a>
             <span class="text-slate-700">/</span>
             <span class="font-bold text-slate-100 text-sm">Catégories</span>
         </div>
         <div class="flex items-center gap-3">
             <span class="text-[11px] text-slate-500"><?= count($categories) ?> catégorie<?= count($categories) > 1 ? 's' : '' ?></span>
             <a href="/academy-admin/categories.php?action=add"
-               class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[12px] px-4 py-1.5 rounded-full transition-all">
+               class="bg-emerald-500 hover:bg-emerald-400 text-ink-900 font-bold text-[12px] px-4 py-1.5 rounded-full transition-all">
                 + Nouvelle catégorie
             </a>
         </div>
@@ -330,14 +319,14 @@ $categories = $pdo->query("
              FORMULAIRE AJOUT / ÉDITION
         ════════════════════════════════════════════════ -->
         <?php if ($action === 'add' || $action === 'edit'): ?>
-        <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-7 mb-8 anim">
+        <div class="card-green-top bg-slate-950 border border-slate-800 rounded-2xl p-7 mb-8 anim">
 
             <h2 class="font-bold text-slate-100 text-base mb-6 flex items-center gap-2">
                 <?php if ($action === 'edit'): ?>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                     Modifier la catégorie
                 <?php else: ?>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                     Nouvelle catégorie
                 <?php endif; ?>
             </h2>
@@ -372,7 +361,7 @@ $categories = $pdo->query("
                         <label class="field-label">Icône</label>
                         <div class="flex items-center gap-3 mb-2">
                             <div id="emoji-preview"
-                                 class="w-12 h-12 rounded-xl bg-gold-900/20 border border-gold-900/30 flex items-center justify-center text-2xl">
+                                 class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-slate-800 flex items-center justify-center text-2xl">
                                  <?php if (!empty($catEdit['icone']) && !in_array($catEdit['icone'], $icons)): ?>
                                      <?= $catEdit['icone'] ?>
                                  <?php else: ?>
@@ -384,7 +373,7 @@ $categories = $pdo->query("
                         <div class="emoji-picker text-slate-400">
                             <?php foreach ($icons as $icon): ?>
                             <button type="button"
-                                    class="emoji-btn <?= ($catEdit['icone'] ?? 'book') === $icon ? 'selected text-gold-400' : 'hover:text-gold-200' ?>"
+                                    class="emoji-btn <?= ($catEdit['icone'] ?? 'book') === $icon ? 'selected text-emerald-400' : 'hover:text-gold-200' ?>"
                                     onclick="selectEmoji('<?= $icon ?>', event)">
                                 <i data-lucide="<?= $icon ?>" class="w-5 h-5"></i>
                             </button>
@@ -398,21 +387,21 @@ $categories = $pdo->query("
                             <label class="field-label">Couleur d'accentuation</label>
                             <div class="flex items-center gap-3">
                                 <div class="color-preview" id="color-preview-box"
-                                     style="background:<?= $catEdit['couleur'] ?? '#C9A84C' ?>">
+                                     style="background:<?= $catEdit['couleur'] ?? '#10b981' ?>">
                                     <input type="color" name="couleur"
-                                           value="<?= $catEdit['couleur'] ?? '#C9A84C' ?>"
+                                           value="<?= $catEdit['couleur'] ?? '#10b981' ?>"
                                            oninput="updateColorPreview(this.value)">
                                 </div>
                                 <div>
                                     <p class="text-[13px] text-slate-300 font-medium" id="color-val">
-                                        <?= $catEdit['couleur'] ?? '#C9A84C' ?>
+                                        <?= $catEdit['couleur'] ?? '#10b981' ?>
                                     </p>
                                     <p class="text-[11px] text-slate-600">Couleur des cartes et barres</p>
                                 </div>
                             </div>
                             <!-- Couleurs rapides -->
                             <div class="flex gap-2 mt-3">
-                                <?php foreach (['#C9A84C','#4CAF50','#2196F3','#FF9800','#F44336','#9C27B0','#00BCD4','#E91E63'] as $clr): ?>
+                                <?php foreach (['#10b981','#4CAF50','#2196F3','#FF9800','#F44336','#9C27B0','#00BCD4','#E91E63'] as $clr): ?>
                                 <button type="button"
                                         onclick="updateColorPreview('<?= $clr ?>')"
                                         class="w-6 h-6 rounded-full border-2 border-transparent hover:border-white/40 transition-all"
@@ -446,7 +435,7 @@ $categories = $pdo->query("
                     <div class="col-span-2">
                         <label class="field-label">Aperçu de la carte</label>
                         <div class="inline-flex flex-col items-center gap-2 bg-white/5 border border-white/8 rounded-xl p-4 w-36 text-center relative overflow-hidden" id="card-preview">
-                            <div class="absolute top-0 left-0 right-0 h-0.5 transition-all" id="card-top-bar" style="background:#C9A84C"></div>
+                            <div class="absolute top-0 left-0 right-0 h-0.5 transition-all" id="card-top-bar" style="background:#10b981"></div>
                             <span class="text-2xl mt-1 flex justify-center text-slate-300" id="preview-icon">
                                  <?php if (!empty($catEdit['icone']) && !in_array($catEdit['icone'], $icons)): ?>
                                      <?= $catEdit['icone'] ?>
@@ -464,9 +453,9 @@ $categories = $pdo->query("
                 </div>
 
                 <!-- Boutons -->
-                <div class="flex items-center gap-3 pt-4 border-t border-gold-900/20">
+                <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
                     <button type="submit"
-                            class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all flex items-center gap-2">
+                            class="bg-emerald-500 hover:bg-emerald-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all flex items-center gap-2">
                         <?php if ($action === 'edit'): ?>
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
                             Enregistrer
@@ -492,7 +481,7 @@ $categories = $pdo->query("
         <!-- Bento cartes aperçu -->
         <div class="grid grid-cols-6 gap-3 mb-6 anim">
             <?php foreach ($categories as $i => $cat): ?>
-            <div class="relative bg-ink-900 border border-gold-900/20 rounded-xl p-4 text-center overflow-hidden"
+            <div class="relative bg-slate-950 border border-slate-800 rounded-xl p-4 text-center overflow-hidden"
                  style="animation-delay:<?= $i * .05 ?>s">
                 <div class="absolute top-0 left-0 right-0 h-0.5" style="background:<?= $cat['couleur'] ?>"></div>
                 <div class="text-2xl mb-2 flex justify-center text-slate-400">
@@ -513,22 +502,22 @@ $categories = $pdo->query("
             <?php endforeach; ?>
             <!-- Bouton ajouter -->
             <a href="/academy-admin/categories.php?action=add"
-               class="relative bg-ink-900/50 border border-dashed border-gold-900/30 rounded-xl p-4 text-center hover:bg-gold-900/10 hover:border-gold-900/50 transition-all flex flex-col items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gold-900"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+               class="relative bg-slate-950/50 border border-dashed border-slate-800 rounded-xl p-4 text-center hover:bg-emerald-500/5 hover:border-gold-900/50 transition-all flex flex-col items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-900"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 <span class="text-[11px] text-slate-600">Nouvelle</span>
             </a>
         </div>
 
         <!-- Tableau de gestion -->
-        <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl overflow-hidden anim">
+        <div class="card-green-top bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden anim">
 
-            <div class="px-6 py-4 border-b border-gold-900/20 flex items-center justify-between">
+            <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
                 <p class="font-bold text-slate-100 text-sm flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-700"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-700"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
                     Toutes les catégories
                 </p>
                 <a href="/academy-admin/categories.php?action=add"
-                   class="text-[11px] text-gold-700 hover:text-gold-500 font-semibold transition-colors">
+                   class="text-[11px] text-emerald-700 hover:text-emerald-500 font-semibold transition-colors">
                     + Ajouter →
                 </a>
             </div>
@@ -544,7 +533,7 @@ $categories = $pdo->query("
                 <div class="col-span-2 text-[10px] font-bold uppercase tracking-[.1em] text-slate-600 text-right">Actions</div>
             </div>
 
-            <div class="divide-y divide-gold-900/10">
+            <div class="divide-y divide-slate-800">
                 <?php foreach ($categories as $i => $cat): ?>
                 <div class="grid grid-cols-12 gap-3 px-6 py-4 hover:bg-white/[.025] transition-colors items-center"
                      style="animation: fadeUp .3s ease <?= $i * .04 ?>s both">
@@ -555,14 +544,14 @@ $categories = $pdo->query("
                             <input type="hidden" name="action" value="reorder">
                             <input type="hidden" name="id" value="<?= $cat['id'] ?>">
                             <input type="hidden" name="direction" value="up">
-                            <button type="submit" class="text-slate-600 hover:text-gold-500 transition-colors text-xs">▲</button>
+                            <button type="submit" class="text-slate-600 hover:text-emerald-500 transition-colors text-xs">▲</button>
                         </form>
-                        <span class="font-bold text-gold-700 text-sm"><?= $cat['ordre'] ?></span>
+                        <span class="font-bold text-emerald-700 text-sm"><?= $cat['ordre'] ?></span>
                         <form method="POST">
                             <input type="hidden" name="action" value="reorder">
                             <input type="hidden" name="id" value="<?= $cat['id'] ?>">
                             <input type="hidden" name="direction" value="down">
-                            <button type="submit" class="text-slate-600 hover:text-gold-500 transition-colors text-xs">▼</button>
+                            <button type="submit" class="text-slate-600 hover:text-emerald-500 transition-colors text-xs">▼</button>
                         </form>
                     </div>
 
@@ -599,7 +588,7 @@ $categories = $pdo->query("
                     <!-- Nb cours -->
                     <div class="col-span-1 text-center">
                         <a href="/academy-admin/courses.php?category_id=<?= $cat['id'] ?>"
-                           class="font-bold text-gold-500 text-sm hover:text-gold-400 transition-colors">
+                           class="font-bold text-emerald-500 text-sm hover:text-emerald-400 transition-colors">
                             <?= $cat['nb_cours'] ?>
                         </a>
                     </div>
@@ -625,13 +614,13 @@ $categories = $pdo->query("
                         <!-- Voir cours -->
                         <a href="/academy-admin/courses.php?category_id=<?= $cat['id'] ?>"
                            title="Voir les cours"
-                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-500 transition-all">
+                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-emerald-500/20 flex items-center justify-center text-slate-500 hover:text-emerald-500 transition-all">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                         </a>
                         <!-- Modifier -->
                         <a href="/academy-admin/categories.php?action=edit&id=<?= $cat['id'] ?>"
                            title="Modifier"
-                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-400 transition-all">
+                           class="w-7 h-7 rounded-lg bg-white/5 hover:bg-emerald-500/20 flex items-center justify-center text-slate-500 hover:text-emerald-400 transition-all">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                         </a>
                         <!-- Supprimer -->
@@ -673,13 +662,13 @@ $categories = $pdo->query("
         lucide.createIcons();
 
         document.querySelectorAll('.emoji-btn').forEach(b => {
-             b.classList.remove('selected', 'text-gold-400');
+             b.classList.remove('selected', 'text-emerald-400');
              b.classList.add('hover:text-gold-200');
         });
         
         let btn = (e && e.currentTarget) ? e.currentTarget : event.currentTarget;
         if(btn) {
-            btn.classList.add('selected', 'text-gold-400');
+            btn.classList.add('selected', 'text-emerald-400');
             btn.classList.remove('hover:text-gold-200');
         }
     }

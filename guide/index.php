@@ -256,7 +256,7 @@ $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
         <!-- 1. La Répartition -->
         <div class="concept-card" id="repartition">
             <div class="concept-icon"><i class="ri-pie-chart-line"></i></div>
-            <h2 class="concept-title">La Règle d'Or (4 envellopes)</h2>
+            <h2 class="concept-title">La Règle d'Or (4 enveloppes)</h2>
             <p class="concept-text">Wari repose sur un principe fondamental : dès qu'une somme d'argent entre dans tes poches, elle doit être divisée avant même que tu n'y touches.</p>
             <p class="concept-text">Tu as le choix de ta répartition : <strong>40% Train de vie, 30% Projet, 20% Épargne, 10% Imprévu</strong> (ou autre selon tes objectifs). L'application s'occupe de diviser automatiquement tes revenus à chaque fois que tu fais une répartition.</p>
             <div class="concept-rule">

@@ -128,9 +128,11 @@ try {
     // 3b. Dépenses détaillées
     $stmtExpDetails = $pdo->prepare("
         SELECT 
+            id,
             DATE_FORMAT(date_expense, '%Y-%m') as month_key,
             DATE_FORMAT(date_expense, '%d/%m/%Y') as date_day_label,
             DATE_FORMAT(date_expense, '%Hh%i') as time_label,
+            date_expense as raw_date,
             amount,
             category_id,
             description
@@ -145,13 +147,20 @@ try {
     $stmtExpDetails->execute();
 
     $expDetailsByMonth = [];
+    $now = time();
     foreach ($stmtExpDetails->fetchAll(PDO::FETCH_ASSOC) as $expDet) {
+        $expTime = strtotime($expDet['raw_date']);
+        $diffHours = ($now - $expTime) / 3600;
+        
         $expDetailsByMonth[$expDet['month_key']][] = [
+            'id' => (int)$expDet['id'],
             'date_day_label' => $expDet['date_day_label'],
             'time_label' => $expDet['time_label'],
+            'raw_date' => $expDet['raw_date'],
             'amount' => (int)$expDet['amount'],
             'category_id' => (int)$expDet['category_id'],
             'description' => $expDet['description'],
+            'cancellable' => ($diffHours <= 24)
         ];
     }
 

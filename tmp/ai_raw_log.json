@@ -4,7 +4,7 @@
       "content": {
         "parts": [
           {
-            "text": "{\n  \"forces\": \"Le fait de suivre tes dépenses, même sans revenu, montre une volonté de prendre le contrôle. C'est une base sur laquelle construire.\",\n  \"faiblesses\": \"L'absence de revenus est ton plus grand défi ce mois-ci, entraînant un solde négatif et aucune allocation pour l'épargne ou les projets. Tes dépenses, bien que concentrées sur le train de vie, creusent un trou sans apport.\",\n  \"conseil_action\": \"Concentres-toi urgemment sur la génération de revenus, même modestes, pour couvrir tes besoins essentiels. Simultanément, réduis drastiquement ton train de vie pour stopper l'hémorragie et éviter de t'endetter davantage.\"\n}"
+            "text": "{\n  \"contenu\": \"\u003ch2\u003eLe Général en Chef : Ton Cerveau, Pas Tes Muscles\u003c/h2\u003e\u003cp\u003eÉcoute bien. Ton argent, c'est ton armée. Une armée silencieuse, certes, mais une armée quand même. Et comme toute armée, elle a besoin d'un général. Ce général, c'est toi. Mais pas le toi qui sue au soleil pour quelques francs. C'est le toi qui pense, qui calcule, qui anticipe.\u003c/p\u003e\u003ch2\u003eStratégie : Où Envoyer Tes Soldats ?\u003c/h2\u003e\u003cp\u003eL'erreur du pauvre, c'est de laisser son argent dormir sous le matelas ou de le dépenser en futilités. Le riche, lui, envoie ses soldats (son argent) au combat. Il les fait travailler. Pas de théorie ici, des faits :\u003c/p\u003e\u003cul\u003e    \u003cli\u003e\u003cstrong\u003eLe Kiosque du Coin :\u003c/strong\u003e Tu connais le petit kiosque qui vend des cartes de recharge et des bonbons ? Au lieu d'y acheter, imagine que tu l'achètes. Tu embauches un jeune du quartier pour le tenir. Ton argent travaille, même quand tu dors. C'est un soldat qui rapporte.\u003c/li\u003e    \u003cli\u003e\u003cstrong\u003eLe Moto-Taxi :\u003c/strong\u003e Un zemidjan, un okada. Au lieu de payer chaque course, pourquoi ne pas en acheter un ? Tu trouves un bon conducteur, tu fixes un loyer journalier. Ton argent roule, fait des courses, et te rapporte. Sans que tu touches le guidon.\u003c/li\u003e    \u003cli\u003e\u003cstrong\u003eLe Terrain à Louer :\u003c/strong\u003e Un petit lopin de terre. Tu l'achètes. Tu le loues à des agriculteurs pour leurs cultures saisonnières, ou à quelqu'un qui veut y mettre une petite baraque. Ton terrain, ton soldat silencieux, génère des revenus.\u003c/li\u003e\u003c/ul\u003e\u003cdiv class='bg-slate-800 border-l-4 border-gold-500 p-4 my-4'\u003e\u003cdiv class='text-gold-500 font-bold mb-1'\u003e💡 ACTION IMMÉDIATE\u003c/div\u003eRepère autour de toi une petite activité qui tourne déjà et qui ne demande pas une fortune pour être dupliquée ou acquise. Une charrette de maïs, une petite boutique de quartier. Ne fais rien encore, juste repère.\u003c/div\u003e\u003ch2\u003eTon Rôle de Général : Superviser, Ajuster\u003c/h2\u003e\u003cp\u003eTu n'es pas là pour faire le travail. Tu es là pour diriger. Tes soldats (tes investissements) ont besoin d'être surveillés. Est-ce que le kiosque rapporte assez ? Le conducteur de moto est-il honnête ? Tu dois avoir des rapports, vérifier les chiffres, et si un soldat ne performe pas, tu le remplaces ou tu réajustes ta stratégie. C'est le prix de la liberté financière : une tête qui pense, pas des mains qui peinent.\u003c/p\u003e\u003ch3\u003eMISSION D'AUJOURD'HUI\u003c/h3\u003e\u003cp\u003ePrends 5000 XOF (ou l'équivalent dans ta monnaie locale). Va au marché et achète en gros un produit simple qui se vend vite (sachets d'eau, arachides, bonbons). Vends-les au détail toi-même ou demande à un enfant de ta famille de le faire pour une petite commission. Observe le profit. C'est ton premier pas de général.\u003c/p\u003e\"\n}"
           }
         ],
         "role": "model"
@@ -14,18 +14,18 @@
     }
   ],
   "usageMetadata": {
-    "promptTokenCount": 461,
-    "candidatesTokenCount": 161,
-    "totalTokenCount": 1687,
+    "promptTokenCount": 403,
+    "candidatesTokenCount": 735,
+    "totalTokenCount": 3076,
     "promptTokensDetails": [
       {
         "modality": "TEXT",
-        "tokenCount": 461
+        "tokenCount": 403
       }
     ],
-    "thoughtsTokenCount": 1065,
+    "thoughtsTokenCount": 1938,
     "serviceTier": "standard"
   },
   "modelVersion": "gemini-2.5-flash",
-  "responseId": "-8A6apWSJc7HvdIPj7ex2Q4"
+  "responseId": "MKU-asKlBfO-vdIPoOi_sQE"
 }

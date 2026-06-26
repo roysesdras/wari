@@ -22,19 +22,32 @@ if (isset($_SESSION['academy_user'])) {
     exit;
 }
 
+// Récupération des comptes depuis le .env
+$usersJson = $_ENV['ACADEMY_ADMIN_USERS'] ?? '{}';
+$users     = json_decode($usersJson, true) ?? [];
+
+// Cookie Remember Me
+if (isset($_COOKIE['academy_admin_remember']) && isset($users[$_COOKIE['academy_admin_remember']])) {
+    $_SESSION['academy_user'] = $_COOKIE['academy_admin_remember'];
+    $_SESSION['academy_login_at'] = time();
+    header('Location: /academy-admin/index.php');
+    exit;
+}
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
-    // Récupération des comptes depuis le .env
-    $usersJson = $_ENV['ACADEMY_ADMIN_USERS'] ?? '{}';
-    $users     = json_decode($usersJson, true) ?? [];
-
     if (isset($users[$username]) && $users[$username] === $password) {
         $_SESSION['academy_user'] = $username;
         $_SESSION['academy_login_at'] = time();
+        
+        if (isset($_POST['remember'])) {
+            setcookie('academy_admin_remember', $username, time() + (86400 * 30), "/");
+        }
+        
         header('Location: /academy-admin/index.php');
         exit;
     } else {
@@ -54,19 +67,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --or: #C9A84C;
-            --or-dark: #8B6914;
-            --encre: #0F0A02;
-            --creme: #FAF5E9;
-            --creme2: #F0E8D0;
-            --blanc: #FFFFFF;
-            --gris: #7A6E60;
-            --rouge: #C62828;
-            --font-titre: 'Playfair Display', serif;
-            --font-corps: 'DM Sans', sans-serif;
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(255, 255, 255, .02);
+            --text-light: #f8fafc;
+            --font-main: 'Poppins', sans-serif;
             --tr: .22s cubic-bezier(.4, 0, .2, 1);
         }
 
@@ -79,8 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         body {
-            font-family: var(--font-corps);
-            background: var(--encre);
+            font-family: var(--font-main);
+            background: var(--bg-dark);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -95,10 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             position: fixed;
             inset: 0;
             background:
-                radial-gradient(ellipse at 20% 50%, rgba(201, 168, 76, .08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(201, 168, 76, .05) 0%, transparent 50%),
+                radial-gradient(ellipse at 20% 50%, rgba(16, 185, 129, .08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(16, 185, 129, .05) 0%, transparent 50%),
                 repeating-linear-gradient(45deg, transparent, transparent 40px,
-                    rgba(201, 168, 76, .02) 40px, rgba(201, 168, 76, .02) 41px);
+                    rgba(16, 185, 129, .02) 40px, rgba(16, 185, 129, .02) 41px);
             pointer-events: none;
         }
 
@@ -106,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .deco {
             position: fixed;
             border-radius: 50%;
-            border: 1px solid rgba(201, 168, 76, .07);
+            border: 1px solid rgba(16, 185, 129, .07);
             pointer-events: none;
         }
 
@@ -122,13 +131,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             height: 300px;
             bottom: -80px;
             left: -80px;
-            border-color: rgba(201, 168, 76, .05);
+            border-color: rgba(16, 185, 129, .05);
         }
 
         /* Card login */
         .card {
-            background: rgba(255, 255, 255, .03);
-            border: 1px solid rgba(201, 168, 76, .15);
+            background: var(--bg-card);
+            border: 1px solid rgba(16, 185, 129, .15);
             border-radius: 24px;
             padding: 52px 48px;
             width: 100%;
@@ -138,28 +147,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             backdrop-filter: blur(10px);
         }
 
-        /* Top barre or */
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 40px;
-            right: 40px;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--or), transparent);
-            border-radius: 999px;
-        }
-
         .card-logo {
             text-align: center;
             margin-bottom: 36px;
         }
 
         .card-logo-title {
-            font-family: var(--font-titre);
+            font-family: var(--font-main);
             font-size: 1.6rem;
             font-weight: 900;
-            color: var(--or);
+            color: var(--primary);
             display: block;
             letter-spacing: .02em;
         }
@@ -176,9 +173,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .card-logo-badge {
             display: inline-block;
             margin-top: 12px;
-            background: rgba(201, 168, 76, .1);
-            border: 1px solid rgba(201, 168, 76, .2);
-            color: rgba(201, 168, 76, .7);
+            background: rgba(16, 185, 129, .1);
+            border: 1px solid rgba(16, 185, 129, .2);
+            color: rgba(16, 185, 129, .7);
             font-size: .68rem;
             font-weight: 700;
             letter-spacing: .1em;
@@ -188,10 +185,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .card h2 {
-            font-family: var(--font-titre);
+            font-family: var(--font-main);
             font-size: 1.35rem;
             font-weight: 700;
-            color: var(--blanc);
+            color: var(--text-light);
             margin-bottom: 6px;
         }
 
@@ -220,12 +217,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .field input {
             width: 100%;
             background: rgba(255, 255, 255, .05);
-            border: 1px solid rgba(201, 168, 76, .15);
+            border: 1px solid rgba(16, 185, 129, .15);
             border-radius: 10px;
             padding: 12px 16px;
-            font-family: var(--font-corps);
+            font-family: var(--font-main);
             font-size: .9rem;
-            color: var(--blanc);
+            color: var(--text-light);
             outline: none;
             transition: border-color var(--tr), background var(--tr);
         }
@@ -235,8 +232,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .field input:focus {
-            border-color: rgba(201, 168, 76, .5);
-            background: rgba(201, 168, 76, .05);
+            border-color: rgba(16, 185, 129, .5);
+            background: rgba(16, 185, 129, .05);
         }
 
         /* Erreur */
@@ -253,12 +250,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             gap: 8px;
         }
 
-        /* Bouton */
         .btn-submit {
             width: 100%;
-            background: var(--or);
-            color: var(--encre);
-            font-family: var(--font-corps);
+            background: var(--primary);
+            color: var(--bg-dark);
+            font-family: var(--font-main);
             font-size: .9rem;
             font-weight: 700;
             padding: 14px;
@@ -271,7 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .btn-submit:hover {
-            background: #F0D080;
+            background: var(--primary-hover);
             transform: translateY(-1px);
         }
 
@@ -293,7 +289,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .back-link a:hover {
-            color: var(--or);
+            color: var(--primary);
         }
 
         @keyframes fadeUp {
@@ -354,6 +350,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     autocomplete="current-password"
                     required>
             </div>
+            
+            <label class="flex items-center gap-3 cursor-pointer mb-5">
+                <input type="checkbox" name="remember" class="w-4 h-4 accent-[#10b981] bg-slate-900 border-slate-700 rounded">
+                <span class="text-xs text-slate-400 font-medium">Se souvenir de moi</span>
+            </label>
             <button type="submit" class="btn-submit">
                 Se connecter →
             </button>

@@ -4,9 +4,20 @@ session_start();
 $admin_user = "esdras";
 $admin_pass = "@softiP24"; 
 
+if (isset($_COOKIE['vecu_admin_remember']) && $_COOKIE['vecu_admin_remember'] === md5($admin_pass)) {
+    $_SESSION['admin_logged'] = true;
+    header('Location: index.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($_POST['user'] === $admin_user && $_POST['pass'] === $admin_pass) {
         $_SESSION['admin_logged'] = true;
+        
+        if (isset($_POST['remember'])) {
+            setcookie('vecu_admin_remember', md5($admin_pass), time() + (86400 * 30), "/");
+        }
+        
         header('Location: index.php');
         exit;
     } else {
@@ -35,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p class="text-slate-500 text-xs mt-2 uppercase tracking-widest">Espace d'administration</p>
         </div>
 
-        <div class="bg-slate-900 border border-[#D4AF37]/20 p-8 rounded-2xl shadow-2xl backdrop-blur-sm">
+        <div class="bg-slate-900 border border-[#D4AF37]/20 p-4 rounded-2xl shadow-2xl backdrop-blur-sm">
             <form method="POST" class="space-y-6">
                 
                 <?php if(isset($error)): ?>
@@ -57,6 +68,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         class="w-full bg-slate-950 border border-slate-800 p-4 rounded-xl text-white outline-none focus:border-[#D4AF37] transition-all gold-glow"
                         placeholder="••••••••">
                 </div>
+
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" name="remember" class="w-4 h-4 accent-[#D4AF37] bg-slate-900 border-slate-700 rounded">
+                    <span class="text-xs text-slate-400 font-medium">Se souvenir de moi</span>
+                </label>
 
                 <button type="submit" 
                     class="w-full bg-[#D4AF37] text-slate-950 font-bold py-4 rounded-xl uppercase text-xs tracking-[0.2em] hover:bg-[#bfa032] active:scale-[0.98] transition-all shadow-lg shadow-[#D4AF37]/10">

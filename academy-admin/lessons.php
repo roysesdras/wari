@@ -198,32 +198,7 @@ if ($filterCourseId) {
                     fontFamily: {
                         sans: ['Poppins', 'sans-serif']
                     },
-                    colors: {
-                        gold: {
-                            50: '#FFFBEB',
-                            100: '#FEF3C7',
-                            200: '#FDE68A',
-                            300: '#FCD34D',
-                            400: '#F0D080',
-                            500: '#C9A84C',
-                            600: '#B8950A',
-                            700: '#8B6914',
-                            800: '#6B4F10',
-                            900: '#3D2B0F',
-                        },
-                        ink: {
-                            50: '#F5F0E8',
-                            100: '#E8DFC8',
-                            200: '#D4C09A',
-                            300: '#B89A60',
-                            400: '#8B6914',
-                            500: '#5A3E10',
-                            600: '#2A1A04',
-                            700: '#1A0F02',
-                            800: '#100A01',
-                            900: '#0A0601',
-                        }
-                    }
+                    colors: {}
                 }
             }
         }
@@ -238,39 +213,39 @@ if ($filterCourseId) {
         }
 
         ::-webkit-scrollbar-track {
-            background: #100A01;
+            background: #0f172a;
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #3D2B0F;
+            background: #1e293b;
             border-radius: 999px;
         }
 
         .bg-pattern {
             background-image: repeating-linear-gradient(45deg,
                     transparent, transparent 40px,
-                    rgba(201, 168, 76, .015) 40px, rgba(201, 168, 76, .015) 41px);
+                    rgba(16, 185, 129, .015) 40px, rgba(16, 185, 129, .015) 41px);
         }
 
-        .card-gold-top {
+        .card-green-top {
             position: relative;
         }
 
-        .card-gold-top::before {
+        .card-green-top::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 2px;
-            background: linear-gradient(90deg, transparent, #C9A84C, transparent);
+            display: none;
             border-radius: 999px;
         }
 
         .field-input {
             width: 100%;
             background: rgba(255, 255, 255, .05);
-            border: 1px solid rgba(201, 168, 76, .15);
+            border: 1px solid rgba(16, 185, 129, .15);
             border-radius: 10px;
             padding: 10px 14px;
             font-family: 'Poppins', sans-serif;
@@ -281,8 +256,8 @@ if ($filterCourseId) {
         }
 
         .field-input:focus {
-            border-color: rgba(201, 168, 76, .5);
-            background: rgba(201, 168, 76, .04);
+            border-color: rgba(16, 185, 129, .5);
+            background: rgba(16, 185, 129, .04);
         }
 
         .field-input::placeholder {
@@ -290,7 +265,7 @@ if ($filterCourseId) {
         }
 
         select.field-input option {
-            background: #100A01;
+            background: #0f172a;
             color: #e2e8f0;
         }
 
@@ -334,12 +309,12 @@ if ($filterCourseId) {
     </style>
 </head>
 
-<body class="bg-ink-800 bg-pattern text-slate-200 min-h-screen flex">
+<body class="bg-slate-900 bg-pattern text-slate-200 min-h-screen flex">
 
     <!-- ════ SIDEBAR ════════════════════════════════════════════ -->
-    <aside class="w-56 bg-ink-900 border-r border-gold-900/30 min-h-screen fixed left-0 top-0 bottom-0 flex flex-col z-50">
-        <div class="px-5 py-6 border-b border-gold-900/20">
-            <span class="block font-black text-gold-500 text-lg tracking-wide leading-none">Wari Academy</span>
+    <aside class="w-56 bg-slate-950 border-r border-slate-800 min-h-screen fixed left-0 top-0 bottom-0 flex flex-col z-50">
+        <div class="px-5 py-6 border-b border-slate-800">
+            <span class="block font-black text-emerald-500 text-lg tracking-wide leading-none">Wari Academy</span>
             <span class="block text-[10px] text-slate-600 tracking-[.15em] uppercase mt-1">Administration</span>
         </div>
         <nav class="flex-1 px-3 py-4 space-y-0.5">
@@ -347,7 +322,7 @@ if ($filterCourseId) {
             <a href="/academy-admin/index.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Dashboard</a>
             <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Contenu</p>
             <a href="/academy-admin/courses.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Cours</a>
-            <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-gold-500 bg-gold-900/20 font-semibold text-[13px]">Leçons</a>
+            <a href="/academy-admin/lessons.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-emerald-500 bg-emerald-500/10 font-semibold text-[13px]">Leçons</a>
             <a href="/academy-admin/pdfs.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">PDF Payants</a>
             <p class="text-[9px] font-bold tracking-[.15em] uppercase text-slate-700 px-2 pt-4 pb-1">Données</p>
             <a href="/academy-admin/stats.php" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Statistiques</a>
@@ -356,13 +331,13 @@ if ($filterCourseId) {
             <a href="/academy/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Voir Academy</a>
             <a href="https://wari.digiroys.com/accueil/" target="_blank" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 text-[13px] transition-all">Retour Wari</a>
         </nav>
-        <div class="px-3 py-4 border-t border-gold-900/20">
+        <div class="px-3 py-4 border-t border-slate-800">
             <div class="flex items-center gap-3 px-2 py-2 mb-1">
                 <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gold-700 to-gold-500 flex items-center justify-center shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
                 <div>
-                    <p class="text-[13px] font-semibold text-gold-400 leading-none"><?= htmlspecialchars($user) ?></p>
+                    <p class="text-[13px] font-semibold text-emerald-400 leading-none"><?= htmlspecialchars($user) ?></p>
                     <p class="text-[10px] text-slate-600 mt-0.5">Admin Academy</p>
                 </div>
             </div>
@@ -374,11 +349,11 @@ if ($filterCourseId) {
     <div class="ml-56 flex-1 flex flex-col min-h-screen">
 
         <!-- Topbar -->
-        <div class="bg-ink-900/80 backdrop-blur border-b border-gold-900/20 px-8 h-14 flex items-center justify-between sticky top-0 z-40">
+        <div class="bg-slate-950/80 backdrop-blur border-b border-slate-800 px-8 h-14 flex items-center justify-between sticky top-0 z-40">
             <div class="flex items-center gap-3">
-                <a href="/academy-admin/index.php" class="text-slate-600 hover:text-gold-500 text-xs transition-colors">Dashboard</a>
+                <a href="/academy-admin/index.php" class="text-slate-600 hover:text-emerald-500 text-xs transition-colors">Dashboard</a>
                 <span class="text-slate-700">/</span>
-                <a href="/academy-admin/courses.php" class="text-slate-600 hover:text-gold-500 text-xs transition-colors">Cours</a>
+                <a href="/academy-admin/courses.php" class="text-slate-600 hover:text-emerald-500 text-xs transition-colors">Cours</a>
                 <span class="text-slate-700">/</span>
                 <span class="font-bold text-slate-100 text-sm">
                     Leçons <?= $coursFiltre ? '— ' . htmlspecialchars($coursFiltre['titre']) : '' ?>
@@ -387,7 +362,7 @@ if ($filterCourseId) {
             <div class="flex items-center gap-3">
                 <span class="text-[11px] text-slate-500"><?= count($lessons) ?> leçon<?= count($lessons) > 1 ? 's' : '' ?></span>
                 <a href="/academy-admin/lessons.php?action=add<?= $filterCourseId ? '&course_id=' . $filterCourseId : '' ?>"
-                    class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[12px] px-4 py-1.5 rounded-full transition-all">
+                    class="bg-emerald-500 hover:bg-emerald-400 text-ink-900 font-bold text-[12px] px-4 py-1.5 rounded-full transition-all">
                     + Nouvelle leçon
                 </a>
             </div>
@@ -412,14 +387,14 @@ if ($filterCourseId) {
              FORMULAIRE AJOUT / ÉDITION
         ════════════════════════════════════════════════ -->
             <?php if ($action === 'add' || $action === 'edit'): ?>
-                <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-7 mb-8 anim">
+                <div class="card-green-top bg-slate-950 border border-slate-800 rounded-2xl p-7 mb-8 anim">
 
                     <h2 class="font-bold text-slate-100 text-base mb-6 flex items-center gap-2">
                         <?php if ($action === 'edit'): ?>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                             Modifier la leçon
                         <?php else: ?>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-500"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                             Nouvelle leçon
                         <?php endif; ?>
                     </h2>
@@ -495,7 +470,7 @@ if ($filterCourseId) {
                             <div class="col-span-2">
                                 <label class="field-label">
                                     Contenu de la leçon *
-                                    <span class="text-gold-900 normal-case tracking-normal font-normal ml-2">
+                                    <span class="text-emerald-900 normal-case tracking-normal font-normal ml-2">
                                         — HTML accepté (h2, p, ul, blockquote, strong...)
                                     </span>
                                 </label>
@@ -528,7 +503,7 @@ if ($filterCourseId) {
 
                                     <!-- Bouton IA -->
                                     <button type="button" onclick="generateLessonContent()" id="btn-ai-write"
-                                        class="text-[10px] font-bold uppercase tracking-widest bg-gold-950/30 border border-gold-500/30 text-gold-500 hover:text-gold-400 hover:border-gold-500 hover:bg-gold-900/40 px-3 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1.5">
+                                        class="text-[10px] font-bold uppercase tracking-widest bg-gold-950/30 border border-gold-500/30 text-emerald-500 hover:text-emerald-400 hover:border-gold-500 hover:bg-emerald-500/20 px-3 py-1.5 rounded-xl transition-all duration-200 flex items-center gap-1.5">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>
                                         Rédiger avec l'IA
                                     </button>
@@ -550,9 +525,9 @@ if ($filterCourseId) {
                         </div>
 
                         <!-- Boutons -->
-                        <div class="flex items-center gap-3 pt-4 border-t border-gold-900/20">
+                        <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
                             <button type="submit"
-                                class="bg-gold-500 hover:bg-gold-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all flex items-center gap-2">
+                                class="bg-emerald-500 hover:bg-emerald-400 text-ink-900 font-bold text-[13px] px-6 py-2.5 rounded-full transition-all flex items-center gap-2">
                                 <?php if ($action === 'edit'): ?>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>
                                     Enregistrer
@@ -579,7 +554,7 @@ if ($filterCourseId) {
                     <form method="GET" class="flex items-center gap-3">
                         <label class="text-[11px] text-slate-500 font-semibold whitespace-nowrap">Filtrer par cours :</label>
                         <select name="course_id" onchange="this.form.submit()"
-                            class="bg-ink-900 border border-gold-900/25 text-slate-300 text-[12px] rounded-xl px-3 py-2 outline-none focus:border-gold-700/50 transition-colors">
+                            class="bg-slate-950 border border-slate-800 text-slate-300 text-[12px] rounded-xl px-3 py-2 outline-none focus:border-gold-700/50 transition-colors">
                             <option value="">— Tous les cours —</option>
                             <?php foreach ($allCourses as $c): ?>
                                 <option value="<?= $c['id'] ?>" <?= $filterCourseId == $c['id'] ? 'selected' : '' ?>>
@@ -590,7 +565,7 @@ if ($filterCourseId) {
                     </form>
 
                     <?php if ($filterCourseId && $coursFiltre): ?>
-                        <span class="text-[11px] bg-gold-900/20 border border-gold-900/30 text-gold-600 px-3 py-1 rounded-full">
+                        <span class="text-[11px] bg-emerald-500/10 border border-slate-800 text-emerald-600 px-3 py-1 rounded-full">
                             <?= htmlspecialchars($coursFiltre['titre']) ?> — <?= htmlspecialchars($coursFiltre['cat_titre']) ?>
                         </span>
                         <a href="/academy-admin/lessons.php" class="text-[11px] text-slate-600 hover:text-slate-400 transition-colors">
@@ -615,25 +590,25 @@ if ($filterCourseId) {
                             ['label' => 'Vidéo',          'val' => $totalVideo,   'svg' => '<path d="m22 8-6 4 6 4V8z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/>'],
                         ] as $i => $s
                     ): ?>
-                        <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl p-5 anim"
+                        <div class="card-green-top bg-slate-950 border border-slate-800 rounded-2xl p-5 anim"
                             style="animation-delay:<?= $i * .05 ?>s">
-                            <div class="text-gold-700 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><?= $s['svg'] ?></svg></div>
-                            <p class="font-black text-gold-500 text-3xl leading-none"><?= $s['val'] ?></p>
+                            <div class="text-emerald-700 mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><?= $s['svg'] ?></svg></div>
+                            <p class="font-black text-emerald-500 text-3xl leading-none"><?= $s['val'] ?></p>
                             <p class="text-slate-600 text-[11px] mt-1"><?= $s['label'] ?></p>
                         </div>
                     <?php endforeach; ?>
                 </div>
 
                 <!-- Liste des leçons -->
-                <div class="card-gold-top bg-ink-900 border border-gold-900/25 rounded-2xl overflow-hidden anim">
+                <div class="card-green-top bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden anim">
 
-                    <div class="px-6 py-4 border-b border-gold-900/20 flex items-center justify-between">
+                    <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
                         <p class="font-bold text-slate-100 text-sm flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gold-700"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-700"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                             Leçons
                         </p>
                         <a href="/academy-admin/lessons.php?action=add<?= $filterCourseId ? '&course_id=' . $filterCourseId : '' ?>"
-                            class="text-[11px] text-gold-700 hover:text-gold-500 font-semibold transition-colors">
+                            class="text-[11px] text-emerald-700 hover:text-emerald-500 font-semibold transition-colors">
                             + Ajouter →
                         </a>
                     </div>
@@ -651,7 +626,7 @@ if ($filterCourseId) {
                             <div class="col-span-1 text-[10px] font-bold uppercase tracking-[.1em] text-slate-600 text-right">Actions</div>
                         </div>
 
-                        <div class="divide-y divide-gold-900/10">
+                        <div class="divide-y divide-slate-800">
                             <?php foreach ($lessons as $i => $lesson): ?>
                                 <div class="grid grid-cols-12 gap-3 px-6 py-4 hover:bg-white/[.025] transition-colors items-center"
                                     style="animation: fadeUp .3s ease <?= $i * .03 ?>s both">
@@ -665,19 +640,19 @@ if ($filterCourseId) {
                                                 <input type="hidden" name="course_id" value="<?= $lesson['course_id'] ?>">
                                                 <input type="hidden" name="direction" value="up">
                                                 <button type="submit"
-                                                    class="text-slate-600 hover:text-gold-500 transition-colors text-xs leading-none">▲</button>
+                                                    class="text-slate-600 hover:text-emerald-500 transition-colors text-xs leading-none">▲</button>
                                             </form>
-                                            <span class="font-bold text-gold-700 text-sm"><?= $lesson['ordre'] ?></span>
+                                            <span class="font-bold text-emerald-700 text-sm"><?= $lesson['ordre'] ?></span>
                                             <form method="POST">
                                                 <input type="hidden" name="action" value="reorder">
                                                 <input type="hidden" name="id" value="<?= $lesson['id'] ?>">
                                                 <input type="hidden" name="course_id" value="<?= $lesson['course_id'] ?>">
                                                 <input type="hidden" name="direction" value="down">
                                                 <button type="submit"
-                                                    class="text-slate-600 hover:text-gold-500 transition-colors text-xs leading-none">▼</button>
+                                                    class="text-slate-600 hover:text-emerald-500 transition-colors text-xs leading-none">▼</button>
                                             </form>
                                         <?php else: ?>
-                                            <span class="font-bold text-gold-700 text-sm"><?= $lesson['ordre'] ?></span>
+                                            <span class="font-bold text-emerald-700 text-sm"><?= $lesson['ordre'] ?></span>
                                         <?php endif; ?>
                                     </div>
 
@@ -694,7 +669,7 @@ if ($filterCourseId) {
                                     <!-- Cours parent -->
                                     <div class="col-span-3">
                                         <a href="/academy-admin/lessons.php?course_id=<?= $lesson['course_id'] ?>"
-                                            class="text-[11px] text-slate-500 hover:text-gold-500 transition-colors truncate block">
+                                            class="text-[11px] text-slate-500 hover:text-emerald-500 transition-colors truncate block">
                                             <?= $lesson['cat_icone'] ?> <?= htmlspecialchars($lesson['course_titre']) ?>
                                         </a>
                                     </div>
@@ -708,7 +683,7 @@ if ($filterCourseId) {
 
                                     <!-- Nb complétés -->
                                     <div class="col-span-1 text-center">
-                                        <span class="font-bold text-gold-500 text-sm"><?= number_format($lesson['nb_completes']) ?></span>
+                                        <span class="font-bold text-emerald-500 text-sm"><?= number_format($lesson['nb_completes']) ?></span>
                                     </div>
 
                                     <!-- Statut -->
@@ -732,7 +707,7 @@ if ($filterCourseId) {
                                         <!-- Éditer -->
                                         <a href="/academy-admin/lessons.php?action=edit&id=<?= $lesson['id'] ?>"
                                             title="Modifier"
-                                            class="w-7 h-7 rounded-lg bg-white/5 hover:bg-gold-900/30 flex items-center justify-center text-slate-500 hover:text-gold-400 transition-all">
+                                            class="w-7 h-7 rounded-lg bg-white/5 hover:bg-emerald-500/20 flex items-center justify-center text-slate-500 hover:text-emerald-400 transition-all">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>
                                         </a>
                                         <!-- Supprimer -->
@@ -754,7 +729,7 @@ if ($filterCourseId) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 opacity-30"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                             <p class="text-sm">Aucune leçon pour le moment.</p>
                             <a href="/academy-admin/lessons.php?action=add<?= $filterCourseId ? '&course_id=' . $filterCourseId : '' ?>"
-                                class="inline-block mt-4 bg-gold-500 text-ink-900 font-bold text-[12px] px-5 py-2 rounded-full hover:bg-gold-400 transition-all">
+                                class="inline-block mt-4 bg-emerald-500 text-ink-900 font-bold text-[12px] px-5 py-2 rounded-full hover:bg-emerald-400 transition-all">
                                 Créer la première leçon →
                             </a>
                         </div>
