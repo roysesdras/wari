@@ -35,5 +35,25 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://wari.digiroys.com/accueil/apropos.php</loc>
+    <lastmod>2026-06-27T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wari.digiroys.com/accueil/faq.php</loc>
+    <lastmod>2026-06-27T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://wari.digiroys.com/accueil/mentions-legales.php</loc>
+    <lastmod>2026-06-27T00:00:00+00:00</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
 
 </urlset>

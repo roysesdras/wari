@@ -597,7 +597,7 @@ if ($isBot) {
             <div>
                 <h1>Contrôlez <br>chaque CFA <br><span class="text-accent">que vous dépensez</span></h1>
                 <p>Wari - Finance est l'outil parfait qui t’aide à décider à l’avance où va ton argent.</p>
-                <a class="btn" href="../paid/landing-vente.php" target="_blanck" aria-label="Découvrir l'appli">Découvrir l'appli →</a>
+                <a class="btn" href="../paid" target="_blanck" aria-label="Découvrir l'appli">Découvrir l'appli →</a>
                 <div style="margin-top: 1.5rem; display: flex; gap: 1.5rem; flex-wrap: wrap;">
                     <span style="display:flex;align-items:center;gap:0.4rem;font-size:0.9rem;color:var(--muted)"><span style="background:var(--gold);width:10px;height:10px;border-radius:10px;flex-shrink:0;"></span> Épargne 40%</span>
                     <span style="display:flex;align-items:center;gap:0.4rem;font-size:0.9rem;color:var(--muted)"><span style="background:var(--blue);width:10px;height:10px;border-radius:10px;flex-shrink:0;"></span> Train de vie 30%</span>
@@ -876,25 +876,78 @@ if ($isBot) {
             <span>📱 iOS · Android · PWA</span>
         </div>
 
-        <!-- ── GUIDE PDF ───────────────────────────────────────────────── -->
-        <section class="guide-block" aria-label="Guide d'utilisation">
-            <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:1.5rem;">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                </svg>
-                <h3>Guide d'utilisation</h3>
+        <!-- ══════════════════════════════════════════════════════════════
+             ── ÉCOSYSTÈME WARI ───────────────────────────────────────
+        ══════════════════════════════════════════════════════════════ -->
+        <div style="text-align: center; margin: 4rem 0 2rem;">
+            <span class="badge-light">Votre succès financier</span>
+            <h2>Un écosystème conçu pour vous</h2>
+        </div>
+        
+        <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 4rem;">
+            
+            <!-- GUIDE -->
+            <div class="feature-card" style="text-align: center;">
+                <div class="card-icon" style="margin: 0 auto 1.5rem;">
+                    <svg viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+                <h3 style="color:#f1f5f9;">Le Guide Interactif</h3>
+                <p style="font-size: 0.95rem;">Apprenez les bases de la méthode Wari en moins de 10 minutes. Optimisez votre répartition financière étape par étape.</p>
+                <a href="../guide/" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.9rem;">Lire le guide en ligne</a>
             </div>
-            <p style="color:var(--muted);margin-bottom:1.5rem;">Téléchargez le guide complet pour maîtriser WARI. Découvrez comment optimiser votre répartition financière en moin de 10 minutes.</p>
-            <a href="Guide_utilisation_WARI.pdf" download class="btn-download">
-                Télécharger le guide
-            </a>
-        </section>
+
+            <!-- ACADEMY -->
+            <div class="feature-card" style="text-align: center;">
+                <div class="card-icon" style="margin: 0 auto 1.5rem;">
+                    <svg viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14l9-5-9-5-9 5 9 5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                    </svg>
+                </div>
+                <h3 style="color:#f1f5f9;">Wari Academy</h3>
+                <p style="font-size: 0.95rem;">Maîtrisez l'argent avant qu'il ne vous maîtrise. Des cours financiers pensés pour les réalités africaines.</p>
+                <a href="../academy/" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; background: transparent; border: 1px solid var(--gold); color: var(--gold);">Découvrir les cours</a>
+            </div>
+
+            <!-- VÉCU -->
+            <div class="feature-card" style="text-align: center;">
+                <div class="card-icon" style="margin: 0 auto 1.5rem;">
+                    <svg viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <h3 style="color:#f1f5f9;">Wari Vécu</h3>
+                <p style="font-size: 0.95rem;">Gérez vos finances réelles, partagez vos expériences et suivez votre évolution avec des tableaux de bord dynamiques.</p>
+                <a href="../vecu/" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; background: transparent; border: 1px solid var(--gold); color: var(--gold);">Accéder au suivi</a>
+            </div>
+
+            <!-- PREMIUM / AVANCÉ -->
+            <div class="feature-card" style="text-align: center; border-color: rgba(99, 179, 237, 0.4); background: linear-gradient(180deg, rgba(99, 179, 237, 0.03) 0%, transparent 100%);">
+                <div class="card-icon" style="margin: 0 auto 1.5rem; border-color: rgba(99, 179, 237, 0.3);">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" style="stroke: var(--blue);">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <h3 style="color:#f1f5f9;">Pour aller plus loin...</h3>
+                <p style="font-size: 0.95rem;">Coach IA personnel, analyses prédictives, et historique complet. Tout ce qu'il faut pour maximiser vos revenus.</p>
+                <a href="../paid/" class="btn" style="padding: 0.6rem 1.5rem; font-size: 0.9rem; background: var(--blue); color: #000; box-shadow: 0 8px 20px rgba(99, 179, 237, 0.25);">Voir les options avancées</a>
+            </div>
+
+        </div>
 
         <!-- ── FOOTER ─────────────────────────────────────────────────── -->
         <footer>
-            <p>WARI — Finance : application de finance personnelle · design slate · mobile first</p>
-            <p style="margin-top: 0.8rem;">Suivi épargne, train de vie, projet, imprévu — avec pourcentages clairs.<br>© 2026 Digiroys · Afrique</p>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 2rem;">
+                <a href="apropos.php" style="color: var(--muted2); text-decoration: none; font-weight: 500;">À propos</a>
+                <a href="faq.php" style="color: var(--muted2); text-decoration: none; font-weight: 500;">FAQ</a>
+                <a href="mentions-legales.php" style="color: var(--muted2); text-decoration: none; font-weight: 500;">Mentions Légales</a>
+                <a href="../guide/" style="color: var(--muted2); text-decoration: none; font-weight: 500;">Guide complet</a>
+            </div>
+            <p>WARI - Finance : L'application de référence pour la jeunesse africaine.</p>
+            <p style="margin-top: 0.8rem;">Suivi épargne, train de vie, projet, imprévu. Avec pourcentages clairs.<br>© <?php echo date('Y'); ?> Digiroys · Écosystème Numérique</p>
         </footer>
 
     </main>
