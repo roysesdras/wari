@@ -797,6 +797,13 @@ if ($filterCourseId) {
                 formData.append('titre_lecon', titleField.value);
                 formData.append('cours_context', courseContext);
 
+                const courseIdVal = courseSelect ? courseSelect.value : '';
+                const ordreInput = document.querySelector('input[name="ordre"]');
+                const ordreVal = ordreInput ? ordreInput.value : '0';
+
+                formData.append('course_id', courseIdVal);
+                formData.append('ordre', ordreVal);
+
                 const response = await fetch('ai_gateway.php', {
                     method: 'POST',
                     body: formData

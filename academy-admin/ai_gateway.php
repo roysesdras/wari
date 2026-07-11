@@ -44,25 +44,117 @@ try {
 
     case 'write_lesson':
         $titreLecon = $_POST['titre_lecon'] ?? '';
-        $coursContext = $_POST['cours_context'] ?? '';
+        $courseId = isset($_POST['course_id']) ? (int)$_POST['course_id'] : 0;
+        $currentOrdre = isset($_POST['ordre']) ? (int)$_POST['ordre'] : 0;
 
         if (!$titreLecon) {
             echo json_encode(['error' => 'Titre de leçon manquant']);
             break;
         }
 
-        $prompt = "Rédige le contenu de la leçon : '$titreLecon'. 
-        Contexte du cours : $coursContext.
-        Le contenu DOIT ÊTRE COURT ET CONCIS (maximum 200 à 300 mots). Ne fais pas de longues théories. Utilise des exemples crus du quotidien africain.
-        À la fin de la leçon, inclus OBLIGATOIREMENT une 'MISSION D'AUJOURD'HUI' : une petite action financière réelle et rapide.
-        Retourne un JSON avec une clé 'contenu' contenant du HTML propre.
-        Utilise : <h2> pour les sections, <p> pour le texte, <ul><li> pour les listes.
-        Ajoute au moins un encadré 'Mission' ou '💡 Action Immédiate' en utilisant ce code HTML :
-        <div class='bg-slate-800 border-l-4 border-gold-500 p-4 my-4'><div class='text-emerald-500 font-bold mb-1'>💡 ACTION IMMÉDIATE</div>Le texte de l'action...</div>";
+        $courseContext = "";
+        $syllabus = "";
+        $previousLessonContent = "";
+
+        if ($courseId > 0) {
+            try {
+                require_once __DIR__ . '/../config/db.php';
+
+                // 1. Infos du cours
+                $stmtCourse = $pdo->prepare("SELECT titre, description FROM academy_courses WHERE id = ?");
+                $stmtCourse->execute([$courseId]);
+                $course = $stmtCourse->fetch(PDO::FETCH_ASSOC);
+
+                if ($course) {
+                    $courseContext = "Titre du cours : \"" . $course['titre'] . "\"\nDescription du cours : " . $course['description'];
+                }
+
+                // 2. Syllabus (Toutes les leçons du cours pour la chronologie)
+                $stmtLessons = $pdo->prepare("SELECT titre, ordre FROM academy_lessons WHERE course_id = ? ORDER BY ordre ASC");
+                $stmtLessons->execute([$courseId]);
+                $allLessons = $stmtLessons->fetchAll(PDO::FETCH_ASSOC);
+
+                if (!empty($allLessons)) {
+                    $syllabus = "Syllabus complet du cours (les leçons s'enchaînent dans cet ordre) :\n";
+                    foreach ($allLessons as $l) {
+                        $mark = ($l['ordre'] == $currentOrdre) ? " -> [CETTE LEÇON]" : "";
+                        $syllabus .= "- Leçon " . $l['ordre'] . " : " . $l['titre'] . $mark . "\n";
+                    }
+                }
+
+                // 3. Contenu de la leçon précédente
+                $stmtPrev = $pdo->prepare("SELECT titre, contenu FROM academy_lessons WHERE course_id = ? AND ordre < ? ORDER BY ordre DESC LIMIT 1");
+                $stmtPrev->execute([$courseId, $currentOrdre]);
+                $prev = $stmtPrev->fetch(PDO::FETCH_ASSOC);
+
+                if ($prev) {
+                    $previousLessonContent = "Détail de la leçon précédente (que l'élève vient de terminer) :\n"
+                                           . "Titre : \"" . $prev['titre'] . "\"\n"
+                                           . "Contenu textuel (pour faire une transition fluide) : " . mb_substr(strip_tags($prev['contenu']), 0, 1000) . "\n";
+                }
+            } catch (Exception $e) {
+                // Fallback silencieux en cas d'erreur DB
+            }
+        }
+
+        if (!$courseContext) {
+            $courseContext = $_POST['cours_context'] ?? 'Cours Wari Academy';
+        }
+
+        $prompt = "Tu dois rédiger le contenu de la leçon actuelle : '$titreLecon'.
+
+CONTEXTE GÉNÉRAL DU COURS :
+$courseContext
+
+$syllabus
+
+$previousLessonContent
+
+RÈGLES PÉDAGOGIQUES CRUCIALES POUR LA RÉDACTION :
+1. CHRONOLOGIE ET TRANSITION :
+   - Fais une transition fluide et naturelle avec la leçon précédente si elle existe (ex: 'Après avoir vu X dans la leçon précédente, passons maintenant à...').
+   - Ne répète PAS les concepts introductifs ou généraux déjà expliqués dans la leçon précédente.
+   - Cette leçon est l'étape numéro $currentOrdre du cours. Rédige-la comme une suite logique, pas comme un résumé du cours entier.
+   - Ne déborde PAS sur le sujet des leçons suivantes listées dans le syllabus.
+2. FORMAT ET CONCISENESS :
+   - Le contenu doit être court, direct et percutant (maximum 200 à 300 mots).
+   - Utilise des exemples concrets et terre-à-terre du quotidien ou des finances en Afrique (les tontines, le Mobile Money, les enveloppes, le marché, les petites boutiques, etc.).
+3. MISSION D'AUJOURD'HUI :
+   - Inclus OBLIGATOIREMENT à la fin de la leçon une section 'MISSION D'AUJOURD'HUI' : une petite action concrète et rapide que l'élève peut faire immédiatement.
+4. CODE ET FORMAT DE RETOUR :
+   - Tu dois impérativement retourner un objet JSON contenant uniquement la clé 'contenu' avec ton code HTML.
+   - Utilise uniquement les balises : <h2> pour les titres de section, <p> pour le texte, <ul> et <li> pour les listes.
+   - Le bloc de la mission doit être balisé avec ce code HTML exact :
+     <div class='bg-slate-800 border-l-4 border-gold-500 p-4 my-4'><div class='text-emerald-500 font-bold mb-1'>💡 MISSION D'AUJOURD'HUI</div>Le texte de la mission concrète...</div>";
 
         $system = "Tu es le rédacteur principal de Wari Academy. Ton ton est direct, sans filtre, et hyper-pratique. Tu ne fais pas de longs discours. Tu vas droit au but pour aider l'utilisateur à sortir de la pauvreté.";
 
-        echo $ai->generate($prompt, $system);
+        $htmlResult = $ai->generate($prompt, $system);
+        
+        // 1. Nettoyer les balises de code markdown si l'IA en a ajouté autour du JSON
+        $htmlResult = preg_replace('/^```(?:json)?\s*/i', '', $htmlResult);
+        $htmlResult = preg_replace('/\s*```$/', '', $htmlResult);
+        $htmlResult = trim($htmlResult);
+
+        // 2. Décoder le JSON retourné par l'IA (car l'API Gemini/Groq est forcée en responseMimeType JSON)
+        $decoded = json_decode($htmlResult, true);
+        
+        if (json_last_error() === JSON_ERROR_NONE && $decoded !== null) {
+            if (is_array($decoded) && isset($decoded['contenu'])) {
+                $content = $decoded['contenu'];
+            } else {
+                $content = is_string($decoded) ? $decoded : $htmlResult;
+            }
+        } else {
+            $content = $htmlResult;
+        }
+
+        // 3. Nettoyage final des balises markdown de bloc si l'IA en a ajouté dans la chaîne
+        $content = preg_replace('/^```(?:html)?\s*/i', '', $content);
+        $content = preg_replace('/\s*```$/', '', $content);
+        $content = trim($content, " \t\n\r\0\x0B\"");
+
+        echo json_encode(['contenu' => $content]);
         break;
 
     case 'generate_quiz':
@@ -155,24 +247,22 @@ try {
         
         Consignes absolues pour ton comportement et ton ton :
         1. BANISSEMENT DU SURNOM 'CHAMPION·NE' ET NOMS FAMILIERS : Tu as l'interdiction FORMELLE et absolue d'utiliser le terme \"Champion·ne\", \"Mon frère\", \"Ma sœur\", \"Fréro\", ou tout autre surnom. Adresse-toi à l'utilisateur directement et naturellement en disant \"tu\" (ou \"vous\" selon la phrase), de manière sincère, respectueuse, digne et humaine.
-        2. LA MÉTHODE DES 4 ENVELOPPES DE WARI : Maîtrise et propose la règle d'or des enveloppes Wari avec leurs pourcentages cibles pour structurer le budget mensuel :
-           - Épargne (15%) : Pour se constituer une réserve de sécurité solide.
-           - Projet (25%) : Pour alimenter son capital projet et atteindre l'objectif ciblé.
-           - Imprévu (10%) : Pour parer aux urgences de la vie quotidienne sans toucher à son épargne.
-           - Train de vie (50%) : Pour toutes les dépenses quotidiennes (nourriture, transport, loisirs), qui ne doit jamais dépasser la moitié des revenus.
-           Conseille à l'utilisateur d'ajuster ses répartitions selon ce modèle rigoureux s'il te demande des conseils ou si tu constates des écarts dans ses enveloppes.
+        2. RESPECT DU BUDGET ET DES POURCENTAGES DÉFINIS PAR L'UTILISATEUR : Dans les DONNÉES FINANCIÈRES, tu reçois les enveloppes actives de l'utilisateur avec le \"Pourcentage cible\" pour le Portefeuille Personnel (\"enveloppes_personnelles_details\") et le Portefeuille Professionnel (\"enveloppes_professionnelles_details\"). Tu reçois également le portefeuille actuellement ouvert et visible par l'utilisateur (\"portefeuille_actif\"). Si l'utilisateur a configuré ses propres enveloppes ou modifié ses pourcentages cibles, tu DOIS te baser EXCLUSIVEMENT sur ses propres réglages personnalisés pour faire tes analyses et lui donner des conseils. Analyse spécifiquement le portefeuille actif, mais garde à l'esprit l'autre portefeuille pour des conseils globaux. De plus, tu reçois la synthèse des Défis d'épargne en cours (\"defis_epargne_actifs_details\") et le journal des 25 dernières dépenses réelles enregistrées (\"depenses_recentes_details\") pour que tu aies une vision omnisciente de toutes ses actions de dépenses, notes de frais et configurations sans rien louper de son activité. Si et seulement si les données personnalisées de pourcentages cibles sont absentes ou vides, tu peux alors lui suggérer la méthode de référence par défaut des 4 enveloppes de Wari (Train de vie 50%, Projet 25%, Épargne 15%, Imprévu 10%).
         3. RECOMMANDATION DES COURS DE L'ACADEMY : Si l'utilisateur exprime le besoin d'apprendre, de s'éduquer, de comprendre l'investissement, la gestion des dettes ou s'il fait face à des blocages financiers, recommande-lui spécifiquement un cours actif de Wari Academy issu du catalogue ci-dessus en le nommant clairement.
         4. PAS DE SALUTATIONS / SIGNATURES RÉPÉTITIVES : Ne commence JAMAIS tes réponses par un salut au milieu d'une discussion continue, sauf si le message de l'utilisateur est une salutation initiale. Ne mets pas de phrases de clôture stéréotypées (ex. \"Force à toi !\", \"Bonne chance !\") à la fin de chaque message. Réponds directement, naturellement et de façon fluide, comme dans une discussion instantanée WhatsApp.
-        5. PAS DE LISTES NUMÉROTÉES OU DE PUCES : N'utilise JAMAIS de listes rigides (1..., 2..., 3...) ou de tirets. Rédige tes conseils sous forme de paragraphes continus, causants, fluides et rythmés. Parle comme un mentor bienveillant assis à côté de lui.
-        6. INTÉGRATION DE L'OBJECTIF VISÉ : Dans le JSON, tu reçois le capital actuel du projet ('capital_projet') ainsi que l'objectif ciblé par l'utilisateur ('objectif_projet_montant' et 'objectif_projet_label'). Lorsque tu parles de son projet, fais référence au nom de son projet et calcule sa progression exacte (ex: 'Tu as déjà mis de côté 4 000 F sur ton objectif de 250 000 F pour ton projet de Terrain').
+        5. PARAGRAPHES ET SAUTS DE LIGNE : N'utilise JAMAIS de listes numérotées rigides (1..., 2..., 3...) ou de tirets. Divise tes réponses en courts paragraphes aérés, séparés obligatoirement par des sauts de ligne doubles (\\n\\n) pour structurer ton discours. Ne rédige jamais un seul bloc de texte compact qui serait difficile à lire sur un écran de téléphone.
+        6. INTÉGRATION DE L'OBJECTIF VISÉ : Dans le JSON, tu reçois le capital actuel du projet ('capital_projet_perso' ou 'capital_projet_pro') ainsi que l'objectif ciblé par l'utilisateur ('objectif_projet_perso_montant'/'objectif_projet_pro_montant' et leurs labels). Lorsque tu parles de son projet, fais référence au nom de son projet et calcule sa progression exacte (ex: 'Tu as déjà mis de côté 4 000 F sur ton objectif de 250 000 F pour ton projet de Terrain').
         7. HUMANISER AU MAXIMUM (EMPATHIE ET SAGESSE) : Apporte une réelle profondeur humaine et de l'empathie à tes réponses. Comprends les difficultés réelles de la vie (les sollicitations de la famille, le coût de la vie au pays, la tentation de gaspiller son argent sur un coup de tête).
         8. SIMPLE SALUTATION = RÉPONSE SIMPLE ET CHALEUREUSE : Si le message est un simple salut initial, réponds simplement et chaleureusement sans aucun chiffre financier (ex : \"Salut, ravi de te retrouver ! Comment se passe ta journée ? De quoi veux-tu qu'on parle aujourd'hui ?\").
         9. BANIS LES EXCLAMATIONS ARTIFICIELLES : N'utilise JAMAIS de mots d'exclamation artificiels ou robotiques comme \"Waaah\", \"Waooh\", \"Wari !\", ou \"Ohh\". Sois mature et posé.
         10. CONCISION DYNAMIQUE : Limite ta réponse à 3 ou 4 phrases maximum. Sois percutant, va droit au but sans fioritures et sans faire de longs discours théoriques.
+        11. CONNAISSANCE DES FONCTIONNALITÉS PREMIUM : Maîtrise parfaitement les outils Premium de Wari (disponibles pour seulement 590F) pour en parler ou guider l'utilisateur : le Planificateur de Dettes (Méthode Boule de Neige) pour son apurement de dettes, le Simulateur d'Investissement UEMOA pour calculer ses gains d'épargne régionaux, les Graphiques de Tendance (Évolution mensuelle, Taux d'Épargne %, Donut de répartition des enveloppes), l'Export de Bilan financier, le Portefeuille Pro et les Défis d'épargne. Si l'utilisateur est Premium, conseille-lui d'utiliser ces outils pour résoudre ses problèmes. S'il est gratuit, suggère-lui subtilement comment ces outils spécifiques peuvent l'aider.
+        12. COMPARAISON DE L'HISTORIQUE SUR 6 MOIS : Dans les DONNÉES FINANCIÈRES, tu reçois également la synthèse de l'historique financier des 6 derniers mois (\"historique_6_derniers_mois\"). Si l'utilisateur te demande son évolution, s'il s'améliore ou s'il fait un bilan global, utilise cette table historique pour lui répondre en comparant ses mois récents. Sois factuel et félicite-le s'il s'améliore ou alerte-le poliment s'il régresse.
+        13. CONNAISSANCE DU JOURNAL DE BORD \"WARI VÉCU\" : Dans les DONNÉES FINANCIÈRES, tu reçois la liste des journaux de bord rédigés par l'auteur Esdras (\"articles_vecu_details\"). Ce journal intime de discipline s'appelle \"Wari Vécu\". Si l'utilisateur a besoin de motivation, de comprendre la discipline financière face aux pressions familiales ou sociales, ou s'il te demande ce qu'on raconte dans le journal, recommande-lui d'aller lire le journal \"Wari Vécu\" en citant un titre pertinent de la liste pour l'inspirer.
         
         Tu dois impérativement répondre sous ce format JSON exact :
         {
-            \"response\": \"Ta réponse sous forme de texte simple, rédigée de manière causante, fluide et humaine, sans liste et sans salutation/clôture répétitive.\"
+            \"response\": \"Ta réponse sous forme de texte simple, rédigée de manière causante et structurée en courts paragraphes aérés par des sauts de ligne (\\\\n\\\\n), sans liste et sans salutation/clôture répétitive.\"
         }";
 
         $system = "Tu es le Coach Wari, un mentor de confiance dévoué à 100% et expert en discipline financière en Afrique. Tu parles directement avec franchise, respect, maturité, bienveillance et rigueur budgétaire.";

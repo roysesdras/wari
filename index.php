@@ -55,7 +55,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=104">
+    <link rel="stylesheet" href="./assets/styles.css?v=133">
 
     <link rel="manifest" href="manifest.json">
     <meta id="metaThemeColor" name="theme-color" content="#000000">
@@ -192,7 +192,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                     <div class="flex items-center gap-2 mb-1">
                         <h3 class="text-[11px] uppercase tracking-widest text-emerald-400 font-bold">Santé financière</h3>
                         <?php if (isset($_SESSION['is_premium']) && $_SESSION['is_premium']): ?>
-                            <span class="text-[7.5px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded-full select-none animate-pulse">Wari Premium</span>
+                            <span class="text-[7.5px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded-full select-none animate-pulse">Pro</span>
                         <?php endif; ?>
                         <div id="radarStatusContainer" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-900/50 border border-white/5 cursor-pointer active:scale-95 transition-all" onclick="subscribeUserToPush(true)">
                             <div id="radarDot" class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
@@ -208,11 +208,26 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
-                    Bilan PDF
+                    Bilan
                 </button>
             </div>
 
             
+
+            <?php if (isset($_SESSION['is_premium']) && $_SESSION['is_premium']): ?>
+            <!-- Tabs pour choisir le type de graphique -->
+            <div class="flex justify-center gap-1.5 mb-3 bg-slate-900/60 p-1 rounded-xl border border-white/5">
+                <button onclick="switchPremiumChart('trend')" id="btnChartTrend" class="flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-white bg-slate-800 transition-all select-none">
+                    Evolution
+                </button>
+                <button onclick="switchPremiumChart('savings')" id="btnChartSavings" class="flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-slate-400 hover:text-white transition-all select-none">
+                    Epargne %
+                </button>
+                <button onclick="switchPremiumChart('donut')" id="btnChartDonut" class="flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-slate-400 hover:text-white transition-all select-none">
+                    Repartition
+                </button>
+            </div>
+            <?php endif; ?>
 
             <!-- Zone du Graphique Évolution -->
             <div class="relative w-full h-[140px] p-1 flex items-center justify-center mb-2">
@@ -221,7 +236,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             </div>
             
             <!-- Légende du Graphique -->
-            <div class="flex justify-center gap-4 select-none">
+            <div id="chartLegend" class="flex justify-center gap-4 select-none">
                 <div class="flex items-center gap-1.5 text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]"></span>
                     Revenus
@@ -272,7 +287,12 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 </select>
             </div>
             <div class="flex items-end border-b-2 border-slate-700 pb-2 focus-within:border-emerald-500 transition-colors">
-                <input type="number" id="mainAmount" placeholder="0" onfocus="this.select()"
+                <!-- Champs cachés pour capturer et bloquer l'autofill Google/Samsung Pass -->
+                <input type="text" style="display:none;" autocomplete="new-password">
+                <input type="password" style="display:none;" autocomplete="new-password">
+                
+                <input type="number" id="mainAmount" name="amount" placeholder="0" onfocus="this.select()"
+                    autocomplete="off" inputmode="numeric" pattern="[0-9]*" autocorrect="off" spellcheck="false"
                     class="bg-transparent text-4xl w-full font-extrabold outline-none text-white">
                 <span id="currentSymbol" class="text-xl font-bold text-slate-500 ml-2">F</span>
             </div>
@@ -411,6 +431,44 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         </div>
         <?php endif; ?>
 
+        <!-- Section Simulateur d'Investissement Premium -->
+        <?php if (isset($_SESSION['is_premium']) && $_SESSION['is_premium']): ?>
+        <div id="simulatorSection" class="mt-4 glass-card p-3 shadow-2xl relative border border-amber-500/10">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-[11px] uppercase tracking-[0.1em] text-amber-400 font-bold flex items-center gap-1.5">
+                    <i class="ri-line-chart-line"></i> Simulateur d'Investissement UEMOA
+                </h3>
+                <span class="text-[8px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-full select-none">PRO</span>
+            </div>
+            <p class="text-slate-400 text-[9.5px] leading-tight mb-3">
+                Calculez l'évolution de votre épargne placée sur les supports réels d'Afrique de l'Ouest (Bons du Trésor, DAT, Bourse BRVM) grâce aux intérêts composés.
+            </p>
+            <button onclick="openSimulatorModal()" class="w-full py-2.5 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl font-extrabold text-[10px] uppercase tracking-wider hover:bg-amber-500/30 transition-all flex items-center justify-center gap-1.5">
+                Lancer une simulation
+            </button>
+        </div>
+        <?php else: ?>
+        <!-- Version Lock Premium pour le simulateur -->
+        <div class="mt-4 glass-card p-3 shadow-2xl relative overflow-hidden border border-amber-500/10">
+            <div class="absolute -right-10 -top-10 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl"></div>
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-[11px] uppercase tracking-[0.1em] text-slate-400 font-bold flex items-center gap-1.5">
+                    <i class="ri-line-chart-line"></i> Simulateur d'Investissement
+                </h3>
+                <span class="text-[7.5px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded-full">PREMIUM</span>
+            </div>
+            <div class="text-center py-4 relative z-10">
+                <svg class="mx-auto text-slate-500 mb-2" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <p class="text-white font-bold text-xs mb-1">Simulations financières UEMOA</p>
+                <p class="text-slate-400 text-[9px] max-w-[220px] mx-auto mb-3">Estimez vos intérêts composés sur les obligations d'État, les DAT et l'épargne Mobile Money locale.</p>
+                <a href="https://wari.digiroys.com/paid/index.php" class="inline-block text-[9px] bg-amber-500 text-slate-950 px-4 py-1.5 rounded-xl font-black uppercase tracking-wider hover:bg-amber-400 transition-all">Débloquer le Simulateur</a>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Dette Section -->
         <div id="debtSection" class="mt-4 glass-card p-3 shadow-2xl relative">
             <div class="flex items-center justify-between mb-4">
@@ -418,9 +476,16 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                     <h3 class="text-[11px] uppercase tracking-[0.1em] text-red-400 font-bold">Carnet de Dettes</h3>
                     <button onclick="openHelpModal('dette')" class="w-4 h-4 rounded-full border border-red-500/50 text-red-400 flex items-center justify-center text-[9px] font-bold hover:bg-red-500/20 transition-colors" title="C'est quoi ?">?</button>
                 </div>
-                <button onclick="openDebtModal()" class="text-[11px] bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30 font-bold hover:bg-red-500/40 transition-all">
-                    + Ajouter
-                </button>
+                <div class="flex items-center gap-1.5">
+                    <?php if (isset($_SESSION['is_premium']) && $_SESSION['is_premium']): ?>
+                    <button onclick="openSnowballModal()" class="text-[11px] bg-amber-500/20 text-amber-400 px-2 py-1 rounded-full border border-amber-500/30 font-bold hover:bg-amber-500/35 active:scale-95 transition-all flex items-center gap-1">
+                        Plan Pro
+                    </button>
+                    <?php endif; ?>
+                    <button onclick="openDebtModal()" class="text-[11px] bg-red-500/20 text-red-400 px-2 py-1 rounded-full border border-red-500/30 font-bold hover:bg-red-500/40 transition-all">
+                        + Add
+                    </button>
+                </div>
             </div>  
 
             <div id="debtList" class="space-y-3">
@@ -477,6 +542,12 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
 
                 <div class="space-y-4">
                     <div>
+                        <label id="paySourceEnvelopeLabel" class="block text-[11px] text-slate-400 mb-1 uppercase">Prélever depuis l'enveloppe</label>
+                        <select id="paySourceEnvelope" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white outline-none focus:border-emerald-500 mb-4">
+                            <!-- Rempli en JS -->
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-[11px] text-slate-400 mb-1 uppercase">
                             Montant du versement (<span class="currencyLabel">F</span>)
                         </label>
@@ -486,6 +557,179 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                     <div class="flex gap-2 pt-2">
                         <button onclick="closePayModal()" class="flex-1 py-3 bg-slate-800 text-slate-400 rounded-xl font-bold text-sm">Annuler</button>
                         <button onclick="submitPartialPay()" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm">Confirmer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Premium Planificateur Anti-Dette (Boule de Neige) -->
+        <div id="debtSnowballModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm hidden items-center justify-center p-4 z-[120]">
+            <div class="glass-card w-full max-w-md p-4 border border-slate-700 shadow-2xl max-h-[85vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-3">
+                    <h3 class="text-amber-400 font-bold uppercase tracking-wider text-sm flex items-center gap-1.5">
+                        <i class="ri-rocket-2-line"></i> Planificateur Anti-Dette Pro
+                    </h3>
+                    <button onclick="closeSnowballModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+                </div>
+
+                <!-- Bilan Net -->
+                <div class="grid grid-cols-3 gap-2 mb-4 bg-slate-800/40 p-2.5 rounded-xl border border-slate-700/50">
+                    <div class="text-center">
+                        <p class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Mes Dettes</p>
+                        <p id="sbTotalDebts" class="text-xs font-black text-red-400">0 F</p>
+                    </div>
+                    <div class="text-center border-x border-slate-700/60">
+                        <p class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Mes Créances</p>
+                        <p id="sbTotalLoans" class="text-xs font-black text-emerald-400">0 F</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-[9px] uppercase tracking-wider text-slate-500 font-bold">Situation Net</p>
+                        <p id="sbNetSituation" class="text-xs font-black text-white">0 F</p>
+                    </div>
+                </div>
+
+                <!-- Entrée de mensualité -->
+                <div class="mb-4">
+                    <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-bold">
+                        Capacité de remboursement mensuelle (<span class="currencyLabel">F</span>)
+                    </label>
+                    <input type="number" id="sbMonthlyCap" oninput="calculateSnowball()"
+                        class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500 font-bold"
+                        placeholder="Ex: 20000" value="20000">
+                    <p class="text-[9px] text-slate-500 mt-1.5 italic leading-tight">
+                        La méthode <b>Boule de Neige</b> trie tes dettes de la plus petite à la plus grande pour les éliminer une par une en reportant la force de remboursement.
+                    </p>
+                </div>
+
+                <!-- Contenu Dynamique -->
+                <div class="space-y-4">
+                    <!-- Feuille de route -->
+                    <div>
+                        <h4 class="text-[10px] uppercase tracking-wider text-amber-500 font-bold mb-2 flex items-center gap-1">
+                            <i class="ri-list-ordered"></i> Ordre de Libération (Dettes)
+                        </h4>
+                        <div id="sbDebtTimeline" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                            <!-- Rendu dynamique JS -->
+                        </div>
+                    </div>
+
+                    <!-- Créances actives -->
+                    <div>
+                        <h4 class="text-[10px] uppercase tracking-wider text-emerald-400 font-bold mb-2 flex items-center gap-1">
+                            <i class="ri-hand-coin-line"></i> Créances à encaisser (Opportunités)
+                        </h4>
+                        <div id="sbLoanTimeline" class="space-y-2 max-h-[120px] overflow-y-auto pr-1">
+                            <!-- Rendu dynamique JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bilan final / Date de liberté -->
+                <div class="mt-4 pt-3 border-t border-slate-700/60 text-center">
+                    <p class="text-[10px] text-slate-400">Libération totale estimée :</p>
+                    <p id="sbFinalDate" class="text-lg font-black text-amber-400 uppercase tracking-widest mt-1">DANS X MOIS</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Premium Simulateur d'Investissement UEMOA -->
+        <div id="simulatorModal" onclick="closeSimulatorModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-end md:items-center justify-center z-[120]">
+            <div onclick="event.stopPropagation()" class="glass-card w-full max-w-2xl h-full md:h-[85vh] md:max-h-[750px] p-4 pt-safe md:p-6 border-t border-x md:border border-slate-800 rounded-none md:rounded-[2rem] shadow-2xl flex flex-col animate-slide-up" style="scrollbar-width: none; -ms-overflow-style: none;">
+                <style>
+                    #simulatorModal .glass-card::-webkit-scrollbar {
+                        display: none;
+                    }
+                </style>
+                <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-3 shrink-0">
+                    <h3 class="text-amber-400 font-bold uppercase tracking-wider text-sm flex items-center gap-1.5">
+                        <i class="ri-calculator-line"></i> Simulateur d'Investissement UEMOA
+                    </h3>
+                    <button onclick="closeSimulatorModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+                </div>
+
+                <div class="space-y-4 overflow-y-auto flex-1 pr-1 pb-28 custom-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">
+                    <style>
+                        #simulatorModal .space-y-4::-webkit-scrollbar {
+                            display: none;
+                        }
+                    </style>
+                    <!-- Sélection du Placement -->
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-bold">Où veux-tu placer ton argent ? (Placements courants)</label>
+                        <select id="simPlacementType" onchange="onSimulatorPlacementChange()" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500 font-medium">
+                            <option value="momo" data-rate="3.5">Épargne Mobile Money Spéciale (Bonus de 3.5% par an)</option>
+                            <option value="dat" data-rate="5.5">Coffre bloqué en banque/microfinance (Bonus de 5.5% par an)</option>
+                            <option value="bonds" data-rate="6.25" selected>Prêter de l'argent à l'État (Bonus de 6.25% par an)</option>
+                            <option value="brvm" data-rate="8.0">Achat de parts d'entreprises - BRVM (Bonus moyen de 8.0% par an)</option>
+                        </select>
+                    </div>
+
+                    <!-- Ligne Montant & Taux d'intérêt -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-bold">Somme que tu mets chaque mois (<span class="currencyLabel">F</span>)</label>
+                            <input type="number" id="simMonthlyAmount" oninput="runSimulation()"
+                                class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500 font-bold text-center"
+                                placeholder="Ex: 25000" value="20000">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-bold">Pourcentage de bonus par an (%)</label>
+                            <input type="number" step="0.05" id="simAnnualRate" oninput="runSimulation()"
+                                class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-amber-500 font-bold text-center text-amber-400"
+                                placeholder="Ex: 6.25" value="6.25">
+                        </div>
+                    </div>
+
+                    <!-- Durée -->
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1 font-bold">Pendant combien d'années (de 1 à 10 ans)</label>
+                        <div class="flex items-center gap-2">
+                            <input type="range" id="simYearsRange" min="1" max="10" value="5" oninput="document.getElementById('simYearsText').innerText = this.value + ' an(s)'; runSimulation();" class="flex-1 accent-amber-500">
+                            <span id="simYearsText" class="w-16 text-center font-bold text-xs text-white bg-slate-800 border border-slate-700 py-1.5 px-2.5 rounded-lg select-none">5 an(s)</span>
+                        </div>
+                    </div>
+
+                    <!-- Enveloppes de Résultats -->
+                    <div class="grid grid-cols-3 gap-2 bg-slate-800/40 p-2.5 rounded-xl border border-slate-700/50">
+                        <div class="text-center">
+                            <p class="text-[8.5px] uppercase tracking-wider text-slate-500 font-bold">Ton argent versé</p>
+                            <p id="simTotalDeposits" class="text-xs font-black text-white">0 F</p>
+                        </div>
+                        <div class="text-center border-x border-slate-700/60">
+                            <p class="text-[8.5px] uppercase tracking-wider text-slate-500 font-bold">Cadeau de la banque (Intérêts)</p>
+                            <p id="simTotalInterest" class="text-xs font-black text-emerald-400">+0 F</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[8.5px] uppercase tracking-wider text-slate-500 font-bold">Somme finale</p>
+                            <p id="simTotalFinal" class="text-xs font-black text-amber-400">0 F</p>
+                        </div>
+                    </div>
+
+                    <!-- Graphique en colonnes stylé nativement -->
+                    <div>
+                        <h4 class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-2.5 flex items-center gap-1">
+                            <i class="ri-bar-chart-fill"></i> Évolution de ton trésor d'année en année
+                        </h4>
+                        <!-- Graphique -->
+                        <div class="bg-slate-900/50 border border-slate-800 p-3 rounded-2xl">
+                            <div id="simChartContainer" class="flex items-end justify-between h-36 gap-1 px-1">
+                                <!-- Généré dynamiquement en JS (barres verticales) -->
+                            </div>
+                        </div>
+                        <!-- Légende -->
+                        <div class="flex justify-center gap-4 mt-2 text-[9px] font-bold text-slate-400">
+                            <div class="flex items-center gap-1">
+                                <span class="w-2.5 h-2.5 bg-slate-700 rounded-sm"></span> Ton propre argent
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="w-2.5 h-2.5 bg-emerald-500 rounded-sm"></span> Cadeau de la banque
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message d'éducation financière -->
+                    <div class="bg-amber-950/10 border border-amber-900/20 p-2.5 rounded-xl text-[9px] text-amber-400/90 leading-relaxed italic">
+                        <i class="ri-information-line"></i> Ce calcul te montre comment ton argent grandit si tu mets de côté la même somme chaque mois sans y toucher. Le bonus s'ajoute chaque année sur l'ancien montant.
                     </div>
                 </div>
             </div>
@@ -670,7 +914,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         <div onclick="event.stopPropagation()" class="glass-card w-full max-w-md h-full md:h-[85vh] md:max-h-[750px] p-2 pt-safe md:p-6 border-t border-x md:border border-slate-800 rounded-none md:rounded-[2rem] shadow-2xl flex flex-col animate-slide-up">
 
             <div class="flex items-center justify-between mb-4 shrink-0">
-                <h3 class="text-amber-400 font-bold uppercase tracking-widest text-xs">Tableau de Bord</h3>
+                <h3 class="text-amber-400 font-bold uppercase tracking-widest text-xs">Historique</h3>
 
                 <div class="flex items-center gap-2">
                     <select onchange="loadMonthlyHistory(this.value)"
@@ -692,7 +936,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 </div>
             </div>
 
-            <div id="historyContent" class="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-1">
+            <div id="historyContent" class="space-y-4 overflow-y-auto pb-28 custom-scrollbar flex-1 pr-1">
                 <p class="text-slate-500 text-[12px] italic text-center py-4">Chargement...</p>
             </div>
         </div>
@@ -800,8 +1044,8 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         <?php
         $userId = $_SESSION['user_id'];
 
-        // 1. Récupérer le budget personnel et professionnel
-        $stmt = $pdo->prepare("SELECT budget_data, budget_data_pro, last_budget_at FROM wari_users WHERE id = ?");
+        // 1. Récupérer le budget personnel et professionnel, et les infos de feedback
+        $stmt = $pdo->prepare("SELECT budget_data, budget_data_pro, last_budget_at, feedback_status, last_feedback_prompt_at, date_inscription FROM wari_users WHERE id = ?");
         $stmt->execute([$userId]);
         $userData = $stmt->fetch();
         $budgetRaw = (!empty($userData['budget_data'])) ? $userData['budget_data'] : 'null';
@@ -1053,10 +1297,24 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
 
 
         async function subscribeUserToPush(isManual = false) {
+            // Détection du mode PWA sur iOS (requis par Apple pour les pushs)
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            if (isIOS && !isStandalone) {
+                if (isManual) {
+                    alert("Pour activer le radar sur iPhone, vous devez d'abord ajouter l'application à votre écran d'accueil :\n1. Cliquez sur l'icône de partage (carré avec une flèche vers le haut).\n2. Sélectionnez 'Sur l'écran d'accueil'.\n3. Ouvrez Wari depuis votre écran d'accueil et réessayez.");
+                }
+                updateRadarUI('unsupported');
+                return;
+            }
+
             // 1. Vérifier si le navigateur supporte les notifications
             if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
                 console.warn('Push non supporté sur ce navigateur.');
                 updateRadarUI('unsupported');
+                if (isManual) {
+                    alert("Les notifications Push ne sont pas prises en charge par ce navigateur ou cette configuration.");
+                }
                 return;
             }
 
@@ -1074,13 +1332,17 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 });
 
                 // 4. Envoyer les données à ton serveur (save_subscription.php)
-                await fetch('./config/save_subscription.php', {
+                const response = await fetch('./config/save_subscription.php', {
                     method: 'POST',
                     body: JSON.stringify(subscription),
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 });
+
+                if (!response.ok) {
+                    throw new Error("Erreur serveur lors de l'enregistrement (" + response.status + ")");
+                }
 
                 console.log('✅ Radar activé avec succès !');
                 updateRadarUI('active');
@@ -1094,7 +1356,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                     if (Notification.permission === 'denied') {
                         showNotificationHelp(); // On appelle notre nouveau guide
                     } else {
-                        alert("Oups ! Une petite erreur technique. Réessaie dans un instant, Champion.");
+                        alert("Oups ! Une petite erreur technique : " + error.message + "\nRéessaie dans un instant, Champion.");
                     }
                 }
             }
@@ -1610,6 +1872,58 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         })();
     </script>
 
+    <!-- MODAL DE PRÉSENTATION WARI PREMIUM -->
+    <div id="premiumIntroModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-sm hidden items-center justify-center p-4 z-[170]">
+        <div class="glass-card w-full max-w-sm p-6 border border-amber-500/30 shadow-2xl relative flex flex-col text-center" onclick="event.stopPropagation()">
+            
+            <!-- Indicateurs de progression -->
+            <div class="flex justify-center gap-1.5 mb-4 select-none shrink-0">
+                <div class="premium-intro-dot w-2 h-2 rounded-full bg-amber-500 transition-colors" data-step="1"></div>
+                <div class="premium-intro-dot w-2 h-2 rounded-full bg-slate-700 transition-colors" data-step="2"></div>
+                <div class="premium-intro-dot w-2 h-2 rounded-full bg-slate-700 transition-colors" data-step="3"></div>
+                <div class="premium-intro-dot w-2 h-2 rounded-full bg-slate-700 transition-colors" data-step="4"></div>
+            </div>
+
+            <!-- Contenu de la diapositive -->
+            <div id="premiumIntroContent" class="flex-1 flex flex-col justify-center min-h-[160px] mb-6">
+                <!-- Rempli par JavaScript -->
+            </div>
+
+            <!-- Zone de boutons -->
+            <div id="premiumIntroButtons" class="shrink-0 flex flex-col gap-2">
+                <!-- Rempli par JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PREMIUM CÉRÉMONIE FIN DE MOIS -->
+    <div id="endOfMonthModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-[160]">
+        <div class="glass-card w-full max-w-md p-5 border border-slate-700 shadow-2xl relative flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
+            <div class="text-center shrink-0 pb-3 border-b border-slate-700/60">
+                <div class="w-12 h-12 mx-auto bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mb-2 border border-amber-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-white font-bold text-lg">Bilan de fin de mois</h3>
+                <p class="text-slate-400 text-[11px] mt-1 leading-normal">
+                    Félicitations ! Le mois dernier s'est terminé et tu as réussi à préserver de l'argent. Choisis ce que tu souhaites en faire pour démarrer ce nouveau mois.
+                </p>
+            </div>
+
+            <!-- Liste des catégories éligibles -->
+            <div id="eomCategoryList" class="my-4 space-y-3 overflow-y-auto pr-1 flex-1 custom-scrollbar">
+                <!-- Rempli dynamiquement en JS -->
+            </div>
+
+            <div class="shrink-0 pt-3 border-t border-slate-700/60">
+                <button onclick="submitEndOfMonth()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-600 text-black rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all">
+                    Valider mes choix
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL AIDE CONTEXTUELLE -->
     <div id="helpModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm hidden items-center justify-center p-4 z-[140]" onclick="closeHelpModal()">
         <div class="glass-card w-full max-w-sm p-5 border border-slate-700 shadow-2xl relative" onclick="event.stopPropagation()">
@@ -1644,7 +1958,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         </div>
     </div>
 
-    <script src="./assets/main.js?v=104"></script>
+    <script src="./assets/main.js?v=133"></script>
     <script>
         // Logique Onboarding
         document.addEventListener('DOMContentLoaded', () => {
@@ -1710,6 +2024,242 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             });
         </script>
         <?php unset($_SESSION['recharge_success']); ?>
+    <?php endif; ?>
+
+    <?php
+    // Logique PHP pour décider de l'affichage du modal Défis
+    $showChallengesModal = false;
+    if (isset($userData['feedback_status']) && (int)$userData['feedback_status'] === 0) {
+        $dateInscription = $userData['date_inscription'] ?? null;
+        $lastPrompt = $userData['last_feedback_prompt_at'] ?? null;
+        
+        if ($dateInscription) {
+            $diffInscription = time() - strtotime($dateInscription);
+            $daysInscription = $diffInscription / (24 * 3600);
+            
+            if ($daysInscription >= 3) {
+                if ($lastPrompt === null) {
+                    $showChallengesModal = true;
+                } else {
+                    $diffPrompt = time() - strtotime($lastPrompt);
+                    $daysPrompt = $diffPrompt / (24 * 3600);
+                    if ($daysPrompt >= 14) {
+                        $showChallengesModal = true;
+                    }
+                }
+            }
+        }
+    }
+    ?>
+
+    <?php if ($showChallengesModal): ?>
+    <!-- MODAL DÉFIS UTILISATEURS -->
+    <div id="challengesModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-[145]">
+        <div class="w-full max-w-sm rounded-3xl p-5 border shadow-2xl relative transition-all duration-300 bg-slate-900 border-slate-800 text-slate-100 modal-challenges-container"
+             style="font-family: 'Quicksand', sans-serif;">
+            
+            <button onclick="dismissChallengesModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors text-base font-bold">✕</button>
+            
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-3">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            </div>
+            
+            <h3 class="font-extrabold text-xl mb-1 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">Partagez vos défis</h3>
+            
+            <p class="text-xs mb-4 text-slate-400 leading-relaxed font-medium">
+                Quel défi ou difficulté rencontrez-vous dans l'utilisation de Wari ?
+            </p>
+            
+            <form id="challengesForm" onsubmit="submitChallenge(event)">
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <label class="category-chip-label">
+                        <input type="radio" name="challenge_category" value="repartition" checked class="hidden">
+                        <span class="category-chip">Répartition</span>
+                    </label>
+                    <label class="category-chip-label">
+                        <input type="radio" name="challenge_category" value="coach" class="hidden">
+                        <span class="category-chip">Coach IA</span>
+                    </label>
+                    <label class="category-chip-label">
+                        <input type="radio" name="challenge_category" value="academy" class="hidden">
+                        <span class="category-chip">Académie</span>
+                    </label>
+                    <label class="category-chip-label">
+                        <input type="radio" name="challenge_category" value="vecu" class="hidden">
+                        <span class="category-chip">Vécu</span>
+                    </label>
+                    <label class="category-chip-label col-span-2">
+                        <input type="radio" name="challenge_category" value="autre" class="hidden">
+                        <span class="category-chip">Autre</span>
+                    </label>
+                </div>
+                
+                <div class="relative mb-4">
+                    <textarea id="challenge_message" name="message" rows="3" maxlength="500" required
+                              class="w-full text-sm rounded-xl p-3 bg-slate-950 border border-slate-800 text-white placeholder-slate-700 focus:outline-none focus:border-amber-500/50 transition-colors resize-none textarea-challenges"
+                              placeholder="Décrivez votre problème ou suggestion ici..."
+                              oninput="updateMessageCount()"></textarea>
+                    <span id="charCount" class="absolute bottom-2 right-3 text-[9px] text-slate-600 font-bold char-count-span">0 / 500</span>
+                </div>
+                
+                <button type="submit" id="btnSubmitChallenge"
+                        class="w-full py-3 bg-gradient-to-r from-yellow-400 to-yellow-600 text-slate-950 rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 hover:from-yellow-300 hover:to-yellow-500">
+                    <span>Envoyer mon avis</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <style>
+        /* Styles adaptatifs pour le modal Défis */
+        .modal-challenges-container {
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+        
+        .textarea-challenges {
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+        
+        /* Compatibilité mode clair basée sur la classe .light-mode sur le document */
+        .light-mode .modal-challenges-container {
+            background-color: #ffffff !important;
+            border-color: rgba(15, 23, 42, 0.08) !important;
+            color: #0f172a !important;
+        }
+        
+        .light-mode .textarea-challenges {
+            background-color: #f8fafc !important;
+            border-color: rgba(15, 23, 42, 0.08) !important;
+            color: #0f172a !important;
+            placeholder-color: #94a3b8 !important;
+        }
+        
+        .light-mode .char-count-span {
+            color: #94a3b8 !important;
+        }
+        
+        .category-chip-label {
+            cursor: pointer;
+            display: block;
+        }
+        
+        .category-chip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            background-color: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            color: #94a3b8;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        
+        .light-mode .category-chip {
+            background-color: #f1f5f9;
+            border-color: rgba(15, 23, 42, 0.04);
+            color: #475569;
+        }
+        
+        .category-chip-label input[type="radio"]:checked + .category-chip {
+            background-color: rgba(201, 168, 76, 0.15) !important;
+            border-color: #C9A84C !important;
+            color: #C9A84C !important;
+        }
+        
+        .light-mode .category-chip-label input[type="radio"]:checked + .category-chip {
+            background-color: rgba(201, 168, 76, 0.1) !important;
+            border-color: #C9A84C !important;
+            color: #785a1a !important;
+        }
+    </style>
+    
+    <script>
+        function updateMessageCount() {
+            const textarea = document.getElementById('challenge_message');
+            const countSpan = document.getElementById('charCount');
+            if (textarea && countSpan) {
+                countSpan.innerText = `${textarea.value.length} / 500`;
+                
+                // Auto-grow height logique
+                textarea.style.height = 'auto';
+                textarea.style.height = Math.min(textarea.scrollHeight, 180) + 'px';
+                textarea.style.overflowY = textarea.scrollHeight > 180 ? 'auto' : 'hidden';
+            }
+        }
+        
+        async function dismissChallengesModal() {
+            try {
+                await fetch('config/save_user_challenge.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'dismiss' })
+                });
+            } catch (e) {
+                console.error("Erreur lors de la fermeture du popup:", e);
+            }
+            
+            const modal = document.getElementById('challengesModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+        
+        async function submitChallenge(event) {
+            event.preventDefault();
+            const form = document.getElementById('challengesForm');
+            const categoryInput = form.querySelector('input[name="challenge_category"]:checked');
+            const messageInput = document.getElementById('challenge_message');
+            const btn = document.getElementById('btnSubmitChallenge');
+            
+            if (!categoryInput || !messageInput || !messageInput.value.trim()) return;
+            
+            const originalBtnHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<span class="inline-block w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span> Envoi...`;
+            
+            try {
+                const response = await fetch('config/save_user_challenge.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'submit',
+                        category: categoryInput.value,
+                        message: messageInput.value.trim()
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    btn.className = "w-full py-3 bg-emerald-500 text-slate-950 rounded-xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5";
+                    btn.innerHTML = `✓ Merci pour votre retour !`;
+                    
+                    setTimeout(() => {
+                        const modal = document.getElementById('challengesModal');
+                        if (modal) {
+                            modal.classList.add('hidden');
+                            modal.classList.remove('flex');
+                        }
+                    }, 1500);
+                } else {
+                    alert(result.error || "Une erreur est survenue.");
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnHtml;
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Impossible de se connecter au serveur.");
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+            }
+        }
+    </script>
     <?php endif; ?>
 </body>
 

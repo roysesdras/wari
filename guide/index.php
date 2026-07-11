@@ -136,16 +136,7 @@ $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
             overflow: hidden;
         }
 
-        .concept-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--accent);
-        }
 
-        .concept-card.danger::before { background: var(--danger); }
-        .concept-card.success::before { background: var(--success); }
-        .concept-card.premium::before { background: linear-gradient(180deg, #f59e0b, #d97706); }
 
         .concept-icon {
             display: inline-flex;
@@ -231,7 +222,7 @@ $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
 
         @media (max-width: 600px) {
             .hero h1 { font-size: 32px; }
-            .concept-card { padding: 20px; }
+            .concept-card { padding: 8px; }
             .concept-title { font-size: 24px; }
             .nav-title { display: none; }
         }
@@ -302,7 +293,7 @@ $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
         </div>
 
         <!-- L'imprévu -->
-        <div class="concept-card" id="imprevu" style="border-left-color: #3b82f6;">
+        <div class="concept-card" id="imprevu">
             <div class="concept-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;"><i class="ri-lifebuoy-line"></i></div>
             <h2 class="concept-title">Le Fonds d'Imprévus</h2>
             <p class="concept-text">Parfois, il arrive des imprévus : un pneu crevé, une maladie soudaine... Ton Train de Vie intègre cette poche d'imprévus (dans "Poche (Dispo)").</p>
@@ -322,7 +313,7 @@ $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
         </div>
 
         <!-- Le Carnet de Dettes -->
-        <div class="concept-card" id="carnet-dettes" style="border-left-color: #f43f5e;">
+        <div class="concept-card" id="carnet-dettes">
             <div class="concept-icon" style="background: rgba(244, 63, 94, 0.1); color: #f43f5e;"><i class="ri-contacts-book-2-line"></i></div>
             <h2 class="concept-title">Le Carnet de Dettes</h2>
             <p class="concept-text">Au-delà de ta gestion personnelle, il arrive de prêter de l'argent à un proche ou, à l'inverse, d'en emprunter. Le Carnet de Dettes te permet de consigner scrupuleusement ces transactions extérieures.</p>
@@ -330,7 +321,7 @@ $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
         </div>
 
         <!-- Wari Vécu (Standard) -->
-        <div class="concept-card" id="vecu" style="border-left-color: #0ea5e9;">
+        <div class="concept-card" id="vecu">
             <div class="concept-icon" style="background: rgba(14, 165, 233, 0.1); color: #0ea5e9;"><i class="ri-book-open-line"></i></div>
             <h2 class="concept-title">Le Wari Vécu</h2>
             <p class="concept-text">L'éducation financière n'est pas qu'une question de chiffres, c'est aussi de l'expérience humaine. "Le Vécu" est une section où tu découvriras des histoires vraies, des leçons et des partages d'expérience d'autres utilisateurs.</p>
@@ -342,6 +333,114 @@ $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
         <div class="hero" style="border: none; margin-bottom: 20px; padding-bottom: 0; padding-top: 20px;">
             <h1 style="font-size: 32px; color: var(--accent);">Les Fonctionnalités Premium</h1>
             <p>Débloque la pleine puissance de ton coach financier.</p>
+        </div>
+
+        <div class="concept-card premium" id="portefeuille-pro">
+            <span class="premium-badge">Premium</span>
+            <div class="concept-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.1);"><i class="ri-briefcase-line"></i></div>
+            <h2 class="concept-title">Le Portefeuille Professionnel (Pro Wallet)</h2>
+            <p class="concept-text">La règle numéro un de tout entrepreneur ou commerçant à succès est la suivante : <strong>ne jamais mélanger son argent personnel avec la caisse de son entreprise</strong>.</p>
+            <p class="concept-text">Le Portefeuille Pro de Wari te permet de gérer séparément les flux de ton activité commerciale, de ton projet agricole, ou de tes services de freelance, en appliquant un modèle d'enveloppes Pro rigoureux.</p>
+            
+            <p class="concept-text" style="font-weight: bold; color: var(--accent); margin-top: 15px;">Les 4 enveloppes professionnelles et leurs cibles :</p>
+            <ul style="list-style-type: disc; margin-left: 20px; margin-bottom: 20px; font-size: 14px; color: #a1a1aa; line-height: 1.6;">
+                <li><strong>Stock & Matériel (40%) :</strong> Ton outil de production. C'est l'enveloppe réservée à l'achat des marchandises, des matières premières, ou des équipements indispensables à tes ventes.</li>
+                <li><strong>Bénéfice Réinvesti (30%) :</strong> L'enveloppe de croissance. C'est la part du revenu réservée à faire grandir ton commerce, financer ton développement futur ou consolider ta trésorerie de réserve.</li>
+                <li><strong>Frais de Fonctionnement (20%) :</strong> Tes charges fixes. Loyer de la boutique, électricité, transport professionnel, connexion internet, outils de travail... Tout ce qui fait tourner ton business au jour le jour.</li>
+                <li><strong>Marketing & Publicité (10%) :</strong> Ton levier de visibilité. C'est le budget dédié à te faire connaître (flyers, parrainages, publicités sponsorisées sur les réseaux sociaux).</li>
+            </ul>
+
+            <div class="concept-rule">
+                <i class="ri-lightbulb-line"></i>
+                <div><strong>Comment l'utiliser ?</strong> Dès qu'une recette (vente, contrat) entre dans ton activité, saisis-la dans le Portefeuille Pro. Wari la divise automatiquement. Quand tu fais une dépense pro (ex: acheter du stock), choisis l'enveloppe correspondante pour suivre tes soldes en temps réel.</div>
+            </div>
+        </div>
+
+        <div class="concept-card premium" id="plan-snowball">
+            <span class="premium-badge">Premium</span>
+            <div class="concept-icon" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);"><i class="ri-rocket-line"></i></div>
+            <h2 class="concept-title">Le Planificateur Anti-Dette & Créances</h2>
+            <p class="concept-text">Rembourser ses dettes au hasard en donnant des petites sommes à gauche et à droite est inefficace et fatigue mentalement. Wari utilise la méthode de la <strong>"Boule de Neige"</strong> pour vous libérer des dettes rapidement et simplement.</p>
+
+            <p class="concept-text" style="font-weight: bold; color: var(--accent); margin-top: 15px;">La méthode de la Boule de Neige en français facile :</p>
+            <p class="concept-text" style="font-size: 13.5px; color: #a1a1aa; line-height: 1.6;">
+                Imaginez que <strong>Koffi</strong> ait trois dettes :
+                <br>• 10 000 F à son frère Moussa.
+                <br>• 30 000 F à sa tante Aminata.
+                <br>• 100 000 F à la banque.
+                <br><br>
+                Koffi décide d'accorder <strong>20 000 F par mois</strong> pour rembourser tout ça.
+                Au lieu de diviser ses 20 000 F entre tout le monde (ce qui ne rembourse personne rapidement), Wari lui conseille de rembourser la plus petite dette en premier (Moussa).
+                <br><br>
+                • <strong>Mois 1</strong> : Koffi paie Moussa en totalité (10 000 F). Moussa est remboursé ! Koffi ressent une victoire psychologique et a une dette en moins. Il lui reste 10 000 F qu'il envoie directement à sa tante Aminata.
+                <br>• <strong>Mois 2</strong> : Koffi se concentre sur sa tante Aminata avec sa force maximale (20 000 F). Tante Aminata est soldée !
+                <br>• <strong>Mois 3</strong> : Koffi attaque la banque avec ses 20 000 F. Sa force de remboursement grossit comme une boule de neige !
+            </p>
+
+            <p class="concept-text" style="font-weight: bold; color: var(--accent); margin-top: 15px;">Comment ça fonctionne dans Wari ?</p>
+            <ul style="list-style-type: disc; margin-left: 20px; margin-bottom: 20px; font-size: 14px; color: #a1a1aa; line-height: 1.6;">
+                <li><strong>Le Bilan Net :</strong> Wari compare l'argent que vous devez (<strong>Dettes en Rouge</strong>) et l'argent qu'on vous doit (<strong>Créances en Vert Émeraude</strong>). Si votre bilan net est positif, vous êtes virtuellement riche !</li>
+                <li><strong>La liaison avec votre poche (Système Hybride) :</strong> Lorsque vous notez un remboursement de dette, Wari vous demande : <strong>"Depuis quelle enveloppe provient l'argent ?"</strong>. Si vous choisissez l'enveloppe <strong>Train de vie</strong>, Wari déduit l'argent de cette enveloppe. Ainsi, votre application affiche toujours exactement le même montant que l'argent réel qui reste dans votre poche.</li>
+                <li><strong>Entrée d'argent des prêts :</strong> Si quelqu'un vous rembourse de l'argent (créance), Wari l'ajoute directement dans l'enveloppe de votre choix pour augmenter votre budget disponible.</li>
+            </ul>
+
+            <div class="concept-rule">
+                <i class="ri-heart-pulse-line"></i>
+                <div><strong>L'impact psychologique :</strong> Éliminer les dettes une par une, de la plus petite à la plus grande, donne une sensation de contrôle et de liberté immédiate.</div>
+            </div>
+        </div>
+
+        <div class="concept-card premium" id="invest-uemoa">
+            <span class="premium-badge">Premium</span>
+            <div class="concept-icon" style="color: #fbbf24; background: rgba(251, 191, 36, 0.1);"><i class="ri-line-chart-line"></i></div>
+            <h2 class="concept-title">Le Simulateur d'Investissement</h2>
+            <p class="concept-text">Laisser son argent dormir sous son matelas ou sur son compte Wave/MoMo ordinaire te fait perdre de la richesse. Par exemple, si un sac de riz coûte 15 000 F aujourd'hui, le même sac coûtera peut-être 16 000 F l'année prochaine. Si ton argent n'a pas grandi, tu ne pourras plus acheter le sac entier. Le simulateur te montre comment ton argent peut travailler pour toi.</p>
+
+            <p class="concept-text" style="font-weight: bold; color: var(--accent); margin-top: 15px;">Les trois choses à comprendre simplement :</p>
+            <ul style="list-style-type: disc; margin-left: 20px; margin-bottom: 20px; font-size: 14px; color: #a1a1aa; line-height: 1.6;">
+                <li><strong>Le Taux d'intérêt (Le cadeau de la banque) :</strong> C'est de l'argent gratuit que la banque te donne pour te remercier de laisser tes économies chez elle. Par exemple, si tu bloques 100 000 F à un taux de 5%, la banque te reverse 5 000 F de cadeau à la fin de l'année.</li>
+                <li><strong>Les Intérêts Composés (Le cadeau qui fait des bébés) :</strong> La deuxième année, la banque ne calcule pas ton cadeau sur tes 100 000 F de départ, mais sur 105 000 F (ton argent de départ + le premier cadeau). Plus les années passent, plus tes cadeaux font d'autres bébés cadeaux, et ta cagnotte grandit toute seule.</li>
+                <li><strong>Comment connaître le taux de ta banque ?</strong> Rends-toi dans une banque de ton quartier (comme BOA, Ecobank, Coris...) et demande : <strong>"Si je bloque de l'argent chez vous sans y toucher (Dépôt à Terme), quel est le pourcentage de cadeau (taux d'intérêt) que vous me donnez ?"</strong>. Tu n'as plus qu'à écrire ce chiffre dans le simulateur.</li>
+            </ul>
+
+            <p class="concept-text" style="font-weight: bold; color: var(--accent); margin-top: 15px;">Où placer ton argent chez nous (UEMOA) :</p>
+            <ul style="list-style-type: disc; margin-left: 20px; margin-bottom: 20px; font-size: 14px; color: #a1a1aa; line-height: 1.6;">
+                <li><strong>Épargne Mobile Money Spéciale (3% à 3.5% par an) :</strong> Attention, garder ton argent sur ton compte ordinaire Wave, Orange Money ou MTN MoMo rapporte <strong>zéro intérêt (0 F)</strong>. Pour gagner ces bonus, tu dois activer les options d'épargne spéciales (comme MoMo Kash de MTN, Celtiis Épargne, Orange Sini...).</li>
+                <li><strong>Compte bloqué (DAT) en Microfinance (5.5% par an) :</strong> Tu bloques tes économies dans une agence de microfinance locale pendant 6 mois ou 1 an. C'est une excellente barrière pour t'empêcher de dépenser sur un coup de tête !</li>
+                <li><strong>Prêter à l'État - Bons du Trésor (6.25% par an) :</strong> Tu prêtes tes économies aux pays de notre région (Bénin, Togo, Côte d'Ivoire...) pour les aider à construire des routes ou des écoles. L'État te rembourse avec un excellent bonus. C'est le placement le plus sûr.</li>
+                <li><strong>Achat de parts d'entreprises - BRVM (8% par an en moyenne) :</strong> Tu achètes des petites parts de grandes entreprises de chez nous (comme la Sonatel ou Ecobank) à la bourse. C'est ce qui peut te rapporter le plus, mais la valeur peut monter ou descendre.</li>
+            </ul>
+
+            <div class="concept-rule">
+                <i class="ri-lightbulb-line"></i>
+                <div><strong>Rappel :</strong> Wari ne garde pas ton argent réel. Le simulateur sert à te donner le déclic. Une fois que tu as vu comment ton argent peut grandir, va dans ta banque ou ouvre ton appli Mobile Money pour faire le placement pour de vrai !</div>
+            </div>
+        </div>
+
+        <div class="concept-card premium" id="stats-visuelles">
+            <span class="premium-badge">Premium</span>
+            <div class="concept-icon" style="color: #3b82f6; background: rgba(59, 130, 246, 0.1);"><i class="ri-pie-chart-line"></i></div>
+            <h2 class="concept-title">Les Graphiques de Tendance et Statistiques</h2>
+            <p class="concept-text">Pour bien piloter son argent, il est indispensable de visualiser ou analyser ses comportements d'achat. Wari Premium ajoute un module commutable de trois graphiques directement sur votre tableau de bord.</p>
+
+            <p class="concept-text" style="font-weight: bold; color: var(--accent); margin-top: 15px;">Les trois graphiques a votre disposition :</p>
+            <ul style="list-style-type: disc; margin-left: 20px; margin-bottom: 20px; font-size: 14px; color: #a1a1aa; line-height: 1.6;">
+                <li><strong>Le graphique d'Evolution :</strong> C'est la vue par defaut. Elle affiche sous forme de barres vos revenus de chaque mois face a vos depenses. L'objectif est de s'assurer que la barre verte reste toujours plus haute que la barre rouge.</li>
+                <li><strong>La courbe du Taux d'Epargne :</strong> Affiche le pourcentage reel de vos revenus que vous reussissez a mettre de cote de mois en mois. C'est l'indicateur le plus important de votre sante financiere. Les experts s'accordent a dire qu'un taux d'épargne sain doit etre superieur a 15% de vos revenus globaux.</li>
+                <li><strong>La repartition des depenses (Donut) :</strong> Un graphique circulaire qui analyse vos achats du mois en cours par enveloppe. Il vous montre la repartition exacte en pourcentage entre vos besoins obligatoires (Train de vie), vos projets, vos epargnes et vos imprevus pour detecter les fuites de tresorerie.</li>
+            </ul>
+
+            <p class="concept-text" style="font-weight: bold; color: var(--accent); margin-top: 15px;">Foire aux questions : Pourquoi mon taux d'épargne affiche 0% ?</p>
+            <p class="concept-text" style="font-size: 13.5px; color: #a1a1aa; line-height: 1.6; margin-bottom: 15px;">
+                Si vous voyez votre courbe à 0% alors que vous avez de l'épargne de côté, cela s'explique par deux situations :
+                <br>• <strong>Dépenses supérieures aux revenus</strong> : Si au cours du mois, vos dépenses cumulées dépassent le total des revenus répartis, votre épargne nette mensuelle est nulle. Vous avez pioché dans vos réserves passées.
+                <br>• <strong>Aucun revenu réparti ce mois-ci</strong> : Si vous n'avez fait aucune répartition de gain ce mois-ci, votre taux d'épargne se calcule sur un revenu de 0 F, ce qui donne 0%. Dès votre prochaine répartition, la courbe remontera !
+            </p>
+
+            <div class="concept-rule">
+                <i class="ri-lightbulb-line"></i>
+                <div><strong>Conseil de lecture :</strong> Si vous constatez que le taux d'épargne baisse de mois en mois, il est temps d'ouvrir le donut de repartition pour verifier quelle enveloppe a deborde et reduire vos dépenses superflues.</div>
+            </div>
         </div>
 
         <div class="concept-card premium" id="coach-ia">
@@ -357,8 +456,26 @@ $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
             <span class="premium-badge">Premium</span>
             <div class="concept-icon" style="color: #6366f1; background: rgba(99, 102, 241, 0.1);"><i class="ri-trophy-line"></i></div>
             <h2 class="concept-title">Défis d'Épargne</h2>
-            <p class="concept-text">L'épargne ne doit pas être une corvée ennuyeuse. Wari te propose des défis interactifs et ludiques pour booster ta discipline financière (ex: 52 Semaines, Défi du mois, etc).</p>
-            <p class="concept-text">Chaque défi réussi renforce ton capital tout en te donnant un sentiment d'accomplissement incomparable.</p>
+            <p class="concept-text">L'épargne ne doit pas être une corvée ennuyeuse. Wari te propose des défis interactifs et ludiques (Défi 52 Semaines, Fonds d'urgence, Zéro Frivolité) pour booster ta discipline financière.</p>
+            
+            <p class="concept-text" style="font-weight: bold; color: var(--accent); margin-top: 15px;">Comment ça marche concrètement ?</p>
+            <p class="concept-text" style="font-size: 14px;"><strong>Il ne s'agit pas de créer de nouvelles dépenses réelles</strong>. C'est un virement d'épargne interne et indolore :</p>
+            <ul style="list-style-type: disc; margin-left: 20px; margin-bottom: 20px; font-size: 14px; color: #a1a1aa; line-height: 1.6;">
+                <li>Lorsque tu valides un dépôt ou une semaine du défi, Wari <strong>déduit automatiquement</strong> ce montant de ton enveloppe <em>Train de vie</em> (dépenses quotidiennes).</li>
+                <li>Cet argent est instantanément <strong>transféré et versé</strong> dans ton <em>Coffre-fort</em> (capital projet). Ton disponible quotidien baisse et ton capital d'épargne augmente.</li>
+            </ul>
+
+            <p class="concept-text" style="font-weight: bold; color: var(--accent);">Les 3 défis disponibles :</p>
+            <ul style="list-style-type: decimal; margin-left: 20px; margin-bottom: 20px; font-size: 14px; color: #a1a1aa; line-height: 1.6;">
+                <li><strong>Le Défi 52 Semaines :</strong> Tu épargnes progressivement chaque semaine (Semaine 1 = 500 F, Semaine 2 = 1 000 F, ..., Semaine 52 = 26 000 F pour une base de 500 F). À la fin de l'année, tu te retrouves avec un trésor de <strong>689 000 F CFA</strong> sans effort !</li>
+                <li><strong>Le Fonds d'Urgence :</strong> Fais des dépôts du montant de ton choix à ton rythme pour te constituer un matelas de sécurité de <strong>100 000 F CFA</strong>.</li>
+                <li><strong>Zéro Frivolité :</strong> 7 jours de pure discipline pour résister à tous les achats d'impulsion et garder ton budget intact.</li>
+            </ul>
+
+            <div class="concept-rule">
+                <i class="ri-heart-pulse-line"></i>
+                <div><strong>L'état d'esprit :</strong> Tu n'as pas besoin de trouver de l'argent supplémentaire. Tu as juste besoin de sacrifier un peu de ton superflu quotidien pour bâtir ton capital d'avenir.</div>
+            </div>
         </div>
 
         <div class="concept-card premium" id="academy">
@@ -376,6 +493,14 @@ $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
             <h2 class="concept-title">Rapports & Exports PDF</h2>
             <p class="concept-text">Les finances professionnelles exigent une comptabilité irréprochable. L'accès Premium te permet de générer en un clic des relevés PDF officiels de ton activité sur Wari (Mensuels ou Annuels).</p>
             <p class="concept-text">Ces documents sont parfaits pour avoir une vue globale sur la santé financière de ton année, ou pour justifier de ta gestion personnelle.</p>
+        </div>
+
+        <div class="concept-card premium" id="cloud-sync">
+            <span class="premium-badge">Premium</span>
+            <div class="concept-icon" style="color: #06b6d4; background: rgba(6, 182, 212, 0.1);"><i class="ri-cloud-line"></i></div>
+            <h2 class="concept-title">Sauvegarde & Synchronisation Cloud</h2>
+            <p class="concept-text">Tes données financières sont précieuses. Avec Wari Premium, ton historique, tes enveloppes budgétaires et la progression de tes défis d'épargne sont sauvegardés automatiquement et en temps réel.</p>
+            <p class="concept-text">Que tu changes de téléphone ou que tu te connectes depuis un autre appareil, tu retrouves instantanément toutes tes informations financières intactes. Zéro risque de perte de données.</p>
         </div>
 
         <div class="footer">

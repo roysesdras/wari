@@ -58,8 +58,8 @@ if (isset($_SESSION['user_id'])) {
         $date_expiration = $userLicense['date_expiration'];
         
         // SECURITE RENFORCEE : L'utilisateur a-t-il vraiment payé via FedaPay ?
-        $stmtPay = $pdo->prepare("SELECT id FROM wari_payments WHERE (email_client = ? OR commande_id = ?) AND statut = 'approved' LIMIT 1");
-        $stmtPay->execute([$userEmail, $userLicense['commande_id']]);
+        $stmtPay = $pdo->prepare("SELECT id FROM wari_payments WHERE commande_id = ? AND reference_fedapay IS NOT NULL AND reference_fedapay != '' AND statut = 'approved' LIMIT 1");
+        $stmtPay->execute([$userLicense['commande_id']]);
         if ($stmtPay->fetch()) {
             $has_paid = true;
         }
@@ -93,19 +93,19 @@ if (isset($_SESSION['user_id'])) {
                 exit();
             }
 
-            // Restriction d'expiration de l'abonnement
-            // Test Agile : Uniquement info@rebonly.com jusqu'au 31 Décembre 2026 inclus.
-            // Lancement Global automatique : Pour TOUT LE MONDE à partir du 1er Janvier 2027.
+            // Gestion de l'expiration et du blocage global (Monétisation)
+            // Test Agile pour info@rebonly.com ou Lancement Global à partir du 1er Janvier 2027.
             $transitionDate = strtotime('2027-01-01 00:00:00');
             $isTransitionActive = (time() >= $transitionDate);
 
             if ($userEmail === 'info@rebonly.com' || $isTransitionActive) {
+                // L'accès est bloqué si la licence est absente, expirée OU non payée via FedaPay
                 $isExpired = (
                     $date_expiration === null || 
                     strtotime($date_expiration) < time() ||
                     !$has_paid
                 );
-
+                
                 if ($isExpired) {
                     if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false || strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
                         http_response_code(402); // Payment Required

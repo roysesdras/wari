@@ -834,36 +834,86 @@ function loadBudget() {
       if (selector) selector.value = data.currency;
     }
 
-    // ── Reset au nouveau mois ─────────────────────────────────────────────
+    // ── Reset au nouveau mois (Cérémonie de Fin de Mois Option 2) ──────────
     if (lastSavedMonth && lastSavedMonth !== currentMonth) {
-      console.log("Nouveau mois détecté — reset des balances");
+      console.log("Nouveau mois détecté — planification de la cérémonie");
 
-      // // Séparateur ajouté APRÈS le chargement de vaultTransactions
-      // vaultTransactions.unshift({
-      //   date: lastSavedMonth,
-      //   type: "separator",
-      //   label: `── Clôture ${lastSavedMonth} ──`,
-      //   amount: 0,
-      // });
-
-      setTimeout(() => {
-        alert(
-          "NOUVEAU MOIS, MÊME RIGUEUR !\n\nChampion·ne, tes soldes restants du mois dernier ont été reportés automatiquement sur ce nouveau mois. C'est reparti !",
-        );
-      }, 1000);
-
-      categories = categories.map((cat) => {
-        const isProjet = cat.name.toLowerCase().includes("projet");
-        if (isProjet) return cat;
+      // Calculer les restes pour chaque catégorie (exclure Projet et Épargne)
+      const eligibleCategories = categories.filter((cat) => {
+        const nameLower = cat.name.toLowerCase();
+        if (nameLower.includes("projet") || nameLower.includes("épargne")) return false;
 
         const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
-        return { ...cat, balance: (cat.balance || 0) - spent };
+        const remaining = (cat.balance || 0) - spent;
+        return remaining > 0;
       });
 
-      data.lastSavedMonth = currentMonth;
-      data.vaultTransactions = vaultTransactions;
-      data.categories = categories;
-      localStorage.setItem("wari_budget_data", JSON.stringify(data));
+      if (eligibleCategories.length > 0) {
+        window.eomData = {
+          categories: categories,
+          eligible: eligibleCategories.map((cat) => {
+            const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+            return {
+              id: cat.id,
+              name: cat.name,
+              leftover: (cat.balance || 0) - spent
+            };
+          }),
+          currentMonth: currentMonth,
+          originalData: data
+        };
+
+        const listContainer = document.getElementById("eomCategoryList");
+        if (listContainer) {
+          listContainer.innerHTML = window.eomData.eligible.map(item => `
+            <div class="bg-slate-800/40 border border-slate-700/50 p-3 rounded-xl flex flex-col gap-2">
+              <div class="flex justify-between items-center">
+                <span class="text-sm font-bold text-white">${item.name}</span>
+                <span class="text-sm font-black text-amber-400">+${item.leftover.toLocaleString()} F</span>
+              </div>
+              <p class="text-[10px] text-slate-500 leading-tight">Tu as dépensé moins que prévu dans cette enveloppe.</p>
+              <div class="grid grid-cols-2 gap-2 mt-1">
+                <label class="flex items-center gap-2 bg-slate-900/50 border border-slate-700/40 p-2 rounded-lg cursor-pointer select-none">
+                  <input type="radio" name="eom_action_${item.id}" value="vault" checked class="text-amber-500 focus:ring-0">
+                  <div class="text-[10px] leading-tight">
+                    <p class="font-bold text-emerald-400">Épargner</p>
+                    <p class="text-slate-500">Vers le coffre</p>
+                  </div>
+                </label>
+                <label class="flex items-center gap-2 bg-slate-900/50 border border-slate-700/40 p-2 rounded-lg cursor-pointer select-none">
+                  <input type="radio" name="eom_action_${item.id}" value="keep" class="text-amber-500 focus:ring-0">
+                  <div class="text-[10px] leading-tight">
+                    <p class="font-bold text-amber-500">Reporter</p>
+                    <p class="text-slate-500">Garder ici</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+          `).join('');
+
+          setTimeout(() => {
+            const modal = document.getElementById("endOfMonthModal");
+            if (modal) {
+              modal.classList.remove("hidden");
+              modal.classList.add("flex");
+            }
+          }, 1000);
+        }
+      } else {
+        // Pas de restes éligibles, on applique le reset silencieux pour les autres
+        categories = categories.map((cat) => {
+          const isProjet = cat.name.toLowerCase().includes("projet");
+          if (isProjet) return cat;
+          const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+          return { ...cat, balance: Math.max(0, (cat.balance || 0) - spent) };
+        });
+
+        data.lastSavedMonth = currentMonth;
+        data.categories = categories;
+        const storageKey = currentWallet === 'perso' ? "wari_budget_data" : "wari_budget_data_pro";
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        saveBudgetDataToServer(data);
+      }
     }
 
     // Bannière d'explication au premier chargement (1 fois seulement)
@@ -926,6 +976,7 @@ window.switchWallet = function(type) {
   }
 
   currentWallet = type;
+  localStorage.setItem("wari_current_wallet", type);
 
   // 2. Mettre à jour l'état visuel des boutons de switch
   const btnPerso = document.getElementById("wallet-btn-perso");
@@ -1165,6 +1216,282 @@ function renderDebts() {
 
 document.addEventListener("DOMContentLoaded", renderDebts);
 
+// ─── PLANIFICATEUR ANTI-DETTE PREMIUM (BOULE DE NEIGE) ─────────────────────
+
+window.openSnowballModal = function () {
+  const modal = document.getElementById("debtSnowballModal");
+  if (modal) {
+    modal.classList.replace("hidden", "flex");
+    calculateSnowball();
+  }
+};
+
+window.closeSnowballModal = function () {
+  const modal = document.getElementById("debtSnowballModal");
+  if (modal) {
+    modal.classList.replace("flex", "hidden");
+  }
+};
+
+window.calculateSnowball = function () {
+  const currency = document.getElementById("currencySelector")?.value || "F";
+  const monthlyCapInput = document.getElementById("sbMonthlyCap");
+  const monthlyCap = parseFloat(monthlyCapInput ? monthlyCapInput.value : 0) || 0;
+
+  const debts = (typeof dbDebts !== "undefined" ? dbDebts : []).filter(d => d.type === "debt");
+  const loans = (typeof dbDebts !== "undefined" ? dbDebts : []).filter(d => d.type === "loan");
+
+  // Calcul des sommes
+  let totalDebts = debts.reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
+  let totalLoans = loans.reduce((sum, d) => sum + (parseFloat(d.amount) || 0), 0);
+  let netSituation = totalLoans - totalDebts;
+
+  // Affichage des compteurs du Bilan Net
+  const debtsEl = document.getElementById("sbTotalDebts");
+  const loansEl = document.getElementById("sbTotalLoans");
+  const netEl = document.getElementById("sbNetSituation");
+
+  if (debtsEl) debtsEl.innerText = totalDebts.toLocaleString() + " " + currency;
+  if (loansEl) loansEl.innerText = totalLoans.toLocaleString() + " " + currency;
+  
+  if (netEl) {
+    netEl.innerText = (netSituation >= 0 ? "+" : "") + netSituation.toLocaleString() + " " + currency;
+    netEl.className = "text-xs font-black " + (netSituation >= 0 ? "text-emerald-400" : "text-red-400");
+  }
+
+  // 1. Rendu des Créances (Vert Émeraude)
+  const loanTimelineEl = document.getElementById("sbLoanTimeline");
+  if (loanTimelineEl) {
+    if (loans.length === 0) {
+      loanTimelineEl.innerHTML = `<p class="text-slate-500 text-[10px] italic py-1">Aucune créance active à récupérer.</p>`;
+    } else {
+      loanTimelineEl.innerHTML = loans
+        .map(
+          (l) => `
+        <div class="flex justify-between items-center bg-emerald-950/20 border border-emerald-900/30 p-2 rounded-xl text-emerald-400 text-xs">
+          <div class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            <span class="font-bold">${l.person_name}</span>
+          </div>
+          <span class="font-extrabold">+${parseInt(l.amount).toLocaleString()} ${currency}</span>
+        </div>
+      `
+        )
+        .join("");
+    }
+  }
+
+  // 2. Rendu des Dettes (Boule de Neige - Rouge)
+  const timelineEl = document.getElementById("sbDebtTimeline");
+  const finalDateEl = document.getElementById("sbFinalDate");
+
+  if (timelineEl) {
+    if (debts.length === 0) {
+      timelineEl.innerHTML = `<p class="text-slate-500 text-[10px] italic py-1">Aucune dette passive en cours.</p>`;
+      if (finalDateEl) finalDateEl.innerText = "LIBRE DE DETTES ! 🎉";
+      return;
+    }
+
+    if (monthlyCap <= 0) {
+      timelineEl.innerHTML = `<p class="text-red-400 text-[10px] italic py-1">Saisis une capacité mensuelle pour générer la feuille de route.</p>`;
+      if (finalDateEl) finalDateEl.innerText = "INDEFINI";
+      return;
+    }
+
+    // Tri croissant des dettes (plus petite à la plus grande)
+    const sortedDebts = [...debts].sort((a, b) => parseFloat(a.amount) - parseFloat(b.amount));
+
+    let timelineData = [];
+    let currentDebtIndex = 0;
+    let currentDebtRemaining = sortedDebts.length > 0 ? parseFloat(sortedDebts[0].amount) : 0;
+    let monthCount = 0;
+
+    sortedDebts.forEach((d) => {
+      timelineData.push({
+        id: d.id,
+        person_name: d.person_name,
+        amount: parseFloat(d.amount),
+        startMonth: null,
+        endMonth: null
+      });
+    });
+
+    while (currentDebtIndex < sortedDebts.length && monthCount < 1200) {
+      monthCount++;
+      let capThisMonth = monthlyCap;
+
+      while (capThisMonth > 0 && currentDebtIndex < sortedDebts.length) {
+        if (timelineData[currentDebtIndex].startMonth === null) {
+          timelineData[currentDebtIndex].startMonth = monthCount;
+        }
+
+        if (currentDebtRemaining <= capThisMonth) {
+          capThisMonth -= currentDebtRemaining;
+          timelineData[currentDebtIndex].endMonth = monthCount;
+          currentDebtIndex++;
+          if (currentDebtIndex < sortedDebts.length) {
+            currentDebtRemaining = parseFloat(sortedDebts[currentDebtIndex].amount);
+          }
+        } else {
+          currentDebtRemaining -= capThisMonth;
+          capThisMonth = 0;
+        }
+      }
+    }
+
+    let html = "";
+    timelineData.forEach((t, idx) => {
+      const duration = t.endMonth - t.startMonth + 1;
+      let durationLabel = duration + " mois";
+      let rangeLabel = "";
+      if (t.startMonth === t.endMonth) {
+        rangeLabel = `Mois ${t.startMonth}`;
+      } else {
+        rangeLabel = `Mois ${t.startMonth} à ${t.endMonth}`;
+      }
+
+      html += `
+        <div class="bg-red-950/10 border border-red-900/20 p-2.5 rounded-xl flex items-center justify-between text-xs transition-all hover:border-red-500/30">
+          <div>
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="text-[9px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded font-black uppercase">Étape ${idx + 1}</span>
+              <span class="text-white font-bold">${t.person_name}</span>
+            </div>
+            <p class="text-slate-400 text-[10px]">
+              Remboursement : <b>${t.amount.toLocaleString()} ${currency}</b>
+            </p>
+          </div>
+          <div class="text-right">
+            <span class="text-red-400 font-extrabold block">${durationLabel}</span>
+            <span class="text-slate-500 text-[9px] block">${rangeLabel}</span>
+          </div>
+        </div>
+      `;
+    });
+
+    timelineEl.innerHTML = html;
+
+    if (finalDateEl) {
+      const years = Math.floor(monthCount / 12);
+      const remainingMonths = monthCount % 12;
+      let finalLabel = monthCount + " MOIS";
+      if (monthCount >= 12) {
+        finalLabel += " (" + years + " an" + (years > 1 ? "s" : "") + (remainingMonths > 0 ? " et " + remainingMonths + " mois" : "") + ")";
+      }
+      finalDateEl.innerText = finalLabel;
+    }
+  }
+};
+
+// ─── SIMULATEUR D'INVESTISSEMENT UEMOA PREMIUM ─────────────────────────────
+
+window.openSimulatorModal = function () {
+  const modal = document.getElementById("simulatorModal");
+  if (modal) {
+    modal.classList.replace("hidden", "flex");
+    runSimulation();
+  }
+};
+
+window.closeSimulatorModal = function () {
+  const modal = document.getElementById("simulatorModal");
+  if (modal) {
+    modal.classList.replace("flex", "hidden");
+  }
+};
+
+window.onSimulatorPlacementChange = function () {
+  const select = document.getElementById("simPlacementType");
+  const rateInput = document.getElementById("simAnnualRate");
+  if (select && rateInput) {
+    const selectedOption = select.options[select.selectedIndex];
+    const rate = parseFloat(selectedOption.getAttribute("data-rate")) || 0;
+    rateInput.value = rate;
+  }
+  runSimulation();
+};
+
+window.runSimulation = function () {
+  const currency = document.getElementById("currencySelector")?.value || "F";
+  const monthlyAmountInput = document.getElementById("simMonthlyAmount");
+  const annualRateInput = document.getElementById("simAnnualRate");
+  const yearsRangeInput = document.getElementById("simYearsRange");
+
+  const pmt = parseFloat(monthlyAmountInput ? monthlyAmountInput.value : 0) || 0;
+  const annualRate = parseFloat(annualRateInput ? annualRateInput.value : 0) || 0;
+  const years = parseInt(yearsRangeInput ? yearsRangeInput.value : 5) || 5;
+
+  const simTotalDeposits = document.getElementById("simTotalDeposits");
+  const simTotalInterest = document.getElementById("simTotalInterest");
+  const simTotalFinal = document.getElementById("simTotalFinal");
+  const chartContainer = document.getElementById("simChartContainer");
+
+  let yearlyData = [];
+  let maxFV = 0;
+
+  for (let y = 1; y <= years; y++) {
+    const n = y * 12;
+    const r = annualRate / 100;
+    const i = r / 12;
+
+    let fv = 0;
+    const deposited = pmt * n;
+
+    if (i === 0) {
+      fv = deposited;
+    } else {
+      fv = pmt * ((Math.pow(1 + i, n) - 1) / i);
+    }
+
+    const interest = Math.max(0, fv - deposited);
+    yearlyData.push({ year: y, fv, deposited, interest });
+    if (fv > maxFV) {
+      maxFV = fv;
+    }
+  }
+
+  // Remplissage des résultats finaux (dernière année)
+  const finalData = yearlyData[yearlyData.length - 1] || { fv: 0, deposited: 0, interest: 0 };
+  
+  if (simTotalDeposits) simTotalDeposits.innerText = Math.round(finalData.deposited).toLocaleString() + " " + currency;
+  if (simTotalInterest) simTotalInterest.innerText = "+" + Math.round(finalData.interest).toLocaleString() + " " + currency;
+  if (simTotalFinal) simTotalFinal.innerText = Math.round(finalData.fv).toLocaleString() + " " + currency;
+
+  // Dessin du graphique natif
+  if (chartContainer) {
+    chartContainer.innerHTML = "";
+    if (maxFV <= 0) {
+      chartContainer.innerHTML = `<p class="text-slate-500 text-[10px] italic w-full text-center py-8">Saisis un versement pour projeter la courbe.</p>`;
+      return;
+    }
+
+    yearlyData.forEach((d) => {
+      const barHeightPercent = (d.fv / maxFV) * 100;
+      const interestHeightPercent = (d.interest / d.fv) * 100;
+      const depositHeightPercent = (d.deposited / d.fv) * 100;
+
+      const barHtml = `
+        <div class="flex-1 flex flex-col items-center group h-full justify-end relative">
+          <!-- Info-bulle au survol (mobile friendly) -->
+          <div class="absolute bottom-full mb-2 bg-slate-950 text-white text-[8px] p-1.5 rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-300 z-30 shadow-2xl text-center leading-tight whitespace-nowrap min-w-[100px]">
+            <p class="font-extrabold text-amber-400">Somme finale : ${Math.round(d.fv).toLocaleString()} ${currency}</p>
+            <p class="text-slate-400">Ton argent : ${Math.round(d.deposited).toLocaleString()} ${currency}</p>
+            <p class="text-emerald-400">Cadeau : +${Math.round(d.interest).toLocaleString()} ${currency}</p>
+          </div>
+          <div class="w-full max-w-[28px] rounded-t-md overflow-hidden flex flex-col justify-end shadow-inner relative" style="height: ${Math.max(5, barHeightPercent)}%;">
+            <!-- Intérêts (Vert Émeraude) -->
+            <div class="bg-emerald-500 hover:bg-emerald-400 transition-colors" style="height: ${interestHeightPercent}%;"></div>
+            <!-- Dépôts (Gris Slate) -->
+            <div class="bg-slate-700 hover:bg-slate-600 transition-colors" style="height: ${depositHeightPercent}%;"></div>
+          </div>
+          <span class="text-[8.5px] font-bold text-slate-500 mt-1 select-none">An ${d.year}</span>
+        </div>
+      `;
+      chartContainer.insertAdjacentHTML("beforeend", barHtml);
+    });
+  }
+};
+
 // ─── MODÈLE ────────────────────────────────────────────────────────────────
 
 function applyModel(modelKey) {
@@ -1351,6 +1678,33 @@ window.openPayModal = (id, name, currentAmount, type) => {
   document.getElementById("payModalTarget").innerText =
     `${action} ${name} (Reste : ${currentAmount.toLocaleString()} ${currency})`;
 
+  // Remplissage dynamique du sélecteur d'enveloppe
+  const selectEnvelope = document.getElementById("paySourceEnvelope");
+  const labelEnvelope = document.getElementById("paySourceEnvelopeLabel");
+
+  if (labelEnvelope) {
+    labelEnvelope.innerText = type === "loan" ? "Créditer l'enveloppe" : "Prélever depuis l'enveloppe";
+  }
+
+  if (selectEnvelope) {
+    selectEnvelope.innerHTML = "";
+    if (typeof categories !== "undefined" && categories.length > 0) {
+      categories.forEach((cat) => {
+        const option = document.createElement("option");
+        option.value = cat.id;
+        option.text = `${cat.name} (${cat.percent}%)`;
+        selectEnvelope.appendChild(option);
+        
+        // Pré-sélectionner Train de vie par défaut
+        if (cat.name.toLowerCase().includes("train de vie") || cat.id === 2) {
+          option.selected = true;
+        }
+      });
+    } else {
+      selectEnvelope.innerHTML = `<option value="2">Train de vie</option>`;
+    }
+  }
+
   document.getElementById("payModal").classList.replace("hidden", "flex");
 };
 
@@ -1361,6 +1715,7 @@ window.submitPartialPay = async () => {
   const id = document.getElementById("payDebtId").value;
   const amount = document.getElementById("payPartAmount").value;
   const type = document.getElementById("payDebtType").value;
+  const category_id = document.getElementById("paySourceEnvelope")?.value || 2;
   const currency = document.getElementById("currencySelector")?.value || "F";
 
   if (!amount || amount <= 0) {
@@ -1372,7 +1727,7 @@ window.submitPartialPay = async () => {
   const confirmMsg = `Tu confirmes avoir ${actionLabel} ${amount} ${currency} ?\nChaque petit pas compte pour ta liberté financière.`;
   if (!confirm(confirmMsg)) return;
 
-  const bodyData = { id, amount, type };
+  const bodyData = { id, amount, type, category_id, wallet_type: currentWallet };
 
   try {
     if (!navigator.onLine) throw new Error("Offline");
@@ -1703,6 +2058,43 @@ window.closeHistoryModal = function () {
 
 // ─── GRAPHIQUE D'ÉVOLUTION ──────────────────────────────────────────────────
 
+window.cachedHistory = null;
+window.currentChartType = "trend";
+
+window.switchPremiumChart = function (type) {
+  window.currentChartType = type;
+  
+  const btnTrend = document.getElementById("btnChartTrend");
+  const btnSavings = document.getElementById("btnChartSavings");
+  const btnDonut = document.getElementById("btnChartDonut");
+
+  if (btnTrend) {
+    btnTrend.className = type === "trend"
+      ? "flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-white bg-slate-800 transition-all select-none"
+      : "flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-slate-400 hover:text-white transition-all select-none";
+  }
+  if (btnSavings) {
+    btnSavings.className = type === "savings"
+      ? "flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-white bg-slate-800 transition-all select-none"
+      : "flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-slate-400 hover:text-white transition-all select-none";
+  }
+  if (btnDonut) {
+    btnDonut.className = type === "donut"
+      ? "flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-white bg-slate-800 transition-all select-none"
+      : "flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider text-slate-400 hover:text-white transition-all select-none";
+  }
+
+  if (window.cachedHistory) {
+    if (type === "trend") {
+      renderTrendChart(window.cachedHistory);
+    } else if (type === "savings") {
+      renderSavingsChart(window.cachedHistory);
+    } else if (type === "donut") {
+      renderDonutChart(window.cachedHistory);
+    }
+  }
+};
+
 function loadTrendChart() {
   fetch("config/get_history.php?months=6&wallet_type=" + currentWallet)
     .then((res) => {
@@ -1711,12 +2103,243 @@ function loadTrendChart() {
     })
     .then((data) => {
       if (data && data.success && data.history) {
-        renderTrendChart(data.history);
+        window.cachedHistory = data.history;
+        if (window.currentChartType === "trend") {
+          renderTrendChart(data.history);
+        } else if (window.currentChartType === "savings") {
+          renderSavingsChart(data.history);
+        } else if (window.currentChartType === "donut") {
+          renderDonutChart(data.history);
+        }
       }
     })
     .catch((err) => {
       console.error("Erreur lors du chargement du graphique d'évolution :", err.message);
     });
+}
+
+function renderSavingsChart(history) {
+  const svg = document.getElementById("trendChartSvg");
+  const loader = document.getElementById("chartLoader");
+  if (!svg) return;
+
+  if (!history || history.length === 0) {
+    if (loader) {
+      loader.innerText = "Ajoute des répartitions pour tracer ton taux d'épargne.";
+      loader.className = "absolute text-slate-500 text-[10px] italic text-center px-4";
+    }
+    return;
+  }
+
+  if (loader) loader.classList.add("hidden");
+  svg.classList.remove("opacity-0");
+  svg.classList.add("opacity-100");
+
+  const width = 400;
+  const height = 140;
+  const paddingLeft = 35;
+  const paddingRight = 15;
+  const paddingTop = 15;
+  const paddingBottom = 20;
+
+  const chartWidth = width - paddingLeft - paddingRight;
+  const chartHeight = height - paddingTop - paddingBottom;
+
+  const data = [...history].reverse();
+  const n = data.length;
+
+  const points = [];
+  data.forEach((month, idx) => {
+    const rev = parseFloat(month.total_distributed) || 0;
+    const spent = parseFloat(month.total_spent) || 0;
+    const saved = Math.max(0, rev - spent);
+    const rate = rev > 0 ? (saved / rev) * 100 : 0;
+    
+    const groupWidth = chartWidth / n;
+    const x = paddingLeft + (idx * groupWidth) + (groupWidth / 2);
+    const y = paddingTop + chartHeight * (1 - rate / 100);
+    
+    points.push({ x, y, rate, label: month.label });
+  });
+
+  let svgContent = "";
+
+  const gridLines = [0, 50, 100];
+  gridLines.forEach((val) => {
+    const y = paddingTop + chartHeight * (1 - val / 100);
+    svgContent += `<line x1="${paddingLeft}" y1="${y}" x2="${width - paddingRight}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="2,2" stroke-width="1" />`;
+    svgContent += `<text x="${paddingLeft - 6}" y="${y + 3}" fill="#64748b" font-size="8" font-weight="800" text-anchor="end">${val}%</text>`;
+  });
+
+  svgContent += `
+    <defs>
+      <linearGradient id="savingsAreaGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.15" />
+        <stop offset="100%" stop-color="#F59E0B" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+  `;
+
+  if (points.length > 0) {
+    let areaPath = `M ${points[0].x} ${paddingTop + chartHeight}`;
+    points.forEach((p) => {
+      areaPath += ` L ${p.x} ${p.y}`;
+    });
+    areaPath += ` L ${points[points.length - 1].x} ${paddingTop + chartHeight} Z`;
+    svgContent += `<path d="${areaPath}" fill="url(#savingsAreaGrad)" />`;
+  }
+
+  if (points.length > 0) {
+    let linePath = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 1; i < points.length; i++) {
+      linePath += ` L ${points[i].x} ${points[i].y}`;
+    }
+    svgContent += `<path d="${linePath}" fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />`;
+  }
+
+  points.forEach((p) => {
+    svgContent += `
+      <g class="group">
+        <title>Taux d'Épargne : ${p.rate.toFixed(1)}%</title>
+        <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#F59E0B" stroke="#0B141A" stroke-width="1.5" class="cursor-pointer hover:r-6 transition-all" />
+      </g>
+    `;
+
+    let shortLabel = "";
+    if (p.label) {
+      const m = p.label.split(" ")[0];
+      shortLabel = m.length > 4 ? m.substring(0, 3) + "." : m;
+    }
+    svgContent += `<text x="${p.x}" y="${height - 4}" fill="#64748b" font-size="8" font-weight="800" text-anchor="middle">${shortLabel}</text>`;
+  });
+
+  svg.innerHTML = svgContent;
+
+  const legendEl = document.getElementById("chartLegend");
+  if (legendEl) {
+    legendEl.innerHTML = `
+      <div class="flex items-center gap-1.5 text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.5)]"></span>
+        Taux d'Epargne mensuel
+      </div>
+    `;
+  }
+}
+
+function renderDonutChart(history) {
+  const svg = document.getElementById("trendChartSvg");
+  const loader = document.getElementById("chartLoader");
+  if (!svg) return;
+
+  const data = [...history].reverse();
+  const currentMonthData = data[data.length - 1];
+
+  if (!currentMonthData || !currentMonthData.expenses || currentMonthData.expenses.length === 0) {
+    if (loader) {
+      loader.innerText = "Aucune dépense enregistrée sur ce mois.";
+      loader.className = "absolute text-slate-500 text-[10px] italic text-center px-4";
+    }
+    svg.innerHTML = `
+      <circle cx="120" cy="70" r="30" fill="transparent" stroke="rgba(255,255,255,0.06)" stroke-width="12" />
+      <text x="210" y="75" fill="#64748b" font-size="10" font-weight="800">Aucune depense</text>
+    `;
+    return;
+  }
+
+  if (loader) loader.classList.add("hidden");
+  svg.classList.remove("opacity-0");
+  svg.classList.add("opacity-100");
+
+  const currency = document.getElementById("currencySelector")?.value || "F";
+
+  const spentByCat = { 1: 0, 2: 0, 3: 0, 4: 0 };
+  let totalSpent = 0;
+
+  currentMonthData.expenses.forEach((e) => {
+    const catId = parseInt(e.category_id);
+    const amt = parseFloat(e.amount) || 0;
+    if (spentByCat[catId] !== undefined) {
+      if (amt > 0) {
+        spentByCat[catId] += amt;
+        totalSpent += amt;
+      }
+    }
+  });
+
+  if (totalSpent === 0) {
+    svg.innerHTML = `
+      <circle cx="120" cy="70" r="30" fill="transparent" stroke="rgba(255,255,255,0.06)" stroke-width="12" />
+      <text x="210" y="75" fill="#64748b" font-size="10" font-weight="800">Aucune depense</text>
+    `;
+    return;
+  }
+
+  const catColors = {
+    1: "#6366f1",
+    2: "#a78bfa",
+    3: "#f59e0b",
+    4: "#ef4444"
+  };
+
+  const catNames = {
+    1: "Epargne",
+    2: "Train de vie",
+    3: "Projet",
+    4: "Imprevu"
+  };
+
+  const r = 32;
+  const circumference = 2 * Math.PI * r;
+  let currentOffset = 0;
+  let svgContent = "";
+
+  const segments = [];
+  [1, 2, 3, 4].forEach((catId) => {
+    const amt = spentByCat[catId];
+    if (amt > 0) {
+      const percent = (amt / totalSpent) * 100;
+      const length = (percent / 100) * circumference;
+      segments.push({ id: catId, name: catNames[catId], amount: amt, percent, length });
+    }
+  });
+
+  segments.forEach((seg) => {
+    const strokeDash = `${seg.length} ${circumference}`;
+    svgContent += `
+      <g class="group">
+        <circle cx="120" cy="70" r="${r}" fill="transparent" 
+                stroke="${catColors[seg.id]}" stroke-width="12" 
+                stroke-dasharray="${strokeDash}" stroke-dashoffset="${currentOffset}"
+                class="cursor-pointer transition-opacity duration-200 hover:opacity-85" />
+        <title>${seg.name} : ${seg.amount.toLocaleString()} ${currency} (${seg.percent.toFixed(0)}%)</title>
+      </g>
+    `;
+    currentOffset -= seg.length;
+  });
+
+  svgContent += `
+    <text x="120" y="68" fill="#64748b" font-size="7" font-weight="800" text-anchor="middle" class="select-none">TOTAL</text>
+    <text x="120" y="78" fill="#ffffff" font-size="8.5" font-weight="900" text-anchor="middle" class="select-none">${Math.round(totalSpent).toLocaleString()}</text>
+  `;
+
+  let textY = 32;
+  segments.forEach((seg) => {
+    svgContent += `<rect x="190" y="${textY - 7}" width="8" height="8" rx="2.5" fill="${catColors[seg.id]}" />`;
+    svgContent += `<text x="204" y="${textY}" fill="#ffffff" font-size="9" font-weight="800">${seg.name}</text>`;
+    svgContent += `<text x="385" y="${textY}" fill="#64748b" font-size="9" font-weight="800" text-anchor="end">${Math.round(seg.amount).toLocaleString()} ${currency} (${seg.percent.toFixed(0)}%)</text>`;
+    textY += 23;
+  });
+
+  svg.innerHTML = svgContent;
+
+  const legendEl = document.getElementById("chartLegend");
+  if (legendEl) {
+    legendEl.innerHTML = `
+      <div class="flex items-center gap-1.5 text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">
+        Repartition des depenses (mois en cours)
+      </div>
+    `;
+  }
 }
 
 function renderTrendChart(history) {
@@ -1850,10 +2473,24 @@ function renderTrendChart(history) {
   }
 
   svg.innerHTML = svgContent;
+
+  const legendEl = document.getElementById("chartLegend");
+  if (legendEl) {
+    legendEl.innerHTML = `
+      <div class="flex items-center gap-1.5 text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]"></span>
+        Revenus
+      </div>
+      <div class="flex items-center gap-1.5 text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">
+        <span class="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]"></span>
+        Dépenses
+      </div>
+    `;
+  }
 }
 
 function loadMonthlyHistory(months = 6) {
-  fetch(`config/get_history.php?months=${months}`)
+  fetch(`config/get_history.php?months=${months}&wallet_type=${currentWallet}`)
     .then((res) => res.json())
     .then((data) => {
       const container = document.getElementById("historyContent");
@@ -1902,8 +2539,8 @@ function loadMonthlyHistory(months = 6) {
                 </div>
                 <div>
                   <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Préservé</p>
-                  <p class="text-sm font-black text-emerald-400 mt-0.5">
-                    ${parseInt(month.total_saved).toLocaleString()} ${currency}
+                  <p class="text-sm font-black text-emerald-400 mt-0.5" title="Taux d'épargne du mois">
+                    ${parseInt(month.total_saved).toLocaleString()} ${currency} (${month.total_distributed > 0 ? Math.round((month.total_saved / month.total_distributed) * 100) : 0}%)
                   </p>
                 </div>
               </div>
@@ -2008,6 +2645,38 @@ function loadMonthlyHistory(months = 6) {
               })() : `
               <p class="text-xs text-slate-500 italic text-center py-2">Aucune dépense enregistrée ce mois.</p>
               `}
+
+              <!-- Liste des Mouvements Coffre-fort & Défis -->
+              ${month.vault && month.vault.length > 0 ? `
+              <div class="mb-3">
+                <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">🔒 Épargne & Défis</p>
+                <div class="space-y-1 max-h-[120px] overflow-y-auto custom-scrollbar pr-1">
+                  ${month.vault.map(v => {
+                    const isDeposit = v.type === 'in';
+                    const typeLabel = isDeposit ? 'Dépôt' : 'Retrait';
+                    const badgeColor = isDeposit ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20';
+                    return `
+                      <div class="flex justify-between items-center px-2.5 py-1.5 bg-slate-950/40 rounded-xl border border-white/5 text-[10px] gap-2">
+                        <div class="flex-1 min-w-0">
+                          <p class="font-bold text-slate-200 truncate" title="${v.label}">
+                            ${v.label}
+                          </p>
+                          <div class="flex items-center gap-2 mt-0.5 select-none">
+                            <span class="text-[9px] font-black uppercase px-1 py-0.2 rounded border ${badgeColor} tracking-wider">
+                              ${typeLabel}
+                            </span>
+                            <span class="text-[9px] text-slate-500">Le ${v.date_day_label} à ${v.time_label}</span>
+                          </div>
+                        </div>
+                        <span class="font-black shrink-0 ${isDeposit ? 'text-emerald-400' : 'text-red-400'}">
+                          ${isDeposit ? '+' : '−'}${v.amount.toLocaleString()} ${currency}
+                        </span>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+              ` : ''}
 
               <!-- Liste des Répartitions (Revenus) -->
               ${month.details && month.details.length > 0 ? `
@@ -3104,6 +3773,10 @@ window.completeNoFrivolities = function () {
 
 // Lancer le rendu des défis au chargement de la page
 document.addEventListener("DOMContentLoaded", () => {
+  const savedWallet = localStorage.getItem("wari_current_wallet");
+  if (savedWallet && savedWallet !== currentWallet && typeof window.switchWallet === "function") {
+    window.switchWallet(savedWallet);
+  }
   window.renderChallenges();
   
   // Rafraîchir toutes les 30 secondes les comptes à rebours du défi sans futilités
@@ -3112,4 +3785,214 @@ document.addEventListener("DOMContentLoaded", () => {
       window.renderChallenges();
     }
   }, 30000);
+});
+
+// ── CÉRÉMONIE DE FIN DE MOIS (LOGIQUE SUBMIT ET SAUVEGARDE) ──────────────────
+function saveBudgetDataToServer(dataToSave) {
+  return fetch("config/save_data.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dataToSave),
+  })
+    .then(response => {
+      if (!response.ok) throw new Error(`Status: ${response.status}`);
+      return response.json();
+    })
+    .then(() => {
+      console.log("✅ Synchro serveur réussie");
+    })
+    .catch((err) => {
+      console.error("❌ Erreur critique save_data :", err.message);
+      if (!navigator.onLine && typeof window.queueOfflineAction === 'function') {
+        window.queueOfflineAction("config/save_data.php", dataToSave);
+      }
+    });
+}
+
+async function submitEndOfMonth() {
+  if (!window.eomData) return;
+
+  const data = window.eomData.originalData;
+  let categories = window.eomData.categories;
+  let addedToVault = 0;
+
+  for (const item of window.eomData.eligible) {
+    const radio = document.querySelector(`input[name="eom_action_${item.id}"]:checked`);
+    const choice = radio ? radio.value : "vault";
+
+    if (choice === "vault") {
+      addedToVault += item.leftover;
+      // Remettre à 0 F pour le nouveau mois (retirer le reste)
+      categories = categories.map(cat => {
+        if (cat.id == item.id) {
+          const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+          return { ...cat, balance: (cat.balance || 0) - spent - item.leftover };
+        }
+        return cat;
+      });
+
+      // Ajouter une transaction au coffre-fort (Épargne)
+      const label = `Clôture ${window.eomData.currentMonth} - ${item.name}`;
+      try {
+        await fetch("config/add_vault_transaction.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: item.leftover,
+            type: "in",
+            label: label,
+            wallet_type: currentWallet
+          })
+        });
+      } catch (err) {
+        console.error("Erreur add_vault_transaction", err);
+      }
+    } else {
+      // Reporter le solde
+      categories = categories.map(cat => {
+        if (cat.id == item.id) {
+          const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+          return { ...cat, balance: (cat.balance || 0) - spent };
+        }
+        return cat;
+      });
+    }
+  }
+
+  // Traiter les catégories non éligibles (ou solde <= 0)
+  categories = categories.map(cat => {
+    const isEligible = window.eomData.eligible.some(item => item.id == cat.id);
+    if (isEligible) return cat;
+
+    const isProjet = cat.name.toLowerCase().includes("projet");
+    if (isProjet) return cat;
+
+    const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+    return { ...cat, balance: Math.max(0, (cat.balance || 0) - spent) };
+  });
+
+  // Mettre à jour les données du budget
+  data.lastSavedMonth = window.eomData.currentMonth;
+  data.categories = categories;
+  if (addedToVault > 0) {
+    data.projectCapital = (data.projectCapital || 0) + addedToVault;
+  }
+
+  const storageKey = currentWallet === 'perso' ? "wari_budget_data" : "wari_budget_data_pro";
+  localStorage.setItem(storageKey, JSON.stringify(data));
+
+  // Fermer le modal
+  const modal = document.getElementById("endOfMonthModal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+
+  // Sauvegarder sur le serveur
+  await saveBudgetDataToServer(data);
+
+  // Recharger proprement pour réinitialiser tout le dashboard
+  window.location.href = window.location.pathname + "?updated=" + Date.now();
+}
+
+// ── MODAL DE PRÉSENTATION DE WARI PREMIUM (TUTORIEL) ──────────────────────────
+let currentPremiumIntroStep = 1;
+const premiumIntroSlides = [
+  {
+    title: "Wari Premium",
+    desc: "Prends le contrôle absolu de tes finances et booste ta productivité pour seulement 590 F CFA par mois.",
+    icon: `<svg class="mx-auto text-amber-400" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`
+  },
+  {
+    title: "Portefeuille Business",
+    desc: "Sépare clairement ton argent de poche de tes activités commerciales ou projets professionnels grâce à 4 enveloppes pro étanches.",
+    icon: `<svg class="mx-auto text-amber-400" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`
+  },
+  {
+    title: "Défis d'Épargne",
+    desc: "Challenge ta discipline et force ton épargne avec des défis ludiques (Fonds d'urgence, Défi 52 semaines) suivis en temps réel.",
+    icon: `<svg class="mx-auto text-amber-400" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
+  },
+  {
+    title: "Outils de Projection & Dettes",
+    desc: "Simule tes investissements UEMOA face à l'inflation, et planifie le remboursement rapide de tes dettes avec la Boule de Neige.",
+    icon: `<svg class="mx-auto text-amber-400" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`
+  }
+];
+
+window.showPremiumIntroSlide = function (step) {
+  currentPremiumIntroStep = step;
+  const slide = premiumIntroSlides[step - 1];
+  
+  const contentEl = document.getElementById("premiumIntroContent");
+  if (contentEl) {
+    contentEl.innerHTML = `
+      <div class="mb-3">${slide.icon}</div>
+      <h3 class="text-white font-bold text-xl mb-2">${slide.title}</h3>
+      <p class="text-slate-400 text-sm leading-relaxed px-2">${slide.desc}</p>
+    `;
+  }
+
+  document.querySelectorAll(".premium-intro-dot").forEach((dot, idx) => {
+    if (idx < step) {
+      dot.classList.remove("bg-slate-700");
+      dot.classList.add("bg-amber-500");
+    } else {
+      dot.classList.remove("bg-amber-500");
+      dot.classList.add("bg-slate-700");
+    }
+  });
+
+  const btnArea = document.getElementById("premiumIntroButtons");
+  if (btnArea) {
+    if (step < 4) {
+      btnArea.innerHTML = `
+        <button onclick="nextPremiumIntroSlide()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-600 text-black rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all select-none">
+          Suivant
+        </button>
+      `;
+    } else {
+      btnArea.innerHTML = `
+        <a href="https://wari.digiroys.com/paid/index.php" onclick="closePremiumIntro(true)" class="block w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-600 text-black text-center rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all select-none">
+          Je souscris
+        </a>
+        <button onclick="closePremiumIntro(true)" class="block w-full py-3 bg-slate-800 text-slate-300 rounded-xl font-bold text-sm hover:bg-slate-700 active:scale-95 transition-all select-none">
+          Merci
+        </button>
+      `;
+    }
+  }
+};
+
+window.nextPremiumIntroSlide = function () {
+  if (currentPremiumIntroStep < 4) {
+    window.showPremiumIntroSlide(currentPremiumIntroStep + 1);
+  }
+};
+
+window.closePremiumIntro = function (markSeen = false) {
+  if (markSeen) {
+    localStorage.setItem("wari_premium_intro_seen", "true");
+  }
+  const modal = document.getElementById("premiumIntroModal");
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Lancer automatiquement si l'utilisateur n'est pas premium
+  if (typeof dbIsPremium !== "undefined" && !dbIsPremium) {
+    if (!localStorage.getItem("wari_premium_intro_seen")) {
+      setTimeout(() => {
+        window.showPremiumIntroSlide(1);
+        const modal = document.getElementById("premiumIntroModal");
+        if (modal) {
+          modal.classList.remove("hidden");
+          modal.classList.add("flex");
+        }
+      }, 2500);
+    }
+  }
 });

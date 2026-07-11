@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wari Premium : Contrôlez encore mieux votre budget</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #080b10;
+        color: #e8eaf0;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px 10px;
+      }
+      .logo {
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 32px;
+        font-weight: 800;
+        color: #f5a623;
+        letter-spacing: 1px;
+      }
+      .card {
+        background: #0d1117;
+        border: 1px solid rgba(245, 166, 35, 0.25);
+        border-radius: 24px;
+        padding: 30px 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+      h1 {
+        color: #f5a623;
+        font-size: 22px;
+        margin-top: 0;
+        margin-bottom: 20px;
+        text-align: center;
+        line-height: 1.4;
+      }
+      p {
+        line-height: 1.7;
+        font-size: 15px;
+        color: #ccd2e0;
+      }
+      .features-list {
+        margin: 25px 0;
+        padding: 0;
+        list-style: none;
+      }
+      .feature-item {
+        background: #161b24;
+        border-radius: 16px;
+        padding: 15px;
+        margin-bottom: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .feature-title {
+        font-weight: 700;
+        color: #f5a623;
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+      .feature-desc {
+        font-size: 13.5px;
+        color: #a0aec0;
+        margin: 0;
+      }
+      .price-box {
+        background: rgba(245, 166, 35, 0.08);
+        border: 1px dashed rgba(245, 166, 35, 0.4);
+        border-radius: 16px;
+        padding: 15px;
+        text-align: center;
+        margin: 25px 0;
+      }
+      .price-text {
+        font-size: 20px;
+        font-weight: 800;
+        color: #f5a623;
+      }
+      .button {
+        display: inline-block;
+        background: linear-gradient(135deg, #f5a623 0%, #d97706 100%);
+        color: #000 !important;
+        padding: 16px 28px;
+        border-radius: 14px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 15px;
+        margin: 15px 0;
+        box-shadow: 0 4px 15px rgba(245, 166, 35, 0.3);
+        transition: all 0.3s ease;
+      }
+      .free-info {
+        background: rgba(99, 179, 237, 0.08);
+        border: 1px solid rgba(99, 179, 237, 0.2);
+        border-radius: 16px;
+        padding: 15px;
+        margin-top: 25px;
+        font-size: 13.5px;
+        line-height: 1.6;
+        color: #a0c4ff;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 12px;
+        color: #556070;
+      }
+      .footer a {
+        color: #f5a623;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">WARI-Finance</div>
+
+      <div class="card">
+        <h1>Contrôlez encore mieux votre budget et vos dépenses avec Wari Premium</h1>
+
+        <p>
+          Découvrez la version Premium de Wari, pensée pour accélérer votre discipline financière et libérer le potentiel de votre argent au quotidien. 
+        </p>
+
+        <p>
+          Voici tous les avantages et bénéfices exclusifs de la version Pro :
+        </p>
+
+        <ul class="features-list">
+          <li class="feature-item">
+            <div class="feature-title">Double Portefeuille (Perso / Pro)</div>
+            <p class="feature-desc">Séparez proprement vos dépenses personnelles de vos activités commerciales ou professionnelles pour ne plus mélanger vos comptes.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-title">Défis d'Épargne & Tontines</div>
+            <p class="feature-desc">Participez à des challenges d'épargne motivants pour constituer un fonds d'urgence ou financer un projet en gardant le rythme.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-title">Rapports & Bilans PDF en 1 Clic</div>
+            <p class="feature-desc">Téléchargez et analysez des synthèses claires de vos budgets mensuels pour repérer les gaspillages et mesurer vos progrès.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-title">Wari Coach Pro-Actif</div>
+            <p class="feature-desc">Accédez à des analyses encore plus poussées et personnalisées de votre mentor financier IA 24h/24.</p>
+          </li>
+          <li class="feature-item">
+            <div class="feature-title">Sauvegarde & Synchronisation Cloud</div>
+            <p class="feature-desc">Vos données sont sauvegardées en toute sécurité pour que vous puissiez les retrouver n'importe quand.</p>
+          </li>
+        </ul>
+
+        <div class="price-box">
+          <div class="price-text">Seulement 590 F CFA / mois</div>
+          <p style="margin: 5px 0 0 0; font-size: 13px; color: #a0aec0;">Un investissement très simple pour un impact immédiat sur votre santé financière.</p>
+        </div>
+
+        <center>
+          <a href="{{PREMIUM_URL}}" class="button">ACTIVER MON ACCÈS PREMIUM</a>
+        </center>
+
+        <div class="free-info">
+          Bonne nouvelle ! Pendant notre phase de lancement et de vulgarisation, vous pouvez réclamer un PASS d'activation gratuit. Discutez simplement avec nous sur WhatsApp pour en profiter.
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>Tu reçois cet email car tu fais partie de la communauté Wari-Finance.</p>
+        <p>
+          <a href="{{UNSUBSCRIBE_URL}}">Se désinscrire</a> |
+          <a href="https://wari.digiroys.com">wari.digiroys.com</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

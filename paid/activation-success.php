@@ -15,9 +15,9 @@ if (!$transaction_id) {
     exit();
 }
 
-// Récupération immédiate du paiement
-$stmtPayment = $pdo->prepare("SELECT * FROM wari_payments WHERE reference_fedapay = ? OR id = ?");
-$stmtPayment->execute([$transaction_id, $transaction_id]);
+// Récupération immédiate du paiement (FedaPay requis)
+$stmtPayment = $pdo->prepare("SELECT * FROM wari_payments WHERE reference_fedapay = ? AND reference_fedapay IS NOT NULL AND reference_fedapay != ''");
+$stmtPayment->execute([$transaction_id]);
 $payment = $stmtPayment->fetch();
 
 // Si le paiement est en attente, on tente de le mettre à jour en direct via FedaPay (Auto-healing)

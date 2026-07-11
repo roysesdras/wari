@@ -164,6 +164,36 @@ try {
         ];
     }
 
+    // 3c. Transactions du coffre-fort par mois
+    $stmtVault = $pdo->prepare("
+        SELECT 
+            DATE_FORMAT(created_at, '%Y-%m') as month_key,
+            DATE_FORMAT(created_at, '%d/%m/%Y') as date_day_label,
+            DATE_FORMAT(created_at, '%Hh%i') as time_label,
+            type,
+            amount,
+            label
+        FROM wari_vault_history
+        WHERE user_id = ? AND wallet_type = ?
+        AND created_at >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
+        ORDER BY created_at DESC
+    ");
+    $stmtVault->bindValue(1, $userId, PDO::PARAM_INT);
+    $stmtVault->bindValue(2, $walletType, PDO::PARAM_STR);
+    $stmtVault->bindValue(3, $months, PDO::PARAM_INT);
+    $stmtVault->execute();
+    
+    $vaultByMonth = [];
+    foreach ($stmtVault->fetchAll(PDO::FETCH_ASSOC) as $v) {
+        $vaultByMonth[$v['month_key']][] = [
+            'date_day_label' => $v['date_day_label'],
+            'time_label'     => $v['time_label'],
+            'type'           => $v['type'],
+            'amount'         => (int)$v['amount'],
+            'label'          => $v['label']
+        ];
+    }
+
     // 4. Fusion
     $history = [];
     foreach ($allMonths as $m) {
@@ -190,6 +220,7 @@ try {
             'total_saved'       => $totalSaved,
             'details'           => $detailsByMonth[$monthKey] ?? [],
             'expenses'          => $expDetailsByMonth[$monthKey] ?? [],
+            'vault'             => $vaultByMonth[$monthKey] ?? [],
         ];
     }
 

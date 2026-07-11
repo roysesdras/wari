@@ -7,27 +7,42 @@ require_once __DIR__ . '/../config/session_check.php';
 $userId = $_SESSION['user_id'];
 
 // 1. Récupérer le budget de l'utilisateur
-$stmt = $pdo->prepare("SELECT budget_data FROM wari_users WHERE id = ?");
+$stmt = $pdo->prepare("SELECT budget_data, budget_data_pro FROM wari_users WHERE id = ?");
 $stmt->execute([$userId]);
 $userData = $stmt->fetch();
 $budgetRaw = (!empty($userData['budget_data'])) ? $userData['budget_data'] : 'null';
+$budgetRawPro = (!empty($userData['budget_data_pro'])) ? $userData['budget_data_pro'] : 'null';
 
 $budgetData = json_decode($budgetRaw, true);
 $categories = isset($budgetData['categories']) ? $budgetData['categories'] : [];
 $projectCapital = isset($budgetData['projectCapital']) ? (float)$budgetData['projectCapital'] : 0.0;
 $currency = isset($budgetData['currency']) ? $budgetData['currency'] : 'F';
 
-// 2. Dépenses du mois actuel
+$budgetDataPro = json_decode($budgetRawPro, true);
+$categoriesPro = isset($budgetDataPro['categories']) ? $budgetDataPro['categories'] : [];
+$projectCapitalPro = isset($budgetDataPro['projectCapital']) ? (float)$budgetDataPro['projectCapital'] : 0.0;
+
+// 2. Dépenses du mois actuel pour les deux portefeuilles
 $stmtExp = $pdo->prepare("
-    SELECT category_id, SUM(amount) as total 
+    SELECT category_id, wallet_type, SUM(amount) as total 
     FROM wari_expenses 
     WHERE user_id = ? 
     AND MONTH(date_expense) = MONTH(CURRENT_DATE()) 
     AND YEAR(date_expense) = YEAR(CURRENT_DATE())
-    GROUP BY category_id
+    GROUP BY category_id, wallet_type
 ");
 $stmtExp->execute([$userId]);
-$expenses = $stmtExp->fetchAll(PDO::FETCH_KEY_PAIR);
+$expensesRaw = $stmtExp->fetchAll(PDO::FETCH_ASSOC);
+
+$expensesPerso = [];
+$expensesPro = [];
+foreach ($expensesRaw as $exp) {
+    if ($exp['wallet_type'] === 'pro') {
+        $expensesPro[(int)$exp['category_id']] = (float)$exp['total'];
+    } else {
+        $expensesPerso[(int)$exp['category_id']] = (float)$exp['total'];
+    }
+}
 
 // 3. Dettes actives
 $stmtDebts = $pdo->prepare("
@@ -39,12 +54,12 @@ $stmtDebts = $pdo->prepare("
 $stmtDebts->execute([$userId]);
 $debts = $stmtDebts->fetchAll(PDO::FETCH_ASSOC);
 
-// 4. Calcul de l'enveloppe Cash/Disponible
+// 4. Calcul de l'enveloppe Cash/Disponible (Perso)
 $cash = 0.0;
 foreach ($categories as $cat) {
     $catId = (int)$cat['id'];
     $catName = (string)$cat['name'];
-    $spent = isset($expenses[$catId]) ? (float)$expenses[$catId] : 0.0;
+    $spent = isset($expensesPerso[$catId]) ? (float)$expensesPerso[$catId] : 0.0;
     
     $isProjet = (strpos(strtolower($catName), 'projet') !== false);
     $isEpargne = (strpos(strtolower($catName), 'épargne') !== false) || ($catId === 1);
@@ -53,6 +68,23 @@ foreach ($categories as $cat) {
         $balance = isset($cat['balance']) ? (float)$cat['balance'] : 0.0;
         $soldeReel = max(0.0, $balance - $spent);
         $cash += $soldeReel;
+    }
+}
+
+// 4b. Calcul de l'enveloppe Cash/Disponible (Pro)
+$cashPro = 0.0;
+foreach ($categoriesPro as $cat) {
+    $catId = (int)$cat['id'];
+    $catName = (string)$cat['name'];
+    $spent = isset($expensesPro[$catId]) ? (float)$expensesPro[$catId] : 0.0;
+    
+    $isProjet = (strpos(strtolower($catName), 'projet') !== false);
+    $isEpargne = (strpos(strtolower($catName), 'épargne') !== false) || ($catId === 1);
+    
+    if (!$isEpargne && !$isProjet) {
+        $balance = isset($cat['balance']) ? (float)$cat['balance'] : 0.0;
+        $soldeReel = max(0.0, $balance - $spent);
+        $cashPro += $soldeReel;
     }
 }
 
@@ -66,16 +98,82 @@ foreach ($debts as $d) {
     $totalDettes += (int)$d['amount'];
 }
 
-$catSummaryLines = [];
+// Synthèse Portefeuille Personnel
+$catSummaryPersoLines = [];
 foreach ($categories as $c) {
     $catId = (int)$c['id'];
     $catName = (string)$c['name'];
-    $spent = isset($expenses[$catId]) ? (int)$expenses[$catId] : 0;
+    $spent = isset($expensesPerso[$catId]) ? (int)$expensesPerso[$catId] : 0;
     $isProjet = (strpos(strtolower($catName), 'projet') !== false);
     $limit = $isProjet ? $projectCapital : (isset($c['balance']) ? $c['balance'] : 0);
-    $catSummaryLines[] = "- {$catName}: {$spent} {$currency} dépensés sur {$limit} {$currency} prévus";
+    $targetPercent = isset($c['percent']) ? (int)$c['percent'] : 0;
+    $catSummaryPersoLines[] = "- {$catName}: {$spent} {$currency} dépensés sur {$limit} {$currency} prévus (Pourcentage cible : {$targetPercent}%)";
 }
-$catSummary = implode("\n", $catSummaryLines);
+$catSummaryPerso = implode("\n", $catSummaryPersoLines);
+
+// Synthèse Portefeuille Professionnel
+$catSummaryProLines = [];
+foreach ($categoriesPro as $c) {
+    $catId = (int)$c['id'];
+    $catName = (string)$c['name'];
+    $spent = isset($expensesPro[$catId]) ? (int)$expensesPro[$catId] : 0;
+    $isProjet = (strpos(strtolower($catName), 'projet') !== false);
+    $limit = $isProjet ? $projectCapitalPro : (isset($c['balance']) ? $c['balance'] : 0);
+    $targetPercent = isset($c['percent']) ? (int)$c['percent'] : 0;
+    $catSummaryProLines[] = "- {$catName}: {$spent} {$currency} dépensés sur {$limit} {$currency} prévus (Pourcentage cible : {$targetPercent}%)";
+}
+$catSummaryPro = implode("\n", $catSummaryProLines);
+
+// Synthèse Défis d'Épargne
+$stmtChallenges = $pdo->prepare("
+    SELECT challenge_type, target_amount, current_amount, status 
+    FROM wari_savings_challenges 
+    WHERE user_id = ? AND status = 'active'
+");
+$stmtChallenges->execute([$userId]);
+$challengesRaw = $stmtChallenges->fetchAll(PDO::FETCH_ASSOC);
+$challengesLines = [];
+foreach ($challengesRaw as $ch) {
+    $challengesLines[] = "- Défi {$ch['challenge_type']} : {$ch['current_amount']} {$currency} épargnés sur un objectif de {$ch['target_amount']} {$currency}";
+}
+$challengesSummary = empty($challengesLines) ? "Aucun défi d'épargne actif." : implode("\n", $challengesLines);
+
+// Synthèse Dépenses Récentes (25 dernières)
+$stmtRecentExp = $pdo->prepare("
+    SELECT category_id, amount, description, date_expense, wallet_type 
+    FROM wari_expenses 
+    WHERE user_id = ? 
+    ORDER BY date_expense DESC 
+    LIMIT 25
+");
+$stmtRecentExp->execute([$userId]);
+$recentExpensesRaw = $stmtRecentExp->fetchAll(PDO::FETCH_ASSOC);
+
+$allCatNames = [
+    1 => 'Épargne',
+    2 => 'Train de vie',
+    3 => 'Projet',
+    4 => 'Imprévu',
+    101 => 'Stock & Matériel',
+    102 => 'Bénéfice Réinvesti',
+    103 => 'Frais de Fonctionnement',
+    104 => 'Marketing & Publicité'
+];
+foreach ($categories as $c) {
+    $allCatNames[(int)$c['id']] = (string)$c['name'];
+}
+foreach ($categoriesPro as $c) {
+    $allCatNames[(int)$c['id']] = (string)$c['name'];
+}
+
+$recentExpensesLines = [];
+foreach ($recentExpensesRaw as $exp) {
+    $catName = $allCatNames[(int)$exp['category_id']] ?? "Catégorie {$exp['category_id']}";
+    $walletLabel = ($exp['wallet_type'] === 'pro') ? 'Pro' : 'Perso';
+    $dateFormatted = date('d/m/Y H:i', strtotime($exp['date_expense']));
+    $recentExpensesLines[] = "- [{$walletLabel}] {$dateFormatted} : {$catName} - Dépense de {$exp['amount']} {$currency} (Note: \"{$exp['description']}\")";
+}
+$recentExpensesSummary = empty($recentExpensesLines) ? "Aucune dépense récente." : implode("\n", $recentExpensesLines);
 
 $debtsSummaryLines = [];
 foreach ($debts as $d) {
@@ -84,6 +182,61 @@ foreach ($debts as $d) {
     $debtsSummaryLines[] = "- {$typeLabel} {$d['person_name']} : {$amountFormatted} {$currency}";
 }
 $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n", $debtsSummaryLines);
+
+// 6. Historique des 6 derniers mois pour l'IA (Portefeuille Personnel et Professionnel cumulés)
+$historySummaryLines = [];
+try {
+    $stmtMonths = $pdo->prepare("
+        SELECT DISTINCT DATE_FORMAT(dt, '%Y-%m') as month_key, DATE_FORMAT(dt, '%m') as month_num, DATE_FORMAT(dt, '%Y') as year
+        FROM (
+            SELECT distributed_at as dt FROM wari_distributions WHERE user_id = ? AND distributed_at >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+            UNION
+            SELECT date_expense as dt FROM wari_expenses WHERE user_id = ? AND date_expense >= DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH)
+        ) as combined
+        ORDER BY month_key DESC
+    ");
+    $stmtMonths->execute([$userId, $userId]);
+    $allMonths = $stmtMonths->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmtDistribAgg = $pdo->prepare("
+        SELECT DATE_FORMAT(distributed_at, '%Y-%m') as month_key, SUM(amount) as total_distributed
+        FROM wari_distributions WHERE user_id = ? GROUP BY month_key
+    ");
+    $stmtDistribAgg->execute([$userId]);
+    $distribs = $stmtDistribAgg->fetchAll(PDO::FETCH_KEY_PAIR);
+
+    $stmtExpAgg = $pdo->prepare("
+        SELECT DATE_FORMAT(date_expense, '%Y-%m') as month_key, SUM(amount) as total_spent
+        FROM wari_expenses WHERE user_id = ? GROUP BY month_key
+    ");
+    $stmtExpAgg->execute([$userId]);
+    $exps = $stmtExpAgg->fetchAll(PDO::FETCH_KEY_PAIR);
+
+    foreach ($allMonths as $m) {
+        $mKey = $m['month_key'];
+        $rev = $distribs[$mKey] ?? 0;
+        $spent = $exps[$mKey] ?? 0;
+        $saved = max(0, $rev - $spent);
+        $rate = $rev > 0 ? round(($saved / $rev) * 100, 1) : 0;
+        $historySummaryLines[] = "- Mois de {$mKey} : {$rev} {$currency} gagnés, {$spent} {$currency} dépensés (Taux d'épargne : {$rate}%)";
+    }
+} catch (Exception $e) {
+    // Silencieux si échec
+}
+$historySummary = empty($historySummaryLines) ? "Aucun historique disponible." : implode("\n", $historySummaryLines);
+
+// 7. Récupérer les articles publiés dans Wari Vécu pour le contexte de l'IA
+$articlesSummaryLines = [];
+try {
+    $stmtArticles = $pdo->query("SELECT id, titre, date_publication FROM wari_articles ORDER BY date_publication DESC LIMIT 5");
+    $articlesRaw = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($articlesRaw as $art) {
+        $articlesSummaryLines[] = "- Journal Vécu du {$art['date_publication']} : \"{$art['titre']}\" (ID de l'article : {$art['id']})";
+    }
+} catch (Exception $e) {
+    // Silencieux si échec
+}
+$articlesSummary = empty($articlesSummaryLines) ? "Aucun article publié dans le journal Vécu." : implode("\n", $articlesSummaryLines);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -499,7 +652,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
             border-top: 1px solid var(--color-border);
             display: flex;
             gap: 0.75rem;
-            align-items: center;
+            align-items: flex-end;
         }
 
         .chat-input {
@@ -507,12 +660,24 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
             background: var(--color-bg-input); /* Fond dynamique */
             border: 1px solid var(--color-border);
             border-radius: 1rem;
-            padding: 0.75rem 1rem;
+            padding: 0.55rem 1rem;
             color: var(--color-text-main);
             font-size: 0.92rem;
             font-family: inherit;
             outline: none;
-            transition: all 0.2s ease;
+            resize: none;
+            overflow-y: auto;
+            max-height: 120px;
+            min-height: 38px;
+            height: 38px;
+            line-height: 1.4;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .chat-input::-webkit-scrollbar {
+            display: none;
         }
 
         .chat-input:focus {
@@ -669,7 +834,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
 
         <!-- Zone d'écriture -->
         <footer class="input-bar">
-            <input type="search" class="chat-input" id="chatInput" placeholder="Pose ta question financière..." autocomplete="off" name="wari_chat_query" autocorrect="off" spellcheck="false">
+            <textarea class="chat-input" id="chatInput" placeholder="Pose ta question financière..." autocomplete="off" name="wari_chat_query" autocorrect="off" spellcheck="false" rows="1"></textarea>
             <button class="send-btn" id="sendBtn" onclick="submitChat()" aria-label="Envoyer le message">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -755,17 +920,27 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
         // Récupérer le contexte financier calculé par PHP et LocalStorage
         function getFinancialStatusContext() {
             var baseContext = <?php echo json_encode([
-                'cash_restant' => $cash,
+                'cash_restant_perso' => $cash,
+                'cash_restant_pro' => $cashPro,
                 'jours_restants' => $daysLeft,
-                'budget_quotidien_conseille' => ($daysLeft > 0 ? (int)round($cash / $daysLeft) : 0),
-                'categories_details' => $catSummary,
+                'budget_quotidien_conseille_perso' => ($daysLeft > 0 ? (int)round($cash / $daysLeft) : 0),
+                'budget_quotidien_conseille_pro' => ($daysLeft > 0 ? (int)round($cashPro / $daysLeft) : 0),
+                'enveloppes_personnelles_details' => $catSummaryPerso,
+                'enveloppes_professionnelles_details' => $catSummaryPro,
+                'defis_epargne_actifs_details' => $challengesSummary,
+                'depenses_recentes_details' => $recentExpensesSummary,
                 'dettes_details' => $debtsSummary,
                 'total_dettes' => $totalDettes,
-                'capital_projet' => $projectCapital,
+                'capital_projet_perso' => $projectCapital,
+                'capital_projet_pro' => $projectCapitalPro,
+                'historique_6_derniers_mois' => $historySummary,
+                'articles_vecu_details' => $articlesSummary,
                 'devise' => $currency
             ]); ?>;
 
-            // Récupération de l'objectif d'épargne projet ciblé par l'utilisateur
+            baseContext.portefeuille_actif = localStorage.getItem("wari_current_wallet") || "perso";
+
+            // Récupération de l'objectif d'épargne projet ciblé par l'utilisateur (Perso)
             var goalStr = localStorage.getItem("wari_vault_goal");
             var goalAmount = 0;
             var goalLabel = "";
@@ -778,9 +953,24 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
                     }
                 } catch(e) {}
             }
+            baseContext.objectif_projet_perso_montant = goalAmount;
+            baseContext.objectif_projet_perso_label = goalLabel;
 
-            baseContext.objectif_projet_montant = goalAmount;
-            baseContext.objectif_projet_label = goalLabel;
+            // Récupération de l'objectif d'épargne projet ciblé par l'utilisateur (Pro)
+            var goalStrPro = localStorage.getItem("wari_vault_goal_pro");
+            var goalAmountPro = 0;
+            var goalLabelPro = "";
+            if (goalStrPro) {
+                try {
+                    var goalPro = JSON.parse(goalStrPro);
+                    if (goalPro) {
+                        goalAmountPro = parseInt(goalPro.amount) || 0;
+                        goalLabelPro = goalPro.label || goalPro.name || "";
+                    }
+                } catch(e) {}
+            }
+            baseContext.objectif_projet_pro_montant = goalAmountPro;
+            baseContext.objectif_projet_pro_label = goalLabelPro;
 
             return baseContext;
         }
@@ -795,6 +985,7 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
             if (!text) return;
             
             input.value = '';
+            input.style.height = '38px';
             input.disabled = true;
             sendBtn.disabled = true;
             
@@ -911,10 +1102,16 @@ $debtsSummary = empty($debtsSummaryLines) ? "Aucune dette active." : implode("\n
             var input = document.getElementById('chatInput');
             var app = document.getElementById('chatApp');
             if (input) {
-                input.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        submitChat();
+
+
+                // Auto-growing textarea
+                input.addEventListener('input', function() {
+                    this.style.height = '38px';
+                    var scrollH = this.scrollHeight;
+                    if (scrollH > 38) {
+                        this.style.height = Math.min(scrollH, 120) + 'px';
                     }
+                    adjustLayoutForKeyboard();
                 });
 
                 if (app) {

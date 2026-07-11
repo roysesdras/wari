@@ -132,9 +132,15 @@ if (isset($_GET['action'])) {
                 if (!$userId) throw new InvalidArgumentException('User ID requis');
 
                 $stmt = $pdo->prepare("SELECT u.*, l.statut as licence_statut,
+                    DATE_SUB(l.date_expiration, INTERVAL l.duree_jours DAY) as date_souscription,
+                    l.date_expiration as fin_souscription,
+                    (SELECT MIN(date_creation) FROM wari_payments WHERE commande_id = u.commande_id AND reference_fedapay IS NOT NULL AND reference_fedapay != '' AND statut = 'approved') as date_paiement,
+                    (SELECT COUNT(*) FROM wari_payments WHERE commande_id = u.commande_id AND reference_fedapay IS NOT NULL AND reference_fedapay != '' AND statut = 'approved') as has_fedapay_payment,
                     (SELECT COUNT(*) FROM wari_expenses WHERE user_id = u.id) as nb_expenses,
                     (SELECT COALESCE(SUM(amount),0) FROM wari_expenses WHERE user_id = u.id) as total_spent,
                     (SELECT COUNT(*) FROM wari_debts WHERE user_id = u.id) as nb_debts,
+                    (SELECT COUNT(*) FROM wari_distributions WHERE user_id = u.id) as nb_distributions,
+                    (SELECT COALESCE(SUM(amount),0) FROM wari_distributions WHERE user_id = u.id) as total_distributed,
                     (SELECT COUNT(*) FROM wari_vault_history WHERE user_id = u.id) as nb_vault_ops
                     FROM wari_users u
                     LEFT JOIN wari_licences l ON l.commande_id = u.commande_id
@@ -147,7 +153,27 @@ if (isset($_GET['action'])) {
                     unset($user['budget_data'], $user['password']);
                 }
 
-                jsonResponse(true, ['user' => $user]);
+                // Récupérer les dettes actives
+                $debts = [];
+                if ($user) {
+                    $stmtDebts = $pdo->prepare("SELECT * FROM wari_debts WHERE user_id = ? ORDER BY due_date ASC");
+                    $stmtDebts->execute([$userId]);
+                    $debts = $stmtDebts->fetchAll(PDO::FETCH_ASSOC);
+                }
+
+                // Récupérer les défis d'épargne en cours
+                $challenges = [];
+                if ($user) {
+                    $stmtChallenges = $pdo->prepare("SELECT * FROM wari_savings_challenges WHERE user_id = ? ORDER BY id DESC");
+                    $stmtChallenges->execute([$userId]);
+                    $challenges = $stmtChallenges->fetchAll(PDO::FETCH_ASSOC);
+                }
+
+                jsonResponse(true, [
+                    'user' => $user,
+                    'debts' => $debts,
+                    'challenges' => $challenges
+                ]);
 
             case 'get_stats':
                 try {
@@ -372,6 +398,10 @@ if (isset($_GET['action'])) {
                 $users_exp = $pdo->query("
                     SELECT u.id, u.email, u.commande_id, u.project_capital, u.date_inscription, u.last_budget_at,
                     l.statut as licence_statut,
+                    DATE_SUB(l.date_expiration, INTERVAL l.duree_jours DAY) as date_souscription,
+                    l.date_expiration as fin_souscription,
+                    (SELECT MIN(date_creation) FROM wari_payments WHERE commande_id = u.commande_id AND reference_fedapay IS NOT NULL AND reference_fedapay != '' AND statut = 'approved') as date_paiement,
+                    (SELECT COUNT(*) FROM wari_payments WHERE commande_id = u.commande_id AND reference_fedapay IS NOT NULL AND reference_fedapay != '' AND statut = 'approved') as has_fedapay_payment,
                     (SELECT COUNT(*) FROM wari_expenses WHERE user_id = u.id) as nb_expenses,
                     (SELECT COUNT(*) FROM wari_debts WHERE user_id = u.id) as nb_debts
                     FROM wari_users u
@@ -381,17 +411,46 @@ if (isset($_GET['action'])) {
 
                 $out = fopen('php://output', 'w');
                 fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
-                fputcsv($out, ['ID', 'Email', 'Code Accès', 'Capital', 'Inscription', 'Dernière activité', 'Statut', 'Dépenses', 'Dettes'], ';');
+                fputcsv($out, [
+                    'ID', 
+                    'Email', 
+                    'Code Accès', 
+                    'Abonnement', 
+                    'Paiement FedaPay', 
+                    'Début Licence', 
+                    'Fin Licence', 
+                    'Capital', 
+                    'Inscription', 
+                    'Dernière activité', 
+                    'Statut Compte', 
+                    'Dépenses', 
+                    'Dettes'
+                ], ';');
 
                 foreach ($users_exp as $row) {
+                    $hasPaidFeda = intval($row['has_fedapay_payment'] ?? 0) > 0;
+                    $licenceType = 'Gratuit';
+                    if (!empty($row['commande_id']) && $hasPaidFeda) {
+                        $expDate = $row['fin_souscription'] ? new DateTime($row['fin_souscription']) : null;
+                        if ($expDate && $expDate < new DateTime()) {
+                            $licenceType = 'Expiré';
+                        } else {
+                            $licenceType = 'Premium';
+                        }
+                    }
+
                     fputcsv($out, [
                         $row['id'],
                         $row['email'],
                         $row['commande_id'],
+                        $licenceType,
+                        $row['date_paiement'] ?? '—',
+                        $row['date_souscription'] ?? '—',
+                        $row['fin_souscription'] ?? '—',
                         $row['project_capital'],
                         $row['date_inscription'],
                         $row['last_budget_at'],
-                        $row['licence_statut'],
+                        $row['licence_statut'] ?? 'Actif',
                         $row['nb_expenses'],
                         $row['nb_debts']
                     ], ';');
@@ -399,6 +458,31 @@ if (isset($_GET['action'])) {
                 fclose($out);
                 auditLog('EXPORT_CSV', ['admin' => $adminId, 'records' => count($users_exp)]);
                 exit;
+
+            case 'get_challenges':
+                $challenges = $pdo->query("
+                    SELECT c.*, u.email 
+                    FROM wari_user_challenges c
+                    JOIN wari_users u ON u.id = c.user_id
+                    ORDER BY c.created_at DESC
+                ")->fetchAll(PDO::FETCH_ASSOC);
+                jsonResponse(true, ['challenges' => $challenges]);
+
+            case 'resolve_challenge':
+                $challengeId = isset($_GET['challenge_id']) ? (int)$_GET['challenge_id'] : 0;
+                if (!$challengeId) throw new InvalidArgumentException('Challenge ID requis');
+                $stmt = $pdo->prepare("UPDATE wari_user_challenges SET status = 'resolu' WHERE id = ?");
+                $stmt->execute([$challengeId]);
+                auditLog('RESOLVE_CHALLENGE', ['challenge_id' => $challengeId, 'admin' => $adminId]);
+                jsonResponse(true, ['msg' => 'Défi marqué comme résolu']);
+
+            case 'delete_challenge':
+                $challengeId = isset($_GET['challenge_id']) ? (int)$_GET['challenge_id'] : 0;
+                if (!$challengeId) throw new InvalidArgumentException('Challenge ID requis');
+                $stmt = $pdo->prepare("DELETE FROM wari_user_challenges WHERE id = ?");
+                $stmt->execute([$challengeId]);
+                auditLog('DELETE_CHALLENGE', ['challenge_id' => $challengeId, 'admin' => $adminId]);
+                jsonResponse(true, ['msg' => 'Défi supprimé']);
 
             default:
                 jsonResponse(false, ['msg' => 'Action inconnue'], 404);
@@ -425,6 +509,10 @@ if ($_SESSION['is_admin'] ?? false) {
     $users = $pdo->query("
         SELECT u.id, u.email, u.commande_id, u.project_capital, u.date_inscription, u.last_budget_at,
         l.statut as licence_statut,
+        DATE_SUB(l.date_expiration, INTERVAL l.duree_jours DAY) as date_souscription,
+        l.date_expiration as fin_souscription,
+        (SELECT MIN(date_creation) FROM wari_payments WHERE commande_id = u.commande_id AND reference_fedapay IS NOT NULL AND reference_fedapay != '' AND statut = 'approved') as date_paiement,
+        (SELECT COUNT(*) FROM wari_payments WHERE commande_id = u.commande_id AND reference_fedapay IS NOT NULL AND reference_fedapay != '' AND statut = 'approved') as has_fedapay_payment,
         (SELECT COUNT(*) FROM wari_expenses WHERE user_id = u.id) as nb_expenses,
         (SELECT COUNT(*) FROM wari_debts WHERE user_id = u.id) as nb_debts
         FROM wari_users u
@@ -442,7 +530,7 @@ if ($_SESSION['is_admin'] ?? false) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
-    <title>WARI — Admin Console (Sécurisé)</title>
+    <title>WARI - Admin Console (Sécurisé)</title>
     <link rel="icon" type="image/png" href="../assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="../assets/warifinance3d.png">
     <link rel="manifest" href="manifest.json">
@@ -506,11 +594,12 @@ if ($_SESSION['is_admin'] ?? false) {
         }
 
         .login-box {
-            width: 360px;
+            width: 100%;
+            max-width: 360px;
             background: var(--surface);
             border: 1px solid var(--gold-border);
             border-radius: 20px;
-            padding: 44px;
+            padding: 30px 24px;
             box-shadow: 0 0 80px rgba(245, 166, 35, 0.07);
         }
 
@@ -811,18 +900,20 @@ if ($_SESSION['is_admin'] ?? false) {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 14px;
-            overflow: hidden;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             margin-bottom: 36px;
         }
 
         .user-row {
             display: grid;
-            grid-template-columns: 1.8fr 110px 60px 60px 130px 60px 230px;
+            grid-template-columns: 1.8fr 125px 110px 60px 60px 130px 60px 230px;
             align-items: center;
             padding: 13px 20px;
             border-bottom: 1px solid var(--border);
             transition: background 0.15s;
             gap: 12px;
+            min-width: 1050px;
         }
 
         .user-row:last-child {
@@ -1356,16 +1447,6 @@ if ($_SESSION['is_admin'] ?? false) {
         }
 
         @media(max-width:900px) {
-            .user-row {
-                grid-template-columns: 1fr;
-                gap: 8px;
-                padding: 16px;
-            }
-
-            .user-row.header {
-                display: none;
-            }
-
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -1381,6 +1462,45 @@ if ($_SESSION['is_admin'] ?? false) {
             .btn-sm {
                 padding: 6px 10px;
                 font-size: 10px;
+            }
+        }
+
+        @media(max-width:650px) {
+            .topbar {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px 16px;
+                gap: 12px;
+            }
+            .topbar-left {
+                justify-content: space-between;
+                width: 100%;
+            }
+            .topbar-badge {
+                display: none;
+            }
+            .topbar-right {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .topbar-right > div {
+                width: 100%;
+                justify-content: center;
+            }
+            .topbar-right form {
+                flex-grow: 1;
+            }
+            .btn-logout {
+                width: 100%;
+                text-align: center;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .main-content {
+                padding: 0;
             }
         }
     </style>
@@ -1428,11 +1548,39 @@ if ($_SESSION['is_admin'] ?? false) {
                     <div class="section-title">📡 Live Intelligence Monitor</div>
                     <button class="btn-sm" style="background:var(--surface2);border:none;color:var(--muted);cursor:pointer;" onclick="toggleMonitor()">Réduire / Agrandir</button>
                 </div>
-                <div id="monitorContainer" style="background:var(--surface);border:1px solid var(--border);border-radius:18px;margin-top:12px;margin-bottom:14px;overflow:hidden;transition:all 0.3s ease;">
+                <div id="monitorContainer" style="max-height:0px; opacity:0; border:none; margin-top:0px; margin-bottom:0px; background:var(--surface); border-radius:18px; overflow:hidden; transition:all 0.3s ease;">
                     <div id="monitorContent" style="padding:20px;max-height:400px;overflow-y:auto;font-family:'IBM Plex Mono', monospace;font-size:11px;color:var(--muted);">
                         <div style="text-align:center;padding:20px;">Initialisation de la surveillance...</div>
                     </div>
                 </div>
+
+                <!-- DÉFIS UTILISATEURS (Carrousel direct) -->
+                <div class="section-header" style="margin-top:40px; margin-bottom:14px;">
+                    <div class="section-title">Défis Utilisateurs</div>
+                    <div class="section-actions">
+                        <button class="btn-action btn-blue" onclick="loadChallenges()">↻ Actualiser</button>
+                    </div>
+                </div>
+                <div id="challengesContainer" style="margin-top:12px; margin-bottom:20px;">
+                    <div id="challengesCarousel" style="display:flex; gap:16px; overflow-x:auto; padding:12px 4px; scrollbar-width:thin;-webkit-overflow-scrolling:touch;">
+                        <div style="font-size:11px;color:var(--muted);padding:20px;">Chargement...</div>
+                    </div>
+                </div>
+                <style>
+                    #challengesCarousel::-webkit-scrollbar {
+                        height: 6px;
+                    }
+                    #challengesCarousel::-webkit-scrollbar-track {
+                        background: transparent;
+                    }
+                    #challengesCarousel::-webkit-scrollbar-thumb {
+                        background: var(--border);
+                        border-radius: 3px;
+                    }
+                    #challengesCarousel::-webkit-scrollbar-thumb:hover {
+                        background: var(--gold-border);
+                    }
+                </style>
 
                 <!-- STATS -->
                 <div class="section-header" style="margin-top:35px; margin-bottom:14px;">
@@ -1513,6 +1661,8 @@ if ($_SESSION['is_admin'] ?? false) {
                 <!-- FILTRES RAPIDES -->
                 <div class="quick-filters">
                     <button class="filter-btn" data-filter="all">Tous</button>
+                    <button class="filter-btn" data-filter="premium">💎 Premium</button>
+                    <button class="filter-btn" data-filter="free">🎟️ Gratuit</button>
                     <button class="filter-btn" data-filter="active-today">Actifs aujourd'hui</button>
                     <button class="filter-btn" data-filter="inactive-7d">Inactifs 7j</button>
                     <button class="filter-btn" data-filter="suspended">Suspendus</button>
@@ -1522,6 +1672,7 @@ if ($_SESSION['is_admin'] ?? false) {
                     <div class="user-list" id="usersList">
                     <div class="user-row header">
                         <span>Email / ID</span>
+                        <span>Licence / Exp</span>
                         <span>Capital</span>
                         <span>Dép.</span>
                         <span>Dettes</span>
@@ -1538,11 +1689,47 @@ if ($_SESSION['is_admin'] ?? false) {
                         $isActive = $diff && $diff->days < 7;
                         $lastSeenStr = $lastSeen ? $lastSeen->format('d/m/y H:i') : 'Jamais';
                         $isSuspended = ($user['licence_statut'] ?? '') === 'suspendu';
+
+                        // Déterminer le type de licence pour le filtrage
+                        $licenceType = 'free';
+                        $hasPaidFeda = intval($user['has_fedapay_payment'] ?? 0) > 0;
+                        if (!empty($user['commande_id']) && $hasPaidFeda) {
+                            $expDate = $user['fin_souscription'] ? new DateTime($user['fin_souscription']) : null;
+                            if ($expDate && $expDate < new DateTime()) {
+                                $licenceType = 'expired';
+                            } else {
+                                $licenceType = 'premium';
+                            }
+                        }
                     ?>
-                        <div <?= $isHidden ?>>
+                        <div <?= $isHidden ?> data-licence="<?= $licenceType ?>">
                             <div>
                                 <div class="user-email"><?= htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8') ?></div>
-                                <div class="user-id">#<?= $user['id'] ?> · <?= htmlspecialchars($user['commande_id'] ?? '—', ENT_QUOTES, 'UTF-8') ?></div>
+                                <div class="user-id">#<?= $user['id'] ?></div>
+                            </div>
+                            <div>
+                                <?php if (!empty($user['commande_id']) && $hasPaidFeda): 
+                                    $subDate = $user['date_paiement'] ? new DateTime($user['date_paiement']) : ($user['date_souscription'] ? new DateTime($user['date_souscription']) : null);
+                                    $expDate = $user['fin_souscription'] ? new DateTime($user['fin_souscription']) : null;
+                                    $isExpired = $expDate && $expDate < new DateTime();
+                                    if ($isExpired): ?>
+                                        <span class="badge badge-suspended" style="font-size:9px;padding:2px 6px;">⚠️ EXPIREE</span>
+                                        <div style="font-size:9px;color:var(--muted);margin-top:2px;">Code: <?= htmlspecialchars($user['commande_id'], ENT_QUOTES, 'UTF-8') ?></div>
+                                        <div style="font-size:8.5px;color:var(--red);margin-top:1px;opacity:0.8;">Exp: <?= $expDate ? $expDate->format('d/m/y') : '—' ?></div>
+                                    <?php else: ?>
+                                        <span class="badge badge-active" style="font-size:9px;padding:2px 6px;background:rgba(245,166,35,0.12);color:var(--gold);">💎 PREMIUM</span>
+                                        <div style="font-size:9px;color:var(--muted);margin-top:2px;">Code: <?= htmlspecialchars($user['commande_id'], ENT_QUOTES, 'UTF-8') ?></div>
+                                        <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">
+                                            <?= $subDate ? $subDate->format('d/m/y') : '—' ?> ➔ <?= $expDate ? $expDate->format('d/m/y') : '—' ?>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <span class="badge badge-inactive" style="font-size:9px;padding:2px 6px;">🎟️ GRATUIT</span>
+                                    <?php if (!empty($user['commande_id'])): ?>
+                                        <div style="font-size:9px;color:var(--muted);margin-top:2px;">Offert: <?= htmlspecialchars($user['commande_id'], ENT_QUOTES, 'UTF-8') ?></div>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                                <div class="licence-code-display" style="display:none;"><?= htmlspecialchars($user['commande_id'] ?? '', ENT_QUOTES, 'UTF-8') ?></div>
                             </div>
                             <div class="user-capital"><?= number_format((float)$user['project_capital']) ?> F</div>
                             <div><span class="badge <?= $user['nb_expenses'] > 0 ? 'badge-active' : 'badge-inactive' ?>"><?= $user['nb_expenses'] ?></span></div>
@@ -1618,6 +1805,7 @@ if ($_SESSION['is_admin'] ?? false) {
                         </table>
                     </div>
                 </div>
+
 
         <!-- CONFIRM -->
         <div id="confirmModal">
@@ -1830,18 +2018,6 @@ if ($_SESSION['is_admin'] ?? false) {
         }
 
         // --- TOGGLES UI ---
-        let usersExpanded = false;
-        function toggleUsers() {
-            const hiddenRows = document.querySelectorAll('.hidden-row');
-            const btn = document.getElementById('toggleUsersBtn');
-            usersExpanded = !usersExpanded;
-            
-            hiddenRows.forEach(row => {
-                row.style.display = usersExpanded ? 'grid' : 'none';
-            });
-            
-            btn.innerHTML = usersExpanded ? 'Voir moins ↑' : `Voir plus (${hiddenRows.length} restants) ↓`;
-        }
 
         let licencesExpanded = false;
         function toggleLicences() {
@@ -1923,6 +2099,140 @@ if ($_SESSION['is_admin'] ?? false) {
             }
         }
 
+        let challengesExpanded = false;
+        function toggleChallenges() {
+            const container = document.getElementById('challengesContainer');
+            const icon = document.getElementById('challenges-toggle-icon');
+            challengesExpanded = !challengesExpanded;
+            
+            container.style.display = challengesExpanded ? 'block' : 'none';
+            icon.innerText = challengesExpanded ? '[ Réduire - ]' : '[ Afficher + ]';
+            
+            if (challengesExpanded) loadChallenges();
+        }
+
+        async function loadChallenges() {
+            const carousel = document.getElementById('challengesCarousel');
+            carousel.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:20px;">Chargement...</div>';
+            
+            try {
+                const res = await fetch(`${BASE}?action=get_challenges&csrf_token=${encodeURIComponent(CSRF_TOKEN)}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    if (data.challenges.length === 0) {
+                        carousel.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:20px;width:100%;text-align:center;">Aucun défi signalé pour le moment.</div>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    data.challenges.forEach(item => {
+                        const date = new Date(item.created_at).toLocaleDateString('fr-FR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        let catBadge = '';
+                        switch(item.category) {
+                            case 'repartition':
+                                catBadge = `<span style="background:rgba(66,133,244,0.12);color:#4285f4;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;">Répartition</span>`;
+                                break;
+                            case 'coach':
+                                catBadge = `<span style="background:rgba(245,166,35,0.12);color:var(--gold);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;">Coach</span>`;
+                                break;
+                            case 'academy':
+                                catBadge = `<span style="background:rgba(52,168,83,0.12);color:#34a853;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;">Académie</span>`;
+                                break;
+                            case 'vecu':
+                                catBadge = `<span style="background:rgba(168,85,247,0.12);color:#a855f7;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;">Vécu</span>`;
+                                break;
+                            default:
+                                catBadge = `<span style="background:var(--surface2);color:var(--muted);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;">Autre</span>`;
+                        }
+                        
+                        let statusBadge = '';
+                        let borderStyle = '1px solid var(--border)';
+                        if (item.status === 'resolu') {
+                            statusBadge = '<span style="background:var(--green-dim);color:var(--green);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;">Résolu</span>';
+                        } else {
+                            statusBadge = '<span style="background:var(--red-dim);color:var(--red);padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;">Nouveau</span>';
+                            borderStyle = '1px solid rgba(234,67,53,0.3)'; // Bordure rouge pour les nouveaux défis
+                        }
+                        
+                        let actionsHtml = '';
+                        if (item.status !== 'resolu') {
+                            actionsHtml += `<button class="btn-action btn-green" onclick="resolveChallenge(${item.id})" style="flex:1;">Résoudre</button>`;
+                        }
+                        actionsHtml += `<button class="btn-action btn-red" onclick="deleteChallenge(${item.id})" style="flex:1;">Supprimer</button>`;
+                        
+                        html += `
+                            <div style="flex:0 0 280px; background:var(--surface); border:${borderStyle}; border-radius:24px; padding:18px; display:flex; flex-direction:column; justify-content:space-between; min-height:220px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                        <span style="font-size:10px; color:var(--muted); font-weight:700;">${date}</span>
+                                        ${statusBadge}
+                                    </div>
+                                    <div style="font-size:11px; font-weight:800; color:var(--text); margin-bottom:8px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(item.email)}">
+                                        ${escapeHtml(item.email)}
+                                    </div>
+                                    <div style="margin-bottom:12px;">
+                                        ${catBadge}
+                                    </div>
+                                    <div style="font-size:11px; color:var(--text); opacity:0.85; line-height:1.5; white-space:pre-wrap;">
+                                        ${escapeHtml(item.message)}
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:8px; margin-top:16px; border-top:1px solid var(--border); padding-top:12px;">
+                                    ${actionsHtml}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    carousel.innerHTML = html;
+                } else {
+                    carousel.innerHTML = `<div style="font-size:11px;color:var(--red);padding:20px;">Erreur : ${escapeHtml(data.msg || 'Inconnue')}</div>`;
+                }
+            } catch (e) {
+                carousel.innerHTML = '<div style="font-size:11px;color:var(--red);padding:20px;">Impossible de charger les défis.</div>';
+            }
+        }
+
+        async function resolveChallenge(id) {
+            if (!confirm("Voulez-vous vraiment marquer ce défi comme résolu ?")) return;
+            try {
+                const res = await fetch(`${BASE}?action=resolve_challenge&challenge_id=${id}&csrf_token=${encodeURIComponent(CSRF_TOKEN)}`);
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.msg || "Marqué comme résolu !");
+                    loadChallenges();
+                } else {
+                    alert(data.msg || "Une erreur est survenue.");
+                }
+            } catch (e) {
+                alert("Impossible de communiquer avec le serveur.");
+            }
+        }
+
+        async function deleteChallenge(id) {
+            if (!confirm("Voulez-vous vraiment supprimer définitivement ce défi ?")) return;
+            try {
+                const res = await fetch(`${BASE}?action=delete_challenge&challenge_id=${id}&csrf_token=${encodeURIComponent(CSRF_TOKEN)}`);
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.msg || "Défi supprimé !");
+                    loadChallenges();
+                } else {
+                    alert(data.msg || "Une erreur est survenue.");
+                }
+            } catch (e) {
+                alert("Impossible de communiquer avec le serveur.");
+            }
+        }
+
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -1972,12 +2282,18 @@ if ($_SESSION['is_admin'] ?? false) {
 
         function toggleMonitor() {
             const container = document.getElementById('monitorContainer');
-            if (container.style.height === '50px') {
-                container.style.height = 'auto';
+            if (container.style.maxHeight === '0px' || container.style.maxHeight === '') {
+                container.style.maxHeight = '500px';
                 container.style.opacity = '1';
+                container.style.border = '1px solid var(--border)';
+                container.style.marginTop = '12px';
+                container.style.marginBottom = '14px';
             } else {
-                container.style.height = '50px';
-                container.style.opacity = '0.7';
+                container.style.maxHeight = '0px';
+                container.style.opacity = '0';
+                container.style.border = 'none';
+                container.style.marginTop = '0px';
+                container.style.marginBottom = '0px';
             }
         }
 
@@ -2130,14 +2446,111 @@ if ($_SESSION['is_admin'] ?? false) {
                 const cats = (u.budget_parsed?.categories) || [];
                 document.getElementById('detailTitle').innerText = `#${u.id} — Profil`;
                 document.getElementById('detailEmail').innerText = u.email;
+
+                // Calcule de la fréquence moyenne de répartition
+                let frequencyText = "Aucune répartition effectuée";
+                if (u.nb_distributions > 0) {
+                    const regDate = new Date(u.date_inscription);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - regDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
+                    const freq = (diffDays / u.nb_distributions).toFixed(1);
+                    frequencyText = `${u.nb_distributions} répartitions (soit environ tous les ${freq} jours)`;
+                }
+
+                // HTML Licence & Abonnements
+                let licenceHtml = '';
+                const hasPaidFeda = parseInt(u.has_fedapay_payment || 0) > 0;
+                if (u.commande_id && hasPaidFeda) {
+                    const subDateStr = u.date_paiement ? new Date(u.date_paiement).toLocaleDateString('fr-FR') : (u.date_souscription ? new Date(u.date_souscription).toLocaleDateString('fr-FR') : '—');
+                    const expDateStr = u.fin_souscription ? new Date(u.fin_souscription).toLocaleDateString('fr-FR') : '—';
+                    const expDate = u.fin_souscription ? new Date(u.fin_souscription) : null;
+                    const isExpired = expDate && expDate < new Date();
+                    licenceHtml = `
+                        <div style="background:rgba(245,166,35,0.06); border:1px solid var(--gold-border); border-radius:12px; padding:12px; margin-bottom:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <span style="font-weight:800; color:var(--gold); font-size:11px;">💎 ABONNEMENT PREMIUM</span>
+                                <span class="badge ${isExpired ? 'badge-suspended' : 'badge-active'}" style="font-size:9px;text-transform:uppercase;">${isExpired ? 'Expiré' : 'Actif'}</span>
+                            </div>
+                            <div style="font-size:10px; color:var(--text); opacity:0.8; margin-bottom:2px;">
+                                Code Licence : <strong>${u.commande_id}</strong>
+                            </div>
+                            <div style="font-size:10px; color:var(--muted);">
+                                Souscription : <strong>${subDateStr}</strong> · Fin : <strong>${expDateStr}</strong>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const offrandeStr = u.commande_id ? `<br><span style="font-size:9.5px;color:var(--gold);">Licence offerte manuellement : <strong>${u.commande_id}</strong></span>` : '';
+                    licenceHtml = `
+                        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:16px;">
+                            <span style="font-weight:800; color:var(--muted); font-size:11px; display:block; margin-bottom:2px;">🎟️ VERSION GRATUITE</span>
+                            <span style="font-size:10px; color:var(--muted);">Aucune licence premium activée via FedaPay.${offrandeStr}</span>
+                        </div>
+                    `;
+                }
+
+                // HTML Dettes actives
+                let debtsHtml = '';
+                if (data.debts && data.debts.length > 0) {
+                    debtsHtml = `
+                        <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:16px;">Dettes actives (${data.debts.length})</div>
+                        <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:16px;">
+                            ${data.debts.map(d => `
+                                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--surface2); border-radius:8px;">
+                                    <span style="font-size:11px; color:var(--text);">${escapeHtml(d.person_name)} <span style="font-size:9px; color:var(--muted);">(${d.type === 'loan' ? 'Prêt' : 'Dette'})</span></span>
+                                    <span style="font-family:'Rajdhani',sans-serif; font-weight:700; color:var(--red); font-size:13px;">${parseInt(d.amount).toLocaleString('fr-FR')} F</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                // HTML Défis d'Épargne
+                let challengesHtml = '';
+                if (data.challenges && data.challenges.length > 0) {
+                    challengesHtml = `
+                        <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:16px;">Défis d'Épargne (${data.challenges.length})</div>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            ${data.challenges.map(c => {
+                                const target = parseInt(c.target_amount || 0);
+                                const current = parseInt(c.current_amount || 0);
+                                const pct = target > 0 ? Math.min(Math.round((current / target) * 100), 100) : 0;
+                                return `
+                                    <div style="padding:10px 12px; background:var(--surface2); border-radius:10px;">
+                                        <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:6px;">
+                                            <span style="font-weight:700; color:var(--text);">${escapeHtml(c.challenge_type)}</span>
+                                            <span style="color:var(--green); font-weight:700;">${pct}%</span>
+                                        </div>
+                                        <div style="width:100%; height:4px; background:var(--surface); border-radius:2px; overflow:hidden; margin-bottom:4px;">
+                                            <div style="width:${pct}%; height:100%; background:var(--green);"></div>
+                                        </div>
+                                        <div style="display:flex; justify-content:space-between; font-size:9px; color:var(--muted);">
+                                            <span>Épargné : ${current.toLocaleString('fr-FR')} F</span>
+                                            <span>Cible : ${target.toLocaleString('fr-FR')} F</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+
                 document.getElementById('detailContent').innerHTML = `
+                    ${licenceHtml}
                     <div class="detail-grid">
-                        <div class="detail-item"><div class="detail-label">Capital</div><div class="detail-value green">${parseInt(u.project_capital).toLocaleString('fr-FR')} F</div></div>
+                        <div class="detail-item"><div class="detail-label">Capital Projet</div><div class="detail-value green">${parseInt(u.project_capital).toLocaleString('fr-FR')} F</div></div>
                         <div class="detail-item"><div class="detail-label">Total dépensé</div><div class="detail-value">${parseInt(u.total_spent||0).toLocaleString('fr-FR')} F</div></div>
                         <div class="detail-item"><div class="detail-label">Mouvements coffre</div><div class="detail-value gold">${u.nb_vault_ops}</div></div>
                         <div class="detail-item"><div class="detail-label">Dettes actives</div><div class="detail-value">${u.nb_debts}</div></div>
                     </div>
-                    <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:4px;">Catégories budgétaires</div>
+                    
+                    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:12px; margin-top:14px; margin-bottom:16px; font-size:11px;">
+                        <span style="font-weight:700; color:var(--muted); text-transform:uppercase; font-size:9px; letter-spacing:1px; display:block; margin-bottom:2px;">Activité de Répartition</span>
+                        <span style="color:var(--text); opacity:0.9;">${frequencyText}</span>
+                    </div>
+
+                    <div style="font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;margin-top:4px;">Enveloppes budgétaires</div>
                     ${cats.length ? cats.map(c => `
                         <div class="cat-row">
                             <span class="cat-name">${c.icon||''} ${c.name}</span>
@@ -2146,9 +2559,15 @@ if ($_SESSION['is_admin'] ?? false) {
                                 <span class="cat-balance">${parseInt(c.balance||0).toLocaleString('fr-FR')} F</span>
                             </div>
                         </div>
-                    `).join('') : '<div style="font-size:11px;color:var(--muted);padding:10px">Aucune donnée budget.</div>'}
-                    <div style="margin-top:16px;font-size:10px;color:var(--muted)">Licence : ${u.commande_id||'—'} · Statut : ${u.licence_statut||'—'}</div>
-                    <div style="font-size:10px;color:var(--muted);margin-top:4px">Inscrit le : ${u.date_inscription||'—'} · Dernière activité : ${u.last_budget_at||'—'}</div>
+                    `).join('') : '<div style="font-size:11px;color:var(--muted);padding:10px;text-align:center;">Aucune donnée budget configurée.</div>'}
+                    
+                    ${debtsHtml}
+                    ${challengesHtml}
+                    
+                    <div style="margin-top:20px; font-size:10px; color:var(--muted); border-top:1px solid var(--border); padding-top:12px;">
+                        <div>Inscrit le : ${u.date_inscription||'—'}</div>
+                        <div style="margin-top:2px;">Dernière activité : ${u.last_budget_at||'—'}</div>
+                    </div>
                 `;
             } catch (e) {
                 document.getElementById('detailContent').innerHTML = '<p style="color:var(--red)">Erreur réseau</p>';
@@ -2174,9 +2593,11 @@ if ($_SESSION['is_admin'] ?? false) {
             const filterBtns = document.querySelectorAll('.filter-btn');
 
             let currentFilter = 'all';
+            let showAllFiltered = false;
 
             // 🔍 Recherche instantanée
             searchInput.addEventListener('input', function() {
+                showAllFiltered = false;
                 filterUsers();
             });
 
@@ -2186,6 +2607,7 @@ if ($_SESSION['is_admin'] ?? false) {
                     filterBtns.forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     currentFilter = this.dataset.filter;
+                    showAllFiltered = false;
                     filterUsers();
                 });
             });
@@ -2193,15 +2615,16 @@ if ($_SESSION['is_admin'] ?? false) {
             // 🧠 Fonction de filtrage principale
             function filterUsers() {
                 const searchTerm = searchInput.value.toLowerCase().trim();
-                let visibleCount = 0;
+                let matchedRows = [];
 
                 userRows.forEach(row => {
                     const email = row.querySelector('.user-email')?.textContent.toLowerCase() || '';
                     const userId = row.querySelector('.user-id')?.textContent.toLowerCase() || '';
-                    const commandeId = row.querySelector('.user-email')?.nextElementSibling?.textContent.toLowerCase() || '';
+                    const commandeId = row.querySelector('.licence-code-display')?.textContent.toLowerCase() || '';
                     const lastActivity = row.querySelector('.last-seen')?.textContent || '';
                     const statusBadge = row.querySelector('.badge')?.textContent.toLowerCase() || '';
                     const capitalText = row.querySelector('.user-capital')?.textContent || '';
+                    const licenceType = row.getAttribute('data-licence') || 'free';
 
                     // 🔍 Test recherche texte
                     const matchesSearch = !searchTerm ||
@@ -2211,32 +2634,70 @@ if ($_SESSION['is_admin'] ?? false) {
                         extractNumber(searchTerm) === extractNumber(commandeId);
 
                     // 🎯 Test filtre actif
-                    const matchesFilter = checkFilter(row, lastActivity, statusBadge, capitalText);
+                    const matchesFilter = checkFilter(row, lastActivity, statusBadge, capitalText, licenceType);
 
-                    // 👁️ Afficher/masquer
                     if (matchesSearch && matchesFilter) {
+                        matchedRows.push(row);
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Pagination dynamique (limite à 3 initialement pour chaque filtre)
+                const limit = 3;
+                const totalMatched = matchedRows.length;
+
+                matchedRows.forEach((row, idx) => {
+                    if (showAllFiltered || idx < limit) {
                         row.style.display = 'grid';
-                        visibleCount++;
                     } else {
                         row.style.display = 'none';
                     }
                 });
 
                 // 📊 Mise à jour compteur
-                userCount.textContent = visibleCount;
+                userCount.textContent = totalMatched;
+
+                // Gérer le bouton "Voir plus" dynamiquement selon la liste filtrée
+                const btn = document.getElementById('toggleUsersBtn');
+                if (btn) {
+                    if (totalMatched > limit) {
+                        btn.style.display = 'inline-block';
+                        btn.parentElement.style.display = 'block';
+                        btn.innerHTML = showAllFiltered ? 'Voir moins ↑' : `Voir plus (${totalMatched - limit} restants) ↓`;
+                    } else {
+                        btn.style.display = 'none';
+                        btn.parentElement.style.display = 'none';
+                    }
+                }
             }
 
+            // Exposer toggleUsers pour le bouton onclick
+            window.toggleUsers = function() {
+                showAllFiltered = !showAllFiltered;
+                filterUsers();
+            };
+
             // 🎯 Vérification des filtres
-            function checkFilter(row, lastActivity, statusBadge, capitalText) {
+            function checkFilter(row, lastActivity, statusBadge, capitalText, licenceType) {
                 switch (currentFilter) {
                     case 'all':
                         return true;
+                    case 'premium':
+                        return licenceType === 'premium';
+                    case 'free':
+                        return licenceType === 'free';
                     case 'active-today':
-                        return lastActivity.includes('Aujourd\'hui') || lastActivity.includes('aujourd\'hui');
+                        const now = new Date();
+                        const d = String(now.getDate()).padStart(2, '0');
+                        const m = String(now.getMonth() + 1).padStart(2, '0');
+                        const y = String(now.getFullYear()).slice(-2);
+                        const todayStr = `${d}/${m}/${y}`;
+                        return lastActivity.includes(todayStr);
                     case 'inactive-7d':
-                        return lastActivity.includes('Jamais') || lastActivity.includes('jours') || lastActivity.includes('semaine');
+                        return lastActivity.includes('Inactif');
                     case 'suspended':
-                        return statusBadge.includes('suspendu');
+                        return statusBadge.includes('suspendu') || statusBadge.includes('🔒');
                     case 'capital-high':
                         const capital = parseInt(capitalText.replace(/[^0-9]/g, ''));
                         return capital > 50000;
@@ -2253,7 +2714,9 @@ if ($_SESSION['is_admin'] ?? false) {
 
             // 🚀 Initialisation
             filterBtns[0].classList.add('active'); // Activer "Tous" par défaut
+            filterUsers(); // Initialiser la pagination et l'affichage des utilisateurs
             refreshStats(); // Charger les statistiques et les graphiques au chargement de la page
+            loadChallenges(); // Charger directement les défis au chargement de la page
 
             // 📲 Registration Service Worker
             if ('serviceWorker' in navigator) {
