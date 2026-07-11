@@ -1,4 +1,4 @@
-const cacheName = "wari-v134"; // Version 134 pour intégrer la correction du tangage/défilement du simulateur UEMOA
+const cacheName = "wari-v135"; // Version 135 pour intégrer la réduction de la largeur des barres du simulateur UEMOA
 // Fichiers statiques et page de secours
 const assets = [
   "./manifest.json",

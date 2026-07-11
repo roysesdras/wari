@@ -1480,13 +1480,13 @@ window.runSimulation = function () {
             <p class="text-slate-400">Ton argent : ${Math.round(d.deposited).toLocaleString()} ${currency}</p>
             <p class="text-emerald-400">Cadeau : +${Math.round(d.interest).toLocaleString()} ${currency}</p>
           </div>
-          <div class="w-full max-w-[28px] rounded-t-md overflow-hidden flex flex-col justify-end shadow-inner relative" style="height: ${Math.max(5, barHeightPercent)}%;">
+          <div class="w-full max-w-[18px] rounded-t-md overflow-hidden flex flex-col justify-end shadow-inner relative" style="height: ${Math.max(5, barHeightPercent)}%;">
             <!-- Intérêts (Vert Émeraude) -->
             <div class="bg-emerald-500 hover:bg-emerald-400 transition-colors" style="height: ${interestHeightPercent}%;"></div>
             <!-- Dépôts (Gris Slate) -->
             <div class="bg-slate-700 hover:bg-slate-600 transition-colors" style="height: ${depositHeightPercent}%;"></div>
           </div>
-          <span class="text-[8.5px] font-bold text-slate-500 mt-1 select-none">An ${d.year}</span>
+          <span class="text-[9px] font-bold text-slate-500 mt-1 select-none">${d.year}</span>
         </div>
       `;
       chartContainer.insertAdjacentHTML("beforeend", barHtml);
