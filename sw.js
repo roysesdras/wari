@@ -1,4 +1,4 @@
-const cacheName = "wari-v133"; // Version 133 pour restaurer la logique de production stricte (uniquement les comptes libres)
+const cacheName = "wari-v134"; // Version 134 pour intégrer la correction du tangage/défilement du simulateur UEMOA
 // Fichiers statiques et page de secours
 const assets = [
   "./manifest.json",

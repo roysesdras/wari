@@ -1389,6 +1389,7 @@ window.openSimulatorModal = function () {
   const modal = document.getElementById("simulatorModal");
   if (modal) {
     modal.classList.replace("hidden", "flex");
+    document.body.classList.add("overflow-hidden");
     runSimulation();
   }
 };
@@ -1397,6 +1398,7 @@ window.closeSimulatorModal = function () {
   const modal = document.getElementById("simulatorModal");
   if (modal) {
     modal.classList.replace("flex", "hidden");
+    document.body.classList.remove("overflow-hidden");
   }
 };
 

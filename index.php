@@ -55,7 +55,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     <link rel="icon" type="image/png" href="./assets/warifinance3d.png" />
     <link rel="apple-touch-icon" href="./assets/warifinance3d.png">
 
-    <link rel="stylesheet" href="./assets/styles.css?v=133">
+    <link rel="stylesheet" href="./assets/styles.css?v=134">
 
     <link rel="manifest" href="manifest.json">
     <meta id="metaThemeColor" name="theme-color" content="#000000">
@@ -633,7 +633,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         </div>
 
         <!-- Modal Premium Simulateur d'Investissement UEMOA -->
-        <div id="simulatorModal" onclick="closeSimulatorModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-end md:items-center justify-center z-[120]">
+        <div id="simulatorModal" onclick="closeSimulatorModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-end md:items-center justify-center z-[120]" style="overscroll-behavior: contain;">
             <div onclick="event.stopPropagation()" class="glass-card w-full max-w-2xl h-full md:h-[85vh] md:max-h-[750px] p-4 pt-safe md:p-6 border-t border-x md:border border-slate-800 rounded-none md:rounded-[2rem] shadow-2xl flex flex-col animate-slide-up" style="scrollbar-width: none; -ms-overflow-style: none;">
                 <style>
                     #simulatorModal .glass-card::-webkit-scrollbar {
@@ -647,7 +647,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                     <button onclick="closeSimulatorModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
                 </div>
 
-                <div class="space-y-4 overflow-y-auto flex-1 pr-1 pb-28 custom-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">
+                <div class="space-y-4 overflow-y-auto flex-1 pr-1 pb-28 custom-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none; overscroll-behavior: contain;">
                     <style>
                         #simulatorModal .space-y-4::-webkit-scrollbar {
                             display: none;
@@ -1958,7 +1958,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         </div>
     </div>
 
-    <script src="./assets/main.js?v=133"></script>
+    <script src="./assets/main.js?v=134"></script>
     <script>
         // Logique Onboarding
         document.addEventListener('DOMContentLoaded', () => {
