@@ -1,4 +1,4 @@
-const cacheName = "wari-v136"; // Version 136 pour corriger la remontée d'erreurs d'API dans l'inscription aux défis d'épargne
+const cacheName = "wari-v137"; // Version 137 pour corriger définitivement le bug de capture d'erreur de promesse fetch dans les défis
 // Fichiers statiques et page de secours
 const assets = [
   "./manifest.json",
