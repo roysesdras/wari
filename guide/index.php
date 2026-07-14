@@ -124,8 +124,8 @@ if ($user_id) {
         }
 
         .hero {
-            text-align: center;
-            padding: 40px 0;
+            text-align: left;
+            padding: 10px 0;
             border-bottom: 1px solid var(--border);
             margin-bottom: 40px;
         }
@@ -135,14 +135,14 @@ if ($user_id) {
             font-weight: 800;
             font-size: 42px;
             color: var(--text);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .hero p {
             color: var(--muted);
-            font-size: 16px;
-            max-width: 500px;
-            margin: 0 auto;
+            font-size: 15px;
+            max-width: 100%;
+            margin-bottom: 15px;
         }
 
         /* Sections conceptuelles */
@@ -266,8 +266,9 @@ if ($user_id) {
     <div class="guide-container">
         
         <div class="hero">
-            <h1>Le Manuel de la Discipline</h1>
+            <h1>Le Manuel d'utilisation</h1>
             <p><strong style="color: var(--accent);">IMPORTANT A SAVOIR :</strong> Wari n'est pas un compte bancaire ni un portefeuille électronique (comme Mobile Money), mais un simulateur et un outil de suivi visuel. Votre argent réel reste en totale sécurité dans vos propres poches ou sur vos comptes bancaires habituels.</p>
+            <p>Ce guide vous explique en détail le fonctionnement de Wari Finance, sa méthodologie d'épargne par enveloppes et les objectifs d'autonomie financière que vous pouvez atteindre grâce à un suivi rigoureux au quotidien.</p>
         </div>
 
         <!-- 1. La Répartition -->
