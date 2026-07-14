@@ -266,7 +266,7 @@ if ($user_id) {
     <div class="guide-container">
         
         <div class="hero">
-            <h1>Le Manuel d'utilisation</h1>
+            <h1>Le Manuel d'usage</h1>
             <p><strong style="color: var(--accent);">IMPORTANT A SAVOIR :</strong> Wari n'est pas un compte bancaire ni un portefeuille électronique (comme Mobile Money), mais un simulateur et un outil de suivi visuel. Votre argent réel reste en totale sécurité dans vos propres poches ou sur vos comptes bancaires habituels.</p>
             <p>Ce guide vous explique en détail le fonctionnement de Wari Finance, sa méthodologie d'épargne par enveloppes et les objectifs d'autonomie financière que vous pouvez atteindre grâce à un suivi rigoureux au quotidien.</p>
         </div>
@@ -276,7 +276,7 @@ if ($user_id) {
             <div class="concept-icon"><i class="ri-pie-chart-line"></i></div>
             <h2 class="concept-title">La Règle d'Or (4 enveloppes)</h2>
             <p class="concept-text">Wari repose sur un principe fondamental : dès qu'une somme d'argent entre dans tes poches, elle doit être divisée avant même que tu n'y touches.</p>
-            <p class="concept-text">Tu as le choix de ta répartition : <strong>40% Train de vie, 30% Projet, 20% Épargne, 10% Imprévu</strong> (ou autre selon tes objectifs). L'application s'occupe de diviser automatiquement tes revenus à chaque fois que tu fais une répartition.</p>
+            <p class="concept-text">Tu as le choix de ta répartition : <strong>40% Train de vie, 30% Projet, 20% Épargne, 10% Imprévu</strong> (ou autre selon tes objectifs). L'application s'occupe de diviser automatiquement tes revenus à chaque fois que tu fais une répartition. Vous avez également la possibilité de créer d'autres enveloppes personnalisées ou de modifier les pourcentages de répartition selon vos propres préférences et objectifs financiers.</p>
             <div class="concept-rule">
                 <i class="ri-lightbulb-flash-line"></i>
                 <div><strong>L'état d'esprit :</strong> N'épargne pas ce qu'il reste après avoir dépensé, mais dépense ce qu'il reste après avoir épargné.</div>
