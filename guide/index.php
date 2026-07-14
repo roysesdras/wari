@@ -267,7 +267,7 @@ if ($user_id) {
         
         <div class="hero">
             <h1>Le Manuel de la Discipline</h1>
-            <p>Bienvenue sur Wari Finance. Ce n'est pas qu'une simple application, c'est une philosophie de vie pour reprendre le contrôle total de tes finances.</p>
+            <p><strong>IMPORTANT A SAVOIR :</strong> Wari n'est pas un compte bancaire ni un portefeuille électronique (comme Mobile Money), mais un simulateur et un outil de suivi visuel. Votre argent réel reste en totale sécurité dans vos propres poches ou sur vos comptes bancaires habituels.</p>
         </div>
 
         <!-- 1. La Répartition -->
