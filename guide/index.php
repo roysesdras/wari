@@ -1,10 +1,30 @@
 <?php
+session_start();
 require_once '../config/db.php';
-require_once '../config/session_check.php';
 
-$is_premium = $_SESSION['is_premium'] ?? false;
+$user_id = $_SESSION['user_id'] ?? null;
+$is_premium = false;
 $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
 
+if ($user_id) {
+    // Si connecté, on vérifie son statut Premium
+    $stmt = $pdo->prepare("
+        SELECT u.commande_id, l.date_expiration 
+        FROM wari_users u
+        LEFT JOIN wari_licences l ON l.commande_id = u.commande_id
+        WHERE u.id = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$user_id]);
+    $lic = $stmt->fetch();
+    if ($lic) {
+        $date_expiration = $lic['date_expiration'];
+        $stmtPay = $pdo->prepare("SELECT id FROM wari_payments WHERE commande_id = ? AND reference_fedapay IS NOT NULL AND reference_fedapay != '' AND statut = 'approved' LIMIT 1");
+        $stmtPay->execute([$lic['commande_id']]);
+        $has_paid = (bool)$stmtPay->fetch();
+        $is_premium = ($date_expiration !== null && strtotime($date_expiration) >= time() && $has_paid);
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -231,9 +251,15 @@ $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
 <body>
 
     <nav class="navbar">
+        <?php if ($user_id): ?>
         <a href="https://wari.digiroys.com/" class="back-btn">
             <i class="ri-arrow-left-line"></i> Retour au tableau de bord
         </a>
+        <?php else: ?>
+        <a href="https://wari.digiroys.com/config/auth.php" class="back-btn">
+            <i class="ri-login-box-line"></i> Se connecter / S'inscrire
+        </a>
+        <?php endif; ?>
         <div class="nav-title">Wari Guide</div>
     </nav>
 
@@ -503,8 +529,25 @@ $userEmail = $_SESSION['user_email'] ?? 'Utilisateur';
             <p class="concept-text">Que tu changes de téléphone ou que tu te connectes depuis un autre appareil, tu retrouves instantanément toutes tes informations financières intactes. Zéro risque de perte de données.</p>
         </div>
 
+        <?php if (!$user_id): ?>
+        <div class="concept-card success" style="text-align: center; border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(180deg, var(--surface) 0%, rgba(245, 158, 11, 0.03) 100%);">
+            <div class="concept-icon" style="color: var(--accent); background: rgba(245, 158, 11, 0.1);"><i class="ri-medal-line"></i></div>
+            <h2 class="concept-title" style="color: var(--accent);">Prêt à reprendre le contrôle ?</h2>
+            <p class="concept-text" style="max-width: 500px; margin: 0 auto 25px;">
+                Appliquez dès aujourd'hui la méthode des enveloppes, relevez des défis d'épargne stimulants et pilotez vos finances sereinement avec Wari Finance.
+            </p>
+            <a href="https://wari.digiroys.com/config/auth.php" class="cta-btn" style="background: var(--accent); color: var(--bg); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: 13px; margin-top: 0;">
+                Créer mon compte gratuitement
+            </a>
+        </div>
+        <?php endif; ?>
+
         <div class="footer">
+            <?php if ($user_id): ?>
             <a href="https://wari.digiroys.com/" class="cta-btn">J'ai compris, retour au tableau de bord</a>
+            <?php else: ?>
+            <a href="https://wari.digiroys.com/config/auth.php" class="cta-btn">S'inscrire / Se connecter</a>
+            <?php endif; ?>
             <div style="margin-top: 20px;">© <?php echo date('Y'); ?> Wari Finance.</div>
         </div>
 
