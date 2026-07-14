@@ -3597,8 +3597,15 @@ window.joinChallenge = function (type, baseAmount = 0) {
     body: JSON.stringify({ challenge_type: type, base_amount: baseAmount }),
   })
     .then((res) => {
-      if (!res.ok) throw new Error("Erreur serveur");
-      return res.json();
+      return res.json().then(data => {
+        if (!res.ok) {
+          throw new Error(data.error || "Erreur serveur");
+        }
+        return data;
+      }).catch(err => {
+        if (!res.ok) throw new Error("Erreur serveur");
+        throw err;
+      });
     })
     .then((data) => {
       if (data.success) {
@@ -3656,8 +3663,15 @@ window.submitWeeklyChallenge = function (weekNumber, amount) {
     }),
   })
     .then((res) => {
-      if (!res.ok) throw new Error("Solde insuffisant ou erreur réseau");
-      return res.json();
+      return res.json().then(data => {
+        if (!res.ok) {
+          throw new Error(data.error || "Solde insuffisant ou erreur réseau");
+        }
+        return data;
+      }).catch(err => {
+        if (!res.ok) throw new Error("Solde insuffisant ou erreur réseau");
+        throw err;
+      });
     })
     .then((data) => {
       if (data.success) {
@@ -3712,8 +3726,15 @@ window.submitEmergencyDeposit = function () {
     }),
   })
     .then((res) => {
-      if (!res.ok) throw new Error("Solde insuffisant ou erreur réseau");
-      return res.json();
+      return res.json().then(data => {
+        if (!res.ok) {
+          throw new Error(data.error || "Solde insuffisant ou erreur réseau");
+        }
+        return data;
+      }).catch(err => {
+        if (!res.ok) throw new Error("Solde insuffisant ou erreur réseau");
+        throw err;
+      });
     })
     .then((data) => {
       if (data.success) {

@@ -1,4 +1,4 @@
-const cacheName = "wari-v135"; // Version 135 pour intégrer la réduction de la largeur des barres du simulateur UEMOA
+const cacheName = "wari-v136"; // Version 136 pour corriger la remontée d'erreurs d'API dans l'inscription aux défis d'épargne
 // Fichiers statiques et page de secours
 const assets = [
   "./manifest.json",
