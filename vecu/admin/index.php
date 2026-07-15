@@ -19,6 +19,24 @@ $articles = $pdo->query("
 
 // 2. Récupération du nombre d'abonnés WhatsApp
 $count_subscribers = $pdo->query("SELECT COUNT(*) FROM wari_subscribers WHERE status = 'actif'")->fetchColumn();
+
+// 3. Récupération des temps moyens de lecture par article pour le graphique
+$reading_stats = $pdo->query("
+    SELECT a.titre, a.mois_compteur, 
+           COALESCE(ROUND(AVG(r.seconds_spent)), 0) as avg_seconds
+    FROM wari_articles a
+    LEFT JOIN wari_reading_stats r ON r.article_slug = a.slug
+    GROUP BY a.id
+    ORDER BY a.date_publication ASC
+")->fetchAll(PDO::FETCH_ASSOC);
+
+// Préparation des données JSON pour Chart.js
+$chart_labels = [];
+$chart_data = [];
+foreach ($reading_stats as $stat) {
+    $chart_labels[] = $stat['mois_compteur'] . ' - ' . mb_substr($stat['titre'], 0, 15) . '...';
+    $chart_data[] = round($stat['avg_seconds'] / 60, 1);
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -36,6 +54,7 @@ $count_subscribers = $pdo->query("SELECT COUNT(*) FROM wari_subscribers WHERE st
     <style>
         body { font-family: 'Quicksand', sans-serif; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-200 p-6 md:p-10">
     <div class="max-w-4xl mx-auto">
@@ -64,8 +83,13 @@ $count_subscribers = $pdo->query("SELECT COUNT(*) FROM wari_subscribers WHERE st
                 </div>
             </div>
             
-            <div class="bg-slate-900 p-6 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center opacity-50">
-                <p class="text-[10px] text-slate-500 uppercase tracking-widest italic">Plus de stats à venir...</p>
+            <div class="bg-slate-900 p-5 rounded-2xl border border-white/5 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-slate-500 text-[10px] uppercase font-black tracking-widest mb-3">Temps moyen de lecture</h3>
+                    <div style="position: relative; height: 130px; width: 100%;">
+                        <canvas id="readingChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -105,5 +129,58 @@ $count_subscribers = $pdo->query("SELECT COUNT(*) FROM wari_subscribers WHERE st
         </div>
 
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('readingChart').getContext('2d');
+            const labels = <?php echo json_encode($chart_labels); ?>;
+            const data = <?php echo json_encode($chart_data); ?>;
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Moyenne (min)',
+                        data: data,
+                        backgroundColor: 'rgba(212, 175, 55, 0.2)',
+                        borderColor: '#D4AF37',
+                        borderWidth: 1.5,
+                        borderRadius: 6,
+                        hoverBackgroundColor: '#D4AF37'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.parsed.y + ' min';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#64748b', font: { size: 9, family: 'Quicksand' } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.03)' },
+                            ticks: { 
+                                color: '#64748b', 
+                                font: { size: 9, family: 'Quicksand' },
+                                callback: function(value) { return value + ' min'; }
+                            },
+                            suggestedMax: 5
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>

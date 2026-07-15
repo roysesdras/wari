@@ -271,5 +271,34 @@ if (!empty($article['image_url']) && file_exists($chemin_physique)) {
         </div>
     </section>
 
+    <script>
+        (function() {
+            let startTime = Date.now();
+            let articleSlug = <?= json_encode($article['slug']) ?>;
+            let sent = false;
+
+            function sendStats() {
+                if (sent) return;
+                let timeSpent = Math.round((Date.now() - startTime) / 1000);
+                if (timeSpent >= 3) { // Only log if they read for at least 3 seconds
+                    sent = true;
+                    let payload = JSON.stringify({ slug: articleSlug, seconds: timeSpent });
+                    let blob = new Blob([payload], {type : 'application/json'});
+                    navigator.sendBeacon('track_reading.php', blob);
+                }
+            }
+
+            // Trigger when the page visibility changes or the page is closed
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'hidden') {
+                    sendStats();
+                }
+            });
+
+            window.addEventListener('pagehide', sendStats);
+            window.addEventListener('beforeunload', sendStats);
+            window.addEventListener('unload', sendStats);
+        })();
+    </script>
 </body>
 </html>
