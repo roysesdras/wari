@@ -25,7 +25,7 @@ $reading_stats = $pdo->query("
     SELECT a.titre, a.mois_compteur, 
            COALESCE(ROUND(AVG(r.seconds_spent)), 0) as avg_seconds
     FROM wari_articles a
-    LEFT JOIN wari_reading_stats r ON r.article_slug = a.slug
+    LEFT JOIN wari_reading_stats r ON r.article_slug COLLATE utf8mb4_general_ci = a.slug COLLATE utf8mb4_general_ci
     GROUP BY a.id
     ORDER BY a.date_publication ASC
 ")->fetchAll(PDO::FETCH_ASSOC);
