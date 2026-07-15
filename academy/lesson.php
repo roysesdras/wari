@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/config/session_config.php';
+require_once __DIR__ . '/../config/session_config.php';
 // /var/www/html/academy/lesson.php
 
 require_once __DIR__ . '/../config/db.php';

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/config/session_config.php';
+require_once __DIR__ . '/../config/session_config.php';
 // /var/www/html/academy/pdf_achat_verify.php
 // Appelé après retour de FedaPay ou CinetPay pour vérifier le paiement
 

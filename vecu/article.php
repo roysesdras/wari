@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/config/session_config.php';
+require_once __DIR__ . '/../config/session_config.php';
 // 1. Connexion (Vérifie le chemin selon l'emplacement de ton fichier)
 require_once '../config/db.php'; 
 require_once __DIR__ . '/../classes/Vecu.php';

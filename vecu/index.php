@@ -66,9 +66,7 @@ function tempsLecture($texte) {
             <div class="relative">
                 <div class="absolute -left-4 top-0 bottom-0 w-1 bg-amber-500/20 rounded-full"></div>
                 <p class="text-xl md:text-2xl leading-relaxed text-slate-400 font-serif italic pl-6">
-                    "Ceci n'est pas un blog de donneur de leçons. C'est mon journal de bord, avec mes victoires et mes échecs. 
-                    Il est tout à fait normal de craquer ou de rater un mois. L'important est de se reprendre le mois suivant. 
-                    <span class="text-white font-medium not-italic">Wari est notre combat commun, et la culpabilité n'y a pas sa place.</span>"
+                    "Ceci n'est pas un blog de donneur de leçons. C'est mon journal de bord, avec mes victoires, mes peurs et mes échecs. <span class="text-white font-medium not-italic">La liberté financière est notre combat commun, et la culpabilité n'y a pas sa place.</span>"
                 </p>
             </div>
         </div>
