@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Si aucune erreur d'image, on procède à l'insertion
     if (!isset($error)) {
         try {
-            $query = $pdo->prepare("INSERT INTO wari_articles (slug, titre, date_publication, mois_compteur, image_url, resume, contenu) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $query = $pdo->prepare("INSERT INTO wari_articles (slug, titre, date_publication, mois_compteur, image_url, resume, contenu, categorie) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             $query->execute([
                 $slug,
                 $titre,
@@ -40,7 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_POST['mois_compteur'],
                 $image_name,
                 $_POST['resume'],
-                $_POST['contenu_html'] // Récupéré depuis l'éditeur Quill
+                $_POST['contenu_html'], // Récupéré depuis l'éditeur Quill
+                $_POST['categorie'] ?? 'Combat & Discipline'
             ]);
 
             // Notification Web Push à tous les abonnés
@@ -103,11 +104,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     class="w-full bg-slate-950 border border-slate-800 p-4 rounded-xl outline-none focus:border-[#D4AF37] text-lg font-bold">
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                     <label class="block text-xs font-bold text-[#D4AF37] uppercase mb-2 tracking-widest">Compteur</label>
                     <input type="text" name="mois_compteur" required placeholder="Vécu 01" 
                         class="w-full bg-slate-950 border border-slate-800 p-4 rounded-xl outline-none focus:border-[#D4AF37]">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-[#D4AF37] uppercase mb-2 tracking-widest">Catégorie du récit</label>
+                    <select name="categorie" required class="w-full bg-slate-950 border border-slate-800 p-4 rounded-xl outline-none focus:border-[#D4AF37] text-slate-200">
+                        <option value="Combat & Discipline">Combat & Discipline</option>
+                        <option value="Chute & Résilience">Chute & Résilience</option>
+                        <option value="Victoire & Progrès">Victoire & Progrès</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-[#D4AF37] uppercase mb-2 tracking-widest">Date de l'événement</label>

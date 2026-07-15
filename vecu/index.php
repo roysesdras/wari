@@ -66,8 +66,9 @@ function tempsLecture($texte) {
             <div class="relative">
                 <div class="absolute -left-4 top-0 bottom-0 w-1 bg-amber-500/20 rounded-full"></div>
                 <p class="text-xl md:text-2xl leading-relaxed text-slate-400 font-serif italic pl-6">
-                    "Ceci n'est pas un blog. Je publie une fois par mois, quand j'ai quelque chose de vrai à raconter. 
-                    Mes défis d’utilisation. Quatre enveloppes. <span class="text-white font-medium not-italic">Un seul objectif : quitter la pauvreté par la discipline.</span>"
+                    "Ceci n'est pas un blog de donneur de leçons. C'est mon journal de bord, avec mes victoires et mes échecs. 
+                    Il est tout à fait normal de craquer ou de rater un mois. L'important est de se reprendre le mois suivant. 
+                    <span class="text-white font-medium not-italic">Wari est notre combat commun, et la culpabilité n'y a pas sa place.</span>"
                 </p>
             </div>
         </div>
@@ -115,6 +116,19 @@ function tempsLecture($texte) {
                         </div>
 
                         <div class="flex-1">
+                            <?php 
+                                $cat = $article['categorie'] ?? 'Combat & Discipline';
+                                $catColorClass = 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+                                if ($cat === 'Chute & Résilience') {
+                                    $catColorClass = 'text-red-400 bg-red-400/10 border-red-400/20';
+                                } elseif ($cat === 'Victoire & Progrès') {
+                                    $catColorClass = 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
+                                }
+                            ?>
+                            <span class="inline-block px-2.5 py-1 text-[9px] font-black uppercase tracking-wider rounded-md border <?php echo $catColorClass; ?> mb-3">
+                                <?php echo htmlspecialchars($cat); ?>
+                            </span>
+
                             <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 group-hover:text-amber-400 transition-colors duration-500 leading-tight">
                                 <?php echo htmlspecialchars($article['titre']); ?>
                             </h2>

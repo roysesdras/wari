@@ -178,6 +178,19 @@ if (!empty($article['image_url']) && file_exists($chemin_physique)) {
         </a>
         
         <header class="mb-8 text-left md:text-left">
+            <?php 
+                $cat = $article['categorie'] ?? 'Combat & Discipline';
+                $catColorClass = 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+                if ($cat === 'Chute & Résilience') {
+                    $catColorClass = 'text-red-400 bg-red-400/10 border-red-400/20';
+                } elseif ($cat === 'Victoire & Progrès') {
+                    $catColorClass = 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
+                }
+            ?>
+            <span class="inline-block px-2.5 py-1 text-[9px] font-black uppercase tracking-wider rounded-md border <?php echo $catColorClass; ?> mb-4">
+                <?php echo htmlspecialchars($cat); ?>
+            </span>
+
             <p class="text-xs text-[#D4AF37] font-bold tracking-[0.2em] uppercase mb-3">
                 <?php echo htmlspecialchars($article['mois_compteur']); ?> • <?php echo $date_formattee; ?>
             </p>

@@ -28,10 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $query = $pdo->prepare("UPDATE wari_articles SET slug=?, titre=?, date_publication=?, mois_compteur=?, image_url=?, resume=?, contenu=? WHERE id=?");
+    $query = $pdo->prepare("UPDATE wari_articles SET slug=?, titre=?, date_publication=?, mois_compteur=?, image_url=?, resume=?, contenu=?, categorie=? WHERE id=?");
     $query->execute([
         $slug, $titre, $_POST['date_publication'], $_POST['mois_compteur'], 
-        $image_name, $_POST['resume'], $_POST['contenu_html'], $id
+        $image_name, $_POST['resume'], $_POST['contenu_html'], $_POST['categorie'] ?? 'Combat & Discipline', $id
     ]);
     header('Location: index.php');
     exit;
@@ -71,10 +71,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="text" name="titre" value="<?= htmlspecialchars($article['titre']) ?>" required class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl outline-none focus:border-[#D4AF37]">
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-[10px] font-bold text-[#D4AF37] uppercase mb-2">Mois Compteur</label>
                     <input type="text" name="mois_compteur" value="<?= htmlspecialchars($article['mois_compteur']) ?>" required class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl outline-none focus:border-[#D4AF37]">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-[#D4AF37] uppercase mb-2">Catégorie</label>
+                    <select name="categorie" required class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl outline-none focus:border-[#D4AF37] text-slate-200">
+                        <option value="Combat & Discipline" <?= ($article['categorie'] ?? '') === 'Combat & Discipline' ? 'selected' : '' ?>>Combat & Discipline</option>
+                        <option value="Chute & Résilience" <?= ($article['categorie'] ?? '') === 'Chute & Résilience' ? 'selected' : '' ?>>Chute & Résilience</option>
+                        <option value="Victoire & Progrès" <?= ($article['categorie'] ?? '') === 'Victoire & Progrès' ? 'selected' : '' ?>>Victoire & Progrès</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-[#D4AF37] uppercase mb-2">Date</label>
