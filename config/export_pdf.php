@@ -5,8 +5,8 @@ error_reporting(E_ALL & ~E_DEPRECATED);
 ini_set('display_errors', 0);
 
 require_once __DIR__ . '/../wari_monitoring.php';  // TOUJOURS EN PREMIER
-session_start();
 require_once 'session_config.php';
+
 require_once 'db.php';
 require_once 'session_check.php';
 require_once __DIR__ . '/../vendor/autoload.php';

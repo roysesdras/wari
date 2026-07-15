@@ -114,7 +114,7 @@ if ($user_id) {
         .guide-container {
             max-width: 800px;
             margin: 80px auto 40px;
-            padding: 0 20px;
+            padding: 0 10px;
             animation: fadeUp 0.5s ease;
         }
 
@@ -155,8 +155,6 @@ if ($user_id) {
             position: relative;
             overflow: hidden;
         }
-
-
 
         .concept-icon {
             display: inline-flex;
@@ -310,8 +308,8 @@ if ($user_id) {
         <!-- 3. Train de vie à 0 -->
         <div class="concept-card danger" id="train-de-vie">
             <div class="concept-icon"><i class="ri-wallet-3-line"></i></div>
-            <h2 class="concept-title">Le "Train de Vie" à Zéro</h2>
-            <p class="concept-text">Le "Train de Vie" représente l'argent liquide ou le solde mobile money que tu as <strong>le droit</strong> d'utiliser au quotidien pour tes besoins et tes envies.</p>
+            <h2 class="concept-title">Le Train de Vie</h2>
+            <p class="concept-text">Le Train de Vie représente l'argent liquide ou le solde mobile money que tu as <strong>le droit</strong> d'utiliser au quotidien pour tes besoins et tes envies.</p>
             <p class="concept-text">La magie de Wari réside dans la discipline : chaque fois que tu achètes quelque chose, tu dois l'enregistrer dans "Ajouter Dépense". L'objectif ultime est que ce solde atteigne rigoureusement <strong>0 FCFA</strong> juste avant ton prochain revenu.</p>
             <div class="concept-rule">
                 <i class="ri-focus-3-line"></i>
@@ -532,7 +530,7 @@ if ($user_id) {
 
         <?php if (!$user_id): ?>
         <div class="concept-card success" style="text-align: center; border-color: rgba(245, 158, 11, 0.3); background: linear-gradient(180deg, var(--surface) 0%, rgba(245, 158, 11, 0.03) 100%);">
-            <div class="concept-icon" style="color: var(--accent); background: rgba(245, 158, 11, 0.1);"><i class="ri-medal-line"></i></div>
+            
             <h2 class="concept-title" style="color: var(--accent);">Prêt à reprendre le contrôle ?</h2>
             <p class="concept-text" style="max-width: 500px; margin: 0 auto 25px;">
                 Appliquez dès aujourd'hui la méthode des enveloppes, relevez des défis d'épargne stimulants et pilotez vos finances sereinement avec Wari Finance.

@@ -1,6 +1,6 @@
 <?php
 require '../config/db.php';
-session_start();
+require 'session_config.php';
 
 $message = "";
 $error = "";

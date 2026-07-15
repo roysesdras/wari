@@ -3,8 +3,8 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
-session_start();
 require 'session_config.php';
+
 require 'db.php';
 require 'no_cache.php';
 require 'session_check.php';

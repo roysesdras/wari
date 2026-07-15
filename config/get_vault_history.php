@@ -1,8 +1,8 @@
 <?php
 // get_vault_history.php
 header('Content-Type: application/json'); // Indispensable pour le JS
-session_start();
 require 'session_config.php';
+
 require 'db.php';
 require 'no_cache.php';
 require 'session_check.php'; // ← ajout

@@ -104,7 +104,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['wari_remember'])) {
                 'path'     => '/',
                 'secure'   => true,
                 'httponly' => true,
-                'samesite' => 'Strict',
+                'samesite' => 'Lax',
             ]);
 
             $redir = !empty($_POST['redirect']) ? $_POST['redirect'] : (!empty($_GET['redirect']) ? $_GET['redirect'] : '');
@@ -122,7 +122,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['wari_remember'])) {
             'path'     => '/',
             'secure'   => true,
             'httponly' => true,
-            'samesite' => 'Strict',
+            'samesite' => 'Lax',
         ]);
     }
 }
@@ -214,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'path'     => '/',
                 'secure'   => true,
                 'httponly' => true,
-                'samesite' => 'Strict',
+                'samesite' => 'Lax',
             ]);
 
             $redir = !empty($_POST['redirect']) ? $_POST['redirect'] : (!empty($_GET['redirect']) ? $_GET['redirect'] : '');

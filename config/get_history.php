@@ -1,6 +1,6 @@
 <?php
-session_start();
 require 'session_config.php';
+
 require 'db.php';
 require 'no_cache.php';
 require 'session_check.php'; // ← ajout

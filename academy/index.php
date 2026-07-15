@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/config/session_config.php';
 // /var/www/html/academy/index.php
 
 require_once __DIR__ . '/../config/db.php';
@@ -6,9 +7,7 @@ require_once __DIR__ . '/../classes/Academy.php';
 require_once __DIR__ . '/../config/session_check.php';
 
 // session_start uniquement si pas déjà active
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
 
 $user_id = $_SESSION['user_id'] ?? null;
 $email   = $_SESSION['user_email'] ?? 'visiteur';

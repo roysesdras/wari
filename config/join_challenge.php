@@ -1,8 +1,8 @@
 <?php
 // /var/www/wari.digiroys.com/config/join_challenge.php
-session_start();
-file_put_contents(__DIR__ . '/../tmp/challenge_debug.log', date('Y-m-d H:i:s') . " - START - Session: " . json_encode($_SESSION) . " - RawInput: " . file_get_contents('php://input') . "\n", FILE_APPEND);
 require 'session_config.php';
+file_put_contents(__DIR__ . '/../tmp/challenge_debug.log', date('Y-m-d H:i:s') . " - START - Session: " . json_encode($_SESSION) . " - RawInput: " . file_get_contents('php://input') . "\n", FILE_APPEND);
+
 require 'db.php';
 require 'no_cache.php';
 require 'session_check.php';

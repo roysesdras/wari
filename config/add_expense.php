@@ -3,8 +3,8 @@
 error_reporting(0);     // ← masque les warnings
 ini_set('display_errors', 0); // ← empêche l'affichage des erreurs
 
-session_start();
 require 'session_config.php';
+
 require 'db.php';
 require 'no_cache.php';
 require 'session_check.php'; // ← ajout

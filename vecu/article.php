@@ -1,9 +1,10 @@
 <?php
+require_once __DIR__ . '/config/session_config.php';
 // 1. Connexion (Vérifie le chemin selon l'emplacement de ton fichier)
 require_once '../config/db.php'; 
 require_once __DIR__ . '/../classes/Vecu.php';
 
-if (session_status() === PHP_SESSION_NONE) session_start();
+
 $user_id = $_SESSION['user_id'] ?? null;
 
 // Tracking du clic sur notification push

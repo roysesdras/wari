@@ -1,5 +1,5 @@
 <?php
-session_start();
+require 'session_config.php';
 require 'db.php';
 require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 
@@ -13,7 +13,7 @@ if (isset($_COOKIE['wari_remember'])) {
         'path'     => '/',
         'secure'   => true,
         'httponly' => true,
-        'samesite' => 'Strict',
+        'samesite' => 'Lax',
     ]);
 }
 

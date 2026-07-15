@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/config/session_config.php';
 // /var/www/html/academy/pdf_achat_verify.php
 // Appelé après retour de FedaPay ou CinetPay pour vérifier le paiement
 
@@ -6,7 +7,7 @@ ob_start();
 error_reporting(0);
 ini_set('display_errors', 0);
 
-if (session_status() === PHP_SESSION_NONE) session_start();
+
 if (!isset($_SESSION['user_id'])) {
     header('Location: https://wari.digiroys.com/login');
     exit;

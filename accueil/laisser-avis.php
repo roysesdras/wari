@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../config/session_config.php';
 require '../config/db.php'; // Ton fichier de connexion PDO
 require_once __DIR__ . '/../wari_monitoring.php';  // ← TOUJOURS EN PREMIER
 
@@ -18,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $token = $_POST['csrf_token'] ?? '';
 
     /* Validation CSRF */
-    session_start();
+    
     if (!isset($_SESSION['csrf']) || $token !== $_SESSION['csrf']) {
         $errors[] = 'Requête invalide. Veuillez réessayer.';
     }
@@ -57,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 /* Génération token CSRF */
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) 
 if (empty($_SESSION['csrf'])) {
     $_SESSION['csrf'] = bin2hex(random_bytes(32));
 }

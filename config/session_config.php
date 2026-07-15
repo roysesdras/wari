@@ -16,7 +16,7 @@ if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_lifetime', 90 * 24 * 3600);
     ini_set('session.cookie_httponly', 1);
     ini_set('session.cookie_secure', 1);
-    ini_set('session.cookie_samesite', 'Strict');
+    ini_set('session.cookie_samesite', 'Lax');
 
     // Démarrer la session UNE SEULE FOIS
     session_start();
