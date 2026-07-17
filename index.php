@@ -1202,6 +1202,15 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         echo "const dbDataPerso = " . $budgetRaw . ";\n";
         echo "const dbDataPro = " . $budgetRawPro . ";\n";
         echo "let dbData = dbDataPerso;\n";
+        if ($budgetRaw === 'null') {
+            echo "localStorage.removeItem('wari_budget_data');\n";
+            echo "localStorage.removeItem('wari_percent_suggested');\n";
+            echo "localStorage.removeItem('wari_vault_goal');\n";
+        }
+        if ($budgetRawPro === 'null') {
+            echo "localStorage.removeItem('wari_budget_data_pro');\n";
+            echo "localStorage.removeItem('wari_vault_goal_pro');\n";
+        }
         echo "const currentExpensesPerso = " . json_encode($expensesPerso) . ";\n";
         echo "const currentExpensesPro = " . json_encode($expensesPro) . ";\n";
         echo "let currentExpenses = currentExpensesPerso;\n";

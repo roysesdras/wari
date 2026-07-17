@@ -27,20 +27,21 @@ if (isset($_GET['action'])) {
 
                 $pdo->beginTransaction();
 
+                // 1. Remettre à NULL les données de budget (Perso & Pro) et à 0 les capitaux de projet
                 $stmt = $pdo->prepare("UPDATE wari_users SET 
-                    budget_data = JSON_SET(budget_data,
-                        '$.categories[0].balance', 0,
-                        '$.categories[1].balance', 0,
-                        '$.categories[2].balance', 0,
-                        '$.categories[3].balance', 0,
-                        '$.vaultTransactions', JSON_ARRAY(),
-                        '$.projectCapital', 0,
-                        '$.hasDepositedToday', false
-                    ), project_capital = 0 WHERE id = ?");
+                    budget_data = NULL,
+                    budget_data_pro = NULL,
+                    project_capital = 0,
+                    project_capital_pro = 0
+                    WHERE id = ?");
                 $stmt->execute([$userId]);
 
+                // 2. Supprimer toutes les données financières et d'objectifs liées
                 $pdo->prepare("DELETE FROM wari_expenses WHERE user_id = ?")->execute([$userId]);
                 $pdo->prepare("DELETE FROM wari_vault_history WHERE user_id = ?")->execute([$userId]);
+                $pdo->prepare("DELETE FROM wari_debts WHERE user_id = ?")->execute([$userId]);
+                $pdo->prepare("DELETE FROM wari_distributions WHERE user_id = ?")->execute([$userId]);
+                $pdo->prepare("DELETE FROM wari_user_challenges WHERE user_id = ?")->execute([$userId]);
 
                 $pdo->commit();
 
