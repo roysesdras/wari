@@ -1621,7 +1621,6 @@ window.submitExpense = function () {
   if (noteInput) noteInput.value = "";
   render();
 
-  const cat = categories.find(c => c.id == catId);
   const bodyData = { 
     amount, 
     category_id: catId, 
