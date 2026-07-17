@@ -291,8 +291,8 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 <input type="text" style="display:none;" autocomplete="new-password">
                 <input type="password" style="display:none;" autocomplete="new-password">
                 
-                <input type="text" id="mainAmount" placeholder="0" onfocus="this.select()"
-                    autocomplete="new-password" inputmode="decimal" autocorrect="off" spellcheck="false"
+                <input type="text" id="calc_val" placeholder="0" onfocus="this.select()"
+                    autocomplete="one-time-code" inputmode="decimal" autocorrect="off" spellcheck="false"
                     class="bg-transparent text-4xl w-full font-extrabold outline-none text-white">
                 <span id="currentSymbol" class="text-xl font-bold text-slate-500 ml-2">F</span>
             </div>

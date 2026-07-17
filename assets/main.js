@@ -24,7 +24,7 @@ let isInitialLoad = true;
 let vaultTransactions = [];
 let currentWallet = "perso";
 
-const mainInput = document.getElementById("mainAmount");
+const mainInput = document.getElementById("calc_val");
 const container = document.getElementById("categoryContainer");
 
 // Vérifier si nous sommes sur la bonne page avant d'exécuter le code
@@ -563,7 +563,7 @@ window.updatePercentLive = function (id, val) {
     }
 
     // Recalculer le montant prévisionnel pour cette catégorie
-    const totalInput = document.getElementById("mainAmount");
+    const totalInput = document.getElementById("calc_val");
     const total = parseFloat(totalInput ? totalInput.value : 0) || 0;
     cat.amount = Math.round((total * numVal) / 100);
 
@@ -602,7 +602,7 @@ window.updatePercentFinal = function (id, val) {
   const cat = categories.find((c) => c.id === id);
   if (cat) {
     cat.percent = parseFloat(val) || 0;
-    const totalInput = document.getElementById("mainAmount");
+    const totalInput = document.getElementById("calc_val");
     const total = parseFloat(totalInput ? totalInput.value : 0) || 0;
     cat.amount = Math.round((total * cat.percent) / 100);
 
@@ -644,7 +644,7 @@ function updateStatus(total) {
     "mt-4 flex items-center justify-center p-3 rounded-2xl transition-all duration-300 ";
 
   const saveBtn = document.querySelector('button[onclick="saveBudget()"]');
-  const totalInput = document.getElementById("mainAmount");
+  const totalInput = document.getElementById("calc_val");
   const amount = parseFloat(totalInput ? totalInput.value : 0) || 0;
 
   if (total === 100) {
