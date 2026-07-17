@@ -23,7 +23,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
     <title>Wari-Finance | Gestion Budget & Objectifs Financiers</title>
     <meta name="description" content="Avec Wari, chaque franc a un rôle. Planifie, contrôle et fais grandir ton argent directement depuis ton téléphone.">
 
@@ -291,8 +291,8 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
                 <input type="text" style="display:none;" autocomplete="new-password">
                 <input type="password" style="display:none;" autocomplete="new-password">
                 
-                <input type="number" id="mainAmount" name="amount" placeholder="0" onfocus="this.select()"
-                    autocomplete="off" inputmode="numeric" pattern="[0-9]*" autocorrect="off" spellcheck="false"
+                <input type="text" id="mainAmount" placeholder="0" onfocus="this.select()"
+                    autocomplete="new-password" inputmode="decimal" autocorrect="off" spellcheck="false"
                     class="bg-transparent text-4xl w-full font-extrabold outline-none text-white">
                 <span id="currentSymbol" class="text-xl font-bold text-slate-500 ml-2">F</span>
             </div>
