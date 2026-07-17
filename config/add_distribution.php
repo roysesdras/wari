@@ -25,11 +25,30 @@ try {
         $walletType = 'perso';
     }
 
+    $pdo->beginTransaction();
+
     $stmt = $pdo->prepare("
         INSERT INTO wari_distributions (user_id, amount, wallet_type) 
         VALUES (?, ?, ?)
     ");
     $stmt->execute([$_SESSION['user_id'], $amount, $walletType]);
+    $distributionId = $pdo->lastInsertId();
+
+    if (isset($data['details']) && is_array($data['details'])) {
+        $stmtDetail = $pdo->prepare("
+            INSERT INTO wari_distribution_details (distribution_id, category_name, amount)
+            VALUES (?, ?, ?)
+        ");
+        foreach ($data['details'] as $detail) {
+            $catName = isset($detail['category_name']) ? trim($detail['category_name']) : '';
+            $catAmount = isset($detail['amount']) ? intval($detail['amount']) : 0;
+            if ($catName !== '' && $catAmount > 0) {
+                $stmtDetail->execute([$distributionId, $catName, $catAmount]);
+            }
+        }
+    }
+
+    $pdo->commit();
 
     echo json_encode(['success' => true]);
 } catch (Exception $e) {

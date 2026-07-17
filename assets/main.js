@@ -807,10 +807,19 @@ window.saveBudget = function (silent = false) {
 
   // 2. Ajout de la distribution
   if (totalAAjouter > 0) {
+    const distributionDetails = categories.map(cat => ({
+      category_name: cat.name,
+      amount: Math.round((totalAAjouter * cat.percent) / 100)
+    }));
+
     fetch("config/add_distribution.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: totalAAjouter, wallet_type: currentWallet }),
+      body: JSON.stringify({ 
+        amount: totalAAjouter, 
+        wallet_type: currentWallet,
+        details: distributionDetails
+      }),
     })
       .then(response => {
         if (!response.ok) throw new Error(`Status: ${response.status}`);
@@ -1612,7 +1621,14 @@ window.submitExpense = function () {
   if (noteInput) noteInput.value = "";
   render();
 
-  const bodyData = { amount, category_id: catId, description: note, wallet_type: currentWallet };
+  const cat = categories.find(c => c.id == catId);
+  const bodyData = { 
+    amount, 
+    category_id: catId, 
+    category_name: cat ? cat.name : "Dépense",
+    description: note, 
+    wallet_type: currentWallet 
+  };
 
   if (!navigator.onLine) {
     if (typeof window.queueOfflineAction === 'function') {
@@ -2630,8 +2646,7 @@ function loadMonthlyHistory(months = 6) {
                         <!-- Liste des dépenses du jour -->
                         <div class="space-y-1">
                           ${dayData.items.map(e => {
-                    const cat = categories.find(c => c.id == e.category_id);
-                    const catName = cat ? cat.name : 'Dépense';
+                    const catName = e.category_name || (categories.find(c => c.id == e.category_id)?.name) || 'Dépense';
 
                     // Couleur visuelle selon la catégorie pour une trace visuelle instantanée
                     let catColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
@@ -2725,17 +2740,31 @@ function loadMonthlyHistory(months = 6) {
               <div>
                 <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">💰 Revenus Répartis</p>
                 <div class="space-y-1 max-h-[100px] overflow-y-auto custom-scrollbar pr-1">
-                  ${month.details.map(d => `
-                    <div class="flex justify-between items-center px-2 py-1 bg-slate-900/30 rounded-lg border border-white/5 text-[9px]">
-                      <div class="flex items-center gap-1.5">
-                        <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                        <span class="text-slate-400">Répartition du ${d.datetime}</span>
+                  ${month.details.map(d => {
+                    const detailsHtml = d.details && d.details.length > 0
+                      ? `<div class="flex flex-wrap gap-1 mt-1 text-[8px] text-slate-400 select-none pl-3 border-l border-emerald-500/30">
+                          ${d.details.map(det => `
+                            <span class="bg-slate-950/40 px-1 py-0.5 rounded border border-white/5 whitespace-nowrap">
+                              ${det.name}: <strong class="text-slate-300">${det.amount.toLocaleString()} F</strong>
+                            </span>
+                          `).join('')}
+                         </div>`
+                      : '';
+                    return `
+                      <div class="flex flex-col px-2 py-1 bg-slate-900/30 rounded-lg border border-white/5 text-[9px]">
+                        <div class="flex justify-between items-center w-full">
+                          <div class="flex items-center gap-1.5">
+                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                            <span class="text-slate-400">Répartition du ${d.datetime}</span>
+                          </div>
+                          <span class="font-black text-emerald-400">
+                            +${d.amount.toLocaleString()} ${currency}
+                          </span>
+                        </div>
+                        ${detailsHtml}
                       </div>
-                      <span class="font-black text-emerald-400">
-                        +${d.amount.toLocaleString()} ${currency}
-                      </span>
-                    </div>
-                  `).join('')}
+                    `;
+                  }).join('')}
                 </div>
               </div>
               ` : ''}

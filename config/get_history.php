@@ -80,9 +80,10 @@ try {
         ];
     }
 
-    // 2. Répartitions individuelles (date + heure + montant)
+    // 2. Répartitions individuelles (date + heure + montant + id)
     $stmtDetails = $pdo->prepare("
         SELECT 
+            id,
             DATE_FORMAT(distributed_at, '%Y-%m')             as month_key,
             DATE_FORMAT(distributed_at, '%d/%m à %H:%M')    as datetime_label,
             amount
@@ -96,12 +97,36 @@ try {
     $stmtDetails->bindValue(3, $months, PDO::PARAM_INT);
     $stmtDetails->execute();
 
+    // 2b. Récupérer les détails de toutes ces répartitions d'un coup
+    $stmtDistribDetails = $pdo->prepare("
+        SELECT dd.distribution_id, dd.category_name, dd.amount
+        FROM wari_distribution_details dd
+        JOIN wari_distributions d ON dd.distribution_id = d.id
+        WHERE d.user_id = ? AND d.wallet_type = ?
+        AND d.distributed_at >= DATE_SUB(CURRENT_DATE(), INTERVAL ? MONTH)
+    ");
+    $stmtDistribDetails->bindValue(1, $userId, PDO::PARAM_INT);
+    $stmtDistribDetails->bindValue(2, $walletType, PDO::PARAM_STR);
+    $stmtDistribDetails->bindValue(3, $months, PDO::PARAM_INT);
+    $stmtDistribDetails->execute();
+    
+    $distribDetailsById = [];
+    foreach ($stmtDistribDetails->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $distribDetailsById[$row['distribution_id']][] = [
+            'name' => $row['category_name'],
+            'amount' => (int)$row['amount']
+        ];
+    }
+
     // Grouper les détails par mois
     $detailsByMonth = [];
     foreach ($stmtDetails->fetchAll(PDO::FETCH_ASSOC) as $detail) {
+        $distId = (int)$detail['id'];
         $detailsByMonth[$detail['month_key']][] = [
+            'id'       => $distId,
             'datetime' => $detail['datetime_label'],
             'amount'   => (int)$detail['amount'],
+            'details'  => $distribDetailsById[$distId] ?? []
         ];
     }
 
@@ -135,6 +160,7 @@ try {
             date_expense as raw_date,
             amount,
             category_id,
+            category_name,
             description
         FROM wari_expenses
         WHERE user_id = ? AND wallet_type = ?
@@ -159,6 +185,7 @@ try {
             'raw_date' => $expDet['raw_date'],
             'amount' => (int)$expDet['amount'],
             'category_id' => (int)$expDet['category_id'],
+            'category_name' => $expDet['category_name'],
             'description' => $expDet['description'],
             'cancellable' => ($diffHours <= 24)
         ];
