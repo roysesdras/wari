@@ -1550,7 +1550,9 @@ function applyModel(modelKey) {
   }
 }
 
-mainInput.addEventListener("input", () => render(true));
+if (mainInput) {
+  mainInput.addEventListener("input", () => render(true));
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   // 1. Initialisation de ton état de chargement
