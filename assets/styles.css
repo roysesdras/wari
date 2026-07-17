@@ -116,7 +116,7 @@ body.light-mode .text-slate-600 {
 body.light-mode .gold-border {
   border-color: #d97706 !important; /* Amber 600 */
 }
-body.light-mode #mainAmount {
+body.light-mode #calc_val {
   background-color: transparent !important;
   border: none !important;
   color: #0f172a !important;
