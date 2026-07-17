@@ -643,9 +643,17 @@ function updateStatus(total) {
   const baseClass =
     "mt-4 flex items-center justify-center p-3 rounded-2xl transition-all duration-300 ";
 
+  const saveBtn = document.querySelector('button[onclick="saveBudget()"]');
+  const totalInput = document.getElementById("mainAmount");
+  const amount = parseFloat(totalInput ? totalInput.value : 0) || 0;
+
   if (total === 100) {
-    status.className = baseClass + "bg-emerald-500/10 text-emerald-500";
-    text.innerHTML = `<span class="mr-2"></span> 100% - Ton argent est dompté !`;
+    status.className = baseClass + "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20";
+    if (amount > 0) {
+      text.innerHTML = `<span class="mr-2">⚡</span> 100% - Appuyez sur "Répartir" en bas pour valider !`;
+    } else {
+      text.innerHTML = `<span class="mr-2"></span> 100% - Ton argent est dompté !`;
+    }
   } else if (total === 0) {
     status.className = baseClass + "bg-slate-800/50 text-slate-500";
     text.innerHTML = `WARI-FINANCE : Prêt pour le calcul`;
@@ -657,6 +665,36 @@ function updateStatus(total) {
     text.innerHTML = isOver
       ? `Oups ! ${total}% ? Tu dépenses plus que tu n'as.`
       : `${total}% répartis... Continue jusqu'à 100%.`;
+  }
+
+  // Animation et lueur dynamique sur le bouton de validation de la barre de navigation
+  if (saveBtn) {
+    const isUnsavedModifs = saveBtn.querySelector("span").innerText === "Valider les modifs ?";
+    if (!isUnsavedModifs) {
+      if (amount > 0 && total === 100) {
+        saveBtn.classList.remove("text-slate-400", "hover:text-emerald-400");
+        saveBtn.classList.add(
+          "text-emerald-400",
+          "bg-emerald-500/10",
+          "border",
+          "border-emerald-500/30",
+          "animate-pulse",
+          "shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+        );
+        saveBtn.querySelector("span").innerText = "Répartir !";
+      } else {
+        saveBtn.classList.remove(
+          "text-emerald-400",
+          "bg-emerald-500/10",
+          "border",
+          "border-emerald-500/30",
+          "animate-pulse",
+          "shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+        );
+        saveBtn.classList.add("text-slate-400", "hover:text-emerald-400");
+        saveBtn.querySelector("span").innerText = "Répartir";
+      }
+    }
   }
 }
 
