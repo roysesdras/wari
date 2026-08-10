@@ -23,7 +23,8 @@ $data = json_decode($input, true);
 if (isset($data['amount']) && isset($data['category_id'])) {
     $user_id = $_SESSION['user_id'];
     $amount = intval($data['amount']);
-    $category_id = intval($data['category_id']);
+    $rawCatId = $data['category_id'] ?? 0;
+    $category_id = is_numeric($rawCatId) ? intval(abs((float)$rawCatId) % 1000000000) : 0;
     $description = isset($data['description']) ? $data['description'] : 'Dépense rapide';
 
     $walletType = $data['wallet_type'] ?? 'perso';
@@ -41,12 +42,20 @@ if (isset($data['amount']) && isset($data['category_id'])) {
         $stmtUser->execute([$user_id]);
         $userData = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
+        $category_name = isset($data['category_name']) ? trim($data['category_name']) : null;
+
         $matchedCat = null;
         if ($userData && $userData['budget_data']) {
             $budgetData = json_decode($userData['budget_data'], true);
             $categoriesList = $budgetData['categories'] ?? [];
             foreach ($categoriesList as $cat) {
-                if ((int)$cat['id'] === $category_id) {
+                $catId = $cat['id'] ?? 0;
+                $catName = $cat['name'] ?? '';
+                if ((string)$catId === (string)$rawCatId || (int)$catId === $category_id || (is_numeric($catId) && (int)abs((float)$catId % 1000000000) === $category_id)) {
+                    $matchedCat = $cat;
+                    break;
+                }
+                if ($category_name && !empty($catName) && strtolower(trim($catName)) === strtolower($category_name)) {
                     $matchedCat = $cat;
                     break;
                 }
@@ -54,12 +63,14 @@ if (isset($data['amount']) && isset($data['category_id'])) {
         }
 
         // Récupérer le nom de la catégorie (soit fourni par JS, soit extrait depuis les données du profil)
-        $category_name = isset($data['category_name']) ? trim($data['category_name']) : null;
         if (empty($category_name) && $matchedCat) {
             $category_name = $matchedCat['name'];
         }
+        if (empty($category_name)) {
+            $category_name = 'Dépense';
+        }
 
-        // 1. Insérer la dépense avec le nom de l'enveloppe historique
+        // 1. Insérer la dépense avec le nom de l'enveloppe historique et l'ID sécurisé pour MySQL
         $stmt = $pdo->prepare("INSERT INTO wari_expenses (user_id, category_id, amount, description, wallet_type, date_expense, category_name) VALUES (?, ?, ?, ?, ?, NOW(), ?)");
         $stmt->execute([$user_id, $category_id, $amount, $description, $walletType, $category_name]);
 

@@ -1,4 +1,4 @@
-const cacheName = "wari-v137"; // Version 137 pour corriger définitivement le bug de capture d'erreur de promesse fetch dans les défis
+const cacheName = "wari-v141"; // Version 141 fix amount variable in add_expense
 // Fichiers statiques et page de secours
 const assets = [
   "./manifest.json",
@@ -43,7 +43,7 @@ self.addEventListener("fetch", (e) => {
   }
 
   // B. Ne pas mettre en cache les actions de session/API sensibles
-  if (url.pathname.startsWith("/config/") || url.pathname.includes('logout.php')) {
+  if (url.pathname.includes("/config/") || url.pathname.includes("logout.php")) {
     return e.respondWith(fetch(req));
   }
 

@@ -37,6 +37,20 @@ if (mainInput && container) {
   );
 }
 
+// Helper pour calculer les dépenses cumulées par ID ou par nom de catégorie
+function getCategorySpent(cat) {
+  if (typeof currentExpenses === "undefined" || !currentExpenses || !cat) return 0;
+  const rawId = cat.id;
+  const idModulo = isNaN(rawId) ? rawId : Math.floor(Math.abs(Number(rawId)) % 1000000000);
+  const spentById = currentExpenses[rawId] ? parseInt(currentExpenses[rawId]) : (currentExpenses[idModulo] ? parseInt(currentExpenses[idModulo]) : 0);
+  
+  const nameTrim = cat.name ? cat.name.trim() : "";
+  const nameLower = nameTrim ? nameTrim.toLowerCase() : "";
+  const spentByName = nameTrim && currentExpenses[nameTrim] ? parseInt(currentExpenses[nameTrim]) : (nameLower && currentExpenses[nameLower] ? parseInt(currentExpenses[nameLower]) : 0);
+  
+  return Math.max(spentById, spentByName);
+}
+
 // ─── RENDER ────────────────────────────────────────────────────────────────
 
 function render(isSimulation = false) {
@@ -126,10 +140,7 @@ function render(isSimulation = false) {
 
   results.forEach((cat) => {
     const isProjet = cat.name.toLowerCase().includes("projet");
-    const spent =
-      typeof currentExpenses !== "undefined" && currentExpenses[cat.id]
-        ? parseInt(currentExpenses[cat.id])
-        : 0;
+    const spent = getCategorySpent(cat);
 
     const currentBalance = parseFloat(cat.balance) || 0;
     const currentPercent = parseFloat(cat.percent) || 0;
@@ -260,10 +271,7 @@ function render(isSimulation = false) {
     totalDepense = 0;
 
   results.forEach((c) => {
-    const spent =
-      typeof currentExpenses !== "undefined" && currentExpenses[c.id]
-        ? parseInt(currentExpenses[c.id])
-        : 0;
+    const spent = getCategorySpent(c);
 
     const isProjet = c.name.toLowerCase().includes("projet");
     const isEpargne = c.name.toLowerCase().includes("épargne") || c.id === 1;
@@ -308,7 +316,7 @@ function render(isSimulation = false) {
   const totalEpargneCartes = results.reduce((acc, cat) => {
     const name = cat.name.toLowerCase();
     if (name.includes("épargne") && !name.includes("projet")) {
-      const spent = typeof currentExpenses !== "undefined" ? (currentExpenses[cat.id] || 0) : 0;
+      const spent = getCategorySpent(cat);
       return acc + (cat.amount - spent);
     }
     return acc;
@@ -318,7 +326,7 @@ function render(isSimulation = false) {
   // Cela représente tout l'argent disponible pour finir le mois.
   const puissanceFinanciereTotale = results.reduce((acc, c) => {
     const isProjet = c.name.toLowerCase().includes("projet");
-    const spent = typeof currentExpenses !== "undefined" ? (currentExpenses[c.id] || 0) : 0;
+    const spent = getCategorySpent(c);
     const budgetDisponible = isProjet
       ? (parseFloat(projectCapital) || 0)
       : (c.amount - spent);
@@ -383,7 +391,7 @@ function render(isSimulation = false) {
   const totalEpargneSeule = results.reduce((acc, cat) => {
     const name = cat.name.toLowerCase();
     if (name.includes("épargne") && !name.includes("projet")) {
-      const spent = typeof currentExpenses !== "undefined" ? (currentExpenses[cat.id] || 0) : 0;
+      const spent = getCategorySpent(cat);
       return acc + (cat.amount - spent);
     }
     return acc;
@@ -392,7 +400,7 @@ function render(isSimulation = false) {
   // 2. Projet dynamique (Capital + répartition en cours)
   const totalProjetDynamique = results.reduce((acc, cat) => {
     if (cat.name.toLowerCase().includes("projet")) {
-      const spent = typeof currentExpenses !== "undefined" ? (currentExpenses[cat.id] || 0) : 0;
+      const spent = getCategorySpent(cat);
       // On recalcule le montant exact affiché sur la carte Projet
       const montantAjoute = Math.round(total * (cat.percent / 100));
       return acc + (parseFloat(projectCapital) || 0) + montantAjoute;
@@ -577,7 +585,7 @@ window.updatePercentLive = function (id, val) {
     // Recalculer dynamiquement la Banque et la Poche à la volée sans toucher au DOM de saisie
     let bank = 0, cash = 0;
     categories.forEach((c) => {
-      const spent = typeof currentExpenses !== "undefined" && currentExpenses[c.id] ? parseInt(currentExpenses[c.id]) : 0;
+      const spent = getCategorySpent(c);
       const isProjet = c.name.toLowerCase().includes("projet");
       const isEpargne = c.name.toLowerCase().includes("épargne") || c.id === 1;
       const soldeReel = isProjet ? Math.max(0, projectCapital) : (c.amount - spent);
@@ -890,7 +898,7 @@ function loadBudget() {
         const nameLower = cat.name.toLowerCase();
         if (nameLower.includes("projet") || nameLower.includes("épargne")) return false;
 
-        const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+        const spent = getCategorySpent(cat);
         const remaining = (cat.balance || 0) - spent;
         return remaining > 0;
       });
@@ -899,7 +907,7 @@ function loadBudget() {
         window.eomData = {
           categories: categories,
           eligible: eligibleCategories.map((cat) => {
-            const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+            const spent = getCategorySpent(cat);
             return {
               id: cat.id,
               name: cat.name,
@@ -951,7 +959,7 @@ function loadBudget() {
         categories = categories.map((cat) => {
           const isProjet = cat.name.toLowerCase().includes("projet");
           if (isProjet) return cat;
-          const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+          const spent = getCategorySpent(cat);
           return { ...cat, balance: Math.max(0, (cat.balance || 0) - spent) };
         });
 
@@ -1610,6 +1618,12 @@ window.submitExpense = function () {
   currentExpenses[catId] = parseInt(currentExpenses[catId]) + amount;
 
   const cat = categories.find((c) => c.id == catId);
+  if (cat && cat.name) {
+    const nameTrim = cat.name.trim();
+    const nameLower = nameTrim.toLowerCase();
+    currentExpenses[nameTrim] = (parseInt(currentExpenses[nameTrim]) || 0) + amount;
+    currentExpenses[nameLower] = (parseInt(currentExpenses[nameLower]) || 0) + amount;
+  }
   if (cat && cat.name.toLowerCase().includes("projet")) {
     projectCapital = Math.max(0, projectCapital - amount);
     addVaultTransaction("out", amount, note);
@@ -1825,7 +1839,7 @@ function generateFinancialReport() {
   let savingSacrificed = false;
 
   categories.forEach((cat) => {
-    const spent = currentExpenses[cat.id] || 0;
+    const spent = getCategorySpent(cat);
     const name = cat.name.toLowerCase();
     const isProjet = name.includes("projet");
     const planned = isProjet ? projectCapital : cat.balance || 0;
@@ -1889,7 +1903,7 @@ function generateFinancialReport() {
   const summary = categories
     .map(
       (c) =>
-        `${c.name}: ${currentExpenses[c.id] || 0} dépensés / ${c.name.toLowerCase().includes("projet") ? projectCapital : c.balance || 0} prévus`,
+        `${c.name}: ${getCategorySpent(c)} dépensés / ${c.name.toLowerCase().includes("projet") ? projectCapital : c.balance || 0} prévus`,
     )
     .join(", ");
 
@@ -2951,7 +2965,7 @@ window.submitNewCategory = function() {
   }
 
   const iconSvg = SVG_ICONS[iconKey] || SVG_ICONS.money;
-  const newId = Date.now(); // ID unique
+  const newId = Math.floor(Date.now() % 1000000000); // ID unique entier sécurisé pour MySQL INT
 
   // Ajouter la catégorie
   categories.push({
@@ -3913,7 +3927,7 @@ async function submitEndOfMonth() {
       // Remettre à 0 F pour le nouveau mois (retirer le reste)
       categories = categories.map(cat => {
         if (cat.id == item.id) {
-          const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+          const spent = getCategorySpent(cat);
           return { ...cat, balance: (cat.balance || 0) - spent - item.leftover };
         }
         return cat;
@@ -3939,7 +3953,7 @@ async function submitEndOfMonth() {
       // Reporter le solde
       categories = categories.map(cat => {
         if (cat.id == item.id) {
-          const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+          const spent = getCategorySpent(cat);
           return { ...cat, balance: (cat.balance || 0) - spent };
         }
         return cat;
@@ -3955,7 +3969,7 @@ async function submitEndOfMonth() {
     const isProjet = cat.name.toLowerCase().includes("projet");
     if (isProjet) return cat;
 
-    const spent = typeof currentExpenses !== "undefined" && currentExpenses[cat.id] ? parseInt(currentExpenses[cat.id]) : 0;
+    const spent = getCategorySpent(cat);
     return { ...cat, balance: Math.max(0, (cat.balance || 0) - spent) };
   });
 

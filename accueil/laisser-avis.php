@@ -58,7 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 /* Génération token CSRF */
-if (session_status() === PHP_SESSION_NONE) 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 if (empty($_SESSION['csrf'])) {
     $_SESSION['csrf'] = bin2hex(random_bytes(32));
 }
@@ -429,7 +431,7 @@ $csrf = $_SESSION['csrf'];
             <?php endif; ?>
 
             <form method="POST" action="laisser-avis.php" id="avis-form" novalidate>
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf ?? '') ?>">
 
                 <!-- Honeypot anti-bot -->
                 <div class="hp" aria-hidden="true">

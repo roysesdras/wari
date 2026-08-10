@@ -1147,28 +1147,50 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             }
         }
 
-        // 2. RÉCUPÉRER LES DÉPENSES DU MOIS ACTUEL (MARS 2026) POUR CHAQUE WALLET
+        // 2. RÉCUPÉRER LES DÉPENSES DU MOIS ACTUEL POUR CHAQUE WALLET
         $stmtExpPerso = $pdo->prepare("
-            SELECT category_id, SUM(amount) as total 
+            SELECT category_id, category_name, SUM(amount) as total 
             FROM wari_expenses 
             WHERE user_id = ? AND wallet_type = 'perso'
             AND MONTH(date_expense) = MONTH(CURRENT_DATE()) 
             AND YEAR(date_expense) = YEAR(CURRENT_DATE())
-            GROUP BY category_id
+            GROUP BY category_id, category_name
         ");
         $stmtExpPerso->execute([$userId]);
-        $expensesPerso = $stmtExpPerso->fetchAll(PDO::FETCH_KEY_PAIR);
+        $expensesPerso = [];
+        foreach ($stmtExpPerso->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $tot = (int)$row['total'];
+            if (!empty($row['category_id'])) {
+                $expensesPerso[(string)$row['category_id']] = ($expensesPerso[(string)$row['category_id']] ?? 0) + $tot;
+            }
+            if (!empty($row['category_name'])) {
+                $cName = trim($row['category_name']);
+                $expensesPerso[$cName] = ($expensesPerso[$cName] ?? 0) + $tot;
+                $expensesPerso[mb_strtolower($cName, 'UTF-8')] = ($expensesPerso[mb_strtolower($cName, 'UTF-8')] ?? 0) + $tot;
+            }
+        }
 
         $stmtExpPro = $pdo->prepare("
-            SELECT category_id, SUM(amount) as total 
+            SELECT category_id, category_name, SUM(amount) as total 
             FROM wari_expenses 
             WHERE user_id = ? AND wallet_type = 'pro'
             AND MONTH(date_expense) = MONTH(CURRENT_DATE()) 
             AND YEAR(date_expense) = YEAR(CURRENT_DATE())
-            GROUP BY category_id
+            GROUP BY category_id, category_name
         ");
         $stmtExpPro->execute([$userId]);
-        $expensesPro = $stmtExpPro->fetchAll(PDO::FETCH_KEY_PAIR);
+        $expensesPro = [];
+        foreach ($stmtExpPro->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $tot = (int)$row['total'];
+            if (!empty($row['category_id'])) {
+                $expensesPro[(string)$row['category_id']] = ($expensesPro[(string)$row['category_id']] ?? 0) + $tot;
+            }
+            if (!empty($row['category_name'])) {
+                $cName = trim($row['category_name']);
+                $expensesPro[$cName] = ($expensesPro[$cName] ?? 0) + $tot;
+                $expensesPro[mb_strtolower($cName, 'UTF-8')] = ($expensesPro[mb_strtolower($cName, 'UTF-8')] ?? 0) + $tot;
+            }
+        }
 
         // 3. Récupérer les dettes
         $stmtDebts = $pdo->prepare("
@@ -1967,7 +1989,7 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
         </div>
     </div>
 
-    <script src="./assets/main.js?v=138"></script>
+    <script src="./assets/main.js?v=141"></script>
     <script>
         // Logique Onboarding
         document.addEventListener('DOMContentLoaded', () => {
