@@ -6,6 +6,8 @@
  * Ce fichier doit être inclus au début de TOUS les fichiers PHP de l'application
  */
 
+require_once __DIR__ . '/config/security_headers.php';
+
 // ============================================
 // CONFIGURATION - VOS CLÉS (déjà configurées)
 // ============================================

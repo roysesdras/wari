@@ -560,6 +560,25 @@ if ($_SESSION['is_admin'] ?? false) {
             --orange: #ED8936;
         }
 
+        @keyframes livePulse {
+            0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
+            70% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 5px rgba(72, 187, 120, 0); }
+            100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
+        }
+
+        .live-dot-active {
+            width: 7px;
+            height: 7px;
+            background: #48BB78;
+            border-radius: 50%;
+            display: inline-block;
+            animation: livePulse 2s infinite;
+        }
+
+        .btn-refresh-spin {
+            transition: transform 0.4s ease-in-out;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -1530,6 +1549,12 @@ if ($_SESSION['is_admin'] ?? false) {
                     <span class="topbar-logo">WARI</span>
                     <span class="topbar-badge">Admin Console</span>
                     <span style="font-size:10px;color:var(--muted);padding:4px 10px;border:1px solid var(--border);border-radius:4px;">🔒 Sécurisé</span>
+                    <div id="liveStatusBadge" onclick="manualRefresh()" style="font-size:10px;background:var(--green-dim);color:var(--green);border:1px solid rgba(72,187,120,0.3);padding:4px 10px;border-radius:6px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;" title="Cliquez pour synchroniser manuellement">
+                        <span class="live-dot-active"></span>
+                        <span style="font-weight:700;letter-spacing:0.5px;">EN DIRECT</span>
+                        <span id="liveClock" style="font-weight:700;font-size:10px;color:#fff;background:rgba(0,0,0,0.25);padding:2px 6px;border-radius:4px;letter-spacing:0.5px;">--:--:--</span>
+                        <span id="refreshIcon" class="btn-refresh-spin" style="margin-left:2px;">🔄</span>
+                    </div>
                 </div>
                 <div class="topbar-right">
                     <div style="background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);padding:4px 12px;border-radius:8px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px;">
@@ -1918,8 +1943,8 @@ if ($_SESSION['is_admin'] ?? false) {
             }
         }
 
-        async function refreshStats() {
-            showToast('↻ Intelligence...', 'info');
+        async function refreshStats(silent = false) {
+            if (!silent) showToast('↻ Intelligence...', 'info');
             try {
                 const res = await fetch(`${BASE}?action=get_stats&csrf_token=${encodeURIComponent(CSRF_TOKEN)}`);
                 const data = await res.json();
@@ -1927,9 +1952,9 @@ if ($_SESSION['is_admin'] ?? false) {
                     const s = data.stats;
                     
                     // Stats classiques
-                    document.getElementById('stat-users').innerText = s.total_users;
-                    document.getElementById('stat-today').innerText = s.active_today;
-                    document.getElementById('stat-push').innerText = s.push_subscribers || '0';
+                    if (document.getElementById('stat-users')) document.getElementById('stat-users').innerText = s.total_users;
+                    if (document.getElementById('stat-today')) document.getElementById('stat-today').innerText = s.active_today;
+                    if (document.getElementById('stat-push')) document.getElementById('stat-push').innerText = s.push_subscribers || '0';
                     
                     // Nouveaux KPIs (Intelligence)
                     if(document.getElementById('stat-new-14j')) document.getElementById('stat-new-14j').innerText = s.new_14j;
@@ -1945,10 +1970,10 @@ if ($_SESSION['is_admin'] ?? false) {
                     // Rendu de tous les graphiques
                     renderCharts(s.hist_users, s.hist_sales, s.hist_connections, s.hist_academy);
 
-                    showToast('✅ Dashboards synchronisés', 'success');
+                    if (!silent) showToast('✅ Dashboards synchronisés', 'success');
                 }
             } catch (e) {
-                showToast('❌ Erreur intelligence', 'error');
+                if (!silent) showToast('❌ Erreur intelligence', 'error');
             }
         }
 
@@ -1966,6 +1991,7 @@ if ($_SESSION['is_admin'] ?? false) {
             const commonOptions = {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: false,
                 plugins: { legend: { display: false } },
                 scales: {
                     y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: 'rgba(255,255,255,0.2)', font: { size: 9 } } },
@@ -1974,48 +2000,64 @@ if ($_SESSION['is_admin'] ?? false) {
             };
 
             // 1. Inscriptions
-            if (chartUsers) chartUsers.destroy();
-            chartUsers = new Chart(ctxUsers, {
-                type: 'line',
-                data: {
-                    labels: histUsers.map(d => d.day.split('-')[2]),
-                    datasets: [{ data: histUsers.map(d => d.count), borderColor: '#63B3ED', backgroundColor: 'rgba(99, 179, 237, 0.05)', fill: true, tension: 0.4 }]
-                },
-                options: commonOptions
-            });
+            const uLabels = histUsers.map(d => d.day.split('-')[2]);
+            const uData = histUsers.map(d => d.count);
+            if (chartUsers) {
+                chartUsers.data.labels = uLabels;
+                chartUsers.data.datasets[0].data = uData;
+                chartUsers.update('none');
+            } else {
+                chartUsers = new Chart(ctxUsers, {
+                    type: 'line',
+                    data: { labels: uLabels, datasets: [{ data: uData, borderColor: '#63B3ED', backgroundColor: 'rgba(99, 179, 237, 0.05)', fill: true, tension: 0.4 }] },
+                    options: commonOptions
+                });
+            }
 
             // 2. Ventes
-            if (chartSales) chartSales.destroy();
-            chartSales = new Chart(ctxSales, {
-                type: 'bar',
-                data: {
-                    labels: histSales.map(d => d.day.split('-')[2]),
-                    datasets: [{ data: histSales.map(d => d.total), backgroundColor: '#F5A623', borderRadius: 4 }]
-                },
-                options: commonOptions
-            });
+            const sLabels = histSales.map(d => d.day.split('-')[2]);
+            const sData = histSales.map(d => d.total);
+            if (chartSales) {
+                chartSales.data.labels = sLabels;
+                chartSales.data.datasets[0].data = sData;
+                chartSales.update('none');
+            } else {
+                chartSales = new Chart(ctxSales, {
+                    type: 'bar',
+                    data: { labels: sLabels, datasets: [{ data: sData, backgroundColor: '#F5A623', borderRadius: 4 }] },
+                    options: commonOptions
+                });
+            }
 
             // 3. Connexions
-            if (chartConn) chartConn.destroy();
-            chartConn = new Chart(ctxConn, {
-                type: 'line',
-                data: {
-                    labels: histConn.map(d => d.day.split('-')[2]),
-                    datasets: [{ data: histConn.map(d => d.count), borderColor: '#48BB78', backgroundColor: 'rgba(72, 187, 120, 0.05)', fill: true, tension: 0.4 }]
-                },
-                options: commonOptions
-            });
+            const cLabels = histConn.map(d => d.day.split('-')[2]);
+            const cData = histConn.map(d => d.count);
+            if (chartConn) {
+                chartConn.data.labels = cLabels;
+                chartConn.data.datasets[0].data = cData;
+                chartConn.update('none');
+            } else {
+                chartConn = new Chart(ctxConn, {
+                    type: 'line',
+                    data: { labels: cLabels, datasets: [{ data: cData, borderColor: '#48BB78', backgroundColor: 'rgba(72, 187, 120, 0.05)', fill: true, tension: 0.4 }] },
+                    options: commonOptions
+                });
+            }
 
             // 4. Academy
-            if (chartAcademy) chartAcademy.destroy();
-            chartAcademy = new Chart(ctxAcademy, {
-                type: 'bar',
-                data: {
-                    labels: histAcademy.map(d => d.day.split('-')[2]),
-                    datasets: [{ data: histAcademy.map(d => d.count), backgroundColor: '#9F7AEA', borderRadius: 4 }]
-                },
-                options: commonOptions
-            });
+            const aLabels = histAcademy.map(d => d.day.split('-')[2]);
+            const aData = histAcademy.map(d => d.count);
+            if (chartAcademy) {
+                chartAcademy.data.labels = aLabels;
+                chartAcademy.data.datasets[0].data = aData;
+                chartAcademy.update('none');
+            } else {
+                chartAcademy = new Chart(ctxAcademy, {
+                    type: 'bar',
+                    data: { labels: aLabels, datasets: [{ data: aData, backgroundColor: '#9F7AEA', borderRadius: 4 }] },
+                    options: commonOptions
+                });
+            }
         }
 
         // --- TOGGLES UI ---
@@ -2193,12 +2235,18 @@ if ($_SESSION['is_admin'] ?? false) {
                         `;
                     });
                     
-                    carousel.innerHTML = html;
+                    if (carousel.innerHTML !== html) {
+                        const scrollLeft = carousel.scrollLeft;
+                        carousel.innerHTML = html;
+                        carousel.scrollLeft = scrollLeft;
+                    }
                 } else {
-                    carousel.innerHTML = `<div style="font-size:11px;color:var(--red);padding:20px;">Erreur : ${escapeHtml(data.msg || 'Inconnue')}</div>`;
+                    const errHtml = `<div style="font-size:11px;color:var(--red);padding:20px;">Erreur : ${escapeHtml(data.msg || 'Inconnue')}</div>`;
+                    if (carousel.innerHTML !== errHtml) carousel.innerHTML = errHtml;
                 }
             } catch (e) {
-                carousel.innerHTML = '<div style="font-size:11px;color:var(--red);padding:20px;">Impossible de charger les défis.</div>';
+                const failHtml = '<div style="font-size:11px;color:var(--red);padding:20px;">Impossible de charger les défis.</div>';
+                if (carousel.innerHTML !== failHtml) carousel.innerHTML = failHtml;
             }
         }
 
@@ -2274,7 +2322,12 @@ if ($_SESSION['is_admin'] ?? false) {
                         });
                     }
 
-                    monitor.innerHTML = html || '<div style="text-align:center;padding:20px;">Aucune activité récente.</div>';
+                    const targetHtml = html || '<div style="text-align:center;padding:20px;">Aucune activité récente.</div>';
+                    if (monitor && monitor.innerHTML !== targetHtml) {
+                        const scrollTop = monitor.scrollTop;
+                        monitor.innerHTML = targetHtml;
+                        monitor.scrollTop = scrollTop;
+                    }
                 }
             } catch (e) {
                 console.error("Monitor error", e);
@@ -2303,29 +2356,39 @@ if ($_SESSION['is_admin'] ?? false) {
                 const res = await fetch(`${BASE}?action=get_licences&csrf_token=${encodeURIComponent(CSRF_TOKEN)}`);
                 const data = await res.json();
                 const grid = document.getElementById('licencesGrid');
+                if (!grid) return;
+                
+                let targetHtml = '';
                 if (!data.licences || data.licences.length === 0) {
-                    grid.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:20px;">Aucune licence.</div>';
-                    return;
-                }
-                grid.innerHTML = data.licences.map(l => {
-                    let expText = '—';
-                    if (l.date_expiration) {
-                        const d = new Date(l.date_expiration);
-                        expText = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
-                    }
-                    return `
-                        <div class="licence-card">
-                            <div>
-                                <div class="licence-code">${l.commande_id}</div>
-                                <div class="licence-email">${l.email || '—'}</div>
-                                <div class="licence-email" style="font-size: 8.5px; opacity: 0.7; margin-top: 1px;">Exp: ${expText}</div>
+                    targetHtml = '<div style="font-size:11px;color:var(--muted);padding:20px;">Aucune licence.</div>';
+                } else {
+                    targetHtml = data.licences.map(l => {
+                        let expText = '—';
+                        if (l.date_expiration) {
+                            const d = new Date(l.date_expiration);
+                            expText = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+                        }
+                        return `
+                            <div class="licence-card">
+                                <div>
+                                    <div class="licence-code">${l.commande_id}</div>
+                                    <div class="licence-email">${l.email || '—'}</div>
+                                    <div class="licence-email" style="font-size: 8.5px; opacity: 0.7; margin-top: 1px;">Exp: ${expText}</div>
+                                </div>
+                                <span class="lic-status lic-${l.statut}">${l.statut}</span>
                             </div>
-                            <span class="lic-status lic-${l.statut}">${l.statut}</span>
-                        </div>
-                    `;
-                }).join('');
+                        `;
+                    }).join('');
+                }
+                
+                if (grid.innerHTML !== targetHtml) {
+                    grid.innerHTML = targetHtml;
+                }
             } catch (e) {
-                document.getElementById('licencesGrid').innerHTML = '<div style="font-size:11px;color:var(--muted);padding:20px;">Erreur.</div>';
+                const grid = document.getElementById('licencesGrid');
+                if (grid && grid.innerHTML !== '<div style="font-size:11px;color:var(--muted);padding:20px;">Erreur.</div>') {
+                    grid.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:20px;">Erreur.</div>';
+                }
             }
         }
 
@@ -2579,11 +2642,75 @@ if ($_SESSION['is_admin'] ?? false) {
             document.getElementById('detailModal').classList.remove('show');
         }
 
-        // INIT
-        refreshStats();
-        loadLicences();
-        fetchMonitoring();
-        setInterval(fetchMonitoring, 30000); // Poll every 30s
+        // 🕒 HORLOGE EN TEMPS RÉEL (Décompte actif des secondes chaque seconde)
+        function updateLiveClock() {
+            const clockEl = document.getElementById('liveClock');
+            if (clockEl) {
+                const now = new Date();
+                clockEl.textContent = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+        }
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
+
+        // 🚀 RESSYNCHRONISATION EN DIRECT & POLLING FLUIDE (DESKTOP APP LINUX & PWA)
+        let isRefreshing = false;
+        async function autoRefreshAll(silent = true) {
+            if (isRefreshing) return;
+            isRefreshing = true;
+            
+            const icon = document.getElementById('refreshIcon');
+            if (icon && !silent) icon.style.transform = 'rotate(180deg)';
+            
+            // Conserver la position exacte du défilement de la page
+            const savedScrollY = window.scrollY;
+
+            try {
+                await Promise.allSettled([
+                    typeof refreshStats === 'function' ? refreshStats(silent) : Promise.resolve(),
+                    typeof loadLicences === 'function' ? loadLicences() : Promise.resolve(),
+                    typeof fetchMonitoring === 'function' ? fetchMonitoring() : Promise.resolve(),
+                    typeof loadChallenges === 'function' ? loadChallenges() : Promise.resolve()
+                ]);
+
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const badge = document.getElementById('liveStatusBadge');
+                if (badge) badge.title = `Données synchronisées à ${timeStr}. Cliquez pour synchroniser manuellement.`;
+            } catch (e) {
+                console.warn('Live refresh warning:', e);
+            } finally {
+                isRefreshing = false;
+                if (icon && !silent) setTimeout(() => icon.style.transform = 'rotate(0deg)', 400);
+                // Restaurer scrupuleusement la position de défilement de l'utilisateur
+                if (window.scrollY !== savedScrollY) {
+                    window.scrollTo(0, savedScrollY);
+                }
+            }
+        }
+
+        window.manualRefresh = function() {
+            showToast('↻ Resynchronisation en direct...', 'info');
+            autoRefreshAll(false);
+        };
+
+        // 🚀 INITIALISATION AUTOMATIQUE ET POLLING SILENCIEUX (TOUTES LES 30 SECONDES)
+        autoRefreshAll(true);
+        setInterval(() => autoRefreshAll(true), 30000);
+
+        // 🔄 Rafraîchissement automatique quand la fenêtre/onglet Linux reprend le focus
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                autoRefreshAll(true);
+            }
+        });
+        window.addEventListener('focus', () => autoRefreshAll(true));
+
+        // 🌐 Reconnexion réseau automatique
+        window.addEventListener('online', () => {
+            showToast('🌐 Réseau rétabli. Resynchronisation...', 'success');
+            autoRefreshAll(true);
+        });
     </script>
     <script>
         // 🔍 BARRE DE RECHERCHE & FILTRES
