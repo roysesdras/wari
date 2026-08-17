@@ -1716,17 +1716,17 @@ if ($_SESSION['is_admin'] ?? false) {
                         $lastSeenStr = $lastSeen ? $lastSeen->format('d/m/y H:i') : 'Jamais';
                         $isSuspended = ($user['licence_statut'] ?? '') === 'suspendu';
 
+                        $expDate = !empty($user['fin_souscription']) ? new DateTime($user['fin_souscription']) : null;
+                        $subDate = !empty($user['date_paiement']) ? new DateTime($user['date_paiement']) : (!empty($user['date_souscription']) ? new DateTime($user['date_souscription']) : null);
+                        $now = new DateTime();
+                        $hasLicenceCode = !empty($user['commande_id']);
+                        $isPremiumActive = $expDate && $expDate >= $now && ($hasPaidFeda || $hasLicenceCode);
+                        $isExpired = $expDate && $expDate < $now && ($hasPaidFeda || $hasLicenceCode);
+
                         // Déterminer le type de licence pour le filtrage
                         $licenceType = 'free';
-                        $hasPaidFeda = intval($user['has_fedapay_payment'] ?? 0) > 0;
-                        if (!empty($user['commande_id']) && $hasPaidFeda) {
-                            $expDate = $user['fin_souscription'] ? new DateTime($user['fin_souscription']) : null;
-                            if ($expDate && $expDate < new DateTime()) {
-                                $licenceType = 'expired';
-                            } else {
-                                $licenceType = 'premium';
-                            }
-                        }
+                        if ($isPremiumActive) $licenceType = 'premium';
+                        elseif ($isExpired) $licenceType = 'expired';
                     ?>
                         <div <?= $isHidden ?> data-licence="<?= $licenceType ?>">
                             <div>
@@ -1734,25 +1734,44 @@ if ($_SESSION['is_admin'] ?? false) {
                                 <div class="user-id">#<?= $user['id'] ?></div>
                             </div>
                             <div>
-                                <?php if (!empty($user['commande_id']) && $hasPaidFeda): 
-                                    $subDate = $user['date_paiement'] ? new DateTime($user['date_paiement']) : ($user['date_souscription'] ? new DateTime($user['date_souscription']) : null);
-                                    $expDate = $user['fin_souscription'] ? new DateTime($user['fin_souscription']) : null;
-                                    $isExpired = $expDate && $expDate < new DateTime();
-                                    if ($isExpired): ?>
-                                        <span class="badge badge-suspended" style="font-size:9px;padding:2px 6px;">⚠️ EXPIREE</span>
-                                        <div style="font-size:9px;color:var(--muted);margin-top:2px;">Code: <?= htmlspecialchars($user['commande_id'], ENT_QUOTES, 'UTF-8') ?></div>
-                                        <div style="font-size:8.5px;color:var(--red);margin-top:1px;opacity:0.8;">Exp: <?= $expDate ? $expDate->format('d/m/y') : '—' ?></div>
-                                    <?php else: ?>
-                                        <span class="badge badge-active" style="font-size:9px;padding:2px 6px;background:rgba(245,166,35,0.12);color:var(--gold);">💎 PREMIUM</span>
-                                        <div style="font-size:9px;color:var(--muted);margin-top:2px;">Code: <?= htmlspecialchars($user['commande_id'], ENT_QUOTES, 'UTF-8') ?></div>
-                                        <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">
-                                            <?= $subDate ? $subDate->format('d/m/y') : '—' ?> ➔ <?= $expDate ? $expDate->format('d/m/y') : '—' ?>
-                                        </div>
-                                    <?php endif; ?>
+                                <?php if ($isPremiumActive): 
+                                    $diff = $now->diff($expDate);
+                                    $daysLeft = $diff->days;
+                                    $hoursLeft = $diff->h;
+                                ?>
+                                    <span class="badge" style="font-size:9.5px;padding:3px 8px;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+                                        <span class="live-dot-active" style="width:6px;height:6px;background:#10b981;border-radius:50%;"></span> 🟢 PREMIUM ACTIF
+                                    </span>
+                                    <div style="font-size:9.5px;color:var(--text);font-weight:700;margin-top:3px;">
+                                        Code : <span style="color:var(--gold);"><?= htmlspecialchars($user['commande_id'], ENT_QUOTES, 'UTF-8') ?></span>
+                                    </div>
+                                    <div style="font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3;">
+                                        📅 Du <strong><?= $subDate ? $subDate->format('d/m/Y à H:i') : '—' ?></strong><br>
+                                        🏁 Au <strong><?= $expDate ? $expDate->format('d/m/Y à H:i') : '—' ?></strong>
+                                    </div>
+                                    <div style="font-size:9px;color:#10b981;font-weight:700;margin-top:3px;background:rgba(16,185,129,0.1);padding:2px 6px;border-radius:4px;display:inline-block;">
+                                        ⏳ <?= $daysLeft ?>j <?= $hoursLeft ?>h restants
+                                    </div>
+                                <?php elseif ($isExpired): 
+                                    $diff = $expDate->diff($now);
+                                    $daysExpired = $diff->days;
+                                ?>
+                                    <span class="badge" style="font-size:9.5px;padding:3px 8px;background:rgba(234,67,53,0.12);color:#ea4335;border:1px solid rgba(234,67,53,0.3);font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+                                        <span style="width:6px;height:6px;background:#ea4335;border-radius:50%;"></span> 🔴 ABONNEMENT EXPIRÉ
+                                    </span>
+                                    <div style="font-size:9.5px;color:var(--muted);margin-top:3px;">
+                                        Code : <?= htmlspecialchars($user['commande_id'], ENT_QUOTES, 'UTF-8') ?>
+                                    </div>
+                                    <div style="font-size:9px;color:var(--red);opacity:0.9;margin-top:2px;">
+                                        Expiré le <?= $expDate ? $expDate->format('d/m/Y à H:i') : '—' ?>
+                                    </div>
+                                    <div style="font-size:8.5px;color:var(--red);opacity:0.8;margin-top:1px;">
+                                        ⚠️ Expiré il y a <?= $daysExpired === 0 ? "aujourd'hui" : ($daysExpired . "j") ?>
+                                    </div>
                                 <?php else: ?>
-                                    <span class="badge badge-inactive" style="font-size:9px;padding:2px 6px;">🎟️ GRATUIT</span>
+                                    <span class="badge badge-inactive" style="font-size:9.5px;padding:3px 8px;">🎟️ COMPTE GRATUIT</span>
                                     <?php if (!empty($user['commande_id'])): ?>
-                                        <div style="font-size:9px;color:var(--muted);margin-top:2px;">Offert: <?= htmlspecialchars($user['commande_id'], ENT_QUOTES, 'UTF-8') ?></div>
+                                        <div style="font-size:9px;color:var(--muted);margin-top:3px;">Code : <?= htmlspecialchars($user['commande_id'], ENT_QUOTES, 'UTF-8') ?></div>
                                     <?php endif; ?>
                                 <?php endif; ?>
                                 <div class="licence-code-display" style="display:none;"><?= htmlspecialchars($user['commande_id'] ?? '', ENT_QUOTES, 'UTF-8') ?></div>
@@ -2364,18 +2383,26 @@ if ($_SESSION['is_admin'] ?? false) {
                 } else {
                     targetHtml = data.licences.map(l => {
                         let expText = '—';
+                        let statusBadge = `<span class="lic-status lic-${l.statut}">${l.statut}</span>`;
+                        const now = new Date();
                         if (l.date_expiration) {
                             const d = new Date(l.date_expiration);
-                            expText = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+                            expText = d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+                            if (d >= now) {
+                                const diffDays = Math.floor((d - now) / (1000 * 60 * 60 * 24));
+                                statusBadge = `<span class="lic-status" style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;">🟢 ACTIF (${diffDays}j)</span>`;
+                            } else {
+                                statusBadge = `<span class="lic-status" style="background:rgba(234,67,53,0.12);color:#ea4335;border:1px solid rgba(234,67,53,0.3);font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700;">🔴 EXPIRÉ</span>`;
+                            }
                         }
                         return `
                             <div class="licence-card">
                                 <div>
                                     <div class="licence-code">${l.commande_id}</div>
                                     <div class="licence-email">${l.email || '—'}</div>
-                                    <div class="licence-email" style="font-size: 8.5px; opacity: 0.7; margin-top: 1px;">Exp: ${expText}</div>
+                                    <div class="licence-email" style="font-size: 8.5px; opacity: 0.8; margin-top: 2px; color:var(--muted);">Expiration : ${expText}</div>
                                 </div>
-                                <span class="lic-status lic-${l.statut}">${l.statut}</span>
+                                ${statusBadge}
                             </div>
                         `;
                     }).join('');
@@ -2522,34 +2549,57 @@ if ($_SESSION['is_admin'] ?? false) {
                     frequencyText = `${u.nb_distributions} répartitions (soit environ tous les ${freq} jours)`;
                 }
 
-                // HTML Licence & Abonnements
+                // HTML Licence & Abonnements (Haute précision)
                 let licenceHtml = '';
-                const hasPaidFeda = parseInt(u.has_fedapay_payment || 0) > 0;
-                if (u.commande_id && hasPaidFeda) {
-                    const subDateStr = u.date_paiement ? new Date(u.date_paiement).toLocaleDateString('fr-FR') : (u.date_souscription ? new Date(u.date_souscription).toLocaleDateString('fr-FR') : '—');
-                    const expDateStr = u.fin_souscription ? new Date(u.fin_souscription).toLocaleDateString('fr-FR') : '—';
-                    const expDate = u.fin_souscription ? new Date(u.fin_souscription) : null;
-                    const isExpired = expDate && expDate < new Date();
+                const expDate = u.fin_souscription ? new Date(u.fin_souscription) : null;
+                const now = new Date();
+                const isExpired = expDate && expDate < now;
+                const isPremiumActive = expDate && expDate >= now;
+                const hasLicenceCode = Boolean(u.commande_id);
+
+                if (hasLicenceCode && (isPremiumActive || isExpired || parseInt(u.has_fedapay_payment || 0) > 0)) {
+                    const subDateObj = u.date_paiement ? new Date(u.date_paiement) : (u.date_souscription ? new Date(u.date_souscription) : null);
+                    const subDateStr = subDateObj ? subDateObj.toLocaleDateString('fr-FR') + ' à ' + subDateObj.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) : '—';
+                    const expDateStr = expDate ? expDate.toLocaleDateString('fr-FR') + ' à ' + expDate.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'}) : '—';
+                    
+                    let timeInfo = '';
+                    if (isPremiumActive && expDate) {
+                        const diffMs = expDate - now;
+                        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                        const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        timeInfo = `<div style="margin-top:8px; background:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); padding:6px 10px; border-radius:8px; font-size:10.5px; font-weight:700; display:inline-block;">⏳ Compte à rebours : ${diffDays} jour${diffDays > 1 ? 's' : ''} et ${diffHours}h restants</div>`;
+                    } else if (isExpired && expDate) {
+                        const diffMs = now - expDate;
+                        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                        timeInfo = `<div style="margin-top:8px; background:rgba(234,67,53,0.12); color:#ea4335; border:1px solid rgba(234,67,53,0.3); padding:6px 10px; border-radius:8px; font-size:10.5px; font-weight:700; display:inline-block;">⚠️ Expiré depuis : ${diffDays === 0 ? "aujourd'hui" : diffDays + " jour" + (diffDays > 1 ? "s" : "")}</div>`;
+                    }
+
+                    const badgeStatus = isPremiumActive 
+                        ? `<span class="badge" style="font-size:9.5px;padding:3px 8px;background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);font-weight:700;"><span class="live-dot-active" style="display:inline-block;width:6px;height:6px;background:#10b981;border-radius:50%;margin-right:4px;"></span>🟢 PREMIUM ACTIF</span>`
+                        : `<span class="badge" style="font-size:9.5px;padding:3px 8px;background:rgba(234,67,53,0.12);color:#ea4335;border:1px solid rgba(234,67,53,0.3);font-weight:700;"><span style="display:inline-block;width:6px;height:6px;background:#ea4335;border-radius:50%;margin-right:4px;"></span>🔴 ABONNEMENT EXPIRÉ</span>`;
+
                     licenceHtml = `
-                        <div style="background:rgba(245,166,35,0.06); border:1px solid var(--gold-border); border-radius:12px; padding:12px; margin-bottom:16px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                                <span style="font-weight:800; color:var(--gold); font-size:11px;">💎 ABONNEMENT PREMIUM</span>
-                                <span class="badge ${isExpired ? 'badge-suspended' : 'badge-active'}" style="font-size:9px;text-transform:uppercase;">${isExpired ? 'Expiré' : 'Actif'}</span>
+                        <div style="background:rgba(245,166,35,0.06); border:1px solid var(--gold-border); border-radius:14px; padding:14px; margin-bottom:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <span style="font-weight:800; color:var(--gold); font-size:11px;">💎 ABONNEMENT WARI PREMIUM</span>
+                                ${badgeStatus}
                             </div>
-                            <div style="font-size:10px; color:var(--text); opacity:0.8; margin-bottom:2px;">
-                                Code Licence : <strong>${u.commande_id}</strong>
+                            <div style="font-size:11px; color:var(--text); font-weight:700; margin-bottom:6px;">
+                                Code Licence : <span style="color:var(--gold);">${escapeHtml(u.commande_id)}</span>
                             </div>
-                            <div style="font-size:10px; color:var(--muted);">
-                                Souscription : <strong>${subDateStr}</strong> · Fin : <strong>${expDateStr}</strong>
+                            <div style="font-size:10px; color:var(--muted); line-height:1.5;">
+                                📅 Activé le : <strong>${subDateStr}</strong><br>
+                                🏁 Expire le : <strong>${expDateStr}</strong>
                             </div>
+                            ${timeInfo}
                         </div>
                     `;
                 } else {
-                    const offrandeStr = u.commande_id ? `<br><span style="font-size:9.5px;color:var(--gold);">Licence offerte manuellement : <strong>${u.commande_id}</strong></span>` : '';
+                    const offrandeStr = u.commande_id ? `<br><span style="font-size:9.5px;color:var(--gold);">Licence rattachée : <strong>${escapeHtml(u.commande_id)}</strong></span>` : '';
                     licenceHtml = `
-                        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:16px;">
-                            <span style="font-weight:800; color:var(--muted); font-size:11px; display:block; margin-bottom:2px;">🎟️ VERSION GRATUITE</span>
-                            <span style="font-size:10px; color:var(--muted);">Aucune licence premium activée via FedaPay.${offrandeStr}</span>
+                        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:14px; padding:14px; margin-bottom:16px;">
+                            <span style="font-weight:800; color:var(--muted); font-size:11px; display:block; margin-bottom:2px;">🎟️ COMPTE GRATUIT</span>
+                            <span style="font-size:10px; color:var(--muted);">Aucun abonnement Premium actif sur ce compte.${offrandeStr}</span>
                         </div>
                     `;
                 }

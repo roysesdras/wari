@@ -57,15 +57,9 @@ if (isset($_SESSION['user_id'])) {
         $licence_statut = $userLicense['licence_statut'];
         $date_expiration = $userLicense['date_expiration'];
         
-        // SECURITE RENFORCEE : L'utilisateur a-t-il vraiment payé via FedaPay ?
-        $stmtPay = $pdo->prepare("SELECT id FROM wari_payments WHERE commande_id = ? AND reference_fedapay IS NOT NULL AND reference_fedapay != '' AND statut = 'approved' LIMIT 1");
-        $stmtPay->execute([$userLicense['commande_id']]);
-        if ($stmtPay->fetch()) {
-            $has_paid = true;
-        }
-
-        // Est premium si la licence est valide ET qu'il a payé
-        $_SESSION['is_premium'] = ($date_expiration !== null && strtotime($date_expiration) >= time() && $has_paid);
+        // L'utilisateur est Premium si sa licence est rattachée et non expirée (Clés administratives ou FedaPay)
+        $has_valid_licence = !empty($userLicense['commande_id']) && $licence_statut !== 'suspendu';
+        $_SESSION['is_premium'] = ($date_expiration !== null && strtotime($date_expiration) >= time() && $has_valid_licence);
 
         // Définir les contournements (bypass) pour éviter les redirections infinies
         $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
@@ -99,11 +93,11 @@ if (isset($_SESSION['user_id'])) {
             $isTransitionActive = (time() >= $transitionDate);
 
             if ($userEmail === 'info@rebonly.com' || $isTransitionActive) {
-                // L'accès est bloqué si la licence est absente, expirée OU non payée via FedaPay
+                // L'accès est bloqué si la licence est absente ou expirée
                 $isExpired = (
                     $date_expiration === null || 
                     strtotime($date_expiration) < time() ||
-                    !$has_paid
+                    !$has_valid_licence
                 );
                 
                 if ($isExpired) {

@@ -1275,100 +1275,132 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
     </script>
 
     <script>
-        // On attend que la page soit prête
+        // On attend que la page soit prête pour vérifier le statut du radar
         document.addEventListener('DOMContentLoaded', () => {
             const lastClosed = localStorage.getItem('wari_push_modal_closed');
-            const isDenied = Notification.permission === 'denied';
-            const isDefault = Notification.permission === 'default';
-
-            // 24 heures en millisecondes
             const twentyFourHours = 24 * 60 * 60 * 1000;
             const now = Date.now();
 
-            // On affiche si : 
-            // 1. Pas de permission accordée
-            // 2. ET (Jamais fermé OU fermé il y a plus de 24h)
-            if ((isDefault || isDenied) && (!lastClosed || (now - parseInt(lastClosed) > twentyFourHours))) {
-    setTimeout(showWariPushModal, 3000);
-}
+            const isGranted = ('Notification' in window) && Notification.permission === 'granted';
+            const hasClosedRecently = lastClosed && (now - parseInt(lastClosed) < twentyFourHours);
+
+            // On affiche automatiquement le modal d'activation du radar si :
+            // 1. Les notifications ne sont pas encore accordées (Granted)
+            // 2. ET l'utilisateur n'a pas fermé le modal dans les dernières 24h
+            if (!isGranted && !hasClosedRecently) {
+                setTimeout(showWariPushModal, 1500);
+            }
         });
 
         function showWariPushModal() {
-            if (document.getElementById('push-modal')) return; // Si le modal existe déjà, on ne fait rien
+            if (document.getElementById('push-modal')) return;
+
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+            let bodyContent = `
+                <h2 style="color:#fff; font-weight:900; letter-spacing:-0.5px; margin-bottom:12px; text-transform:uppercase; font-size:18px;">RADAR DÉSACTIVÉ 📡</h2>
+                <p style="color:#94a3b8; font-size:13px; line-height:1.6; margin-bottom:24px;">
+                    Champion·ne, ton système d'alerte radar est éteint. 
+                    Sans notifications, tu risques de louper des conseils financiers et d'excéder tes plafonds de budget.
+                </p>
+                <button id="activate-push" style="background:#f5a623; color:#000; border:none; padding:16px 24px; border-radius:15px; font-weight:900; cursor:pointer; width:100%; font-size:13px; text-transform:uppercase; box-shadow: 0 4px 20px rgba(245,166,35,0.3); transition: transform 0.2s;">
+                    ACTIVER MON RADAR D'ALERTE
+                </button>
+            `;
+
+            if (isIOS && !isStandalone) {
+                bodyContent = `
+                    <h2 style="color:#fff; font-weight:900; letter-spacing:-0.5px; margin-bottom:12px; text-transform:uppercase; font-size:18px;">ACTIVER LE RADAR SUR IPHONE 📱</h2>
+                    <p style="color:#94a3b8; font-size:12px; line-height:1.6; margin-bottom:20px; text-align:left;">
+                        Pour recevoir tes notifications de budget sur iPhone :<br><br>
+                        1. Appuie sur l'icône de partage <strong style="color:#f5a623;">📤 (Carré avec flèche)</strong> en bas de Safari.<br>
+                        2. Sélectionne <strong style="color:#f5a623;">'Sur l'écran d'accueil' 📲</strong>.<br>
+                        3. Ouvre <strong>Wari</strong> depuis ton écran d'accueil et clique sur <strong>Activer le Radar</strong> !
+                    </p>
+                    <button onclick="closeWariModal()" style="background:#f5a623; color:#000; border:none; padding:16px 24px; border-radius:15px; font-weight:900; cursor:pointer; width:100%; font-size:13px; text-transform:uppercase;">
+                        J'ai compris !
+                    </button>
+                `;
+            }
+
             const modalHtml = `
-                <div id="push-modal" style="position:fixed; inset:0; background:#080b10; z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(11px);">
-                    <div style="background:#0d1117; border:1px solid #f5a623; border-radius:30px; padding:40px; text-align:center; max-width:400px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-                        <h2 style="color:#fff; font-weight:900; letter-spacing:-1px; margin-bottom:11px; text-transform:uppercase;">RADAR DÉSACTIVÉ</h2>
-                        <p style="color:#556070; font-size:14px; line-height:1.6; margin-bottom:30px;">
-                            Champion&middot;ne, ton système d'alerte est éteint. 
-                            Sans tes notifications, tu navigues à vue et ton budget risque de déraper.
-                        </p>
-                        <button id="activate-push" style="background:#f5a623; color:#000; border:none; padding:18px 30px; border-radius:15px; font-weight:800; cursor:pointer; width:100%; font-size:14px; text-transform:uppercase; transition: transform 0.2s;">
-                            ACTIVER MON RADAR
-                        </button>
-                        <button onclick="closeWariModal()" style="background:transparent; border:none; margin-top:20px; color:#556070; font-size:11px; cursor:pointer; text-decoration:underline; text-transform:uppercase; letter-spacing:1px;">
-                            Je préfère rester dans le noir
-                        </button>
+                <div id="push-modal" style="position:fixed; inset:0; background:rgba(8,11,16,0.92); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(12px);">
+                    <div style="background:#0d1117; border:1.5px solid rgba(245,166,35,0.4); border-radius:28px; padding:32px 24px; text-align:center; max-width:380px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);">
+                        <div style="width:50px; height:50px; background:rgba(245,166,35,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; border:1px solid rgba(245,166,35,0.3);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        </div>
+                        ${bodyContent}
+                        ${!(isIOS && !isStandalone) ? `
+                        <button onclick="closeWariModal()" style="background:transparent; border:none; margin-top:16px; color:#64748b; font-size:11px; cursor:pointer; text-decoration:underline; text-transform:uppercase; letter-spacing:1px; display:block; width:100%;">
+                            Je préfère naviguer à vue
+                        </button>` : ''}
                     </div>
                 </div>`;
 
             document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-            document.getElementById('activate-push').addEventListener('click', function() {
-                subscribeUserToPush(true); // Manuel
-                document.getElementById('push-modal').remove();
-            });
+            const btn = document.getElementById('activate-push');
+            if (btn) {
+                btn.addEventListener('click', async function() {
+                    document.getElementById('push-modal').remove();
+                    await subscribeUserToPush(true);
+                });
+            }
         }
 
         function closeWariModal() {
-            // On cache le modal et on s'en souvient pour 24h pour ne pas être "lourd"
             localStorage.setItem('wari_push_modal_closed', Date.now());
-            document.getElementById('push-modal').remove();
+            const modal = document.getElementById('push-modal');
+            if (modal) modal.remove();
         }
 
-
         async function subscribeUserToPush(isManual = false) {
-            // Détection du mode PWA sur iOS (requis par Apple pour les pushs)
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            
             if (isIOS && !isStandalone) {
-                if (isManual) {
-                    alert("Pour activer le radar sur iPhone, vous devez d'abord ajouter l'application à votre écran d'accueil :\n1. Cliquez sur l'icône de partage (carré avec une flèche vers le haut).\n2. Sélectionnez 'Sur l'écran d'accueil'.\n3. Ouvrez Wari depuis votre écran d'accueil et réessayez.");
-                }
+                showNotificationHelp();
                 updateRadarUI('unsupported');
                 return;
             }
 
-            // 1. Vérifier si le navigateur supporte les notifications
             if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
                 console.warn('Push non supporté sur ce navigateur.');
                 updateRadarUI('unsupported');
                 if (isManual) {
-                    alert("Les notifications Push ne sont pas prises en charge par ce navigateur ou cette configuration.");
+                    alert("Les notifications Push ne sont pas prises en charge par ce navigateur.");
                 }
                 return;
             }
 
             try {
-                const registration = await navigator.serviceWorker.ready;
+                // Demande explicite de la permission de notification
+                if ('Notification' in window && Notification.permission === 'default') {
+                    const perm = await Notification.requestPermission();
+                    if (perm !== 'granted') {
+                        updateRadarUI('inactive');
+                        if (perm === 'denied') showNotificationHelp();
+                        return;
+                    }
+                }
 
-                // 2. Ta clé VAPID Publique (celle que tu as dans ton PHP)
+                const registration = await navigator.serviceWorker.ready;
                 const vapidPublicKey = 'BH9WpcuMhkSEOjnwf8KVZfDTv9Ps6nGaQ9RQ77e4D15ywgPmO7wNgTlldejjFjyWCp3PoBYareDXjlFBTdpzm40';
                 const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
 
-                // 3. Demander la souscription au navigateur
-                const subscription = await registration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: convertedVapidKey
-                });
+                let subscription = await registration.pushManager.getSubscription();
+                if (!subscription) {
+                    subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: convertedVapidKey
+                    });
+                }
 
-                // 4. Envoyer les données à ton serveur (save_subscription.php)
                 const response = await fetch('./config/save_subscription.php', {
                     method: 'POST',
                     body: JSON.stringify(subscription),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Content-Type': 'application/json' }
                 });
 
                 if (!response.ok) {
@@ -1377,17 +1409,19 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
 
                 console.log('✅ Radar activé avec succès !');
                 updateRadarUI('active');
+                if (isManual && typeof showToast === 'function') {
+                    showToast('📡 Radar activé avec succès !', 'success');
+                }
 
             } catch (error) {
                 console.error('❌ Erreur lors de la souscription :', error);
                 updateRadarUI('inactive');
 
                 if (isManual) {
-                    // On vérifie si c'est un refus de permission
-                    if (Notification.permission === 'denied') {
-                        showNotificationHelp(); // On appelle notre nouveau guide
+                    if ('Notification' in window && Notification.permission === 'denied') {
+                        showNotificationHelp();
                     } else {
-                        alert("Oups ! Une petite erreur technique : " + error.message + "\nRéessaie dans un instant, Champion.");
+                        alert("Impossible d'activer le radar : " + error.message);
                     }
                 }
             }
@@ -1399,35 +1433,40 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             const container = document.getElementById('radarStatusContainer');
             if (!dot || !text) return;
 
-            if (status === 'active' || Notification.permission === 'granted') {
-                // On vérifie quand même si on a une souscription réelle si possible
-                // Mais pour l'UI, permission granted + call success = actif
+            const isGranted = ('Notification' in window) && Notification.permission === 'granted';
+
+            if (status === 'active' || isGranted) {
                 dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse";
                 text.innerText = "Radar ON";
                 text.className = "text-[7px] font-black uppercase tracking-widest text-emerald-400";
-                container.onclick = null; // Désactiver le clic si déjà actif
-                container.style.cursor = 'default';
+                if (container) {
+                    container.onclick = null;
+                    container.style.cursor = 'default';
+                }
             } else if (status === 'unsupported') {
                 dot.className = "w-1.5 h-1.5 rounded-full bg-red-500/30";
                 text.innerText = "Radar HS";
                 text.className = "text-[7px] font-black uppercase tracking-widest text-slate-600";
+                if (container) {
+                    container.onclick = () => subscribeUserToPush(true);
+                    container.style.cursor = 'pointer';
+                }
             } else {
                 dot.className = "w-1.5 h-1.5 rounded-full bg-slate-600";
                 text.innerText = "Radar OFF";
                 text.className = "text-[7px] font-black uppercase tracking-widest text-slate-500";
-                container.onclick = () => subscribeUserToPush(true);
-                container.style.cursor = 'pointer';
+                if (container) {
+                    container.onclick = () => subscribeUserToPush(true);
+                    container.style.cursor = 'pointer';
+                }
             }
         }
 
-        // Vérification initiale du statut
-        if ('Notification' in window) {
-            if (Notification.permission === 'granted') {
-                setTimeout(() => updateRadarUI('active'), 1000);
-            }
+        // Vérification initiale du statut du radar
+        if ('Notification' in window && Notification.permission === 'granted') {
+            setTimeout(() => updateRadarUI('active'), 800);
         }
 
-        // Fonction utilitaire indispensable pour VAPID
         function urlBase64ToUint8Array(base64String) {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
             const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
@@ -1439,21 +1478,35 @@ $unreadVecuCount = $vecu->getUnreadCount($_SESSION['user_id']);
             return outputArray;
         }
 
-
         function showNotificationHelp() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+            let instructions = `
+                <strong>Sur Android :</strong> Reste appuyé sur l'icône Wari > Infos > Notifications > Autoriser.<br><br>
+                <strong>Sur iPhone (PWA) :</strong> Réglages iPhone > Notifications > Wari > Autoriser.
+            `;
+
+            if (isIOS && !isStandalone) {
+                instructions = `
+                    <strong style="color:#f5a623;">Sur iPhone (Safari / Chrome) :</strong><br><br>
+                    1. Appuie sur l'icône de partage <strong>📤 (Carré avec flèche)</strong>.<br>
+                    2. Choisis <strong>'Sur l'écran d'accueil' 📲</strong>.<br>
+                    3. Ouvre Wari depuis ton écran d'accueil et active ton Radar !
+                `;
+            }
+
             const helpHtml = `
-                <div id="help-modal" style="position:fixed; inset:0; background:rgba(8,11,16,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(11px);">
-                    <div style="background:#0d1117; border:2px solid #f5a623; border-radius:30px; padding:30px; text-align:center; max-width:450px; box-shadow: 0 0 40px rgba(245,166,35,0.15);">
+                <div id="help-modal" style="position:fixed; inset:0; background:rgba(8,11,16,0.95); z-index:10000; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter: blur(12px);">
+                    <div style="background:#0d1117; border:2px solid #f5a623; border-radius:30px; padding:30px; text-align:center; max-width:420px; box-shadow: 0 0 40px rgba(245,166,35,0.15);">
                         <div style="margin-bottom:15px; display:flex; justify-content:center;">
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f5a623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                         </div>
-                        <h2 style="color:#fff; font-weight:900; margin-bottom:15px; text-transform:uppercase;">RÉGLAGES DU RADAR</h2>
-                        <p style="color:#94a3b8; font-size:13px; line-height:1.6; margin-bottom:25px; text-align:left;">
-                            Champion·ne, ton radar est bloqué par ton système. Pour l'activer :<br><br>
-                            <strong>Sur Android :</strong> Reste appuyé sur l'icône Wari > Infos > Notifications > Autoriser.<br><br>
-                            <strong>Sur iPhone :</strong> Réglages > Notifications > Wari > Autoriser.
-                        </p>
-                        <button onclick="document.getElementById('help-modal').remove()" style="background:#f5a623; color:#000; border:none; padding:18px; border-radius:15px; font-weight:900; cursor:pointer; width:100%; text-transform:uppercase;">J'ai compris !</button>
+                        <h2 style="color:#fff; font-weight:900; margin-bottom:15px; text-transform:uppercase; font-size:16px;">ACTIVATION DU RADAR</h2>
+                        <div style="color:#94a3b8; font-size:13px; line-height:1.6; margin-bottom:25px; text-align:left;">
+                            ${instructions}
+                        </div>
+                        <button onclick="document.getElementById('help-modal').remove()" style="background:#f5a623; color:#000; border:none; padding:16px; border-radius:15px; font-weight:900; cursor:pointer; width:100%; text-transform:uppercase;">J'AI COMPRIS !</button>
                     </div>
                 </div>`;
             document.body.insertAdjacentHTML('beforeend', helpHtml);

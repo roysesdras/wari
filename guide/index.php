@@ -19,10 +19,7 @@ if ($user_id) {
     $lic = $stmt->fetch();
     if ($lic) {
         $date_expiration = $lic['date_expiration'];
-        $stmtPay = $pdo->prepare("SELECT id FROM wari_payments WHERE commande_id = ? AND reference_fedapay IS NOT NULL AND reference_fedapay != '' AND statut = 'approved' LIMIT 1");
-        $stmtPay->execute([$lic['commande_id']]);
-        $has_paid = (bool)$stmtPay->fetch();
-        $is_premium = ($date_expiration !== null && strtotime($date_expiration) >= time() && $has_paid);
+        $is_premium = ($date_expiration !== null && strtotime($date_expiration) >= time() && ($lic['statut'] ?? '') !== 'suspendu');
     }
 }
 ?>
