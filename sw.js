@@ -1,4 +1,4 @@
-const cacheName = "wari-v141"; // Version 141 fix amount variable in add_expense
+const cacheName = "wari-v171"; // Version 141 fix amount variable in add_expense
 // Fichiers statiques et page de secours
 const assets = [
   "./manifest.json",
